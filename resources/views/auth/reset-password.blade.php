@@ -33,7 +33,7 @@
         </div>
 
         <div class="mt-4">
-            <x-primary-button class="w-full justify-center bg-teal-600 hover:bg-teal-500">
+            <x-primary-button class="w-full justify-center bg-teal-600 hover:bg-teal-500  dark:bg-teal-500 dark:hover:bg-teal-400">
                 {{ __('パスワードをリセット') }}
             </x-primary-button>
         </div>

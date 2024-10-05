@@ -1,7 +1,7 @@
 <x-guest-layout>
     <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">メールアドレスの確認</h2>
     <p class="text-sm text-gray-600 mb-4 text-center">
-        登録ありがとうございます！開始する前に、送信したメールのリンクをクリックしてメールアドレスを確認してください。メールが届かない場合は、喜んで再送信いたします。
+        登録ありがとうございます！開始する前に、送信したメールのリンクをクリックしてメールアドレスを確認してください。メールが届かない場合は再送信いたします。
     </p>
 
     @if (session('status') == 'verification-link-sent')

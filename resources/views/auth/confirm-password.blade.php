@@ -1,9 +1,7 @@
 <x-guest-layout>
-    <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">パスワードの確認</h2>
-    <p class="text-sm text-gray-600 mb-4 text-center">
-        アプリケーションの安全な領域です。続行する前にパスワードを確認してください。
-    </p>
-
+    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    {{ __('続行する前にパスワードを確認してください。') }}
+    </div>
     <form method="POST" action="{{ route('password.confirm') }}">
         @csrf
 
@@ -19,8 +17,8 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <div class="mt-4">
-            <x-primary-button class="w-full justify-center bg-teal-600 hover:bg-teal-500">
+        <div class="flex justify-end mt-4">
+            <x-primary-button>
                 {{ __('確認') }}
             </x-primary-button>
         </div>
