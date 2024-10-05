@@ -15,7 +15,7 @@
             @csrf
 
             <div>
-                <x-primary-button class="w-full justify-center bg-teal-600 hover:bg-teal-500">
+                <x-primary-button class="w-full justify-center">
                     {{ __('確認メールを再送信') }}
                 </x-primary-button>
             </div>
