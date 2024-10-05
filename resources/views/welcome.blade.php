@@ -10,8 +10,8 @@
         href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap">
 </head>
 
-<body class="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
-    <header class="flex justify-between items-center p-4 bg-white dark:bg-gray-900">
+<body class="min-h-screen bg-white dark:bg-[#212121] flex flex-col">
+    <header class="flex justify-between items-center p-4 bg-white dark:bg-[#212121]">
         <div class="flex items-center">
             <h1 class="text-2xl font-montserrat text-[#333333] dark:text-white mr-4">DebateMatch</h1>
             <a href="/service" class="text-sm text-[#333333] dark:text-gray-300">サービス紹介</a>
@@ -23,10 +23,16 @@
             ダッシュボード
         </a>
         @else
-        <a href="{{ route('register') }}"
-            class="px-4 py-2 border border-[#333333] dark:border-gray-500 text-[#333333] dark:text-gray-300 hover:bg-[#F5F5F5] dark:hover:bg-gray-700 text-base transition-colors duration-300">
-            ログイン/新規登録
-        </a>
+        <div class="space-x-2">
+            <a href="{{ route('register') }}"
+                class="px-4 py-2 bg-[#000010] dark:bg-[#ffffff] hover:bg-[#212121] dark:hover:bg-[#ececec] text-white text-base transition-colors duration-300 dark:text-[#000000] rounded-md">
+                ログイン
+            </a>
+            <a href="{{ route('login') }}"
+                class="px-4 py-2 border border-[#333333] dark:border-gray-500 text-[#333333] dark:text-gray-300 hover:bg-[#F5F5F5] dark:hover:bg-gray-700 text-base transition-colors duration-300">
+                アカウントを作成
+            </a>
+        </div>
         @endauth
         @endif
     </header>
@@ -96,7 +102,7 @@
         </section>
     </main>
 
-    <footer class="bg-gray-200 dark:bg-gray-800 py-8 px-4 text-center">
+    <footer class="bg-gray-200 dark:bg-[#181818] py-8 px-4 text-center">
         <p class="text-[12px] text-[#9E9E9E] dark:text-gray-500 mb-2">© 2024 DebateMatch. All rights reserved.</p>
         <a href="/privacy-policy" class="text-[12px] text-[#00796B] dark:text-teal-400 mr-4">プライバシーポリシー</a>
         <span class="text-[12px] text-[#333333] dark:text-gray-300">お問い合わせ: contact@debatematch.com</span>
