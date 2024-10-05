@@ -7,7 +7,7 @@
         <!-- Name -->
         <div>
             <x-input-label for="name" :value="__('ユーザーネーム')" />
-            <x-text-input id="name" class="block mt-1 w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            <x-text-input id="name" class="block mt-1 w-full"
                 type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2 dark:text-red-400" />
         </div>
@@ -15,7 +15,7 @@
         <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('メールアドレス')" />
-            <x-text-input id="email" class="block mt-1 w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            <x-text-input id="email" class="block mt-1 w-full"
                 type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2 dark:text-red-400" />
         </div>
@@ -25,7 +25,7 @@
             <x-input-label for="password" :value="__('パスワード')" />
 
             <x-text-input id="password"
-                class="block mt-1 w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200" type="password"
+                class="block mt-1 w-full" type="password"
                 name="password" required autocomplete="new-password" />
 
             <x-input-error :messages="$errors->get('password')" class="mt-2 dark:text-red-400" />
@@ -36,7 +36,7 @@
             <x-input-label for="password_confirmation" :value="__('パスワードの確認')" />
 
             <x-text-input id="password_confirmation"
-                class="block mt-1 w-full dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200" type="password"
+                class="block mt-1 w-full" type="password"
                 name="password_confirmation" required autocomplete="new-password" />
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 dark:text-red-400" />
