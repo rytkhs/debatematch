@@ -42,10 +42,12 @@
         </div>
 
         <div class="mt-6 text-center">
+            @if (Route::has('password.request'))
             <a href="{{ route('password.request') }}"
                 class="text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300">
                 {{ __('パスワードをお忘れですか?') }}
             </a>
+            @endif
         </div>
         @if(config('services.google.client_id') || config('services.twitter.client_id'))
 
