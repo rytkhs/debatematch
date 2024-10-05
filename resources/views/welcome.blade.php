@@ -1,38 +1,56 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DebateMatch</title>
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap">
 </head>
+
 <body class="min-h-screen bg-white flex flex-col">
     <header class="flex justify-between items-center p-4 bg-white">
         <div class="flex items-center">
             <h1 class="text-2xl font-montserrat text-[#333333] mr-4">DebateMatch</h1>
             <a href="/service" class="text-sm text-[#333333]">サービス紹介</a>
         </div>
-        <a href="/login" class="px-4 py-2 border border-[#333333] text-[#333333] hover:bg-[#F5F5F5] text-base transition-colors duration-300">
+        @if (Route::has('login'))
+        @auth
+        <a href="{{ url('/dashboard') }}"
+            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">
+            Dashboard
+        </a>
+        @else
+        <a href="{{ route('register') }}"
+            class="px-4 py-2 border border-[#333333] text-[#333333] hover:bg-[#F5F5F5] text-base transition-colors duration-300">
             ログイン/新規登録
         </a>
+        @endauth
+        @endif
     </header>
 
     <main class="flex-grow">
         <section class="text-center py-16 px-4">
             <h2 class="text-4xl md:text-[36px] font-montserrat text-[#212121] mb-4">ディベート仲間とつながろう</h2>
-            <p class="text-lg md:text-[18px] text-[#757575] font-open-sans mb-8">DebateMatchは、AIや他のユーザーとリアルタイムでディベートを楽しめるオンラインプラットフォームです。</p>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
-                <a href="/random-match" class="w-full h-[70px] bg-[#2ECC71] hover:bg-[#27AE60] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
+            <p class="text-lg md:text-[18px] text-[#757575] font-open-sans mb-8">
+                DebateMatchは、AIや他のユーザーとリアルタイムでディベートを楽しめるオンラインプラットフォームです。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
+                <a href="/random-match"
+                    class="w-full h-[70px] bg-[#2ECC71] hover:bg-[#27AE60] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
                     <i class="fas fa-random mr-2"></i> ランダムマッチング
                 </a>
-                <a href="/ai-practice" class="w-full h-[70px] bg-[#3498DB] hover:bg-[#2980B9] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
+                <a href="/ai-practice"
+                    class="w-full h-[70px] bg-[#3498DB] hover:bg-[#2980B9] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
                     <i class="fas fa-robot mr-2"></i> AIと練習
                 </a>
-                {{-- <a href="/create-room" class="w-full h-[70px] bg-[#E74C3C] hover:bg-[#C0392B] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
+                {{-- <a href="/create-room"
+                    class="w-full h-[70px] bg-[#E74C3C] hover:bg-[#C0392B] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
                     <i class="fas fa-plus-circle mr-2"></i> ルームを作成 --}}
                 </a>
-                {{-- <a href="/find-room" class="w-full h-[70px] bg-[#9B59B6] hover:bg-[#8E44AD] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
+                {{-- <a href="/find-room"
+                    class="w-full h-[70px] bg-[#9B59B6] hover:bg-[#8E44AD] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
                     <i class="fas fa-search mr-2"></i> ルームを探す --}}
                 </a>
             </div>
@@ -73,7 +91,8 @@
             <div class="max-w-2xl mx-auto">
                 <div class="mb-4">
                     <h3 class="text-[16px] text-[#00796B] cursor-pointer">DebateMatchはどのように利用できますか？</h3>
-                    <p class="text-[14px] text-[#424242] mt-2">DebateMatchは無料で登録でき、ブラウザから簡単にアクセスできます。登録後、すぐにディベートを始められます。</p>
+                    <p class="text-[14px] text-[#424242] mt-2">
+                        DebateMatchは無料で登録でき、ブラウザから簡単にアクセスできます。登録後、すぐにディベートを始められます。</p>
                 </div>
                 <div class="mb-4">
                     <h3 class="text-[16px] text-[#00796B] cursor-pointer">初心者でも参加できますか？</h3>
@@ -89,4 +108,5 @@
         <span class="text-[12px] text-[#333333]">お問い合わせ: contact@debatematch.com</span>
     </footer>
 </body>
+
 </html>
