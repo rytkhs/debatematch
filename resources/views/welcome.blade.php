@@ -74,6 +74,11 @@
                     <p class="text-[16px] text-[#424242] dark:text-gray-300 mb-2">AIと練習セッション</p>
                     <a href="/service-details" class="text-[14px] text-[#00796B] dark:text-teal-400">詳細はこちら</a>
                 </div>
+                {{-- <div class="w-full sm:w-1/2 md:w-1/3 p-4 text-center">
+                    <i class="fas fa-chart-line text-[48px] text-[#424242] mb-4"></i>
+                    <p class="text-[16px] text-[#424242] mb-2">ランキング</p>
+                    <a href="/service-details" class="text-[14px] text-[#00796B]">詳細はこちら</a>
+                </div> --}}
             </div>
         </section>
 
