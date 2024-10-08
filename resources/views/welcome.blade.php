@@ -24,11 +24,11 @@
         </a>
         @else
         <div class="space-x-2">
-            <a href="{{ route('register') }}"
+            <a href="{{ route('login') }}"
                 class="px-4 py-2 bg-[#000010] dark:bg-[#ffffff] hover:bg-[#212121] dark:hover:bg-[#ececec] text-white text-base transition-colors duration-300 dark:text-[#000000] rounded-md">
                 ログイン
             </a>
-            <a href="{{ route('login') }}"
+            <a href="{{ route('register') }}"
                 class="px-4 py-2 border border-[#333333] dark:border-gray-500 text-[#333333] dark:text-gray-300 hover:bg-[#F5F5F5] dark:hover:bg-gray-700 text-base transition-colors duration-300">
                 アカウントを作成
             </a>
