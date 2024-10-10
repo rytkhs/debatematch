@@ -51,7 +51,7 @@
                     class="w-full h-[70px] bg-[#3498DB] hover:bg-[#2980B9] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md dark:shadow-gray-800">
                     <i class="fas fa-robot mr-2"></i> AIと練習
                 </a>
-                            <a href="/create-room"
+                            <a href="/rooms/create"
                 class="w-full h-[70px] bg-[#E74C3C] hover:bg-[#C0392B] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
                 <i class="fas fa-plus-circle mr-2"></i> ルームを作成
             </a>
