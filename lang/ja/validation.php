@@ -147,8 +147,8 @@ return [
     */
 
     'attributes' => [
-        "roomName" => "ルーム名",
-        "theme" => "テーマ",
+        "name" => "ルーム名",
+        "topic" => "テーマ",
     ],
 
 ];
