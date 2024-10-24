@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name', 'Laravel') }}</title>
-    @vite('resources/css/app.css')
+    {{-- @vite('resources/css/app.css') --}}
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
 </head>
 <body class="bg-gray-100 font-open-sans text-[#333333]">
     <header class="w-full flex justify-between p-4 bg-white shadow-md">
