@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name', 'Laravel') }}</title>
-    @vite('resources/css/app.css')
+    {{-- @vite('resources/css/app.css') --}}
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
         href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap">
 </head>
@@ -55,7 +56,7 @@
                 class="w-full h-[70px] bg-[#E74C3C] hover:bg-[#C0392B] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
                 <i class="fas fa-plus-circle mr-2"></i> ルームを作成
             </a>
-            <a href="/find-room"
+            <a href="/rooms"
                 class="w-full h-[70px] bg-[#9B59B6] hover:bg-[#8E44AD] text-white font-montserrat text-[20px] rounded-[10px] transition-colors duration-300 flex items-center justify-center shadow-md">
                 <i class="fas fa-search mr-2"></i> ルームを探す</a>
             </div>
