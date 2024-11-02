@@ -52,17 +52,43 @@ class RoomController extends Controller
         ]);
     }
 
-    public function startDebate(Room $room)
+    public function startDebate()
     {
-        $room->update(['status' => 'debating']);
-        // ディベート開始処理を追加
-        return redirect()->route('debate.show', ['room' => $room]);
+        // 参加者が2名揃っているか確認
+        if ($this->room->users->count() !== 2) {
+            session()->flash('error', '参加者が2名揃っていません。');
+            return;
+        }
+
+        // すでにディベートが開始されているか確認
+        if ($this->room->status !== 'ready') {
+            session()->flash('error', 'ディベートはすでに開始されています。');
+            return;
+        }
+
+        // 肯定側と否定側のユーザーを取得
+        $affirmativeUser = $this->room->users->firstWhere('pivot.side', 'affirmative');
+        $negativeUser = $this->room->users->firstWhere('pivot.side', 'negative');
+
+        // ディベートレコードを作成
+        $debate = Debate::create([
+            'room_id' => $this->room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // ルームのステータスを更新
+        $this->room->update(['status' => 'debating']);
+
+        // ディベート中ページにリダイレクト
+        return redirect()->route('debate.show', ['room' => $this->room]);
     }
 
     public function exitRoom(Room $room)
     {
+        $room->users()->detach(auth()->user()->id); // この行を追加
         if (auth()->user()->id === $room->created_by) {
-            $room->users()->detach();
+            // $room->users()->detach();
             $room->delete();
         } else {
         }
