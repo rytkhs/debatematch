@@ -7,11 +7,12 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Room;
 
-class StatusUpdated implements ShouldBroadcast
+class StatusUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -35,6 +36,9 @@ class StatusUpdated implements ShouldBroadcast
     public function broadcastOn()
     {
         // return new PrivateChannel('rooms.' . $this->room->id);
-        return new Channel('rooms');
+        return
+        [
+            new Channel('rooms')
+        ];
     }
 }
