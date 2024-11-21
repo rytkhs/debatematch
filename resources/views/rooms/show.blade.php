@@ -23,10 +23,10 @@
                         @endforeach
                     </div>
                 </div>
-                @livewire('room-status', ['room' => $room, 'isCreator' => $isCreator])
+                @livewire('room-status', ['room' => $room])
 
             <div class="p-8 flex justify-between items-center bg-gray-50">
-                @if($isCreator && $room->users->count() === 2 && $room->status === 'waiting')
+                @if($isCreator && $room->users->count() === 2 && $room->status === 'ready')
                 <form action="{{ route('rooms.startDebate', $room) }}" method="POST">
                     @csrf
                     <button type="submit"

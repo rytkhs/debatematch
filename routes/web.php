@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\DebateController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,7 @@ Route::get('/rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')
 Route::post('/rooms/{room}/startDebate', [RoomController::class, 'startDebate'])->name('rooms.startDebate');
 Route::post('/rooms/{room}/exitRoom', [RoomController::class, 'exitRoom'])->name('rooms.exitRoom');
 Route::post('/rooms/{room}/joinRoom', [RoomController::class, 'joinRoom'])->name('rooms.joinRoom');
+Route::get('/debate/{debate}', [DebateController::class, 'show'])->name('debate.show');
 });
 
 

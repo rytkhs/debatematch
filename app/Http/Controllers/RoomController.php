@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\Debate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\RoomJoined;
 use App\Events\RoomUpdated;
 use App\Events\StatusUpdated;
-
+use Carbon\Carbon;
 
 
 class RoomController extends Controller
@@ -34,11 +35,11 @@ class RoomController extends Controller
         $room = Room::create([
             'name' => $validatedData['name'],
             'topic' => $validatedData['topic'],
-            'created_by' => Auth::id(), // 認証済みユーザーのIDを取得
+            'created_by' => Auth::id(),
         ]);
 
         // ルーム作成後、自動的にルームに参加させる
-        $room->users()->attach(Auth::id(), ['side' => 'affirmative']); // 作成者は肯定側
+        $room->users()->attach(Auth::id(), ['side' => 'affirmative']); // 作成者はいったん肯定側
 
         return redirect()->route('rooms.show', ['room' => $room]);
     }
@@ -54,32 +55,63 @@ class RoomController extends Controller
 
     public function startDebate(Room $room)
     {
+        // 参加者が2名揃っているか確認
+        if ($room->users->count() !== 2) {
+            session()->flash('error', '参加者が2名揃っていません。');
+            return;
+        }
+
+        // すでにディベートが開始されているか確認
+        if ($room->status !== 'ready') {
+            session()->flash('error', 'ディベートはすでに開始されています。');
+            return;
+        }
+
+        //ルームの作成者か確認
+        if (auth()->user()->id !== $room->created_by) {
+            return redirect()->route('rooms.show', $room);
+        }
+
+        // 肯定側と否定側のユーザーを取得
+        $affirmativeUser = $room->users->firstWhere('pivot.side', 'affirmative');
+        $negativeUser = $room->users->firstWhere('pivot.side', 'negative');
+
+        // ディベートレコードを作成
+        $debate = Debate::create([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $debate->startDebate();
+        // ルームのステータスを更新
         $room->update(['status' => 'debating']);
-        // ディベート開始処理を追加
-        return redirect()->route('debate.show', ['room' => $room]);
+
+         // dd($debate);
+
+        return redirect()->route('debate.show', $debate);
     }
 
     public function exitRoom(Room $room)
     {
+        $room->users()->detach(auth()->user()->id);
         if (auth()->user()->id === $room->created_by) {
-            $room->users()->detach();
             $room->delete();
-        } else {
-        }
+        } 
         return redirect()->route('rooms.index');
     }
 
     public function joinRoom(Request $request, Room $room)
     {
-        $side = $request->input('side'); // 参加する側 (肯定側 or 否定側)
+        $side = $request->input('side'); //肯定側 or 否定側
 
         if ($room->users->contains(auth()->user())) {
-            // すでに参加している場合はエラーメッセージを表示
+            // すでに参加しているか確認
             return redirect()->back()->with('error', 'すでにこのルームに参加しています。');
         }
 
         if ($room->users->count() >= 2) {
-            // 定員オーバーの場合はエラーメッセージを表示
+            // 定員オーバーか確認
             return redirect()->back()->with('error', 'このルームは定員に達しています。');
         }
 
