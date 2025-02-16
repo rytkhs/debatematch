@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('topic');
-            $table->enum('status', ['waiting', 'debating', 'finished'])->default('waiting');
+            $table->text('remarks')->nullable();
+            $table->enum('status', ['waiting', 'ready', 'debating', 'finished'])->default('waiting');
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
