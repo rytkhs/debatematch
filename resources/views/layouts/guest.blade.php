@@ -11,6 +11,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -22,17 +23,10 @@
             class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
             {{ $slot }}
 
-            <div class="mt-6 text-center text-sm text-gray-500">
-                <a href="{{ route('login') }}"
-                    class="text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300">
-                    {{ __('ログイン') }}
-                </a>
-                |
-                <a href="{{ route('register') }}"
-                    class="text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300">
-                    {{ __('アカウントを作成') }}
-                </a>
-            </div>
+            <p class="text-gray-500 text-s mt-4 text-center">
+                続行することで、以下に同意したものとみなされます
+                <a href="#" class="text-gray-500 underline">利用規約</a> | <a href="#" class="text-gray-500 underline">プライバシーポリシー</a>
+            </p>
         </div>
     </div>
 </body>
