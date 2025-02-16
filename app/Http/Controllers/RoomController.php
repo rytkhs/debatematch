@@ -53,51 +53,12 @@ class RoomController extends Controller
         ]);
     }
 
-    public function startDebate(Room $room)
-    {
-        // 参加者が2名揃っているか確認
-        if ($room->users->count() !== 2) {
-            session()->flash('error', '参加者が2名揃っていません。');
-            return;
-        }
-
-        // すでにディベートが開始されているか確認
-        if ($room->status !== 'ready') {
-            session()->flash('error', 'ディベートはすでに開始されています。');
-            return;
-        }
-
-        //ルームの作成者か確認
-        if (auth()->user()->id !== $room->created_by) {
-            return redirect()->route('rooms.show', $room);
-        }
-
-        // 肯定側と否定側のユーザーを取得
-        $affirmativeUser = $room->users->firstWhere('pivot.side', 'affirmative');
-        $negativeUser = $room->users->firstWhere('pivot.side', 'negative');
-
-        // ディベートレコードを作成
-        $debate = Debate::create([
-            'room_id' => $room->id,
-            'affirmative_user_id' => $affirmativeUser->id,
-            'negative_user_id' => $negativeUser->id,
-        ]);
-
-        $debate->startDebate();
-        // ルームのステータスを更新
-        $room->update(['status' => 'debating']);
-
-         // dd($debate);
-
-        return redirect()->route('debate.show', $debate);
-    }
-
     public function exitRoom(Room $room)
     {
         $room->users()->detach(auth()->user()->id);
         if (auth()->user()->id === $room->created_by) {
             $room->delete();
-        } 
+        }
         return redirect()->route('rooms.index');
     }
 
