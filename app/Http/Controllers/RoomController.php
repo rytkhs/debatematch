@@ -100,11 +100,11 @@ class RoomController extends Controller
         $room->refresh();
 
         // ホストに参加者が参加したことを通知
-        // broadcast(new UserJoinedRoom($room, Auth::user()))->toOthers();
+        broadcast(new UserJoinedRoom($room, Auth::user()))->toOthers();
         return redirect()->route('rooms.show', $room)->with('success', 'ルームに参加しました。');
     }
 
-    public function exit(Request $request, Room $room)
+    public function exit(Room $room)
     {
         // ユーザーが認証されていない場合は処理しない
         if (!auth()->check()) {
@@ -127,7 +127,7 @@ class RoomController extends Controller
             }
         $room->refresh();
 
-        // broadcast(new UserLeftRoom($room, Auth::user()))->toOthers();
+        broadcast(new UserLeftRoom($room, Auth::user()))->toOthers();
         // ルーム作成者が退出した場合、ルームを削除
         if (auth()->user()->id === $room->created_by) {
             $room->delete();
