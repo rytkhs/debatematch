@@ -38,47 +38,101 @@ class Debate extends Model
 
     // public function evaluations()
     // {
-    //     return $this->hasMany(DebateEvaluation::class);
+    //     return $this->hasOne(DebateEvaluation::class);
     // }
 
-    public static $turns = [
-        1 => ['name' => '肯定側立論', 'duration' => 362, 'speaker' => 'affirmative'],
-        2 => ['name' => '否定側準備時間', 'duration' => 62, 'speaker' => 'negative'],
-        3 => ['name' => '否定側質疑', 'duration' => 182, 'speaker' => 'negative'],
-        4 => ['name' => '否定側準備時間', 'duration' => 62, 'speaker' => 'negative'],
-        5 => ['name' => '否定側立論', 'duration' => 362, 'speaker' => 'negative'],
-        6 => ['name' => '肯定側準備時間', 'duration' => 62, 'speaker' => 'affirmative'],
-        7 => ['name' => '肯定側質疑', 'duration' => 182, 'speaker' => 'affirmative'],
-        8 => ['name' => '否定側準備時間', 'duration' => 62, 'speaker' => 'negative'],
-        9 => ['name' => '否定側第1反駁', 'duration' => 242, 'speaker' => 'negative'],
-        10 => ['name' => '肯定側準備時間', 'duration' => 122, 'speaker' => 'affirmative'],
-        11 => ['name' => '肯定側第1反駁', 'duration' => 242, 'speaker' => 'affirmative'],
-        12 => ['name' => '否定側準備時間', 'duration' => 122, 'speaker' => 'negative'],
-        13 => ['name' => '否定側第2反駁', 'duration' => 242, 'speaker' => 'negative'],
-        14 => ['name' => '肯定側準備時間', 'duration' => 122, 'speaker' => 'affirmative'],
-        15 => ['name' => '肯定側第2反駁', 'duration' => 242, 'speaker' => 'affirmative'],
-    ];
-
-    public function startDebate()
+    /**
+     * debatesテーブルのturn構成を取得
+     * config('debate.turns') で管理
+     */
+    public static function getTurns(): array
     {
-        $this->current_turn = 1;
-        $this->turn_end_time = Carbon::now()->addSeconds(self::$turns[1]['duration']);
+        return config('debate.turns', []);
+    }
+
+    /**
+     * ディベートを開始し、最初のターンをセットアップ
+     */
+    public function startDebate(): void
+    {
+        // $this->room->updateStatus('debating');
+        $firstTurn = 1;
+        $turns = self::getTurns();
+        $duration = $turns[$firstTurn]['duration'] ?? 0;
+
+        $this->current_turn = $firstTurn;
+        $this->turn_end_time = Carbon::now()->addSeconds($duration);
         $this->save();
 
         // 最初のターン終了時にジョブをスケジュール
-        AdvanceDebateTurnJob::dispatch($this->id, 1)->delay($this->turn_end_time);
+        AdvanceDebateTurnJob::dispatch($this->id, $firstTurn)->delay($this->turn_end_time);
 
         // TurnAdvanced イベントをブロードキャスト（最初のターン）
-        broadcast(new TurnAdvanced($this))->toOthers();
+        broadcast(new TurnAdvanced($this));
     }
 
-    public function getNextTurn()
+    /**
+     * 次のターンを取得
+     */
+    public function getNextTurn(): ?int
     {
-        $next_turn = $this->current_turn + 1;
-        if (isset(self::$turns[$next_turn])) {
-            return $next_turn;
-        }
-        return null; // ディベート終了
+        $nextTurn = $this->current_turn + 1;
+        return isset(self::getTurns()[$nextTurn]) ? $nextTurn : null;
     }
 
+    /**
+     * 現在のターンを更新し、終了時刻を再計算・保存
+     */
+    public function updateTurn(int $nextTurn): void
+    {
+        $turns = self::getTurns();
+        $this->current_turn = $nextTurn;
+        $this->turn_end_time = Carbon::now()->addSeconds($turns[$nextTurn]['duration']);
+        $this->save();
+    }
+
+    /**
+     * ディベートを終了し、roomのステータスを変更
+     */
+    public function finishDebate(): void
+    {
+        if ($this->room) {
+            $this->room->updateStatus('finished');
+        }
+        $this->update(['turn_end_time' => null]);
+        // EvaluateDebateJob::dispatch($this->id);
+        // broadcast(new DebateFinished($this))->toOthers();
+    }
+
+    /**
+     * Debateを次のターンへ進める。
+     */
+    public function advanceToNextTurn(?int $expectedTurn = null): void
+    {
+        // 手動で進めた場合とのバッティングチェック
+        if ($expectedTurn !== null && $this->current_turn !== $expectedTurn) {
+            return;
+        }
+
+        // ルームのステータスがディベート中かチェック
+        if (!$this->room || $this->room->status !== 'debating') {
+            return;
+        }
+
+        // 次のターン番号が取得できればターン更新、なければ終了
+        $nextTurn = $this->getNextTurn();
+        if ($nextTurn) {
+            // 次のターンへ
+            $this->updateTurn($nextTurn);
+
+            // TurnAdvanced イベント (Debateモデルを渡す)
+            broadcast(new TurnAdvanced($this));
+            // 次のターンのジョブをスケジュール
+            AdvanceDebateTurnJob::dispatch($this->id, $nextTurn)
+                ->delay($this->turn_end_time);
+        } else {
+            // 最終ターンを経過した場合はディベート終了
+            $this->finishDebate();
+        }
+    }
 }
