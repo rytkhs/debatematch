@@ -1,77 +1,82 @@
 <x-app-layout>
-    <div
-        class="font-sans min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 p-4 flex items-center justify-center">
-        <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="p-8 border-b border-gray-200">
-                <h1 class="text-3xl font-bold mb-6 text-gray-800">{{ $room->name }}</h1>
-                <div class="bg-blue-50 rounded-lg p-4 mb-6">
-                    <p class="text-lg text-gray-700">
-                        <span class="font-semibold text-blue-600">テーマ:</span> {{ $room->topic }}
-                    </p>
-                </div>
-                <div class="mb-6">
-                    <p class="font-semibold text-gray-700 mb-3">参加者:</p>
-                    <div class="space-y-2">
-                        @foreach($room->users as $participant)
-                        <div class="flex items-center bg-gray-50 rounded-lg p-3">
-                            <span
-                                class="w-24 text-sm font-medium {{ $participant->pivot->side === 'affirmative' ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $participant->pivot->side === 'affirmative' ? '肯定側' : '否定側' }}
-                            </span>
-                            <span class="text-gray-700">{{ $participant->name }}</span>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @livewire('room-status', ['room' => $room])
-
-            <div class="p-8 flex justify-between items-center bg-gray-50">
-                @if($isCreator && $room->users->count() === 2 && $room->status === 'ready')
-                <form action="{{ route('rooms.startDebate', $room) }}" method="POST">
+    <div class="bg-gray-50 min-h-screen">
+        <div class="container mx-auto p-6">
+            <div class="flex justify-end mb-2">
+                <form id="exit-form" action="{{ route('rooms.exit', $room) }}" method="POST"
+                    onSubmit="return confirmExit(event, {{ $isCreator }});">
                     @csrf
-                    <button type="submit"
-                        class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        ディベート開始
+                    <button type="submit" class="btn-danger">
+                        <i class="fas fa-sign-out-alt mr-2"></i>退出する
                     </button>
                 </form>
-                @endif
-
-                @if(!$room->users->contains(auth()->user()) && $room->users->count() < 2) <form
-                    action="{{ route('rooms.joinRoom', $room) }}" method="POST">
-                    @csrf
-                    <button type="submit" name="side" value="affirmative"
-                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                        肯定側で参加
-                    </button>
-                    <button type="submit" name="side" value="negative"
-                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                        否定側で参加
-                    </button>
-                    </form>
-                    @endif
-
-                    <form action="{{ route('rooms.exitRoom', $room) }}" method="POST"
-                        onSubmit="return confirmExit(event, {{ $isCreator }});">
-                        @csrf
-                        <button type="submit"
-                            class="bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-red-500">
-                            <i class="fas fa-sign-out-alt mr-2"></i>退出
-                        </button>
-                    </form>
             </div>
+
+            <!-- ルーム情報 -->
+            <div class="bg-white rounded-xl shadow-lg px-8 py-5 mb-12 border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-lg font-semibold text-gray-600 flex items-center mb-4">
+                            <span class="material-icons-outlined text-primary">
+                                chair
+                            </span>
+                            <span class="px-4 py-1 rounded-lg bg-gray-50">
+                                {{ $room->name }}
+                            </span>
+                        </p>
+                        <h1 class="text-2xl font-bold text-gray-900 mb-6 px-2 py-2 rounded-xl">
+                            {{ $room->topic }}
+                        </h1>
+                    </div>
+                </div>
+                @if($room->remarks)
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">備考</h4>
+                    <p class="text-sm text-gray-600 whitespace-pre-wrap">{{ $room->remarks }}</p>
+                </div>
+                @endif
+                <!-- ボーダーとホスト情報 -->
+                <div class="border-t border-gray-200 mt-4 pt-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <p class="text-md text-gray-600 flex items-center px-1 py-1 rounded-lg">
+                                <span class="material-icons mr-2 text-[1.3rem] text-gray-500">
+                                    person_outline
+                                </span>
+                                <span class="font-medium">
+                                    {{ $room->creator->name }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            @livewire('room-status', ['room' => $room])
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ディベーターセクション -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    <span class="material-icons-outlined mr-2">group</span>
+                    ディベーター
+                </h2>
+                @livewire('room-participants', ['room' => $room])
+            </div>
+            @livewire('start-debate-button', ['room' => $room, 'isCreator' => $isCreator])
         </div>
     </div>
+        @push('scripts')
+        <script>
+            const confirmExit = (event, isCreator) => {
+                const message = isCreator
+                    ? 'ルームを退出しますか？ルームは削除されます。'
+                    : 'ルームを退出しますか？';
+                if (!confirm(message)) {
+                    event.preventDefault();
+                    return false;
+                }
+                return true;
+            };
+        </script>
+        @endpush
 </x-app-layout>
-<script>
-    function confirmExit(event, isCreator) {
-        let message = isCreator
-            ? 'ルームを退出しますか？ルームは削除されます。'
-            : 'ルームを退出しますか？';
-
-        if (!confirm(message)) {
-            event.preventDefault();
-            return false;
-        }
-        return true;
-    }
-</script>
