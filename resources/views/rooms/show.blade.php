@@ -69,7 +69,9 @@
         <script>
             window.roomData = {
                 roomId: {{ Js::from($room->id) }},
-
+                authUserId: {{ Js::from(auth()->id()) }},
+                pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
+                pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }}
             };
 
             const confirmExit = (event, isCreator) => {
@@ -83,7 +85,7 @@
                 return true;
             };
         </script>
-
+        <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
         @vite('resources/js/rooms-show.js')
         @endpush
 </x-app-layout>
