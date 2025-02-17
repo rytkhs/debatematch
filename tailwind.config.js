@@ -12,7 +12,27 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['"Noto Sans JP"', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                primary: {
+                    DEFAULT: '#4F46E5',
+                    dark: '#4338CA',
+                    light: '#E0E7FF',
+                },
+                secondary: {
+                    DEFAULT: '#6B7280',
+                    dark: '#4B5563',
+                    light: '#F3F4F6',
+                },
+                success: {
+                    DEFAULT: '#10B981',
+                    light: '#D1FAE5',
+                },
+                danger: {
+                    DEFAULT: '#EF4444',
+                    light: '#FEE2E2',
+                },
             },
         },
     },
