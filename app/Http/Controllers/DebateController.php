@@ -48,7 +48,7 @@ class DebateController extends Controller
         // ルームのステータスを更新
         $room->updateStatus('debating');
 
-        // broadcast(new DebateStarted($debate->id, $room->id));
+        broadcast(new DebateStarted($debate->id, $room->id));
         return redirect()->back();
     }
 }

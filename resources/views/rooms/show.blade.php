@@ -67,6 +67,11 @@
     </div>
         @push('scripts')
         <script>
+            window.roomData = {
+                roomId: {{ Js::from($room->id) }},
+
+            };
+
             const confirmExit = (event, isCreator) => {
                 const message = isCreator
                     ? 'ルームを退出しますか？ルームは削除されます。'
@@ -78,5 +83,7 @@
                 return true;
             };
         </script>
+
+        @vite('resources/js/rooms-show.js')
         @endpush
 </x-app-layout>
