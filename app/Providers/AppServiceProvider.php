@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\Debate;
+use App\Policies\DebatePolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,4 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
+
+    protected $policies = [
+        Debate::class => DebatePolicy::class,
+    ];
 }
