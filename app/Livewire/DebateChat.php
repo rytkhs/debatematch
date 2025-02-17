@@ -5,107 +5,89 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Debate;
 use App\Models\DebateMessage;
-use Illuminate\Support\Facades\Auth;
-use App\Events\DebateMessageSent;
-use App\Events\TurnAdvanced;
+use Livewire\Attributes\On;
+use Illuminate\Database\Eloquent\Collection;
 
+/**
+ * ディベートのチャットメッセージ一覧を表示・更新するコンポーネント
+ */
 class DebateChat extends Component
 {
-    public $debate;
-    public $message;
-    public $current_turn;
-    public $current_speaker;
-    public $isCurrentSpeaker = false;
+    public Debate $debate;
+    public string $activeTab = 'all';
+    public Collection $filteredMessages;
 
-
-
-    protected $rules = [
-        'message' => 'required|string|max:1000',
-    ];
-
-    protected $listeners = [
-        'messageReceived' => 'receiveMessage',
-    ];
-
-    public function getListeners()
-    {
-        return [
-            "echo:debate.{$this->debate->room_id},TurnAdvanced" => 'updateTurn',
-        ];
-    }
-    public function mount(Debate $debate)
+    public function mount(Debate $debate): void
     {
         $this->debate = $debate;
-        $this->current_turn = $debate->current_turn;
-        $this->current_speaker = Debate::$turns[$this->current_turn]['speaker'];
-        $this->checkIfCurrentSpeaker();
+        $this->filteredMessages = new Collection();
+        $this->loadMessages();
     }
 
-
-    public function updateTurn($event)
+    /**
+     * メッセージ受信時のハンドラ
+     */
+    #[On("echo-private:debate.{debate.room_id},DebateMessageSent")]
+    public function handleMessageReceived(): void
     {
-        $this->current_turn = $event['current_turn'];
-        $this->current_speaker = $event['speaker'];
-        $this->checkIfCurrentSpeaker();
+        $this->loadMessages();
+        $this->scrollToBottom();
     }
 
-    private function checkIfCurrentSpeaker()
+    /**
+     * メッセージの取得とフィルタリング
+     */
+    private function loadMessages(): void
     {
-        if ($this->current_speaker === 'affirmative') {
-            $this->isCurrentSpeaker = ($this->debate->affirmative_user_id === Auth::id());
-        } elseif ($this->current_speaker === 'negative') {
-            $this->isCurrentSpeaker = ($this->debate->negative_user_id === Auth::id());
-        } else {
-            $this->isCurrentSpeaker = false;
-        }
+        $query = $this->debate->messages()
+            ->with('user')
+            ->orderBy('created_at');
+
+        $this->filteredMessages = $this->filterMessagesByTab($query);
     }
 
-    public function sendMessage()
+    /**
+     * タブに応じたメッセージのフィルタリング
+     */
+    private function filterMessagesByTab($query)
     {
-        if (!$this->isCurrentSpeaker) {
-            session()->flash('error', 'あなたは現在のターンを進める権限がありません。');
-            return;
-        }
-        
-        $this->validate();
-
-        // 現在のターンを取得
-        $current_turn = $this->debate->current_turn;
-
-        // 新しいメッセージを作成
-        $debateMessage = DebateMessage::create([
-            'debate_id' => $this->debate->id,
-            'user_id' => Auth::id(),
-            'message' => $this->message,
-            'turn' => $current_turn,
-            'speaking_time' => null, //あとで設定
-        ]);
-
-
-        // メッセージをブロードキャスト
-        broadcast(new DebateMessageSent($debateMessage))->toOthers();
-
-        // メッセージ入力フィールドをリセット
-        $this->message = '';
-
-        // チャットの自動スクロールをトリガー
-        $this->dispatch('messageSent');
+        return $this->activeTab === 'all'
+            ? $query->get()
+            : $query->where('turn', $this->activeTab)->get();
     }
 
+    /**
+     * スクロールを最下部へ移動
+     */
+    private function scrollToBottom(): void
+    {
+        $this->dispatch('scroll-to-bottom');
+    }
 
-    // public function receiveMessage($debateMessage)
-    // {
-    //
-    // }
+    /**
+     * メッセージ送信後の更新
+     */
+    #[On("message-sent")]
+    public function refreshMessages(): void
+    {
+        $this->loadMessages();
+    }
+
+    /**
+     * タブ切り替え時の更新
+     */
+    #[On("update-active-tab")]
+    public function updateActiveTab(string $activeTab): void
+    {
+        $this->activeTab = $activeTab;
+        $this->loadMessages();
+    }
 
     public function render()
     {
-        // ディベートメッセージを取得
-        $messages = $this->debate->messages()->with('user')->orderBy('created_at')->get();
-
         return view('livewire.debate-chat', [
-            'messages' => $messages,
-            'isCurrentSpeaker' => $this->isCurrentSpeaker,
+            'messages' => $this->filteredMessages,
+            'turns' => $this->debate->getTurns(),
         ]);
     }
 }
