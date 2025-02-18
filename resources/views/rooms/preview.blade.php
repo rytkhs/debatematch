@@ -1,9 +1,9 @@
 <x-app-layout>
-    <div class="bg-gray-50 min-h-screen">
+    <div class="min-h-screen">
         <x-slot name="header">
             <x-header></x-header>
         </x-slot>
-        <main class="container mx-auto p-32 pt-8">
+        <div class="container mx-auto px-32 pt-8">
             <p class="text-gray-700 flex justify-center text-lg font-semibold mb-2">ルーム詳細</p>
             <div class="flex justify-start mb-2">
                 <a href="{{ route('rooms.index') }}" class="text-gray-500 hover:text-gray-700">
@@ -62,7 +62,7 @@
                 </h2>
                 @livewire('room-participants', ['room' => $room])
             </div>
-        </main>
+        </div>
 
         <script>
             function confirmJoin(event) {
@@ -74,4 +74,7 @@
             }
         </script>
     </div>
+    <x-slot name="footer">
+        <x-footer></x-footer>
+    </x-slot>
 </x-app-layout>
