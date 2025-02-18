@@ -17,8 +17,8 @@ class RoomController extends Controller
 {
     public function index()
     {
-        $rooms = Room::where('status', 'waiting')->get();
-        return view('rooms.index', compact('room'));
+        $rooms = Room::where('status', Room::STATUS_WAITING)->get();
+        return view('rooms.index', compact('rooms'));
     }
 
     public function create()
