@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('message');
             $table->tinyInteger('turn')->unsigned();
-            $table->integer('speaking_time')->unsigned()->nullable();
             $table->timestamps();
         });
     }

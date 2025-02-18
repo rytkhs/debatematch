@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('room_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('side', ['affirmative', 'negative'])->nullable();
+            $table->enum('role', ['creator', 'participant'])->nullable();
+            $table->enum('status', ['connected', 'disconnected'])->nullable();
+            $table->timestamp('last_seen_at')->nullable();
             $table->timestamps();
         });
     }

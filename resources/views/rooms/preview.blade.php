@@ -1,14 +1,14 @@
 <x-app-layout>
     <div class="bg-gray-50 min-h-screen">
-        <div class="container mx-auto p-6">
-            <div class="flex justify-end mb-2">
-                <form id="exit-form" action="{{ route('rooms.exit', $room) }}" method="POST"
-                    onSubmit="return confirmExit(event, {{ $isCreator }});">
-                    @csrf
-                    <button type="submit" class="btn-danger">
-                        <i class="fas fa-sign-out-alt mr-2"></i>退出する
-                    </button>
-                </form>
+        <x-slot name="header">
+            <x-header></x-header>
+        </x-slot>
+        <main class="container mx-auto p-32 pt-8">
+            <p class="flex justify-center text-lg font-semibold mb-2">ルーム詳細</p>
+            <div class="flex justify-start mb-2">
+                <a href="{{ route('rooms.index') }}" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-arrow-left text-xl mr-1"></i>ルーム一覧へ戻る
+                </a>
             </div>
 
             <!-- ルーム情報 -->
@@ -28,13 +28,12 @@
                         </h1>
                     </div>
                 </div>
-                @if($room->remarks)
                 <div class="bg-gray-50 rounded-lg p-4">
                     <h4 class="text-sm font-medium text-gray-700 mb-2">備考</h4>
-                    <p class="text-sm text-gray-600 whitespace-pre-wrap">{{ $room->remarks }}</p>
+                    <p class="text-sm text-gray-600 whitespace-pre-wrap">@if($room->remarks){{ $room->remarks }}@endif</p>
                 </div>
-                @endif
-                <!-- ボーダーとホスト情報 -->
+
+                <!-- ホスト情報 -->
                 <div class="border-t border-gray-200 mt-4 pt-4">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center">
@@ -62,30 +61,16 @@
                 </h2>
                 @livewire('room-participants', ['room' => $room])
             </div>
-            @livewire('start-debate-button', ['room' => $room, 'isCreator' => $isCreator])
-        </div>
-    </div>
-        @push('scripts')
-        <script>
-            window.roomData = {
-                roomId: {{ Js::from($room->id) }},
-                authUserId: {{ Js::from(auth()->id()) }},
-                pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
-                pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }}
-            };
+        </main>
 
-            const confirmExit = (event, isCreator) => {
-                const message = isCreator
-                    ? 'ルームを退出しますか？ルームは削除されます。'
-                    : 'ルームを退出しますか？';
-                if (!confirm(message)) {
+        <script>
+            function confirmJoin(event) {
+                if (!confirm('ルームに参加しますか？')) {
                     event.preventDefault();
                     return false;
                 }
                 return true;
-            };
+            }
         </script>
-        <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
-        @vite('resources/js/rooms-show.js')
-        @endpush
+    </div>
 </x-app-layout>

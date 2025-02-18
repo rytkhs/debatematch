@@ -3,15 +3,15 @@
 namespace App\Events;
 
 use App\Models\Debate;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * ターンが進行した際にブロードキャスト
+ */
 class TurnAdvanced implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -33,20 +33,14 @@ class TurnAdvanced implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new Channel('debate.' . $this->debate->room_id),
+            new PrivateChannel('debate.' . $this->debate->room_id),
         ];
     }
 
-    public function broadcastWith()
+    public function broadcastWith(): array
     {
         return [
-            'current_turn' => $this->debate->current_turn,
-            'turn_name' => Debate::$turns[$this->debate->current_turn]['name'],
-            'next_turn_name' => Debate::$turns[$this->debate->current_turn+1]['name'] ?? '終了',
-            'turn_duration' => Debate::$turns[$this->debate->current_turn]['duration'],
-            'turn_speaker' => Debate::$turns[$this->debate->current_turn]['speaker'],
-            'turn_end_time' => $this->debate->turn_end_time->timestamp,
-            'speaker' => Debate::$turns[$this->debate->current_turn]['speaker'],
+            'debate_id' => $this->debate->id,
         ];
     }
 }

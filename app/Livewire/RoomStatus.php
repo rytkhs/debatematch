@@ -9,26 +9,19 @@ use Livewire\Attributes\On;
 class RoomStatus extends Component
 {
     public Room $room;
-    public bool $isCreator;
 
     public function mount(Room $room)
     {
         $this->room = $room;
     }
 
-
-    public function getListeners()
+    #[On('echo:rooms.{room.id},UserJoinedRoom')]
+    #[On('echo:rooms.{room.id},UserLeftRoom')]
+    public function updateStatus($data)
     {
-        return [
-            // "echo-private:rooms.{$this->room->id},RoomUpdated" => 'refreshRoom',
-            "echo:rooms,StatusUpdated" => 'refreshRoom',
-        ];
+        $this->room->status = $data['room']['status'];
     }
 
-    public function refreshRoom()
-    {
-        $this->room->refresh();
-    }
     public function render()
     {
         return view('livewire.room-status');

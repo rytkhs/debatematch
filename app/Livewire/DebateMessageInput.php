@@ -4,23 +4,29 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Debate;
+use App\Models\DebateMessage;
 use Illuminate\Support\Facades\Auth;
-use App\Events\TurnAdvanced;
-use App\Jobs\AdvanceDebateTurnJob;
-use App\Jobs\EvaluateDebateJob;
-use Carbon\Carbon;
+use Livewire\Attributes\Session;
+use App\Events\DebateMessageSent;
 use Livewire\Attributes\On;
 
-class DebateInfo extends Component
+/**
+ * ディベート用のチャット入力フォームコンポーネント
+ */
+class DebateMessageInput extends Component
 {
     public Debate $debate;
-    public string $currentTurnName;
-    public string $nextTurnName;
-    public ?int $turnEndTime;
+    #[Session]
+    public string $newMessage = '';
+    public bool $isMyTurn = false;
     public ?string $currentSpeaker;
-    public bool $isMyTurn;
+    public ?string $currentTurnName;
     public bool $isPrepTime;
     public bool $isQuestioningTurn = false;
+
+    protected array $rules = [
+        'newMessage' => 'required|string|max:5000',
+    ];
 
     public function mount(Debate $debate): void
     {
@@ -29,7 +35,7 @@ class DebateInfo extends Component
     }
 
     /**
-     * ターンが進行した際のイベントハンドラ
+     * TurnAdvancedイベントを受信した時に再同期
      */
     #[On("echo-private:debate.{debate.room_id},TurnAdvanced")]
     public function handleTurnAdvanced(array $data): void
@@ -39,7 +45,6 @@ class DebateInfo extends Component
         }
 
         $this->reloadDebate($data['debate_id']);
-        $this->dispatchTurnAdvancedEvents();
     }
 
     /**
@@ -64,36 +69,26 @@ class DebateInfo extends Component
     }
 
     /**
-     * ターン進行関連のイベントをディスパッチ
+     * 現在のターン情報を同期
      */
-    private function dispatchTurnAdvancedEvents(): void
+    private function syncTurnState(): void
     {
-        $this->dispatch('turn-advanced', turnEndTime: $this->turnEndTime);
-        $this->dispatch('$refresh');
-    }
-
-    /**
-     * ターン関連の状態を同期
-     */
-    public function syncTurnState(): void
-    {
-        $currentTurn = $this->debate->current_turn;
         $turns = $this->debate->getTurns();
+        $currentTurn = $this->debate->current_turn;
 
-        $this->setTurnInfo($currentTurn, $turns);
+        $this->setTurnInfo($turns, $currentTurn);
         $this->setUserTurnStatus();
-        $this->setTurnFlags($turns, $currentTurn);
     }
 
     /**
      * ターン情報の設定
      */
-    private function setTurnInfo(int $currentTurn, array $turns): void
+    private function setTurnInfo(array $turns, int $currentTurn): void
     {
-        $this->currentTurnName = $turns[$currentTurn]['name'] ?? '終了';
-        $this->nextTurnName = $turns[$currentTurn + 1]['name'] ?? '終了';
         $this->currentSpeaker = $turns[$currentTurn]['speaker'] ?? null;
-        $this->turnEndTime = $this->debate->turn_end_time?->timestamp;
+        $this->currentTurnName = $turns[$currentTurn]['name'] ?? null;
+        $this->isPrepTime = $turns[$currentTurn]['is_prep_time'] ?? false;
+        $this->isQuestioningTurn = strpos($this->currentTurnName, '質疑') !== false;
     }
 
     /**
@@ -115,26 +110,50 @@ class DebateInfo extends Component
     }
 
     /**
-     * ターンに関するフラグを設定
+     * メッセージ送信処理
      */
-    private function setTurnFlags(array $turns, int $currentTurn): void
+    public function sendMessage(): void
     {
-        $this->isPrepTime = $turns[$currentTurn]['is_prep_time'] ?? false;
-        $this->isQuestioningTurn = strpos($this->currentTurnName, '質疑') !== false;
+        $this->validate();
+
+        $message = $this->createDebateMessage();
+        $this->dispatchEvents($message);
+        $this->resetMessageInput();
     }
 
     /**
-     * 手動でターンを進める
+     * メッセージの作成
      */
-    public function advanceTurnManually(): void
+    private function createDebateMessage(): DebateMessage
     {
-        $this->authorize('advanceTurn', $this->debate);
-        $this->debate->advanceToNextTurn();
-        session()->flash('success', 'ターンを進めました。');
+        return DebateMessage::create([
+            'debate_id' => $this->debate->id,
+            'user_id' => Auth::id(),
+            'message' => $this->newMessage,
+            'turn' => $this->debate->current_turn,
+        ]);
+    }
+
+    /**
+     * イベントのディスパッチ
+     */
+    private function dispatchEvents(DebateMessage $message): void
+    {
+        $this->dispatch('message-sent');
+        broadcast(new DebateMessageSent($message))->toOthers();
+        $this->dispatch('scroll-to-bottom');
+    }
+
+    /**
+     * メッセージ入力のリセット
+     */
+    private function resetMessageInput(): void
+    {
+        $this->newMessage = '';
     }
 
     public function render()
     {
-        return view('livewire.debate-info');
+        return view('livewire.debate-message-input');
     }
 }

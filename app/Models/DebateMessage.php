@@ -9,7 +9,7 @@ class DebateMessage extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['debate_id', 'user_id', 'message', 'turn', 'speaking_time'];
+    protected $fillable = ['debate_id', 'user_id', 'message', 'turn'];
 
     public function debate()
     {

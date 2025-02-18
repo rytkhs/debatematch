@@ -3,14 +3,13 @@
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\DebateController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PusherWebhookController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Pusher\Pusher;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
-// use App\Http\Controllers\ChatController;
-// use App\Events\ChatEvent;
-// use Illuminate\Http\Request;
-// use App\Http\Controllers\MatchingController;
-
-
+// 基本ルート
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
@@ -19,48 +18,64 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-
-
-// ルーム一覧ページ
-Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
-
-
-
-
-
+// 認証が必要なルートグループ
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // プロフィール関連
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
+
+    // ルーム関連
+    Route::prefix('rooms')->name('rooms.')->group(function () {
+        Route::post('/', [RoomController::class, 'store'])->name('store');
+        Route::get('/{room}', [RoomController::class, 'show'])->name('show');
+        Route::get('/{room}/preview', [RoomController::class, 'preview'])->name('preview');
+        Route::post('/{room}/exit', [RoomController::class, 'exit'])->name('exit');
+        Route::post('/{room}/join', [RoomController::class, 'join'])->name('join');
+    });
+
+    // ディベート関連
+    Route::prefix('debate')->name('debate.')->group(function () {
+        Route::post('/rooms/{room}/start', [DebateController::class, 'start'])->name('start');
+        Route::get('/{debate}', [DebateController::class, 'show'])->name('show');
+        Route::get('/{debate}/result', [DebateController::class, 'result'])->name('result');
+    });
 });
 
-Route::middleware('auth')->group(function () {
-    // ルーム作成ページ
-    Route::get('/rooms/create', [RoomController::class, 'create'])->name('rooms.create');
-    Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
+// 認証不要なルーム関連ルート
+Route::prefix('rooms')->name('rooms.')->group(function () {
+    Route::get('/', [RoomController::class, 'index'])->name('index');
+    Route::get('/create', [RoomController::class, 'create'])->name('create');
 });
 
-
-Route::middleware('auth')->group(function () {
-Route::get('/rooms/{room}', [RoomController::class, 'show'])->name('rooms.show');
-Route::post('/rooms/{room}/startDebate', [RoomController::class, 'startDebate'])->name('rooms.startDebate');
-Route::post('/rooms/{room}/exitRoom', [RoomController::class, 'exitRoom'])->name('rooms.exitRoom');
-Route::post('/rooms/{room}/joinRoom', [RoomController::class, 'joinRoom'])->name('rooms.joinRoom');
-Route::get('/debate/{debate}', [DebateController::class, 'show'])->name('debate.show');
+// 履歴関連ルート
+/*
+Route::prefix('records')->name('records.')->group(function () {
+    Route::get('/', [DebateHistoryController::class, 'index'])->name('index');
+    Route::get('/{debate}', [DebateHistoryController::class, 'show'])->name('show');
 });
+*/
+
+// pusher関連
+Route::post('/webhook/pusher', [PusherWebhookController::class, 'handle'])->withoutMiddleware([ValidateCsrfToken::class]);
 
 
+Route::post('/pusher/auth', function (Request $request) {
+    $pusher = new Pusher(
+        config('broadcasting.connections.pusher.key'),
+        config('broadcasting.connections.pusher.secret'),
+        config('broadcasting.connections.pusher.app_id'),
+        config('broadcasting.connections.pusher.options')
+    );
 
-// Route::get('/', [ChatController::class, 'index']);
-
-// Route::post('/', function (Request $request) {
-//     ChatEvent::dispatch($request->message);
-// });
-
-// Route::post('/matching', [MatchingController::class, 'startMatch'])->name('match.start');
-// Route::get('/waiting', function () {
-//     return view('waiting');
-// });
-
+    return $pusher->presence_auth(
+        $request->input('channel_name'),
+        $request->input('socket_id'),
+        auth()->user()->id, // ユーザーIDを渡す
+        ['user_info' => ['name' => auth()->user()->name]]
+    );
+})->middleware('auth')->withoutMiddleware([ValidateCsrfToken::class]);
 
 require __DIR__ . '/auth.php';
