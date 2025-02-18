@@ -1,4 +1,4 @@
-<div class="z-20 relative">
+<div class="relative">
     <div class="relative" id="message-input-container">
         <!-- メッセージ送信フォーム -->
         <div class="pb-2 pt-1 pr-2 pl-1 lg:pb-4 lg:pt-3 bg-white border-t border-gray-200">
@@ -53,7 +53,6 @@
     </button>
 </div>
 
-@script
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const resizeHandle = document.getElementById('resizeHandle');
@@ -149,4 +148,3 @@
         });
     });
 </script>
-@endscript
