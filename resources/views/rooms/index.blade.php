@@ -13,10 +13,10 @@
                     <div>
                         <div class="text-gray-700 mb-0 font-medium text-md flex items-center justify-between">
                             <div class="flex items-center">
-                                <span class="material-icons-outlined font-normal text-[1.2rem] mr-2 text-primary">
+                                {{-- <span class="material-icons-outlined font-normal text-[1.2rem] mr-2 text-primary">
                                     chair
-                                </span>
-                                <span class="text-lg">{{ $room->name }}</span>
+                                </span> --}}
+                                <span class="text-primary">Room</span><span class="text-lg ml-1">{{ $room->name }}</span>
                             </div>
                             @livewire('room-status', ['room' => $room])
                         </div>
@@ -24,11 +24,11 @@
                             {{ $room->topic }}
                         </h2>
                     </div>
-                    <p class="flex items-center text-sm text-gray-600">
-                        <span class="material-icons text-[1.2rem] mr-1 text-gray-500">
+                    <p class="flex items-center text-sm text-gray-700">
+                        {{-- <span class="material-icons text-[1.2rem] mr-1 text-gray-500">
                             person_outline
-                        </span>
-                        {{ $room->creator->name }}
+                        </span> --}}
+                        Host: {{ $room->creator->name }}
                     </p>
                 </a>
                 @endforeach
