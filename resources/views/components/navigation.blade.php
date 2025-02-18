@@ -13,6 +13,10 @@
                 <x-nav-link :href="route('dashboard')"
                 :active="request()->routeIs('dashboard')">使い方</x-nav-link>
                 @auth
+                <a href="{{ route('welcome') }}" class="flex items-center text-gray-600 hover:text-primary transition-colors duration-200 ease-in-out">
+                    <i class="fa-solid fa-house w-4 h-3 mr-1 mb-1"></i>
+                    <span class="hidden sm:inline">ホーム</span>
+                </a>
                 <x-dropdown>
                     <x-slot name="trigger">
                         <button class="nav-link flex items-center">
