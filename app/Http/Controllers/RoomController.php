@@ -48,13 +48,18 @@ class RoomController extends Controller
             'side' => $validatedData['side'],
             'role' => RoomUser::ROLE_CREATOR,
             'status' => RoomUser::STATUS_CONNECTED,
-            ]);
+        ]);
 
         return redirect()->route('rooms.show', compact('room'));
     }
 
     public function preview(Room $room)
     {
+        // 参加しているユーザーはルームページにリダイレクト
+        if ($room->users->contains(auth()->user())) {
+            return redirect()->route('rooms.show', $room);
+        }
+
         return view('rooms.preview', compact('room'));
     }
 
@@ -79,12 +84,12 @@ class RoomController extends Controller
         // 既に参加者がいるか確認
         if ($room->users()->wherePivot('role', RoomUser::ROLE_PARTICIPANT)->exists()) {
             return redirect()->route('rooms.index')->with('error', 'このルームは既に満員です。');
-            }
+        }
 
-            // ルームが待機中または準備完了状態でない場合はエラー
+        // ルームが待機中または準備完了状態でない場合はエラー
         if (!in_array($room->status, [Room::STATUS_WAITING])) {
             return redirect()->route('rooms.index')->with('error', 'このルームには参加できません。');
-            }
+        }
 
         // $room->users()->attach(auth()->user(), ['side' => $side]);
         // 参加者として登録
@@ -92,7 +97,7 @@ class RoomController extends Controller
             'side' => $side,
             'role' => RoomUser::ROLE_PARTICIPANT,
             'status' => RoomUser::STATUS_CONNECTED,
-            ]);
+        ]);
 
         // ルームの状態を "準備完了" に更新
         $room->updateStatus(Room::STATUS_READY);
@@ -124,7 +129,7 @@ class RoomController extends Controller
         if ($room->status == Room::STATUS_READY) {
             // 参加者が退出した場合、状態を "待機中" に戻す
             $room->updateStatus(Room::STATUS_WAITING);
-            }
+        }
         $room->refresh();
 
         broadcast(new UserLeftRoom($room, Auth::user()))->toOthers();
@@ -132,8 +137,8 @@ class RoomController extends Controller
         if (auth()->user()->id === $room->created_by) {
             $room->delete();
             return redirect()->route('welcome')->with('message', 'ルームを削除しました。');
-        }else {
-            return redirect()->route('rooms.index')->with('message', 'ルームから退出しました。');
+        } else {
+            return redirect()->route('rooms.preview', $room)->with('message', 'ルームから退出しました。');
         }
     }
 }
