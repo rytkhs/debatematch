@@ -22,7 +22,7 @@
         </div>
         @else
         <div class="mt-4 text-center">
-            <div class="flex flex-col items-center justify-center space-y-1">
+            <div class="flex flex-col items-center justify-center space-y-1 animate-pulse">
                 <span class="text-blue-500 text-md font-semibold">ディベートが開始されるまでお待ちください</span>
                 <span class="text-blue-500 text-md font-semibold">ディベートが開始されると自動的にディベートページへ移動します</span>
             </div>

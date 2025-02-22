@@ -29,10 +29,12 @@
                         </h1>
                     </div>
                 </div>
+                @if($room->remarks)
                 <div class="bg-gray-50 rounded-lg p-4">
                     <h4 class="text-sm font-medium text-gray-700 mb-2">備考</h4>
-                    <p class="text-sm text-gray-600 whitespace-pre-wrap">@if($room->remarks){{ $room->remarks }}@endif</p>
+                    <p class="text-sm text-gray-600 whitespace-pre-wrap">{{ $room->remarks }}</p>
                 </div>
+                @endif
 
                 <!-- ホスト情報 -->
                 <div class="border-t border-gray-200 mt-4 pt-4">
@@ -56,9 +58,9 @@
 
             <!-- ディベーターセクション -->
             <div class="mb-8">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <h2 class="text-xl font-semibold text-primary mb-4 flex items-center">
                     <span class="material-icons-outlined mr-2">group</span>
-                    ディベーター
+                    Debaters
                 </h2>
                 @livewire('room-participants', ['room' => $room])
             </div>
