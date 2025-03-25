@@ -18,35 +18,40 @@ class DebateRecordController extends Controller
         $sort = $request->input('sort', 'newest'); // 'newest', 'oldest'
         $keyword = $request->input('keyword'); // キーワード検索
 
-        $debatesQuery = Debate::with(['room', 'affirmativeUser', 'negativeUser'])
-        ->whereHas('room', function($query) {
-            $query->where('status', 'finished');
-        })
-        ->where(function ($query) use ($user) {
-            $query->where('affirmative_user_id', $user->id)
-                  ->orWhere('negative_user_id', $user->id);
-        });
+        $debatesQuery = Debate::with(['room', 'affirmativeUser', 'negativeUser', 'evaluations'])
+            ->whereHas('room', function ($query) {
+                $query->where('status', 'finished');
+            })
+            ->where(function ($query) use ($user) {
+                $query->where('affirmative_user_id', $user->id)
+                    ->orWhere('negative_user_id', $user->id);
+            })
+            ->whereHas('evaluations'); // evaluationsが存在するDebateに絞り込む
 
 
         if ($result !== 'all') {
             if ($result === 'win') {
                 $debatesQuery->where(function ($query) use ($user) {
                     $query->where(function ($q) use ($user) {
-                        $q->where('winner', 'affirmative')
-                          ->where('affirmative_user_id', $user->id);
+                        $q->whereHas('evaluations', function ($qe) {
+                            $qe->where('winner', 'affirmative');
+                        })->where('affirmative_user_id', $user->id);
                     })->orWhere(function ($q) use ($user) {
-                        $q->where('winner', 'negative')
-                          ->where('negative_user_id', $user->id);
+                        $q->whereHas('evaluations', function ($qe) {
+                            $qe->where('winner', 'negative');
+                        })->where('negative_user_id', $user->id);
                     });
                 });
             } else {
                 $debatesQuery->where(function ($query) use ($user) {
                     $query->where(function ($q) use ($user) {
-                        $q->where('winner', 'negative')
-                          ->where('affirmative_user_id', $user->id);
+                        $q->whereHas('evaluations', function ($qe) {
+                            $qe->where('winner', 'negative');
+                        })->where('affirmative_user_id', $user->id);
                     })->orWhere(function ($q) use ($user) {
-                        $q->where('winner', 'affirmative')
-                          ->where('negative_user_id', $user->id);
+                        $q->whereHas('evaluations', function ($qe) {
+                            $qe->where('winner', 'affirmative');
+                        })->where('negative_user_id', $user->id);
                     });
                 });
             }
@@ -75,16 +80,51 @@ class DebateRecordController extends Controller
             });
         }
 
+        // 統計情報を取得
+        $totalDebates = (clone $debatesQuery)->count();
+
+        $wins = (clone $debatesQuery)->where(function ($query) use ($user) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('evaluations', function ($qe) {
+                    $qe->where('winner', 'affirmative');
+                })->where('affirmative_user_id', $user->id);
+            })->orWhere(function ($q) use ($user) {
+                $q->whereHas('evaluations', function ($qe) {
+                    $qe->where('winner', 'negative');
+                })->where('negative_user_id', $user->id);
+            });
+        })->count();
+
+        $losses = (clone $debatesQuery)->where(function ($query) use ($user) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('evaluations', function ($qe) {
+                    $qe->where('winner', 'negative');
+                })->where('affirmative_user_id', $user->id);
+            })->orWhere(function ($q) use ($user) {
+                $q->whereHas('evaluations', function ($qe) {
+                    $qe->where('winner', 'affirmative');
+                })->where('negative_user_id', $user->id);
+            });
+        })->count();
+
+        $winRate = $totalDebates > 0 ? round(($wins / $totalDebates) * 100) : 0;
+
+        $stats = [
+            'total' => $totalDebates,
+            'wins' => $wins,
+            'losses' => $losses,
+            'win_rate' => $winRate
+        ];
 
         // ページネーションの適用
-        $debates = $debatesQuery->paginate(10)->appends([
+        $debates = $debatesQuery->paginate(6)->appends([
             'side' => $side,
             'result' => $result,
             'sort' => $sort,
             'keyword' => $keyword,
         ]);
 
-        return view('records.index', compact('debates', 'side', 'result', 'sort', 'keyword'));
+        return view('records.index', compact('debates', 'side', 'result', 'sort', 'keyword', 'stats'));
     }
 
 
