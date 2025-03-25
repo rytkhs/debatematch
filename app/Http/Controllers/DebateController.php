@@ -14,35 +14,25 @@ class DebateController extends Controller
         return view('debate.show', compact('debate'));
     }
 
-    public function start(Room $room)
+    public function result(Debate $debate)
     {
-        // 参加者が2名揃っているか確認
-        if ($room->users->count() !== 2) {
-            session()->flash('error', 'ディベーターが揃っていません。');
-            return;
+        // ユーザーがこのディベートの参加者であることを確認
+        $user = Auth::user();
+        if ($debate->affirmative_user_id !== $user->id && $debate->negative_user_id !== $user->id) {
+            return redirect()->back();
         }
 
-        // すでにディベートが開始されているか確認
-        if ($room->status !== 'ready') {
-            session()->flash('error', 'ディベートはすでに開始されています。');
-            return;
-        }
+        // 評価データを取得
+        $evaluations = $debate->evaluations;
 
-        //ルームの作成者か確認
-        if (Auth::id() != $room->created_by) {
-            return redirect()->route('rooms.show', $room)->with('error', 'ディベートを開始する権限がありません。');
-            }
+        // メッセージデータを取得
+        $messages = $debate->messages()->with('user')->orderBy('created_at')->get();
 
-        // 肯定側と否定側のユーザーを取得
-        $affirmativeUser = $room->users->firstWhere('pivot.side', 'affirmative');
-        $negativeUser = $room->users->firstWhere('pivot.side', 'negative');
+        // ターン情報を取得
+        $turns = $debate->getFormat();
 
-        // ディベートレコードを作成
-        $debate = Debate::create([
-            'room_id' => $room->id,
-            'affirmative_user_id' => $affirmativeUser->id,
-            'negative_user_id' => $negativeUser->id,
-        ]);
+        return view('debate.result', compact('debate', 'messages', 'turns', 'evaluations'));
+    }
 
         $debate->startDebate();
         // ルームのステータスを更新
