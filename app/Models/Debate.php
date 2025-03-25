@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Events\TurnAdvanced;
+use App\Jobs\EvaluateDebateJob;
 use App\Jobs\AdvanceDebateTurnJob;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Debate extends Model
 {
@@ -36,10 +38,10 @@ class Debate extends Model
         return $this->hasMany(DebateMessage::class);
     }
 
-    // public function evaluations()
-    // {
-    //     return $this->hasOne(DebateEvaluation::class);
-    // }
+    public function evaluations()
+    {
+        return $this->hasOne(DebateEvaluation::class);
+    }
 
     /**
      * debatesテーブルのturn構成を取得
@@ -96,12 +98,19 @@ class Debate extends Model
      */
     public function finishDebate(): void
     {
-        if ($this->room) {
-            $this->room->updateStatus('finished');
-        }
-        $this->update(['turn_end_time' => null]);
-        // EvaluateDebateJob::dispatch($this->id);
-        // broadcast(new DebateFinished($this))->toOthers();
+        DB::transaction(function () {
+            // ディベート終了イベントをブロードキャスト
+            broadcast(new DebateFinished($this->id));
+
+            if ($this->room) {
+                $this->room->updateStatus(Room::STATUS_FINISHED);
+            }
+
+            $this->update(['turn_end_time' => null]);
+
+            // 評価ジョブのディスパッチを追加
+            EvaluateDebateJob::dispatch($this->id);
+        });
     }
 
     /**
