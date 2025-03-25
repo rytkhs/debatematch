@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\DebateController;
+use App\Http\Controllers\DebateRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PusherWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,12 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// 認証不要なルーム関連ルート
+Route::prefix('rooms')->name('rooms.')->group(function () {
+    Route::get('/', [RoomController::class, 'index'])->name('index');
+    Route::get('/create', [RoomController::class, 'create'])->name('create');
+});
 
 // 認証が必要なルートグループ
 Route::middleware('auth')->group(function () {
@@ -42,21 +49,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/{debate}', [DebateController::class, 'show'])->name('show');
         Route::get('/{debate}/result', [DebateController::class, 'result'])->name('result');
     });
-});
 
-// 認証不要なルーム関連ルート
-Route::prefix('rooms')->name('rooms.')->group(function () {
-    Route::get('/', [RoomController::class, 'index'])->name('index');
-    Route::get('/create', [RoomController::class, 'create'])->name('create');
+    // 履歴関連ルート
+    Route::prefix('records')->name('records.')->group(function () {
+        Route::get('/', [DebateRecordController::class, 'index'])->name('index');
+        Route::get('/{debate}', [DebateRecordController::class, 'show'])->name('show');
+    });
 });
-
-// 履歴関連ルート
-/*
-Route::prefix('records')->name('records.')->group(function () {
-    Route::get('/', [DebateHistoryController::class, 'index'])->name('index');
-    Route::get('/{debate}', [DebateHistoryController::class, 'show'])->name('show');
-});
-*/
 
 // pusher関連
 Route::post('/webhook/pusher', [PusherWebhookController::class, 'handle'])->withoutMiddleware([ValidateCsrfToken::class]);

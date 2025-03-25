@@ -16,9 +16,10 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-lg font-semibold text-gray-600 flex items-center mb-4">
-                            <span class="material-icons-outlined text-primary">
+                            {{-- <span class="material-icons-outlined text-primary">
                                 chair
-                            </span>
+                            </span> --}}
+                            <span class="text-primary">Room</span>
                             <span class="px-4 py-1 rounded-lg bg-gray-50">
                                 {{ $room->name }}
                             </span>
@@ -43,7 +44,7 @@
                                     person_outline
                                 </span>
                                 <span class="font-medium">
-                                    {{ $room->creator->name }}
+                                    Host: {{ $room->creator->name }}
                                 </span>
                             </p>
                         </div>

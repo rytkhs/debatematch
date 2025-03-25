@@ -19,12 +19,15 @@
 
 <body class="font-sans text-gray-900 antialiased">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mt-3 text-center">DebateMatch</h2>
         <div
             class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
             {{ $slot }}
 
-            <p class="text-gray-500 text-s mt-4 text-center">
+            <p class="text-gray-500 text-sm mt-4 text-center">
                 続行することで、以下に同意したものとみなされます
+            </p>
+            <p class="text-gray-500 text-sm text-center">
                 <a href="#" class="text-gray-500 underline">利用規約</a> | <a href="#" class="text-gray-500 underline">プライバシーポリシー</a>
             </p>
         </div>
