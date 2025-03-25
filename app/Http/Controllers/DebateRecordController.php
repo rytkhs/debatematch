@@ -87,4 +87,22 @@ class DebateRecordController extends Controller
         return view('records.index', compact('debates', 'side', 'result', 'sort', 'keyword'));
     }
 
+
+    /**
+     * 特定のディベート詳細を表示する
+     */
+    public function show(Debate $debate)
+    {
+        $user = Auth::user();
+
+        if ($debate->affirmative_user_id !== $user->id && $debate->negative_user_id !== $user->id) {
+            return redirect()->back();
+        }
+
+        $debate->load(['room.creator', 'affirmativeUser', 'negativeUser', 'messages.user', 'evaluations']);
+        $turns = $debate->getFormat();
+        $evaluations = $debate->evaluations;
+
+        return view('records.show', compact('debate', 'evaluations'));
+    }
 }
