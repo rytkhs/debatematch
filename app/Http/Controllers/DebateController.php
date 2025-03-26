@@ -34,11 +34,15 @@ class DebateController extends Controller
         return view('debate.result', compact('debate', 'messages', 'turns', 'evaluations'));
     }
 
-        $debate->startDebate();
-        // ルームのステータスを更新
-        $room->updateStatus('debating');
+    /**
+     * 切断によるディベート強制終了
+     */
+    public function terminate(Debate $debate)
+    {
+        // ディベートを強制終了
+        $debate->terminateDebate();
 
-        broadcast(new DebateStarted($debate->id, $room->id));
-        return redirect()->back();
+        // welcomeページへリダイレクト
+        return redirect()->route('welcome')->with('warning', '相手との接続が切断されたため、ディベートを終了しました。');
     }
 }

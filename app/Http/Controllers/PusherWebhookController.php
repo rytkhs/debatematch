@@ -7,6 +7,8 @@ use App\Models\RoomUser;
 use App\Models\Room;
 use App\Jobs\HandleUserDisconnection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Services\ConnectionManager;
 
 class PusherWebhookController extends Controller
 {
@@ -17,32 +19,79 @@ class PusherWebhookController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Pusher の認証を検証
+        // Pusher イベントを処理
         $events = $request->input('events');
+        $connectionManager = app(ConnectionManager::class);
 
         foreach ($events as $event) {
-
-            if ($event['name'] == 'member_removed') {
-                $channel = $event['channel']; // presence-room.{roomId}
-                $channelParts = explode('.', $channel);
-                if (count($channelParts) == 2 && $channelParts[0] == 'presence-room') {
-                    $roomId = $channelParts[1];
-                    $userId = $event['user_id'];
-                    // ユーザーのステータスを '切断' に更新
-                    RoomUser::where('room_id', $roomId)
-                        ->where('user_id', $userId)
-                        ->update(['status' => RoomUser::STATUS_DISCONNECTED, 'last_seen_at' => now()]);
-                    // 一定時間後に再接続がなければ退出処理を実行
-                    // ジョブをディスパッチし、遅延させて実行する
-                    // 切断検知時にジョブをディスパッチ
-                    $room = Room::find($roomId);
-                    $delay = $room->status === 'debating' ? 10 : 5;
-                    HandleUserDisconnection::dispatch($roomId, $userId)
-                        ->delay(now()->addSeconds($delay));
-                }
-            }
+            $this->processEvent($event, $connectionManager);
         }
+
         return response()->json([], 200);
+    }
+
+    /**
+     * イベントの種類に応じて適切な処理を行う
+     */
+    private function processEvent(array $event, ConnectionManager $connectionManager): void
+    {
+        $eventHandlers = [
+            'member_removed' => 'handleMemberRemoved',
+            'member_added' => 'handleMemberAdded'
+        ];
+
+        $eventName = $event['name'];
+
+        if (isset($eventHandlers[$eventName])) {
+            $handlerMethod = $eventHandlers[$eventName];
+            $this->$handlerMethod($event, $connectionManager);
+        }
+    }
+
+    /**
+     * メンバー削除イベントを処理する
+     */
+    private function handleMemberRemoved(array $event, ConnectionManager $connectionManager): void
+    {
+        $channel = $event['channel'];
+        $userId = $event['user_id'];
+        $context = $this->extractContextFromChannel($channel);
+
+        if ($context) {
+            $connectionManager->handleDisconnection($userId, $context);
+        }
+    }
+
+    /**
+     * メンバー追加イベントを処理する
+     */
+    private function handleMemberAdded(array $event, ConnectionManager $connectionManager): void
+    {
+        $channel = $event['channel'];
+        $userId = $event['user_id'];
+        $context = $this->extractContextFromChannel($channel);
+
+        if ($context) {
+            $connectionManager->handleReconnection($userId, $context);
+        }
+    }
+
+    /**
+     * チャンネル名からコンテキスト情報を抽出する
+     */
+    private function extractContextFromChannel(string $channel): ?array
+    {
+        if (strpos($channel, 'presence-room.') === 0) {
+            $roomId = (int) str_replace('presence-room.', '', $channel);
+            return ['type' => 'room', 'id' => $roomId];
+        }
+
+        if (strpos($channel, 'presence-debate.') === 0) {
+            $debateId = (int) str_replace('presence-debate.', '', $channel);
+            return ['type' => 'debate', 'id' => $debateId];
+        }
+
+        return null;
     }
 
     private function isValidPusherRequest(Request $request)
@@ -66,5 +115,4 @@ class PusherWebhookController extends Controller
         // 計算された署名と受信した署名を比較
         return hash_equals($expectedSignature, $pusherSignature);
     }
-
 }
