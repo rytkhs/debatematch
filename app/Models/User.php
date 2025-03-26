@@ -20,6 +20,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'debates_count',
+        'wins_count',
     ];
 
     /**
@@ -43,5 +45,14 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * ユーザーが参加しているルームのリレーション
+     */
+    public function rooms()
+    {
+        return $this->belongsToMany(Room::class, 'room_users')
+            ->withPivot('side');
     }
 }
