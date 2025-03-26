@@ -5,12 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Debate;
 use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
-use App\Events\DebateStarted;
+use App\Services\ConnectionManager;
 
 class DebateController extends Controller
 {
     public function show(Debate $debate)
     {
+        if ($debate->room->status === Room::STATUS_FINISHED) {
+            return redirect()->route('debate.result', $debate)
+                ->with('info', 'ディベートは終了しました。');
+        } elseif ($debate->room->status === Room::STATUS_TERMINATED) {
+            return redirect()->route('welcome')->with('error', '切断されました。');
+        } elseif ($debate->room->status !== Room::STATUS_DEBATING) {
+            return redirect()->back();
+        }
+
+        // 接続記録
+        $connectionManager = app(ConnectionManager::class);
+        $connectionManager->recordInitialConnection(Auth::id(), [
+            'type' => 'debate',
+            'id' => $debate->id
+        ]);
+
         return view('debate.show', compact('debate'));
     }
 

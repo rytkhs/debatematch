@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -31,16 +31,17 @@ class DebateStarted implements ShouldBroadcast
     public function broadcastOn()
     {
         return [
-            new PrivateChannel('debate.' . $this->roomId),
+            new Channel('rooms.' . $this->roomId),
         ];
     }
 
     public function broadcastWith()
     {
         return [
-            'debate_id' => $this->debateId,
+            'debateId' => $this->debateId,
+            // 'room_id' => $this->roomId,
             // 'redirect_url' => url('debate/' . $this->debateId)
-            'redirect_url' => 'http://localhost:8081/debate/' . $this->debateId
+            // 'redirect_url' => 'http://localhost:8081/debate/' . $this->debateId
         ];
     }
 }

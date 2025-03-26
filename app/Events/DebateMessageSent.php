@@ -14,13 +14,13 @@ class DebateMessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $debateMessage;
+    public int $debateId;
     /**
      * Create a new event instance.
      */
-    public function __construct(DebateMessage $debateMessage)
+    public function __construct(int $debateId)
     {
-        $this->debateMessage = $debateMessage;
+        $this->debateId = $debateId;
     }
 
     /**
@@ -31,7 +31,17 @@ class DebateMessageSent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('debate.' . $this->debateMessage->debate->room_id),
+            new PrivateChannel('debate.' . $this->debateId),
         ];
+    }
+
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array
+     */
+    public function broadcastWith(): array
+    {
+        return [];
     }
 }
