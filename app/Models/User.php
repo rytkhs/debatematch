@@ -20,6 +20,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
         'debates_count',
         'wins_count',
     ];
@@ -54,5 +55,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Room::class, 'room_users')
             ->withPivot('side');
+    }
+
+    public function isAdmin()
+    {
+        return $this->is_admin;
     }
 }
