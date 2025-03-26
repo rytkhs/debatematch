@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Rooms;
 
 use App\Models\Room;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
-class RoomStatus extends Component
+class Status extends Component
 {
     public Room $room;
 
@@ -24,6 +24,6 @@ class RoomStatus extends Component
 
     public function render()
     {
-        return view('livewire.room-status');
+        return view('livewire.rooms.status');
     }
 }

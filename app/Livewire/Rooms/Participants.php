@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Rooms;
 
 use Livewire\Component;
 use App\Models\Room;
 use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Log;
 
-class RoomParticipants extends Component
+class Participants extends Component
 {
     public Room $room;
     public $affirmativeDebater;
@@ -33,6 +32,6 @@ class RoomParticipants extends Component
 
     public function render()
     {
-        return view('livewire.room-participants');
+        return view('livewire.rooms.participants');
     }
 }

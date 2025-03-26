@@ -28,13 +28,23 @@
             </div>
         </div>
         @endif
+    @elseif($status === 'debating')
+        <!-- ディベート中のメッセージ -->
+        <div class="mt-4 text-center">
+            <div class="flex flex-col items-center justify-center space-y-1">
+                <span class="text-yellow-500 text-md font-semibold">ディベートは進行中です</span>
+                <a href="/debate/{{ $room->debate->id }}" class="text-blue-500 hover:underline">
+                    <span>もし自動的に移動しない場合はこちらをクリック</span>
+                </a>
+            </div>
+        </div>
     @endif
 
     <!-- ボタンセクション -->
-    <div class="mt-4 p-8 bg-gray-50">
+    <div class="mt-4 p-8">
         @if($isCreator)
         <div class="flex justify-center">
-            <form action="{{ route('debate.start', $room) }}" method="POST">
+            <form wire:submit="startDebate">
                 @csrf
                 <button type="submit"
                 onclick="return confirm('ディベートを開始します。よろしいですか？')"

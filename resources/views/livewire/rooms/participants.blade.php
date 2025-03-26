@@ -4,10 +4,10 @@
         <div
             class="rounded-lg shadow-sm p-1.5 w-full sm:w-auto flex-1 border-2 border-green-300 flex items-center justify-center relative">
             <div class="absolute top-2 left-4">
-                <div class="text-sm text-green-500 font-medium">肯定側</div>
+                <div class="text-md text-green-500 font-medium">肯定側</div>
             </div>
             @if($affirmativeDebater)
-                <div class="{{ $affirmativeDebater === auth()->user()->name ? 'bg-[#d8e2ff] border-2 border-[#abbbec]' : 'bg-white border-2 border-[#d6dcee]' }} rounded-lg shadow-md p-6 w-full sm:w-auto flex-1">
+                <div class="{{ $affirmativeDebater === optional(auth()->user())->name ? 'bg-primary-light border-2 border-primary/20' : 'bg-gray-100 border-2 border-gray-300' }} rounded-lg shadow-md p-6 w-full sm:w-auto flex-1">
                     <div class="flex h-full items-center justify-center pt-0">
                         <div class="text-xl text-gray-900 font-medium" id="affirmative-user" wire:key="affirmative-{{ $affirmativeDebater }}">
                             {{ $affirmativeDebater }}
@@ -27,10 +27,10 @@
         <div
             class="rounded-lg shadow-sm p-1.5 w-full sm:w-auto flex-1 border-2 border-red-300 flex items-center justify-center relative">
             <div class="absolute top-2 left-4">
-                <div class="text-sm text-red-500 font-medium">否定側</div>
+                <div class="text-md text-red-500 font-medium">否定側</div>
             </div>
             @if($negativeDebater)
-                <div class="{{ $negativeDebater === auth()->user()->name ? 'bg-[#d8e2ff] border-2 border-[#abbbec]' : 'bg-white border-2 border-[#d6dcee]' }} rounded-lg shadow-md p-6 w-full sm:w-auto flex-1">
+                <div class="{{ $negativeDebater === optional(auth()->user())->name ? 'bg-primary-light border-2 border-primary/20' : 'bg-gray-100 border-2 border-gray-300' }} rounded-lg shadow-md p-6 w-full sm:w-auto flex-1">
                     <div class="flex h-full items-center justify-center pt-0">
                         <div class="text-xl text-gray-900 font-medium" id="negative-user">
                             {{ $negativeDebater }}
@@ -46,25 +46,4 @@
             @endif
         </div>
     </div>
-    <!-- 参加ボタンセクション -->
-    @unless($room->users->contains(auth()->user()))
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mx-1 my-6">
-        <form action="{{ route('rooms.join', $room) }}" method="POST" onSubmit="return confirmJoin(event);">
-            @csrf
-            <button type="submit" name="side" value="affirmative"
-                class="w-full btn-outline-affirmative text-lg py-3 px-6 {{ $affirmativeDebater ? 'opacity-50 cursor-not-allowed' : '' }}"
-                {{ $affirmativeDebater ? 'disabled' : '' }}>
-                肯定側で参加する
-            </button>
-        </form>
-        <form action="{{ route('rooms.join', $room) }}" method="POST" onSubmit="return confirmJoin(event);">
-            @csrf
-            <button type="submit" name="side" value="negative"
-                class="w-full btn-outline-negative text-lg py-3 px-6 {{ $negativeDebater ? 'opacity-50 cursor-not-allowed' : '' }}"
-                {{ $negativeDebater ? 'disabled' : '' }}>
-                否定側で参加する
-            </button>
-        </form>
-    </div>
-    @endunless
 </div>
