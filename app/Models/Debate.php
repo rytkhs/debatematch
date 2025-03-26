@@ -108,17 +108,18 @@ class Debate extends Model
     public function finishDebate(): void
     {
         DB::transaction(function () {
-            // ディベート終了イベントをブロードキャスト
-            broadcast(new DebateFinished($this->id));
 
             if ($this->room) {
                 $this->room->updateStatus(Room::STATUS_FINISHED);
             }
 
             $this->update(['turn_end_time' => null]);
-
-            // 評価ジョブのディスパッチを追加
-            EvaluateDebateJob::dispatch($this->id);
+            // コミット後にイベント発行とジョブディスパッチ
+            DB::afterCommit(function () {
+                broadcast(new DebateFinished($this->id));
+                EvaluateDebateJob::dispatch($this->id);
+                Log::info('DebateFinished broadcasted and EvaluateDebateJob dispatched after commit.', ['debate_id' => $this->id]);
+            });
         });
     }
 
@@ -161,12 +162,13 @@ class Debate extends Model
                     'is_prep_time' => $this->getFormat()[$nextTurn]['is_prep_time'] ?? false
                 ];
 
-                // TurnAdvanced イベントを拡張データ付きでブロードキャスト
-                broadcast(new TurnAdvanced($this, $eventData));
-
-                // 次のターンのジョブをスケジュール
-                AdvanceDebateTurnJob::dispatch($this->id, $nextTurn)
-                    ->delay($this->turn_end_time);
+                // トランザクションコミット後に実行
+                DB::afterCommit(function () use ($nextTurn, $eventData) {
+                    broadcast(new TurnAdvanced($this, $eventData));
+                    AdvanceDebateTurnJob::dispatch($this->id, $nextTurn)
+                        ->delay($this->turn_end_time);
+                    Log::debug('TurnAdvanced broadcasted and AdvanceDebateTurnJob dispatched after commit.', ['debate_id' => $this->id, 'next_turn' => $nextTurn]);
+                });
             } else {
                 $this->finishDebate();
             }
