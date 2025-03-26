@@ -20,10 +20,11 @@ class RoomController extends Controller
         $rooms = Room::where('status', Room::STATUS_WAITING)->get();
         return view('rooms.index', compact('rooms'));
     }
-
     public function create()
     {
-        return view('rooms.create');
+        $formats = config('debate.formats');
+
+        return view('rooms.create', compact('formats'));
     }
 
     public function store(Request $request)
@@ -33,13 +34,49 @@ class RoomController extends Controller
             'topic' => 'required|string|max:255',
             'side'  => 'required|in:affirmative,negative',
             'remarks' => 'nullable|string|max:1000',
+            'language' => 'required|in:japanese,english',
+            'format_type' => 'required|string',
         ]);
+
+        $customFormatSettings = null;
+        if ($validatedData['format_type'] === 'custom') {
+            $request->validate([
+                'turns' => 'required|array|min:1',
+                'turns.*.speaker' => 'required|in:affirmative,negative',
+                'turns.*.name' => 'required|string|max:255',
+                'turns.*.duration' => 'required|integer|min:1|max:20',
+                'turns.*.is_prep_time' => 'nullable|boolean',
+                'turns.*.is_questions' => 'nullable|boolean',
+            ]);
+
+            // カスタム設定を作成
+            $customFormatSettings = [];
+            // $turnIndex = 1;
+
+            foreach ($request->input('turns') as $index => $turn) {
+                // 分を秒に変換
+                $durationInSeconds = (int)$turn['duration'] * 60;
+
+                $customFormatSettings[$index + 1] = [
+                    'name' => $turn['name'],
+                    'duration' => $durationInSeconds,
+                    'speaker' => $turn['speaker'],
+                    'is_prep_time' => isset($turn['is_prep_time']) && $turn['is_prep_time'] == true,
+                    'is_questions' => isset($turn['is_questions']) && $turn['is_questions'] == true,
+                ];
+
+                $index++;
+            }
+        }
 
         $room = Room::create([
             'name'       => $validatedData['name'],
             'topic'      => $validatedData['topic'],
             'remarks'    => $validatedData['remarks'] ?? null,
             'status' => Room::STATUS_WAITING,
+            'language' => $validatedData['language'],
+            'format_type' => $validatedData['format_type'],
+            'custom_format_settings' => $customFormatSettings,
             'created_by' => Auth::id(),
         ]);
 
