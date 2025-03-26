@@ -5,16 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Events\TurnAdvanced;
+use App\Events\DebateFinished;
+use App\Events\DebateTerminated;
 use App\Jobs\EvaluateDebateJob;
 use App\Jobs\AdvanceDebateTurnJob;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class Debate extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['room_id', 'affirmative_user_id', 'negative_user_id', 'winner', 'current_turn', 'turn_end_time'];
+    protected $fillable = ['room_id', 'affirmative_user_id', 'negative_user_id', 'current_turn', 'turn_end_time'];
 
     protected $casts = ['turn_end_time' => 'datetime'];
 
@@ -123,6 +127,13 @@ class Debate extends Model
      */
     public function advanceToNextTurn(?int $expectedTurn = null): void
     {
+        Log::debug('ターン進行開始', [
+            'debate_id' => $this->id,
+            'current_turn' => $this->current_turn,
+            'current_turn_name' => $this->getFormat()[$this->current_turn]['name'],
+            'expected_turn' => $expectedTurn
+        ]);
+
         // 手動で進めた場合とのバッティングチェック
         if ($expectedTurn !== null && $this->current_turn !== $expectedTurn) {
             return;
@@ -133,20 +144,50 @@ class Debate extends Model
             return;
         }
 
-        // 次のターン番号が取得できればターン更新、なければ終了
+        // 次のターン番号を取得
         $nextTurn = $this->getNextTurn();
-        if ($nextTurn) {
-            // 次のターンへ
-            $this->updateTurn($nextTurn);
 
-            // TurnAdvanced イベント (Debateモデルを渡す)
-            broadcast(new TurnAdvanced($this));
-            // 次のターンのジョブをスケジュール
-            AdvanceDebateTurnJob::dispatch($this->id, $nextTurn)
-                ->delay($this->turn_end_time);
-        } else {
-            // 最終ターンを経過した場合はディベート終了
-            $this->finishDebate();
-        }
+        DB::transaction(function () use ($nextTurn) {
+            if ($nextTurn) {
+                // 次のターンへ
+                $this->updateTurn($nextTurn);
+
+                // イベントデータを充実させて、DB再取得を減らす
+                $eventData = [
+                    'turn_number' => $nextTurn,
+                    'turn_end_time' => $this->turn_end_time->timestamp,
+                    'speaker' => $this->getFormat()[$nextTurn]['speaker'] ?? null,
+                    'turn_name' => $this->getFormat()[$nextTurn]['name'] ?? null,
+                    'is_prep_time' => $this->getFormat()[$nextTurn]['is_prep_time'] ?? false
+                ];
+
+                // TurnAdvanced イベントを拡張データ付きでブロードキャスト
+                broadcast(new TurnAdvanced($this, $eventData));
+
+                // 次のターンのジョブをスケジュール
+                AdvanceDebateTurnJob::dispatch($this->id, $nextTurn)
+                    ->delay($this->turn_end_time);
+            } else {
+                $this->finishDebate();
+            }
+        });
+    }
+
+    /**
+     * ディベートを強制終了する
+     * 評価は行わない
+     */
+    public function terminateDebate(): void
+    {
+        DB::transaction(function () {
+            if ($this->room) {
+                $this->room->updateStatus(Room::STATUS_TERMINATED);
+            }
+
+            $this->update(['turn_end_time' => null]);
+
+            // 強制終了イベントをブロードキャスト
+            broadcast(new DebateTerminated($this));
+        });
     }
 }
