@@ -8,8 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Room extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'topic', 'remarks', 'status', 'created_by'];
+    protected $fillable = ['name', 'topic', 'remarks', 'status', 'created_by', 'language', 'format_type', 'custom_format_settings'];
     protected $touches = ['users'];
+
+    protected $casts = [
+        'custom_format_settings' => 'array',
+    ];
 
     public const STATUS_WAITING = 'waiting';
 
@@ -50,13 +54,35 @@ class Room extends Model
         $this->update(['status' => $status]);
     }
 
-    public function shouldBeReady(): bool
+    /**
+     * ディベートのフォーマットを取得する
+     */
+    public function getDebateFormat()
     {
-        return $this->users->count() === 2 && $this->status === 'waiting';
+        // カスタムフォーマットの場合はカスタム設定を返す
+        if ($this->format_type === 'custom' && !empty($this->custom_format_settings)) {
+            return $this->custom_format_settings;
+        }
+
+        // それ以外は選択されたフォーマットタイプのconfig設定を返す
+        return config("debate.formats.{$this->format_type}", []);
     }
 
-    public function shouldRevertToWaiting(): bool
+    /**
+     * フォーマット名を取得
+     */
+    public function getFormatName(): string
     {
-        return $this->users->count() < 2 && $this->status === 'ready';
+        // format_typeがconfig('debate.formats')のキーに存在する場合は、その名前を返す
+        if (array_key_exists($this->format_type, config('debate.formats'))) {
+            return $this->format_type;
+        }
+        // カスタムフォーマットの場合は'カスタム'を返す
+        if ($this->format_type === 'custom') {
+            return 'カスタム';
+        }
+
+        return '';
     }
+
 }

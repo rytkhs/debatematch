@@ -44,12 +44,13 @@ class Debate extends Model
     }
 
     /**
-     * debatesテーブルのturn構成を取得
-     * config('debate.turns') で管理
+     * フォーマットを取得（キャッシュを活用）
      */
-    public static function getTurns(): array
+    public function getFormat(): array
     {
-        return config('debate.turns', []);
+        return Cache::remember("debate_format_{$this->room_id}", 60, function () {
+            return $this->room->getDebateFormat();
+        });
     }
 
     /**
@@ -57,10 +58,12 @@ class Debate extends Model
      */
     public function startDebate(): void
     {
-        // $this->room->updateStatus('debating');
         $firstTurn = 1;
-        $turns = self::getTurns();
-        $duration = $turns[$firstTurn]['duration'] ?? 0;
+        $format = self::getFormat();
+        $duration = $format[$firstTurn]['duration'] ?? 0;
+
+        // 最初のターンには8秒追加
+        $duration += 8;
 
         $this->current_turn = $firstTurn;
         $this->turn_end_time = Carbon::now()->addSeconds($duration);
@@ -79,7 +82,7 @@ class Debate extends Model
     public function getNextTurn(): ?int
     {
         $nextTurn = $this->current_turn + 1;
-        return isset(self::getTurns()[$nextTurn]) ? $nextTurn : null;
+        return isset(self::getFormat()[$nextTurn]) ? $nextTurn : null;
     }
 
     /**
@@ -87,9 +90,11 @@ class Debate extends Model
      */
     public function updateTurn(int $nextTurn): void
     {
-        $turns = self::getTurns();
+        $format = self::getFormat();
         $this->current_turn = $nextTurn;
-        $this->turn_end_time = Carbon::now()->addSeconds($turns[$nextTurn]['duration']);
+        // 2ターン目以降は2秒追加
+        $duration = $format[$nextTurn]['duration'] + 2;
+        $this->turn_end_time = Carbon::now()->addSeconds($duration);
         $this->save();
     }
 
