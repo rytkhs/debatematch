@@ -39,9 +39,6 @@ class DebateStarted implements ShouldBroadcast
     {
         return [
             'debateId' => $this->debateId,
-            // 'room_id' => $this->roomId,
-            // 'redirect_url' => url('debate/' . $this->debateId)
-            // 'redirect_url' => 'http://localhost:8081/debate/' . $this->debateId
         ];
     }
 }
