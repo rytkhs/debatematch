@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('negative_user_id')->constrained('users')->onDelete('cascade');
             $table->integer('current_turn')->default(0);
             $table->timestamp('turn_end_time')->nullable();
-            $table->enum('winner', ['affirmative', 'negative'])->nullable();
             $table->timestamps();
         });
     }
