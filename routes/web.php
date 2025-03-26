@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use App\Http\Middleware\CheckUserActiveStatus;
+use App\Http\Controllers\HeartbeatController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\Admin\ConnectionAnalyticsController;
+
 
 // 基本ルート
 Route::get('/', function () {
@@ -16,17 +22,19 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('welcome');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // 認証不要なルーム関連ルート
-Route::prefix('rooms')->name('rooms.')->group(function () {
-    Route::get('/', [RoomController::class, 'index'])->name('index');
-    Route::get('/create', [RoomController::class, 'create'])->name('create');
+Route::middleware([CheckUserActiveStatus::class])->group(function () {
+    Route::prefix('rooms')->name('rooms.')->group(function () {
+        Route::get('/', [RoomController::class, 'index'])->name('index');
+        Route::get('/{room}/preview', [RoomController::class, 'preview'])->name('preview');
+    });
 });
 
 // 認証が必要なルートグループ
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', CheckUserActiveStatus::class])->group(function () {
     // プロフィール関連
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
@@ -37,23 +45,31 @@ Route::middleware('auth')->group(function () {
     // ルーム関連
     Route::prefix('rooms')->name('rooms.')->group(function () {
         Route::post('/', [RoomController::class, 'store'])->name('store');
+        Route::get('/create', [RoomController::class, 'create'])->name('create');
         Route::get('/{room}', [RoomController::class, 'show'])->name('show');
-        Route::get('/{room}/preview', [RoomController::class, 'preview'])->name('preview');
-        Route::post('/{room}/exit', [RoomController::class, 'exit'])->name('exit');
-        Route::post('/{room}/join', [RoomController::class, 'join'])->name('join');
     });
 
     // ディベート関連
     Route::prefix('debate')->name('debate.')->group(function () {
-        Route::post('/rooms/{room}/start', [DebateController::class, 'start'])->name('start');
         Route::get('/{debate}', [DebateController::class, 'show'])->name('show');
-        Route::get('/{debate}/result', [DebateController::class, 'result'])->name('result');
     });
 
     // 履歴関連ルート
     Route::prefix('records')->name('records.')->group(function () {
         Route::get('/', [DebateRecordController::class, 'index'])->name('index');
         Route::get('/{debate}', [DebateRecordController::class, 'show'])->name('show');
+    });
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/{room}/exit', [RoomController::class, 'exit'])->name('rooms.exit');
+    Route::post('/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
+    Route::post('/{room}/start', [RoomController::class, 'startDebate'])->name('rooms.start');
+    Route::post('/{debate}/exit', [DebateController::class, 'exit'])->name('debate.exit');
+    Route::post('/{debate}/terminate', [DebateController::class, 'terminate'])->name('debate.terminate');
+
+    Route::prefix('debate')->name('debate.')->group(function () {
+        Route::get('/{debate}/result', [DebateController::class, 'result'])->name('result');
     });
 });
 
@@ -80,5 +96,15 @@ Route::post('/pusher/auth', function (Request $request) {
 // ハートビートエンドポイント
 Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])
     ->middleware(['auth', 'throttle:60,1']);
+
+// 管理者用ルート
+// Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // 接続分析関連
+    Route::prefix('connection')->name('connection.')->group(function () {
+        Route::get('/analytics', [ConnectionAnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/user/{user}', [ConnectionAnalyticsController::class, 'userDetail'])->name('user-detail');
+    });
+});
 
 require __DIR__ . '/auth.php';
