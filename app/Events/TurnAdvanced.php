@@ -5,24 +5,28 @@ namespace App\Events;
 use App\Models\Debate;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * ターンが進行した際にブロードキャスト
+ * データベース再取得を減らすため、必要なデータをすべて含める
  */
-class TurnAdvanced implements ShouldBroadcastNow
+class TurnAdvanced implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $debate;
+    public $additionalData;
+
     /**
      * Create a new event instance.
      */
-    public function __construct(Debate $debate)
+    public function __construct(Debate $debate, array $additionalData = [])
     {
         $this->debate = $debate;
+        $this->additionalData = $additionalData;
     }
 
     /**
@@ -33,14 +37,16 @@ class TurnAdvanced implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('debate.' . $this->debate->room_id),
+            new PrivateChannel('debate.' . $this->debate->id),
         ];
     }
 
     public function broadcastWith(): array
     {
-        return [
+        return array_merge([
             'debate_id' => $this->debate->id,
-        ];
+            'current_turn' => $this->debate->current_turn,
+            'turn_end_time' => $this->debate->turn_end_time?->timestamp,
+        ], $this->additionalData);
     }
 }
