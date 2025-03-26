@@ -42,10 +42,12 @@ class CreatorLeftRoom implements ShouldBroadcast
 
     public function broadcastWith()
     {
+        $creatorId = $this->creator->getAuthIdentifier();
+
         return [
             'creator' => [
-                'id' => $this->creator->id,
-                'name' => $this->creator->name
+                'id' => $creatorId,
+                'name' => $this->creator instanceof User ? $this->creator->name : 'Unknown User'
             ],
             'room_id' => $this->room->id,
         ];
