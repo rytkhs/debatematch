@@ -128,9 +128,15 @@ class RoomController extends Controller
 
     public function join(Request $request, Room $room)
     {
+        if (!Auth::check()) {
+            return redirect()->route('welcome');
+        }
+
+        $user = Auth::user();
+
         $side = $request->input('side'); //肯定側 or 否定側
 
-        if ($room->users->contains(Auth::user())) {
+        if ($room->users->contains($user)) {
             // すでに参加しているか確認
             return redirect()->route('rooms.show', $room)->with('error', 'すでにこのルームに参加しています。');
         }
@@ -146,7 +152,7 @@ class RoomController extends Controller
         }
 
         // 参加者として登録
-        $room->users()->attach(Auth::id(), [
+        $room->users()->attach($user->id, [
             'side' => $side,
             'role' => RoomUser::ROLE_PARTICIPANT,
         ]);
@@ -156,50 +162,59 @@ class RoomController extends Controller
         $room->refresh();
 
         // ホストに参加者が参加したことを通知
-        broadcast(new UserJoinedRoom($room, Auth::user()))->toOthers();
+        broadcast(new UserJoinedRoom($room, $user))->toOthers();
         return redirect()->route('rooms.show', $room)->with('success', 'ルームに参加しました。');
     }
 
     public function exit(Room $room)
     {
-        // ユーザーが認証されていない場合は処理しない
         if (!Auth::check()) {
             return redirect()->route('welcome');
         }
 
+        $user = Auth::user();
+
         // ユーザーがルームに参加していない場合は処理しない
-        if (!$room->users->contains(Auth::user())) {
+        if (!$room->users->contains($user)) {
             return redirect()->route('rooms.index');
         }
 
         // ルームのステータスに応じた処理
         if ($room->status === Room::STATUS_DEBATING) {
+            // ディベート中の退出は現状許可しない
             return redirect()->back();
         } elseif ($room->status === Room::STATUS_TERMINATED || $room->status === Room::STATUS_DELETED) {
+            // 既に終了または削除されたルームからの退出
             return redirect()->route('rooms.index')->with('info', 'このルームは既に終了しています。');
         } elseif ($room->status === Room::STATUS_WAITING || $room->status === Room::STATUS_READY) {
-
-            return DB::transaction(function () use ($room) {
+            // 待機中または準備完了状態のルームからの退出処理
+            return DB::transaction(function () use ($room, $user) {
                 // ユーザーをルームから退出させる
-                $room->users()->detach(Auth::user()->id);
+                $room->users()->detach($user->id);
 
                 // 退出後のステータス更新
                 if ($room->status == Room::STATUS_READY) {
                     $room->updateStatus(Room::STATUS_WAITING);
                 }
 
-                // ルーム作成者が退出した場合、ルームを削除
-                if (Auth::user()->id === $room->created_by) {
-                    // 他の参加者がいるかどうか確認
-                    broadcast(new CreatorLeftRoom($room, Auth::user()))->toOthers();
+                // ルーム作成者が退出した場合
+                if ($user->id === $room->created_by) {
+                    // 他の参加者に作成者が退出したことを通知
+                    broadcast(new CreatorLeftRoom($room, $user))->toOthers();
+                    // ルームを削除状態に更新
                     $room->updateStatus(Room::STATUS_DELETED);
+                    // トップページにリダイレクト
                     return redirect()->route('welcome')->with('success', 'ルームを削除しました。');
                 }
 
-                // 参加者の退出
-                broadcast(new UserLeftRoom($room, Auth::user()))->toOthers();
+                // 参加者が退出した場合
+                // 他の参加者に参加者が退出したことを通知
+                broadcast(new UserLeftRoom($room, $user))->toOthers(); // $user 変数を使用
+                // ルーム一覧ページにリダイレクト
                 return redirect()->route('rooms.index')->with('success', 'ルームを退出しました。');
             });
         }
+
+        return redirect()->route('rooms.index');
     }
 }

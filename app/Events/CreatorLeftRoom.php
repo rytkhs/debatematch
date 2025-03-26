@@ -22,7 +22,7 @@ class CreatorLeftRoom implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(Room $room, User $creator)
+    public function __construct(Room $room, \Illuminate\Contracts\Auth\Authenticatable $creator)
     {
         $this->room = $room;
         $this->creator = $creator;
