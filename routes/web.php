@@ -17,9 +17,22 @@ use App\Http\Controllers\Admin\ConnectionAnalyticsController;
 
 
 // 基本ルート
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::middleware([CheckUserActiveStatus::class])->group(function () {
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('welcome');
+    Route::get('/terms', function () {
+        return view('terms');
+    })->name('terms');
+
+    Route::get('/privacy', function () {
+        return view('privacy');
+    })->name('privacy');
+
+    Route::get('/guide', function () {
+        return view('guide');
+    })->name('guide');
+});
 
 Route::get('/dashboard', function () {
     return view('welcome');
