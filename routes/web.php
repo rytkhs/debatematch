@@ -72,9 +72,13 @@ Route::post('/pusher/auth', function (Request $request) {
     return $pusher->presence_auth(
         $request->input('channel_name'),
         $request->input('socket_id'),
-        auth()->user()->id, // ユーザーIDを渡す
-        ['user_info' => ['name' => auth()->user()->name]]
+        Auth::user()->id,
+        ['name' => Auth::user()->name]
     );
 })->middleware('auth')->withoutMiddleware([ValidateCsrfToken::class]);
+
+// ハートビートエンドポイント
+Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])
+    ->middleware(['auth', 'throttle:60,1']);
 
 require __DIR__ . '/auth.php';
