@@ -207,19 +207,19 @@ class EventListener {
 }
 
 // グローバルに公開
-window.EvaluationNotifier = EvaluationNotifier;
+window.EventListener = EventListener;
 
 // DOMコンテンツ読み込み完了時に初期化
 document.addEventListener('DOMContentLoaded', () => {
     // debateDataがある場合のみ初期化
     if (window.debateData && window.debateData.debateId) {
-        window.evaluationNotifier = new EvaluationNotifier(window.debateData.debateId);
+        window.eventListener = new EventListener(window.debateData.debateId);
     }
 });
 
 // ページ離脱時にクリーンアップ
 window.addEventListener('beforeunload', () => {
-    if (window.evaluationNotifier) {
-        window.evaluationNotifier.cleanup();
+    if (window.eventListener) {
+        window.eventListener.cleanup();
     }
 });
