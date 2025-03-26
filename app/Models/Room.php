@@ -23,9 +23,13 @@ class Room extends Model
 
     public const STATUS_FINISHED = 'finished';
 
+    public const STATUS_DELETED = 'deleted';
+
+    public const STATUS_TERMINATED = 'terminated';
+
     public function users()
     {
-        return $this->belongsToMany(User::class, 'room_users')->withPivot('side', 'role', 'status')->withTimestamps();
+        return $this->belongsToMany(User::class, 'room_users')->withPivot('side', 'role');
     }
 
     public function creator()
@@ -40,17 +44,20 @@ class Room extends Model
 
     public function updateStatus(string $status): void
     {
+        // 有効な状態遷移を定義
         $validTransitions = [
-            'waiting' => ['ready'],
-            'ready' => ['debating', 'waiting'],
-            'debating' => ['finished'],
+            'waiting' => ['ready', 'deleted'],
+            'ready' => ['debating', 'waiting', 'deleted'],
+            'debating' => ['finished', 'terminated'],
             'finished' => []
         ];
 
+        // 通常の状態遷移のバリデーション
         if (!in_array($status, $validTransitions[$this->status])) {
             throw new \InvalidArgumentException("Invalid status transition: {$this->status} → {$status}");
         }
 
+        // 状態を更新
         $this->update(['status' => $status]);
     }
 
