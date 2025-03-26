@@ -25,6 +25,11 @@
             </header>
             @endisset
 
+            <!-- フラッシュメッセージ -->
+            <x-flash-message />
+            <!-- フラッシュメッセージ (Livewire) -->
+            <livewire:flash-message />
+
             <!-- Page Content -->
             <main class="flex-grow">
                 {{ $slot }}
