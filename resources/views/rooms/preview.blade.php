@@ -1,82 +1,207 @@
 <x-app-layout>
-    <div class="min-h-screen">
-        <x-slot name="header">
-            <x-header></x-header>
-        </x-slot>
-        <div class="container mx-auto px-32 pt-8">
-            <p class="text-gray-700 flex justify-center text-lg font-semibold mb-2">ルーム詳細</p>
-            <div class="flex justify-start mb-2">
-                <a href="{{ route('rooms.index') }}" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-arrow-left text-xl mr-1"></i>ルーム一覧へ戻る
+    <x-slot name="header">
+        <x-header></x-header>
+    </x-slot>
+    <div class="min-h-screen bg-gray-50">
+        <div class="container mx-auto max-w-7xl p-6">
+            <!-- ヘッダー部分 -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-primary">
+                    <span class="material-icons-outlined align-middle mr-2">preview</span>
+                    ルーム詳細
+                </h1>
+                <a href="{{ route('rooms.index') }}" class="flex items-center text-gray-600 hover:text-primary transition-colors">
+                    <span class="material-icons-outlined mr-1">arrow_back</span>
+                    ルーム一覧へ戻る
                 </a>
             </div>
 
-            <!-- ルーム情報 -->
-            <div class="bg-white rounded-xl shadow-lg px-8 py-5 mb-12 border border-gray-100">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-lg font-semibold text-gray-600 flex items-center mb-4">
-                            {{-- <span class="material-icons-outlined text-primary">
-                                chair
-                            </span> --}}
-                            <span class="text-primary">Room</span>
-                            <span class="px-4 py-1 rounded-lg bg-gray-50">
-                                {{ $room->name }}
-                            </span>
-                        </p>
-                        <h1 class="text-2xl font-bold text-gray-900 mb-6 px-2 py-2 rounded-xl">
-                            {{ $room->topic }}
-                        </h1>
-                    </div>
-                </div>
-                @if($room->remarks)
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">備考</h4>
-                    <p class="text-sm text-gray-600 whitespace-pre-wrap">{{ $room->remarks }}</p>
-                </div>
-                @endif
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- 左側：ルーム情報 -->
+                <div class="md:col-span-8 space-y-6">
+                    <!-- ルーム情報カード -->
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <span class="material-icons-outlined text-primary text-2xl">meeting_room</span>
+                                <div>
+                                    <p class="text-sm text-gray-500">ルーム名</p>
+                                    <h2 class="text-lg font-semibold">{{ $room->name }}</h2>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="px-2 py-1 bg-gray-100 rounded-md text-sm text-gray-600 flex items-center">
+                                    <span class="material-icons-outlined text-gray-400 mr-1 text-sm">language</span>
+                                    {{ $room->language === 'japanese' ? '日本語' : 'English' }}
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="material-icons-outlined text-gray-400 mr-1">person</span>
+                                    <span class="text-sm text-gray-500">ホスト: {{ $room->creator->name }}</span>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- ホスト情報 -->
-                <div class="border-t border-gray-200 mt-4 pt-4">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center">
-                            <p class="text-md text-gray-600 flex items-center px-1 py-1 rounded-lg">
-                                {{-- <span class="material-icons mr-2 text-[1.3rem] text-gray-500">
-                                    person_outline
-                                </span> --}}
-                                <span class="font-medium">
-                                    Host: {{ $room->creator->name }}
+                        <div class="mt-5 mb-6">
+                            <div class="bg-primary-light rounded-lg p-4 border-l-4 border-primary">
+                                <p class="text-sm text-gray-500 mb-1">論題</p>
+                                <h3 class="text-xl font-bold text-gray-800">{{ $room->topic }}</h3>
+                            </div>
+                        </div>
+
+                        @if($room->remarks)
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                <span class="material-icons-outlined text-gray-400 mr-1 text-sm">info</span>備考
+                            </h4>
+                            <p class="text-sm text-gray-600 whitespace-pre-wrap">{{ $room->remarks }}</p>
+                        </div>
+                        @endif
+
+                        <div class="mt-4 pt-4 border-t border-gray-200 flex justify-end">
+                            <livewire:rooms.status :room="$room" />
+                        </div>
+                    </div>
+
+                    <!-- ディベート形式 -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <button type="button" class="w-full text-left focus:outline-none group transition-all" onclick="toggleFormat('preview-format-content')">
+                            <h3 class="text-lg font-semibold text-gray-800 flex items-center justify-between">
+                                <span class="flex items-center">
+                                    <span class="material-icons-outlined text-primary mr-2">format_list_numbered</span>
+                                    フォーマット
                                 </span>
-                            </p>
-                        </div>
-                        <div class="ml-4">
-                            @livewire('room-status', ['room' => $room])
+                                <span class="material-icons-outlined text-gray-400 group-hover:text-primary transition-colors format-preview-icon">expand_less</span>
+                            </h3>
+                        </button>
+
+                        <div id="preview-format-content" class="mt-4 transition-all duration-300 transform opacity-100">
+                            <div class="pt-2 border-t border-gray-100">
+                                <h4 class="text-md font-medium text-gray-600 mb-3">
+                                    {{ $room->getFormatName() }} 形式
+                                </h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200 border border-gray-100 rounded-lg">
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @php
+                                                $formatData = $room->custom_format_settings ?? config('debate.formats')[$room->format_type] ?? [];
+                                            @endphp
+
+                                            @foreach($formatData as $index => $turn)
+                                            <tr class="{{ $turn['speaker'] === 'affirmative' ? 'bg-green-50' : 'bg-red-50' }}">
+                                                <td class="px-4 py-2 text-sm">{{ $index }}</td>
+                                                <td class="px-4 py-2 text-sm">
+                                                    <span class="px-2 py-1 rounded-full {{ $turn['speaker'] === 'affirmative' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                        {{ $turn['speaker'] === 'affirmative' ? '肯定側' : '否定側' }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-2 text-sm">{{ $turn['name'] }}</td>
+                                                <td class="px-4 py-2 text-sm">{{ floor($turn['duration'] / 60) }}分</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ディベーターセクション -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold text-primary mb-4 flex items-center">
-                    <span class="material-icons-outlined mr-2">group</span>
-                    Debaters
-                </h2>
-                @livewire('room-participants', ['room' => $room])
+                <!-- 右側：ディベーターと参加アクション -->
+                <div class="md:col-span-4 space-y-6">
+                    <!-- ディベーターカード -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="material-icons-outlined text-primary mr-2">groups</span>
+                            ディベーター
+                        </h3>
+                        <livewire:rooms.participants :room="$room" />
+                    </div>
+
+                    <!-- 参加セクション -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="material-icons-outlined text-primary mr-2">how_to_reg</span>
+                            ディベートに参加
+                        </h3>
+
+                        @if($room->status === 'waiting')
+                            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200 mb-4">
+                                <div class="flex items-center text-blue-700">
+                                    <span class="material-icons-outlined mr-2">info</span>
+                                    <p>ディベートに参加するにはサイドを選択してください</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <form action="{{ route('rooms.join', $room) }}" method="POST" onSubmit="return confirmJoin(event);">
+                                    @csrf
+                                    <button type="submit" name="side" value="affirmative"
+                                        class="w-full flex items-center justify-center py-3 px-4 rounded-lg transition-all hover:scale-105
+                                        {{ $room->users->where('pivot.side', 'affirmative')->count() ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-500' : 'bg-green-100 text-green-800 hover:bg-green-200' }}"
+                                        {{ $room->users->where('pivot.side', 'affirmative')->count() ? 'disabled' : '' }}>
+                                        <span class="material-icons-outlined mr-2">add_circle</span>
+                                        肯定側で参加する
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('rooms.join', $room) }}" method="POST" onSubmit="return confirmJoin(event);">
+                                    @csrf
+                                    <button type="submit" name="side" value="negative"
+                                        class="w-full flex items-center justify-center py-3 px-4 rounded-lg transition-all hover:scale-105
+                                        {{ $room->users->where('pivot.side', 'negative')->count() ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-500' : 'bg-red-100 text-red-800 hover:bg-red-200' }}"
+                                        {{ $room->users->where('pivot.side', 'negative')->count() ? 'disabled' : '' }}>
+                                        <span class="material-icons-outlined mr-2">add_circle</span>
+                                        否定側で参加する
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif($room->status === 'ready' || $room->status === 'debating')
+                            <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <div class="flex items-center text-yellow-700 justify-center">
+                                    <span class="material-icons-outlined mr-2">info</span>
+                                    <p>このルームはすでに満員です</p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <div class="flex items-center text-gray-700 justify-center">
+                                    <span class="material-icons-outlined mr-2">block</span>
+                                    <p>このルームには参加できません</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
-
-        <script>
-            function confirmJoin(event) {
-                if (!confirm('ルームに参加しますか？')) {
-                    event.preventDefault();
-                    return false;
-                }
-                return true;
-            }
-        </script>
     </div>
-    <x-slot name="footer">
-        <x-footer></x-footer>
-    </x-slot>
+
+    <script>
+        function confirmJoin(event) {
+            if (!confirm('このサイドでディベートに参加しますか？')) {
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+
+        // フォーマットアコーディオンの開閉処理
+        function toggleFormat(contentId) {
+            const content = document.getElementById(contentId);
+            const icon = document.querySelector('.format-preview-icon');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.classList.add('opacity-100');
+                icon.textContent = 'expand_less';
+            } else {
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0');
+                setTimeout(() => {
+                    content.classList.add('hidden');
+                    icon.textContent = 'expand_more';
+                }, 200);
+            }
+        }
+    </script>
 </x-app-layout>

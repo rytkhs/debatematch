@@ -1,90 +1,221 @@
-// Pusherの初期化
-var pusher = new Pusher(window.roomData.pusherKey, {
-    cluster: window.roomData.pusherCluster,
-    authEndpoint: '/pusher/auth',
-    encrypted: true
-});
+import './disconnection-handler';
+import HeartbeatService from './heartbeat-service';
 
-// チャンネルの購読
-var channel = pusher.subscribe('rooms.' + window.roomData.roomId);
-var presenceChannel = pusher.subscribe('presence-room.' + window.roomData.roomId);
+// ルームページの機能強化
+class RoomManager {
+    constructor(options) {
+        this.roomId = options.roomId;
+        this.userId = options.authUserId;
+        this.pusherKey = options.pusherKey;
+        this.pusherCluster = options.pusherCluster;
 
-// ユーザーイベントを処理するヘルパー関数
-const handleUserEvent = (eventName, action) => data => {
-    if (data.user.id !== window.roomData.authUserId) {
-        alert(`${data.user.name} さんが${eventName}しました。`);
+        this.pusher = null;
+        this.channel = null;
+        this.presenceChannel = null;
+
+        this.initialize();
     }
-    console.log(`${data.user.name} さんが${eventName}しました。`);
-};
 
-// Pusherイベントの登録
-const registerPusherEvents = () => {
-    // ルーム参加・退出イベントのバインド
-    channel.bind('App\\Events\\UserJoinedRoom', handleUserEvent('参加'));
-    channel.bind('App\\Events\\UserLeftRoom', handleUserEvent('退出'));
-
-    // プレゼンスチャンネルのメンバー状態変更イベントのバインド
-    presenceChannel.bind('pusher:member_removed', member => {
-        console.log(member.info.user_info.name + ' さんが切断されました。');
-    });
-
-    presenceChannel.bind('pusher:member_added', member => {
-        console.log(member.info.user_info.name + ' さんが再接続しました。');
-    });
-};
-
-registerPusherEvents();
-
-// ページ遷移を制御するハンドラー
-const navigationHandler = {
-    isLegitimateNavigation: false,
-
-    // 正当なナビゲーションを許可
-    allowNavigation() {
-        this.isLegitimateNavigation = true;
-    },
-
-    // イベントリスナーの初期化
-    initEventListeners() {
-        // リンクやフォームクリック時のナビゲーション許可
-        document.addEventListener('click', e => {
-            if (e.target.closest('a, form')) this.allowNavigation();
+    initialize() {
+        // Pusherの初期化
+        this.pusher = new Pusher(this.pusherKey, {
+            cluster: this.pusherCluster,
+            authEndpoint: '/pusher/auth',
+            encrypted: true
         });
 
-        // ページ離脱時の確認
-        window.addEventListener('beforeunload', e => {
-            if (!this.isLegitimateNavigation) {
-                e.preventDefault();
-                return e.returnValue = '';
+        // チャンネルの購読
+        this.channel = this.pusher.subscribe('rooms.' + this.roomId);
+        this.presenceChannel = this.pusher.subscribe('presence-room.' + this.roomId);
+
+        console.log('チャンネル初期化:', this.channel);
+
+        // イベントハンドラの登録
+        this.registerEventHandlers();
+
+        // 切断ハンドラーの初期化
+        this.disconnectionHandler = new DisconnectionHandler({
+            roomId: this.roomId,
+            isHost: window.roomData.isCreator,
+            isDebating: false,
+            exitUrl: '/'
+        });
+    }
+
+    registerEventHandlers() {
+        // ユーザー参加イベント
+        this.channel.bind('App\\Events\\UserJoinedRoom', data => {
+            if (data.user.id !== this.userId) {
+                this.showNotification(`${data.user.name} さんが参加しました`, 'info');
+            }
+            console.log(`${data.user.name} さんが参加しました`);
+        });
+
+        // ユーザー退出イベント
+        this.channel.bind('App\\Events\\UserLeftRoom', data => {
+            if (data.user.id !== this.userId) {
+                this.showNotification(`${data.user.name} さんが退出しました`, 'warning');
+            }
+            console.log(`${data.user.name} さんが退出しました`);
+        });
+
+        // クリエイター退出イベント
+        this.channel.bind('App\\Events\\CreatorLeftRoom', data => {
+            if (data.creator.id === this.userId) return;
+            alert("ホストが退出したため、ルームは閉鎖されました");
+
+            // this.showNotification("ホストが退出したため、ルームは閉鎖されました", 'error');
+            window.location.href = '/';
+        });
+
+        // ディベート開始イベント
+        this.channel.bind('App\\Events\\DebateStarted', data => {
+            console.log('ディベート開始イベントを受信しました');
+            console.log('ディベートID:', data.debateId);
+
+            this.showNotification('ディベートを開始します。ページ移動の準備をしています...', 'success');
+            this.showLoadingCountdown();
+
+            const debateUrl = `/debate/${data.debateId}`;
+
+            // カウントダウン設定
+            let countdown = 5;
+            const countdownElement = document.querySelector('#countdown-overlay .text-gray-500');
+
+            if (countdownElement) {
+                countdownElement.innerHTML = `${countdown}秒後にディベートページへ移動します...`;
+            }
+
+            // カウントダウンタイマーで確実にリダイレクト
+            const countdownTimer = setInterval(() => {
+                countdown--;
+
+                if (countdownElement) {
+                    countdownElement.innerHTML = `${countdown}秒後にディベートページへ移動します...`;
+                }
+
+                // カウントダウン終了時の処理
+                if (countdown <= 0) {
+                    clearInterval(countdownTimer);
+
+                    window.location.href = debateUrl;
+
+                    // バックアップリダイレクト
+                    setTimeout(() => {
+                        if (window.location.pathname !== debateUrl) {
+                            window.location.replace(debateUrl);
+                        }
+                    }, 500);
+                }
+            }, 1000);
+        });
+
+        let offlineTimeout;
+            // オンラインメンバーの初期リスト
+            this.presenceChannel.bind('pusher:subscription_succeeded', function(members) {
+            members.each(function(member) {
+                Livewire.dispatch('member-online', { data: member });
+            });
+        });
+
+        // プレゼンスチャンネルのメンバー状態変更イベント
+        this.presenceChannel.bind('pusher:member_removed', member => {
+            console.log(member.info.name + ' さんが切断されました');
+            clearTimeout(offlineTimeout);
+            offlineTimeout = setTimeout(() => {
+                // 遅延後にオフラインイベントをディスパッチ (リロード対策)
+                Livewire.dispatch('member-offline', { data: member });
+            }, 5000);
+        });
+
+        this.presenceChannel.bind('pusher:member_added', member => {
+            console.log(member.info.name + ' さんが再接続しました');
+            clearTimeout(offlineTimeout);
+
+            Livewire.dispatch('member-online', { data: member });
+        });
+
+        // 接続状態の監視
+        this.pusher.connection.bind('state_change', states => {
+            if (states.current === 'disconnected' || states.current === 'failed') {
+                this.disconnectionHandler.handleSelfDisconnection();
+            } else if (states.current === 'connected' && states.previous === 'disconnected') {
+                this.disconnectionHandler.hideAlert();
+                this.disconnectionHandler.stopCountdown();
+                this.showNotification('接続が回復しました', 'success');
             }
         });
     }
-};
 
-navigationHandler.initEventListeners();
+    // 通知を表示する関数
+    showNotification(message, type = 'info') {
+        if (window.showNotification) {
+            window.showNotification(message, type);
+            return;
+        }
 
-// カウントダウンオーバーレイのHTML要素を作成
-const createCountdownOverlay = () => {
-    const overlay = document.createElement('div');
-    overlay.id = 'countdown-overlay';
-    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden';
-    overlay.innerHTML = `
-        <div class="bg-white rounded-lg p-8 text-center flex flex-col items-center space-y-4">
-            <h2 class="text-2xl font-bold text-gray-800">ディベートを開始します</h2>
-            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        </div>
-    `;
-    return overlay;
-};
+        const notification = document.createElement('div');
 
+        const styles = {
+            'info': 'bg-blue-100 border-blue-500 text-blue-800',
+            'success': 'bg-green-100 border-green-500 text-green-800',
+            'warning': 'bg-yellow-100 border-yellow-500 text-yellow-800',
+            'error': 'bg-red-100 border-red-500 text-red-800'
+        };
+
+        notification.className = `fixed rounded-lg shadow-lg border-l-4 ${styles[type] || styles.info}`;
+        notification.style.top = '1rem';
+        notification.style.right = '1rem';
+        notification.style.padding = '0.75rem 1.5rem';
+        notification.style.zIndex = '50';
+        notification.style.transition = 'all 0.5s ease';
+        notification.style.transform = 'translateX(100%)';
+        notification.style.opacity = '0';
+        notification.innerText = message;
+
+        document.body.appendChild(notification);
+
+        // 強制的にレイアウト計算を行う
+        notification.getBoundingClientRect();
+
+        // アニメーション
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+            notification.style.opacity = '1';
+        }, 10);
+
+        // 3秒後に消す
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            notification.style.opacity = '0';
+
+        // トランジション終了後に要素を削除
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+    // カウントダウンオーバーレイの表示
+    showLoadingCountdown() {
+        const overlay = document.getElementById('countdown-overlay');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+        }
+    }
+}
+
+// DOMロード時に初期化
 document.addEventListener('DOMContentLoaded', () => {
-    // カウントダウンオーバーレイを追加
-    document.body.appendChild(createCountdownOverlay());
+    
+    const roomManager = new RoomManager(window.roomData);
 
-    // ディベート開始イベントのリスナー設定
-    const debateChannel = window.Echo.private(`debate.${window.roomData.roomId}`);
-    debateChannel.listen('DebateStarted', data => {
-        window.showLoadingCountdown();
-        setTimeout(() => window.location.assign(data.redirect_url), 5000);
-    });
+    window.roomManager = roomManager;
+
+    // HeartbeatService の初期化と開始
+    if (window.roomData) {
+        window.heartbeatService = new HeartbeatService({
+            contextType: 'room',
+            contextId: window.roomData.roomId
+        });
+        window.heartbeatService.start();
+    }
 });
