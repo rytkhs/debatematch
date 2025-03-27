@@ -69,24 +69,26 @@ class RoomController extends Controller
             }
         }
 
-        $room = Room::create([
-            'name'       => $validatedData['name'],
-            'topic'      => $validatedData['topic'],
-            'remarks'    => $validatedData['remarks'] ?? null,
-            'status' => Room::STATUS_WAITING,
-            'language' => $validatedData['language'],
-            'format_type' => $validatedData['format_type'],
-            'custom_format_settings' => $customFormatSettings,
-            'created_by' => Auth::id(),
-        ]);
+        return DB::transaction(function () use ($validatedData, $customFormatSettings) {
+            $room = Room::create([
+                'name'       => $validatedData['name'],
+                'topic'      => $validatedData['topic'],
+                'remarks'    => $validatedData['remarks'] ?? null,
+                'status' => Room::STATUS_WAITING,
+                'language' => $validatedData['language'],
+                'format_type' => $validatedData['format_type'],
+                'custom_format_settings' => $customFormatSettings,
+                'created_by' => Auth::id(),
+            ]);
 
-        // ユーザーが選択した側でルームに参加させる
-        $room->users()->attach(Auth::id(), [
-            'side' => $validatedData['side'],
-            'role' => RoomUser::ROLE_CREATOR,
-        ]);
+            // ユーザーが選択した側でルームに参加させる
+            $room->users()->attach(Auth::id(), [
+                'side' => $validatedData['side'],
+                'role' => RoomUser::ROLE_CREATOR,
+            ]);
 
-        return redirect()->route('rooms.show', compact('room'))->with('success', 'ルームを作成しました');
+            return redirect()->route('rooms.show', compact('room'))->with('success', 'ルームを作成しました');
+        });
     }
 
     public function preview(Room $room)
@@ -133,7 +135,6 @@ class RoomController extends Controller
         }
 
         $user = Auth::user();
-
         $side = $request->input('side'); //肯定側 or 否定側
 
         if ($room->users->contains($user)) {
@@ -151,19 +152,23 @@ class RoomController extends Controller
             return redirect()->route('rooms.index')->with('error', 'このルームには参加できません。');
         }
 
-        // 参加者として登録
-        $room->users()->attach($user->id, [
-            'side' => $side,
-            'role' => RoomUser::ROLE_PARTICIPANT,
-        ]);
+        return DB::transaction(function () use ($room, $user, $side) {
+            // 参加者として登録
+            $room->users()->attach($user->id, [
+                'side' => $side,
+                'role' => RoomUser::ROLE_PARTICIPANT,
+            ]);
 
-        $room->updateStatus(Room::STATUS_READY);
+            $room->updateStatus(Room::STATUS_READY);
+            $room->refresh();
 
-        $room->refresh();
+            DB::afterCommit(function () use ($room, $user) {
+                // ホストに参加者が参加したことを通知
+                broadcast(new UserJoinedRoom($room, $user))->toOthers();
+            });
 
-        // ホストに参加者が参加したことを通知
-        broadcast(new UserJoinedRoom($room, $user))->toOthers();
-        return redirect()->route('rooms.show', $room)->with('success', 'ルームに参加しました。');
+            return redirect()->route('rooms.show', $room)->with('success', 'ルームに参加しました。');
+        });
     }
 
     public function exit(Room $room)
@@ -197,21 +202,31 @@ class RoomController extends Controller
                     $room->updateStatus(Room::STATUS_WAITING);
                 }
 
+                // 作成者退出フラグ
+                $isCreator = ($user->id === $room->created_by);
+
                 // ルーム作成者が退出した場合
-                if ($user->id === $room->created_by) {
-                    // 他の参加者に作成者が退出したことを通知
-                    broadcast(new CreatorLeftRoom($room, $user))->toOthers();
+                if ($isCreator) {
                     // ルームを削除状態に更新
                     $room->updateStatus(Room::STATUS_DELETED);
-                    // トップページにリダイレクト
-                    return redirect()->route('welcome')->with('success', 'ルームを削除しました。');
                 }
 
-                // 参加者が退出した場合
-                // 他の参加者に参加者が退出したことを通知
-                broadcast(new UserLeftRoom($room, $user))->toOthers(); // $user 変数を使用
-                // ルーム一覧ページにリダイレクト
-                return redirect()->route('rooms.index')->with('success', 'ルームを退出しました。');
+                // トランザクション成功後にブロードキャスト
+                DB::afterCommit(function () use ($room, $user, $isCreator) {
+                    if ($isCreator) {
+                        // 他の参加者に作成者が退出したことを通知
+                        broadcast(new CreatorLeftRoom($room, $user))->toOthers();
+                    } else {
+                        // 参加者が退出した場合の通知
+                        broadcast(new UserLeftRoom($room, $user))->toOthers();
+                    }
+                });
+
+                if ($isCreator) {
+                    return redirect()->route('welcome')->with('success', 'ルームを削除しました。');
+                } else {
+                    return redirect()->route('rooms.index')->with('success', 'ルームを退出しました。');
+                }
             });
         }
 
