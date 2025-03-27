@@ -6,7 +6,6 @@ use Livewire\Component;
 use App\Models\Debate;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
-use Livewire\Attributes\Session;
 
 class Participants extends Component
 {
@@ -15,7 +14,6 @@ class Participants extends Component
     public string $nextTurnName = '';
     public ?string $currentSpeaker;
     public bool $isMyTurn = false;
-    #[Session]
     public array $onlineUsers = [];
 
     public function mount(Debate $debate): void

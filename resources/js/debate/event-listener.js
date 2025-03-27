@@ -56,29 +56,17 @@ class EventListener {
             title: 'ディベート評価が完了しました',
             message: '結果ページへ移動します',
             type: 'success',
-            duration: 5000
+            duration: 2000
         });
         console.log(event.debateId);
 
         // 評価結果ページへのURLを生成
         const resultUrl = `/debate/${this.debateId}/result`;
 
-        // 5秒後に評価結果ページへリダイレクト（複数回実行保証）
+        // 2秒後に評価結果ページへリダイレクト
         setTimeout(() => {
-            // 1. 通常のリダイレクト
             window.location.href = resultUrl;
-
-            // 2. replaceを使ったリダイレクト
-            window.location.replace(resultUrl);
-
-            // 3. 念のため、500ms後に再度リダイレクトチェック
-            setTimeout(() => {
-                if (window.location.pathname !== resultUrl) {
-                    window.location.href = resultUrl;
-                }
-            }, 500);
-
-        }, 5000);
+        }, 2000);
     }
 
     /**c
@@ -88,7 +76,6 @@ class EventListener {
         // 終了通知を表示
         // this.showTerminationNotification();
         alert('相手との接続が切断されたため、ディベートを終了します');
-        // welcomeページへリダイレクト
         window.location.href = '/';
     }
 
