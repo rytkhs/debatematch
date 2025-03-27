@@ -111,8 +111,7 @@ Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])
     ->middleware(['auth', 'throttle:60,1']);
 
 // 管理者用ルート
-// Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     // 接続分析関連
     Route::prefix('connection')->name('connection.')->group(function () {
         Route::get('/analytics', [ConnectionAnalyticsController::class, 'index'])->name('analytics');
