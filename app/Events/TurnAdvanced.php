@@ -11,7 +11,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * ターンが進行した際にブロードキャスト
- * データベース再取得を減らすため、必要なデータをすべて含める
  */
 class TurnAdvanced implements ShouldBroadcast
 {

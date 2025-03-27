@@ -4,8 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -22,7 +20,7 @@ class CreatorLeftRoom implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(Room $room, \Illuminate\Contracts\Auth\Authenticatable $creator)
+    public function __construct(Room $room, User $creator)
     {
         $this->room = $room;
         $this->creator = $creator;
@@ -47,7 +45,7 @@ class CreatorLeftRoom implements ShouldBroadcast
         return [
             'creator' => [
                 'id' => $creatorId,
-                'name' => $this->creator instanceof User ? $this->creator->name : 'Unknown User'
+                'name' => $this->creator->name
             ],
             'room_id' => $this->room->id,
         ];

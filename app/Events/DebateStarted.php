@@ -12,12 +12,12 @@ class DebateStarted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $debateId;
-    public $roomId;
+    public int $debateId;
+    public int $roomId;
     /**
      * Create a new event instance.
      */
-    public function __construct($debateId, $roomId)
+    public function __construct(int $debateId, int $roomId)
     {
         $this->debateId = $debateId;
         $this->roomId = $roomId;
