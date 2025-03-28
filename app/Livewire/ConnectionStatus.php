@@ -6,18 +6,21 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Session;
 use App\Models\Room;
+use App\Models\Debate;
+use Illuminate\Support\Facades\Auth;
 
 class ConnectionStatus extends Component
 {
     public bool $isOffline = false;
     public bool $isPeerOffline = false;
-    public ?string $peerName = null;
+    public array $onlineUsers = [];
+    public ?Debate $debate = null;
     public ?Room $room = null;
 
-    public function mount(?Room $room)
+    public function mount(?Room $room = null): void
     {
-        // Roomモデルをマウント時に受け取る
         $this->room = $room;
+        $this->debate = $room->debate;
     }
 
     #[On('connection-lost')]
@@ -34,23 +37,51 @@ class ConnectionStatus extends Component
         $this->isOffline = false;
     }
 
-    #[On('member-offline')]
-    public function handlePeerOffline($data): void
-    {
-        // 相手がオフラインになった場合の処理
-        if (!isset($data['id']) || !isset($data['info']['name'])) return;
-
-        $this->isPeerOffline = true;
-        $this->peerName = $data['info']['name'] ?? '相手';
-    }
-
     #[On('member-online')]
-    public function handlePeerOnline($data): void
+    public function handleMemberOnline($data): void
     {
         // 相手がオンラインになった場合の処理
         if (!isset($data['id'])) return;
 
+        $userId = $data['id'];
+        $this->onlineUsers[$userId] = true;
+
+        // 相手のオンライン状態を更新
+        $this->updatePeerStatus();
+    }
+
+    #[On('member-offline')]
+    public function handleMemberOffline($data): void
+    {
+        // 相手がオフラインになった場合の処理
+        if (!isset($data['id'])) return;
+
+        $userId = $data['id'];
+        $this->onlineUsers[$userId] = false;
+
+        // 相手のオンライン状態を更新
+        $this->updatePeerStatus();
+    }
+
+    private function updatePeerStatus(): void
+    {
         $this->isPeerOffline = false;
+
+        if ($this->debate) {
+            // ディベート相手の状態を確認
+            $currentUserId = Auth::id();
+            $peerId = null;
+
+            if ($this->debate->affirmative_user_id == $currentUserId) {
+                $peerId = $this->debate->negative_user_id;
+            } elseif ($this->debate->negative_user_id == $currentUserId) {
+                $peerId = $this->debate->affirmative_user_id;
+            }
+
+            if ($peerId && isset($this->onlineUsers[$peerId])) {
+                $this->isPeerOffline = !$this->onlineUsers[$peerId];
+            }
+        }
     }
 
     #[On('echo:rooms.{room.id},UserLeftRoom')]
@@ -63,12 +94,16 @@ class ConnectionStatus extends Component
 
         $this->isOffline = false;
         $this->isPeerOffline = false;
-        $this->peerName = null;
+        $this->onlineUsers = [];
+    }
+
+    public function isUserOnline($userId): bool
+    {
+        return $this->onlineUsers[$userId] ?? false;
     }
 
     public function render()
     {
-        // コンポーネントの描画
         return view('livewire.connection-status');
     }
 }

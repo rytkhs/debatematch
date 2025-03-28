@@ -8,6 +8,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * ターン終了後に次のターンへ自動的に進行させるジョブ
@@ -18,6 +20,11 @@ class AdvanceDebateTurnJob implements ShouldQueue
 
     public int $debateId;
     public int $expectedTurn;
+
+    // 再試行設定
+    public $tries = 3;
+    public $backoff = 5;
+
     /**
      * Create a new job instance.
      */
@@ -32,11 +39,56 @@ class AdvanceDebateTurnJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $debate = Debate::find($this->debateId);
-        if (!$debate) {
-            return;
-        }
+        try {
+            Log::info('ターン進行ジョブ開始', [
+                'debate_id' => $this->debateId,
+                'expected_turn' => $this->expectedTurn
+            ]);
 
-        $debate->advanceToNextTurn($this->expectedTurn);
+            $debate = Debate::find($this->debateId);
+            if (!$debate) {
+                Log::warning('ディベートが見つかりません', ['debate_id' => $this->debateId]);
+                return;
+            }
+
+            $debate->advanceToNextTurn($this->expectedTurn);
+        } catch (\Exception $e) {
+            Log::error('ターン進行処理でエラーが発生しました', [
+                'debate_id' => $this->debateId,
+                'expected_turn' => $this->expectedTurn,
+                'error' => $e->getMessage(),
+                'stack_trace' => $e->getTraceAsString()
+            ]);
+
+            // 再試行が必要なエラーの場合は例外を再スロー
+            if ($this->attempts() < $this->tries) {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * ジョブ失敗時の処理
+     */
+    public function failed(?Throwable $exception): void
+    {
+        Log::critical('ターン進行ジョブが失敗しました', [
+            'debate_id' => $this->debateId,
+            'expected_turn' => $this->expectedTurn,
+            'error' => $exception ? $exception->getMessage() : '不明なエラー'
+        ]);
+
+        // 終了処理を安全に実行
+        try {
+            $debate = Debate::find($this->debateId);
+            if ($debate && $debate->room && $debate->room->status === 'debating') {
+                $debate->terminateDebate();
+            }
+        } catch (\Exception $e) {
+            Log::error('ターン進行失敗後の終了処理でエラーが発生しました', [
+                'debate_id' => $this->debateId,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }

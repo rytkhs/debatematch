@@ -45,11 +45,14 @@ class Room extends Model
     public function updateStatus(string $status): void
     {
         // 有効な状態遷移を定義
+        // terminatedはどこからでも遷移できるように、validTransitionsを更新
         $validTransitions = [
-            'waiting' => ['ready', 'deleted'],
-            'ready' => ['debating', 'waiting', 'deleted'],
+            'waiting' => ['ready', 'deleted', 'terminated'],
+            'ready' => ['debating', 'waiting', 'deleted', 'terminated'],
             'debating' => ['finished', 'terminated'],
-            'finished' => []
+            'finished' => [],
+            'deleted' => [],
+            'terminated' => [],
         ];
 
         // 通常の状態遷移のバリデーション
@@ -91,5 +94,4 @@ class Room extends Model
 
         return '';
     }
-
 }

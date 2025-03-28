@@ -108,17 +108,18 @@ class Debate extends Model
     public function finishDebate(): void
     {
         DB::transaction(function () {
-            // ディベート終了イベントをブロードキャスト
-            broadcast(new DebateFinished($this->id));
 
             if ($this->room) {
                 $this->room->updateStatus(Room::STATUS_FINISHED);
             }
 
             $this->update(['turn_end_time' => null]);
-
-            // 評価ジョブのディスパッチを追加
-            EvaluateDebateJob::dispatch($this->id);
+            // コミット後にイベント発行とジョブディスパッチ
+            DB::afterCommit(function () {
+                broadcast(new DebateFinished($this->id));
+                EvaluateDebateJob::dispatch($this->id);
+                Log::info('DebateFinished broadcasted and EvaluateDebateJob dispatched after commit.', ['debate_id' => $this->id]);
+            });
         });
     }
 
@@ -127,50 +128,93 @@ class Debate extends Model
      */
     public function advanceToNextTurn(?int $expectedTurn = null): void
     {
-        Log::debug('ターン進行開始', [
-            'debate_id' => $this->id,
-            'current_turn' => $this->current_turn,
-            'current_turn_name' => $this->getFormat()[$this->current_turn]['name'],
-            'expected_turn' => $expectedTurn
-        ]);
+        try {
+            Log::debug('ターン進行開始', [
+                'debate_id' => $this->id,
+                'current_turn' => $this->current_turn,
+                'current_turn_name' => $this->getFormat()[$this->current_turn]['name'] ?? 'unknown',
+                'expected_turn' => $expectedTurn
+            ]);
 
-        // 手動で進めた場合とのバッティングチェック
-        if ($expectedTurn !== null && $this->current_turn !== $expectedTurn) {
-            return;
-        }
-
-        // ルームのステータスがディベート中かチェック
-        if (!$this->room || $this->room->status !== 'debating') {
-            return;
-        }
-
-        // 次のターン番号を取得
-        $nextTurn = $this->getNextTurn();
-
-        DB::transaction(function () use ($nextTurn) {
-            if ($nextTurn) {
-                // 次のターンへ
-                $this->updateTurn($nextTurn);
-
-                // イベントデータを充実させて、DB再取得を減らす
-                $eventData = [
-                    'turn_number' => $nextTurn,
-                    'turn_end_time' => $this->turn_end_time->timestamp,
-                    'speaker' => $this->getFormat()[$nextTurn]['speaker'] ?? null,
-                    'turn_name' => $this->getFormat()[$nextTurn]['name'] ?? null,
-                    'is_prep_time' => $this->getFormat()[$nextTurn]['is_prep_time'] ?? false
-                ];
-
-                // TurnAdvanced イベントを拡張データ付きでブロードキャスト
-                broadcast(new TurnAdvanced($this, $eventData));
-
-                // 次のターンのジョブをスケジュール
-                AdvanceDebateTurnJob::dispatch($this->id, $nextTurn)
-                    ->delay($this->turn_end_time);
-            } else {
-                $this->finishDebate();
+            // 手動で進めた場合とのバッティングチェック
+            if ($expectedTurn !== null && $this->current_turn !== $expectedTurn) {
+                Log::info('ターン不一致のため進行をスキップ', [
+                    'debate_id' => $this->id,
+                    'current_turn' => $this->current_turn,
+                    'expected_turn' => $expectedTurn
+                ]);
+                return;
             }
-        });
+
+            // ルームのステータスがディベート中かチェック
+            if (!$this->room || $this->room->status !== 'debating') {
+                Log::info('ディベート中でないためターン進行をスキップ', [
+                    'debate_id' => $this->id,
+                    'room_status' => $this->room ? $this->room->status : 'null'
+                ]);
+                return;
+            }
+
+            // 次のターン番号を取得
+            $nextTurn = $this->getNextTurn();
+
+            DB::transaction(function () use ($nextTurn) {
+                if ($nextTurn) {
+                    // 次のターンへ
+                    $this->updateTurn($nextTurn);
+
+                    // イベントデータを充実させて、DB再取得を減らす
+                    $eventData = [
+                        'turn_number' => $nextTurn,
+                        'turn_end_time' => $this->turn_end_time->timestamp,
+                        'speaker' => $this->getFormat()[$nextTurn]['speaker'] ?? null,
+                        'turn_name' => $this->getFormat()[$nextTurn]['name'] ?? null,
+                        'is_prep_time' => $this->getFormat()[$nextTurn]['is_prep_time'] ?? false
+                    ];
+
+                    // トランザクションコミット後に実行
+                    DB::afterCommit(function () use ($nextTurn, $eventData) {
+                        try {
+                            broadcast(new TurnAdvanced($this, $eventData));
+
+                            AdvanceDebateTurnJob::dispatch($this->id, $nextTurn)
+                                ->delay($this->turn_end_time);
+
+                            Log::debug(
+                                'TurnAdvanced broadcasted and AdvanceDebateTurnJob dispatched after commit.',
+                                ['debate_id' => $this->id, 'next_turn' => $nextTurn]
+                            );
+                        } catch (\Exception $e) {
+                            Log::error('ターン進行イベント処理中にエラーが発生', [
+                                'debate_id' => $this->id,
+                                'next_turn' => $nextTurn,
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    });
+                } else {
+                    $this->finishDebate();
+                }
+            });
+        } catch (\Exception $e) {
+            Log::error('ターン進行処理中に予期せぬエラーが発生', [
+                'debate_id' => $this->id,
+                'current_turn' => $this->current_turn,
+                'expected_turn' => $expectedTurn,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // 深刻なエラーの場合はディベートを終了
+            try {
+                $this->terminateDebate();
+            } catch (\Exception $termException) {
+                Log::critical('ディベート終了処理にも失敗しました', [
+                    'debate_id' => $this->id,
+                    'error' => $termException->getMessage()
+                ]);
+            }
+        }
     }
 
     /**

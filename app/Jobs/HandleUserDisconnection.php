@@ -86,7 +86,7 @@ class HandleUserDisconnection implements ShouldQueue
                 'stackTrace' => $e->getTraceAsString()
             ]);
 
-            throw $e; // ジョブの再試行のために例外を再スロー
+            throw $e;
         }
     }
 }

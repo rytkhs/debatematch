@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Debate;
 use App\Events\DebateStarted;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class StartDebateButton extends Component
@@ -63,9 +64,13 @@ class StartDebateButton extends Component
 
             $debate->startDebate();
             // ルームのステータスを更新
-            broadcast(new DebateStarted($debate->id, $this->room->id));
-
             $this->room->updateStatus(Room::STATUS_DEBATING);
+
+            // コミット後にDebateStartedイベントを発行
+            DB::afterCommit(function () use ($debate) {
+                broadcast(new DebateStarted($debate->id, $this->room->id));
+                Log::info('DebateStarted broadcasted after commit.', ['debate_id' => $debate->id, 'room_id' => $this->room->id]);
+            });
 
             return;
         });

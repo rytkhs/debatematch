@@ -80,7 +80,7 @@
         </div>
 
         <!-- 接続状態アラート -->
-        <livewire:connection-status />
+        <livewire:connection-status :room="$debate->room" />
 
         <!-- ヘルプモーダル -->
         {{-- <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
@@ -106,15 +106,6 @@
         pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
         pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }}
     };
-
-    if (window.debateData) {
-        window.heartbeatService = new HeartbeatService({
-            contextType: 'debate',
-            contextId: window.debateData.debateId
-        });
-        window.heartbeatService.start();
-    }
-
     </script>
     <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
     @vite(['resources/js/debate/ui.js', 'resources/js/debate/presence.js', 'resources/js/debate/countdown.js', 'resources/js/debate/event-listener.js'])

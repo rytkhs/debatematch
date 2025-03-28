@@ -12,12 +12,12 @@ class DebateStarted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $debateId;
-    public $roomId;
+    public int $debateId;
+    public int $roomId;
     /**
      * Create a new event instance.
      */
-    public function __construct($debateId, $roomId)
+    public function __construct(int $debateId, int $roomId)
     {
         $this->debateId = $debateId;
         $this->roomId = $roomId;
@@ -39,9 +39,6 @@ class DebateStarted implements ShouldBroadcast
     {
         return [
             'debateId' => $this->debateId,
-            // 'room_id' => $this->roomId,
-            // 'redirect_url' => url('debate/' . $this->debateId)
-            // 'redirect_url' => 'http://localhost:8081/debate/' . $this->debateId
         ];
     }
 }

@@ -30,7 +30,7 @@ class StatusUpdated implements ShouldBroadcast
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
         return
             [
@@ -38,7 +38,7 @@ class StatusUpdated implements ShouldBroadcast
             ];
     }
 
-    public function broadcastWith()
+    public function broadcastWith(): array
     {
         return [
             'status' => $this->room->status,

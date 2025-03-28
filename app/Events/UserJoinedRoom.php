@@ -20,7 +20,7 @@ class UserJoinedRoom implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(Room $room, \Illuminate\Contracts\Auth\Authenticatable $user)
+    public function __construct(Room $room, User $user)
     {
         $this->room = $room;
         $this->user = $user;

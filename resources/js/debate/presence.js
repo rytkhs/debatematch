@@ -1,7 +1,9 @@
- /**
+/**
  * DebateMatch Presence Module
  * オンラインステータスと接続管理
  */
+import HeartbeatService from '../heartbeat-service';
+
 document.addEventListener('DOMContentLoaded', function() {
     // グローバルデータの確認
     if (typeof window.debateData === 'undefined') {
@@ -19,12 +21,30 @@ document.addEventListener('DOMContentLoaded', function() {
     // プレゼンスチャンネル登録
     const channel = pusher.subscribe(`presence-debate.${window.debateData.debateId}`);
 
+    // ハートビートサービスの初期化と開始
+    if (window.debateData) {
+        window.heartbeatService = new HeartbeatService({
+            contextType: 'debate',
+            contextId: window.debateData.debateId
+        });
+        // 再接続処理を先にするため30秒後にハートビートを開始
+        setTimeout(() => {
+            window.heartbeatService.start();
+        }, 30000);
+    }
+
     let offlineTimeout;
     // オンラインメンバーの初期リスト
     channel.bind('pusher:subscription_succeeded', function(members) {
+        // let currentMembersCount = 0;
         members.each(function(member) {
-            Livewire.dispatch('member-online', { data: member });
+            // currentMembersCount++;
+            // リロード対策
+            setTimeout(() => {
+                Livewire.dispatch('member-online', { data: member });
+            }, 300);
         });
+        // console.log(`初期メンバー数: ${currentMembersCount}`);
     });
 
     // メンバー参加イベント
@@ -59,31 +79,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ウィンドウフォーカス時の処理
-    window.addEventListener('focus', function() {
-        // ブラウザタブがアクティブになった時にオンライン状態を通知
-        // console.log('DebateMatch Presence Module: Browser focused.');
-        Livewire.dispatch('browser-focused');
-    });
+    // window.addEventListener('focus', function() {
+    //     Livewire.dispatch('browser-focused');
+    // });
 
     // ウィンドウブラー時の処理
-    window.addEventListener('blur', function() {
-        // ブラウザタブが非アクティブになった時に通知
-        // console.log('DebateMatch Presence Module: Browser blurred.');
-        Livewire.dispatch('browser-blurred');
-    });
+    // window.addEventListener('blur', function() {
+    //     Livewire.dispatch('browser-blurred');
+    // });
 
     // ページ終了時の処理
-    window.addEventListener('beforeunload', function() {
-        // 可能ならページ離脱時にクリーンアップ
-        // console.log('DebateMatch Presence Module: User leaving.');
-        Livewire.dispatch('user-leaving');
-    });
+    // window.addEventListener('beforeunload', function() {
+    //     Livewire.dispatch('user-leaving');
+    // });
 
     window.addEventListener('offline', function() {
-        // オフライン状態時の処理を手動で実行
-        // document.querySelectorAll('[wire:offline]').forEach(el => {
-        //   el.style.display = 'block';
-        // });
         console.log('offline');
       });
 

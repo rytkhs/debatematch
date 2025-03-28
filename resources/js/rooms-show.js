@@ -1,4 +1,3 @@
-import './disconnection-handler';
 import HeartbeatService from './heartbeat-service';
 
 // ルームページの機能強化
@@ -33,13 +32,6 @@ class RoomManager {
         // イベントハンドラの登録
         this.registerEventHandlers();
 
-        // 切断ハンドラーの初期化
-        this.disconnectionHandler = new DisconnectionHandler({
-            roomId: this.roomId,
-            isHost: window.roomData.isCreator,
-            isDebating: false,
-            exitUrl: '/'
-        });
     }
 
     registerEventHandlers() {
@@ -97,15 +89,7 @@ class RoomManager {
                 // カウントダウン終了時の処理
                 if (countdown <= 0) {
                     clearInterval(countdownTimer);
-
                     window.location.href = debateUrl;
-
-                    // バックアップリダイレクト
-                    setTimeout(() => {
-                        if (window.location.pathname !== debateUrl) {
-                            window.location.replace(debateUrl);
-                        }
-                    }, 500);
                 }
             }, 1000);
         });
@@ -205,7 +189,7 @@ class RoomManager {
 
 // DOMロード時に初期化
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     const roomManager = new RoomManager(window.roomData);
 
     window.roomManager = roomManager;
@@ -216,6 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
             contextType: 'room',
             contextId: window.roomData.roomId
         });
-        window.heartbeatService.start();
+        // 再接続処理を先にするため30秒後にハートビートを開始
+        setTimeout(() => {
+            window.heartbeatService.start();
+        }, 30000);
     }
 });

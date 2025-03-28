@@ -30,7 +30,7 @@ class HeartbeatService {
         }
 
         this.isRunning = true;
-        this.sendHeartbeat(); // 初回即時送信
+        this.sendHeartbeat();
         this.timerId = setInterval(() => this.sendHeartbeat(), this.options.interval);
         console.log('ハートビート開始: 間隔', this.options.interval, 'ms');
     }

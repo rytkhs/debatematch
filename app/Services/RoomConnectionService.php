@@ -69,6 +69,7 @@ class RoomConnectionService
     public function handleUserDisconnectionTimeout($userId, $roomId)
     {
         try {
+
             $room = Room::find($roomId);
             $user = User::find($userId);
 
@@ -85,19 +86,31 @@ class RoomConnectionService
                 $room->users()->detach($user->id);
 
                 // ルームの状態を更新
-                if ($room->status == Room::STATUS_READY) {
+                if ($room->status === Room::STATUS_READY) {
                     $room->updateStatus(Room::STATUS_WAITING);
                 }
 
-                // ルーム作成者が退出した場合、ルームを削除
-                if ($user->id === $room->created_by) {
-                    // 他の参加者がいるかどうか確認
-                    broadcast(new CreatorLeftRoom($room, $user))->toOthers();
+                // 作成者退出フラグ
+                $isCreator = ($user->id === $room->created_by);
+
+                // ルーム作成者が退出した場合
+                if ($isCreator) {
+                    // ルームを強制終了状態に更新
                     $room->updateStatus(Room::STATUS_TERMINATED);
                 }
 
-                // 退出イベントをブロードキャスト
-                broadcast(new UserLeftRoom($room, $user))->toOthers();
+                // トランザクション成功後にブロードキャスト
+                DB::afterCommit(function () use ($room, $user, $isCreator) {
+                    if ($isCreator) {
+                        // 他の参加者がいる場合のみ、作成者が退出したことを通知
+                        if ($room->users()->count() > 0) {
+                            broadcast(new CreatorLeftRoom($room, $user))->toOthers();
+                        }
+                    } else {
+                        // 参加者が退出した場合の通知
+                        broadcast(new UserLeftRoom($room, $user))->toOthers();
+                    }
+                });
 
                 Log::info('ユーザーがタイムアウトによりルームから退出しました', [
                     'userId' => $user->id,
