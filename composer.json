@@ -12,6 +12,7 @@
         "livewire/livewire": "^3.5"
     },
     "require-dev": {
+        "askdkc/breezejp": "^2.3",
         "fakerphp/faker": "^1.23",
         "laravel/breeze": "^2.2",
         "laravel/pint": "^1.13",

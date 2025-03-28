@@ -81,7 +81,12 @@
             </p>
             <div class="flex items-center">
                 <span class="mr-2 text-sm text-gray-600">表示形式:</span>
-                <button id="viewGrid" class="p-2 text-gray-600 hover:text-primary focus:outline-none view-button active">
+                <button id="viewList" class="p-2 text-gray-600 hover:text-primary focus:outline-none view-button active">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <button id="viewGrid" class="p-2 text-gray-600 hover:text-primary focus:outline-none view-button">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
@@ -89,16 +94,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
                 </button>
-                <button id="viewList" class="p-2 text-gray-600 hover:text-primary focus:outline-none view-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
             </div>
         </div>
 
         <!-- 履歴一覧 (グリッドビュー) -->
-        <div id="gridView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div id="gridView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 hidden">
             @forelse($debates as $debate)
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 flex flex-col">
                     <div class="p-4 border-b border-gray-100">
@@ -191,7 +191,7 @@
         </div>
 
         <!-- 履歴一覧 (リストビュー) -->
-        <div id="listView" class="space-y-4 mb-6 hidden">
+        <div id="listView" class="space-y-4 mb-6">
             @forelse($debates as $debate)
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
                     <div class="p-6">
@@ -315,18 +315,18 @@
         });
 
         // ビュー切り替えボタンのイベントリスナー
-        viewGridButton.addEventListener('click', function() {
-            gridView.classList.remove('hidden');
-            listView.classList.add('hidden');
-            viewGridButton.classList.add('active');
-            viewListButton.classList.remove('active');
-        });
-
         viewListButton.addEventListener('click', function() {
             listView.classList.remove('hidden');
             gridView.classList.add('hidden');
             viewListButton.classList.add('active');
             viewGridButton.classList.remove('active');
+        });
+
+        viewGridButton.addEventListener('click', function() {
+            gridView.classList.remove('hidden');
+            listView.classList.add('hidden');
+            viewGridButton.classList.add('active');
+            viewListButton.classList.remove('active');
         });
     </script>
 </x-app-layout>
