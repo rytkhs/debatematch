@@ -1,12 +1,12 @@
 <section>
     <header class="mb-6">
         <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            パスワード更新
+            {{ __('Update Password') }}
         </h2>
 
-        {{-- <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            安全のため、長くランダムなパスワードを使用してください。
-        </p> --}}
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+        </p>
     </header>
 
     <form method="post" action="{{ route('password.update') }}" class="mt-8 space-y-6">
@@ -32,7 +32,7 @@
         </div>
 
         <div class="flex items-center gap-4 pt-2">
-            <x-primary-button class="px-5 py-2.5">保存</x-primary-button>
+            <x-primary-button class="px-5 py-2.5">{{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'password-updated')
                 <p
@@ -41,7 +41,7 @@
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-success dark:text-success-light bg-success-light/50 dark:bg-success-light/10 py-1 px-3 rounded-full"
-                >保存されました。</p>
+                >{{ __('Saved.') }}</p>
             @endif
         </div>
     </form>

@@ -1,11 +1,11 @@
 <section>
     <header class="mb-6">
         <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            プロフィール情報
+            {{ __('Profile Information') }}
         </h2>
 
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            アカウントのプロフィール情報とメールアドレスを更新します。
+            {{ __("Update your account's profile information and email address.") }}
         </p>
     </header>
 
@@ -31,15 +31,15 @@
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
                     <p class="text-sm text-yellow-800 dark:text-yellow-200">
-                        メールアドレスが未認証です。
+                        {{ __('Your email address is unverified.') }}
                         <button form="send-verification" class="underline text-sm text-primary hover:text-primary-dark dark:text-primary-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800">
-                            ここをクリックして認証メールを再送信してください。
+                            {{ __('Click here to re-send the verification email.') }}
                         </button>
                     </p>
 
                     @if (session('status') === 'verification-link-sent')
                         <p class="mt-2 font-medium text-sm text-success dark:text-success-light">
-                            新しい認証リンクがメールアドレスに送信されました。
+                            {{ __('A new verification link has been sent to your email address.') }}
                         </p>
                     @endif
                 </div>
@@ -47,7 +47,7 @@
         </div>
 
         <div class="flex items-center gap-4 pt-2">
-            <x-primary-button class="px-5 py-2.5">保存</x-primary-button>
+            <x-primary-button class="px-5 py-2.5">{{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
                 <p
@@ -56,7 +56,7 @@
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-success dark:text-success-light bg-success-light/50 dark:bg-success-light/10 py-1 px-3 rounded-full"
-                >保存されました。</p>
+                >{{ __('Saved.') }}</p>
             @endif
         </div>
     </form>
