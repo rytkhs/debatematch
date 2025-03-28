@@ -46,7 +46,6 @@ Route::middleware([CheckUserActiveStatus::class])->group(function () {
     });
 });
 
-// 認証が必要なルートグループ
 Route::middleware(['auth', CheckUserActiveStatus::class])->group(function () {
     // プロフィール関連
     Route::prefix('profile')->name('profile.')->group(function () {
@@ -54,6 +53,16 @@ Route::middleware(['auth', CheckUserActiveStatus::class])->group(function () {
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
+
+    // 履歴関連ルート
+    Route::prefix('records')->name('records.')->group(function () {
+        Route::get('/', [DebateRecordController::class, 'index'])->name('index');
+        Route::get('/{debate}', [DebateRecordController::class, 'show'])->name('show');
+    });
+});
+
+// 認証が必要なルートグループ
+Route::middleware(['auth','verified', CheckUserActiveStatus::class])->group(function () {
 
     // ルーム関連
     Route::prefix('rooms')->name('rooms.')->group(function () {
@@ -67,14 +76,9 @@ Route::middleware(['auth', CheckUserActiveStatus::class])->group(function () {
         Route::get('/{debate}', [DebateController::class, 'show'])->name('show');
     });
 
-    // 履歴関連ルート
-    Route::prefix('records')->name('records.')->group(function () {
-        Route::get('/', [DebateRecordController::class, 'index'])->name('index');
-        Route::get('/{debate}', [DebateRecordController::class, 'show'])->name('show');
-    });
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','verified'])->group(function () {
     Route::post('/{room}/exit', [RoomController::class, 'exit'])->name('rooms.exit');
     Route::post('/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
     Route::post('/{room}/start', [RoomController::class, 'startDebate'])->name('rooms.start');
@@ -104,14 +108,14 @@ Route::post('/pusher/auth', function (Request $request) {
         Auth::user()->id,
         ['name' => Auth::user()->name]
     );
-})->middleware('auth')->withoutMiddleware([ValidateCsrfToken::class]);
+})->middleware(['auth','verified'])->withoutMiddleware([ValidateCsrfToken::class]);
 
 // ハートビートエンドポイント
 Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])
-    ->middleware(['auth', 'throttle:60,1']);
+    ->middleware(['auth', 'verified', 'throttle:60,1']);
 
 // 管理者用ルート
-Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     // 接続分析関連
     Route::prefix('connection')->name('connection.')->group(function () {
         Route::get('/analytics', [ConnectionAnalyticsController::class, 'index'])->name('analytics');
