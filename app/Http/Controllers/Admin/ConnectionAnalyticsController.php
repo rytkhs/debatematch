@@ -17,7 +17,7 @@ class ConnectionAnalyticsController extends Controller
      */
     public function index(Request $request)
     {
-        // 期間指定の取得 (デフォルト: 過去7日間)
+        // 期間指定の取得 (過去7日間)
         $period = $request->input('period', '7d');
         [$startDate, $endDate] = $this->parsePeriod($period, $request);
 
@@ -27,14 +27,13 @@ class ConnectionAnalyticsController extends Controller
         // 異常検知: 頻繁な切断ユーザー
         $frequentDisconnectionUsers = ConnectionLog::getFrequentDisconnectionUsers($startDate, $endDate);
 
-        // 異常検知: 低再接続率ユーザー (例: 閾値50%)
-        // $lowReconnectionRateUsers = ConnectionLog::getLowReconnectionRateUsers($startDate, $endDate, 50); // 必要なら実装
+        // 異常検知: 低再接続率ユーザー (閾値50%)
+        // $lowReconnectionRateUsers = ConnectionLog::getLowReconnectionRateUsers($startDate, $endDate, 50);
 
         // 切断傾向分析
         $disconnectionTrends = ConnectionLog::analyzeDisconnectionTrends($startDate, $endDate);
 
-        // --- 既存の集計も期間指定に対応 ---
-        // 直近24時間の切断統計 (これは固定でも良いかも)
+        // 直近24時間の切断統計
         $disconnectionStats24h = ConnectionLog::select(
             DB::raw('DATE_FORMAT(created_at, "%H:00") as hour'),
             DB::raw('COUNT(*) as count')
@@ -58,14 +57,12 @@ class ConnectionAnalyticsController extends Controller
             ->with('user:id,name')
             ->get();
 
-        // 平均再接続率 (指定期間) - 修正
+        // 平均再接続率 (指定期間)
         $totalTemporaryDisconnections = ConnectionLog::where('status', ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED)
             ->whereBetween('created_at', [$startDate, $endDate]) // 期間内に一時切断が発生したログの数
             ->count();
 
         // 期間内に再接続が記録されたログの数をカウント
-        // 注意: これは期間内に「再接続が完了した」ログの数であり、
-        // 期間内に「一時切断になったものが再接続した」数とは厳密には異なる場合があります。
         $totalReconnections = ConnectionLog::whereNotNull('reconnected_at')
             ->whereBetween('reconnected_at', [$startDate, $endDate]) // 期間内に再接続日時が記録されたログの数
             ->count();
@@ -78,21 +75,20 @@ class ConnectionAnalyticsController extends Controller
             $reconnectionRate = min($rate, 100); // 100%を上限とする
         } elseif ($totalReconnections > 0) {
             // 期間内に一時切断はないが再接続ログがある場合 (期間外からの再接続など)
-            // この場合の扱いは要件によりますが、ここでは 0% または 100% とします (例: 0%)
-            $reconnectionRate = 0; // または 100 など、仕様に応じて決定
+            $reconnectionRate = 0;
         }
 
         return view('admin.connection_analytics', compact(
-            'startDate', // ビューで期間表示用
-            'endDate',   // ビューで期間表示用
-            'period',    // ビューで選択状態保持用
+            'startDate',
+            'endDate',
+            'period',
             'realtimeStats',
             'frequentDisconnectionUsers',
             // 'lowReconnectionRateUsers',
             'disconnectionTrends',
-            'disconnectionStats24h', // 名前変更
+            'disconnectionStats24h',
             'userDisconnectionRanking',
-            'reconnectionRate' // 修正された再接続率
+            'reconnectionRate'
         ));
     }
 
@@ -101,7 +97,7 @@ class ConnectionAnalyticsController extends Controller
      */
     public function userDetail(Request $request, User $user)
     {
-        // 期間指定の取得 (デフォルト: 過去7日間)
+        // 期間指定の取得 (過去7日間)
         $period = $request->input('period', '7d');
         [$startDate, $endDate] = $this->parsePeriod($period, $request);
 
@@ -112,7 +108,7 @@ class ConnectionAnalyticsController extends Controller
         $connectionIssues = ConnectionLog::analyzeConnectionIssues($user->id, $startDate->diffInHours($endDate)); // 時間で指定
 
         // ページネーションはセッションベースでは難しいので、一旦全件表示か、
-        // もしくはログ単位のページネーションに戻すか検討
+        // ログ単位のページネーションに戻すか検討
         // $connectionLogs = ConnectionLog::where('user_id', $user->id)
         //     ->period($startDate, $endDate) // スコープ利用
         //     ->orderByDesc('created_at')

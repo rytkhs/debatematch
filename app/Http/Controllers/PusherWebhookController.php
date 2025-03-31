@@ -10,9 +10,19 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Services\ConnectionManager;
 use App\Models\Debate;
+use App\Services\DebateService;
 
 class PusherWebhookController extends Controller
 {
+    protected $connectionManager;
+    protected $debateService;
+
+    public function __construct(ConnectionManager $connectionManager, DebateService $debateService)
+    {
+        $this->connectionManager = $connectionManager;
+        $this->debateService = $debateService;
+    }
+
     public function handle(Request $request)
     {
         // Webhook の秘密鍵を用いた署名を検証し、リクエストが正当なものであることを確認
@@ -22,10 +32,9 @@ class PusherWebhookController extends Controller
 
         // Pusher イベントを処理
         $events = $request->input('events');
-        $connectionManager = app(ConnectionManager::class);
 
         foreach ($events as $event) {
-            $this->processEvent($event, $connectionManager);
+            $this->processEvent($event);
         }
 
         return response()->json([], 200);
@@ -34,7 +43,7 @@ class PusherWebhookController extends Controller
     /**
      * イベントの種類に応じて適切な処理を行う
      */
-    private function processEvent(array $event, ConnectionManager $connectionManager): void
+    private function processEvent(array $event): void
     {
         $eventHandlers = [
             'member_removed' => 'handleMemberRemoved',
@@ -45,14 +54,14 @@ class PusherWebhookController extends Controller
 
         if (isset($eventHandlers[$eventName])) {
             $handlerMethod = $eventHandlers[$eventName];
-            $this->$handlerMethod($event, $connectionManager);
+            $this->$handlerMethod($event);
         }
     }
 
     /**
      * メンバー削除イベントを処理する
      */
-    private function handleMemberRemoved(array $event, ConnectionManager $connectionManager): void
+    private function handleMemberRemoved(array $event): void
     {
         $channel = $event['channel'];
         $userId = $event['user_id'];
@@ -95,21 +104,21 @@ class PusherWebhookController extends Controller
                 return;
             }
 
-            $connectionManager->handleDisconnection($userId, $context);
+            $this->connectionManager->handleDisconnection($userId, $context);
         }
     }
 
     /**
      * メンバー追加イベントを処理する
      */
-    private function handleMemberAdded(array $event, ConnectionManager $connectionManager): void
+    private function handleMemberAdded(array $event): void
     {
         $channel = $event['channel'];
         $userId = $event['user_id'];
         $context = $this->extractContextFromChannel($channel);
 
         if ($context) {
-            $connectionManager->handleReconnection($userId, $context);
+            $this->connectionManager->handleReconnection($userId, $context);
         }
     }
 

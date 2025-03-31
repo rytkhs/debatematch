@@ -7,6 +7,7 @@ use App\Models\Debate;
 use App\Models\DebateMessage;
 use Livewire\Attributes\On;
 use Illuminate\Database\Eloquent\Collection;
+use App\Services\DebateService;
 
 class Chat extends Component
 {
@@ -14,6 +15,12 @@ class Chat extends Component
     public string $activeTab = 'all';
     public Collection $filteredMessages;
     public ?int $previousTurn = null;
+    protected $debateService;
+
+    public function boot(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
 
     public function mount(Debate $debate): void
     {
@@ -63,7 +70,7 @@ class Chat extends Component
 
     public function getFilteredTurnsProperty()
     {
-        $turns = $this->debate->getFormat();
+        $turns = $this->debateService->getFormat($this->debate);
         // 準備時間のターンを除外
         return array_filter($turns, fn($turn) => !($turn['is_prep_time'] ?? false));
     }
@@ -72,7 +79,7 @@ class Chat extends Component
     {
         return view('livewire.debates.chat', [
             'filteredMessages' => $this->filteredMessages,
-            'turns' => $this->debate->getFormat(),
+            'turns' => $this->debateService->getFormat($this->debate),
             'filteredTurns' => $this->filteredTurns,
             'previousTurn' => $this->previousTurn,
         ]);

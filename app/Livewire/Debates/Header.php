@@ -7,6 +7,7 @@ use App\Models\Debate;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Livewire\Attributes\On;
+use App\Services\DebateService;
 
 class Header extends Component
 {
@@ -18,6 +19,12 @@ class Header extends Component
     public bool $isPrepTime = false;
     public ?int $turnEndTime;
     public int $currentTurn = 0;
+    protected $debateService;
+
+    public function boot(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
 
     public function mount(Debate $debate): void
     {
@@ -57,14 +64,14 @@ class Header extends Component
 
     private function getNextTurnName($currentTurn): string
     {
-        $turns = $this->debate->getFormat();
+        $turns = $this->debateService->getFormat($this->debate);
         $nextTurn = $currentTurn + 1;
         return $turns[$nextTurn]['name'] ?? '終了';
     }
 
     private function syncTurnState(): void
     {
-        $turns = $this->debate->getFormat();
+        $turns = $this->debateService->getFormat($this->debate);
         $currentTurn = $this->debate->current_turn;
 
         $this->currentTurnName = $turns[$currentTurn]['name'] ?? '終了';

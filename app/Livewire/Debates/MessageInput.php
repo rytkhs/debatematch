@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Session;
 use App\Events\DebateMessageSent;
 use Livewire\Attributes\On;
+use App\Models\Room;
+use App\Services\DebateService;
 
 class MessageInput extends Component
 {
@@ -20,10 +22,16 @@ class MessageInput extends Component
     public ?string $currentTurnName;
     public bool $isPrepTime;
     public bool $isQuestioningTurn = false;
+    protected $debateService;
 
     protected array $rules = [
         'newMessage' => 'required|string|max:5000',
     ];
+
+    public function boot(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
 
     public function mount(Debate $debate): void
     {
@@ -47,7 +55,7 @@ class MessageInput extends Component
 
     private function syncTurnState(): void
     {
-        $turns = $this->debate->getFormat();
+        $turns = $this->debateService->getFormat($this->debate);
         $currentTurn = $this->debate->current_turn;
 
         $this->currentSpeaker = $turns[$currentTurn]['speaker'] ?? null;
@@ -66,6 +74,10 @@ class MessageInput extends Component
 
     public function sendMessage(): void
     {
+        // ディベートが存在するか、進行中かをチェック
+        if (!$this->debate || !$this->debate->room || $this->debate->room->status !== Room::STATUS_DEBATING) {
+            return;
+        }
         // 発言権がない場合は送信不可（質疑応答時は例外）
         if (!$this->isMyTurn && !$this->isQuestioningTurn) {
             return;

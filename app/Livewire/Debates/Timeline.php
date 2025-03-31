@@ -5,12 +5,19 @@ namespace App\Livewire\Debates;
 use Livewire\Component;
 use App\Models\Debate;
 use Livewire\Attributes\On;
+use App\Services\DebateService;
 
 class Timeline extends Component
 {
     public Debate $debate;
     public array $format = [];
     public int $currentTurn = 1;
+    protected $debateService;
+
+    public function boot(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
 
     public function mount(Debate $debate): void
     {
@@ -27,7 +34,7 @@ class Timeline extends Component
 
     private function getFilteredTurns(): array
     {
-        return $this->debate->getFormat();
+        return $this->debateService->getFormat($this->debate);
     }
 
     public function render()
