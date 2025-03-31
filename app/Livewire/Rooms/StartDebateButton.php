@@ -10,13 +10,19 @@ use App\Models\Debate;
 use App\Events\DebateStarted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use App\Services\DebateService;
 
 class StartDebateButton extends Component
 {
     public Room $room;
     public string $status;
     public bool $isCreator;
+    protected $debateService;
+
+    public function boot(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
 
     public function mount(Room $room): void
     {
@@ -62,7 +68,7 @@ class StartDebateButton extends Component
                 'negative_user_id' => $negativeUser->id,
             ]);
 
-            $debate->startDebate();
+            $this->debateService->startDebate($debate);
             // ルームのステータスを更新
             $this->room->updateStatus(Room::STATUS_DEBATING);
 

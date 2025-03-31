@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('debate_evaluations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('debate_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('debate_id')->unique()->constrained()->cascadeOnDelete();
             $table->boolean('is_analyzable')->default(true);
-            $table->enum('winner', ['affirmative', 'negative'])->nullable();
+            $table->string('winner')->nullable();
             $table->text('analysis')->nullable();
             $table->text('reason')->nullable();
             $table->text('feedback_for_affirmative')->nullable();
             $table->text('feedback_for_negative')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

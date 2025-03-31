@@ -6,9 +6,19 @@ use App\Models\Debate;
 use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ConnectionManager;
+use App\Services\DebateService;
 
 class DebateController extends Controller
 {
+    protected $debateService;
+    protected $connectionManager;
+
+    public function __construct(DebateService $debateService, ConnectionManager $connectionManager)
+    {
+        $this->debateService = $debateService;
+        $this->connectionManager = $connectionManager;
+    }
+
     public function show(Debate $debate)
     {
         if ($debate->room->status === Room::STATUS_FINISHED) {
@@ -21,8 +31,7 @@ class DebateController extends Controller
         }
 
         // 接続記録
-        $connectionManager = app(ConnectionManager::class);
-        $connectionManager->recordInitialConnection(Auth::id(), [
+        $this->connectionManager->recordInitialConnection(Auth::id(), [
             'type' => 'debate',
             'id' => $debate->id
         ]);
@@ -45,7 +54,7 @@ class DebateController extends Controller
         $messages = $debate->messages()->with('user')->orderBy('created_at')->get();
 
         // ターン情報を取得
-        $turns = $debate->getFormat();
+        $turns = $this->debateService->getFormat($debate);
 
         return view('debate.result', compact('debate', 'messages', 'turns', 'evaluations'));
     }
@@ -56,7 +65,7 @@ class DebateController extends Controller
     public function terminate(Debate $debate)
     {
         // ディベートを強制終了
-        $debate->terminateDebate();
+        $this->debateService->terminateDebate($debate);
 
         // welcomeページへリダイレクト
         return redirect()->route('welcome')->with('warning', '相手との接続が切断されたため、ディベートを終了しました。');

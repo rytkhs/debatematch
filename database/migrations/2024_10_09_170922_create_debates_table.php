@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('debates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('room_id')->constrained()->onDelete('cascade');
-            $table->foreignId('affirmative_user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('negative_user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('room_id')->unique()->constrained()->onDelete('cascade');
+            $table->foreignId('affirmative_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('negative_user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->integer('current_turn')->default(0);
             $table->timestamp('turn_end_time')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

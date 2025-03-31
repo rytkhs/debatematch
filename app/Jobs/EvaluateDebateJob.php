@@ -30,7 +30,7 @@ class EvaluateDebateJob implements ShouldQueue
         $this->debateId = $debateId;
     }
 
-    public function handle(): void
+    public function handle(AIEvaluationService $aiEvaluationService): void
     {
         try {
             Log::info('ディベート評価ジョブを開始', ['debate_id' => $this->debateId]);
@@ -39,7 +39,7 @@ class EvaluateDebateJob implements ShouldQueue
                 ->findOrFail($this->debateId);
 
             // AI評価サービスを呼び出し、評価データを取得
-            $evaluationData = AIEvaluationService::evaluate($debate);
+            $evaluationData = $aiEvaluationService->evaluate($debate);
 
             DB::transaction(function () use ($debate, $evaluationData) {
                 // 評価結果をDBに保存

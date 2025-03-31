@@ -28,17 +28,10 @@ RUN apk update && apk add --no-cache --virtual .build-deps \
     mysql-client \
     tzdata
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-    exif \
-    gd \
-    intl \
-    mbstring \
-    pdo_mysql \
-    sockets \
-    zip
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions exif gd intl mbstring pdo_mysql sockets zip
 
-COPY --from=base /usr/local/etc/php/php.ini-production $PHP_INI_DIR/php.ini
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN sed -i 's/memory_limit = .*/memory_limit = 256M/' $PHP_INI_DIR/php.ini \
     && sed -i 's/post_max_size = .*/post_max_size = 50M/' $PHP_INI_DIR/php.ini \
     && sed -i 's/upload_max_filesize = .*/upload_max_filesize = 50M/' $PHP_INI_DIR/php.ini \
@@ -58,7 +51,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-interaction --no-plugins --no-scripts --no-dev --prefer-dist --optimize-autoloader
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 FROM dependencies AS build
 COPY . .

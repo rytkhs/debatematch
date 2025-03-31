@@ -8,19 +8,26 @@ use Illuminate\Support\Facades\Log;
 
 class AIEvaluationService
 {
+    protected $debateService;
+
+    public function __construct(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
+
     /**
      * ディベートのデータを元にAI評価を実施し、評価結果を返す
      *
      * @param Debate $debate
      * @return array
      */
-    public static function evaluate(Debate $debate): array
+    public function evaluate(Debate $debate): array
     {
         // 1. ディベートメッセージを取得し、1つの文字列にまとめる
         $transcript = $debate->messages
             ->map(function ($msg) use ($debate) {
                 // ターン名を取得
-                $turns = $debate->getFormat();
+                $turns = $this->debateService->getFormat($debate);
                 $turnName = $turns[$msg->turn]['name'] ?? '無し';
 
                 // "[パート名] [話者] メッセージ内容" の形式にまとめる
@@ -153,7 +160,7 @@ EOT;
         // 4. レスポンスを処理
         if ($response->failed()) {
             Log::error('OpenRouter API Error', ['response' => $response->json()]);
-            return self::getDefaultResponse();
+            return $this->getDefaultResponse();
         }
 
         $aiResponse = $response->json('choices.0.message.content');
@@ -166,7 +173,7 @@ EOT;
 
         // 万が一パースに失敗した場合の簡易ハンドリング
         if (!is_array($parsedData)) {
-            return self::getDefaultResponse();
+            return $this->getDefaultResponse();
         }
 
         // 5. データを変換
@@ -184,15 +191,15 @@ EOT;
         return $evaluationData;
     }
 
-    private static function getDefaultResponse(): array
+    private function getDefaultResponse(): array
     {
         return [
-            "isAnalyzable" => false,
+            "is_analyzable" => false,
             "analysis" => "解析に失敗しました: " . json_last_error_msg(),
             "reason" => "JSON形式の解析に失敗しました",
-            "winner" => "不明",
-            "feedbackForAffirmative" => "システムエラー",
-            "feedbackForNegative" => "システムエラー",
+            "winner" => null,
+            "feedback_for_affirmative" => "システムエラー",
+            "feedback_for_negative" => "システムエラー",
         ];
     }
 }
