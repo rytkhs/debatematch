@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Log;
 class DebateConnectionService
 {
     protected $connectionManager;
+    protected $debateService;
 
-    public function __construct(ConnectionManager $connectionManager)
+    public function __construct(ConnectionManager $connectionManager, DebateService $debateService)
     {
         $this->connectionManager = $connectionManager;
+        $this->debateService = $debateService;
     }
 
     /**
@@ -77,23 +79,12 @@ class DebateConnectionService
                 return null;
             }
 
-            DB::transaction(function () use ($debate, $reason) {
-                // ルームとディベートのステータスを更新
-                if ($debate->room) {
-                    $debate->room->updateStatus(Room::STATUS_TERMINATED);
-                }
+            $this->debateService->terminateDebate($debate);
 
-                // ディベートの終了時刻を記録
-                $debate->update(['turn_end_time' => null]);
-
-                // 強制終了イベントをブロードキャスト
-                broadcast(new DebateTerminated($debate));
-
-                Log::info('ディベートが強制終了されました', [
-                    'debateId' => $debate->id,
-                    'reason' => $reason
-                ]);
-            });
+            Log::info('ディベートが強制終了されました', [
+                'debateId' => $debate->id,
+                'reason' => $reason
+            ]);
 
             return $debate;
         } catch (\Exception $e) {

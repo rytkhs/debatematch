@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Debate;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
+use App\Services\DebateService;
 
 class Participants extends Component
 {
@@ -15,6 +16,12 @@ class Participants extends Component
     public ?string $currentSpeaker;
     public bool $isMyTurn = false;
     public array $onlineUsers = [];
+    protected $debateService;
+
+    public function boot(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
 
     public function mount(Debate $debate): void
     {
@@ -47,7 +54,7 @@ class Participants extends Component
 
     private function syncTurnState(): void
     {
-        $turns = $this->debate->getFormat();
+        $turns = $this->debateService->getFormat($this->debate);
         $currentTurn = $this->debate->current_turn;
 
         $this->currentTurnName = $turns[$currentTurn]['name'] ?? '終了';
@@ -70,7 +77,7 @@ class Participants extends Component
 
     public function advanceTurnManually(): void
     {
-        $this->debate->advanceToNextTurn();
+        $this->debateService->advanceToNextTurn($this->debate);
         $this->dispatch('showFlashMessage', 'パートを終了しました', 'success');
     }
 

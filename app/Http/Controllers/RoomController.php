@@ -84,7 +84,6 @@ class RoomController extends Controller
             // ユーザーが選択した側でルームに参加させる
             $room->users()->attach(Auth::id(), [
                 'side' => $validatedData['side'],
-                'role' => RoomUser::ROLE_CREATOR,
             ]);
 
             return redirect()->route('rooms.show', compact('room'))->with('success', 'ルームを作成しました');
@@ -143,7 +142,7 @@ class RoomController extends Controller
         }
 
         // 既に参加者がいるか確認
-        if ($room->users()->wherePivot('role', RoomUser::ROLE_PARTICIPANT)->exists()) {
+        if ($room->users()->where('user_id', '!=', $room->created_by)->exists()) {
             return redirect()->back()->with('error', 'このルームは既に満員です。');
         }
 
@@ -156,7 +155,6 @@ class RoomController extends Controller
             // 参加者として登録
             $room->users()->attach($user->id, [
                 'side' => $side,
-                'role' => RoomUser::ROLE_PARTICIPANT,
             ]);
 
             $room->updateStatus(Room::STATUS_READY);

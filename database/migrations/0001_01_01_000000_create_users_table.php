@@ -19,9 +19,8 @@ return new class extends Migration
             $table->string('password');
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
-            $table->integer('debates_count')->default(0);
-            $table->integer('wins_count')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

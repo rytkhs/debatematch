@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Debate;
 use Illuminate\Support\Facades\Auth;
+use App\Services\DebateService;
 
 class DebateRecordController extends Controller
 {
+    protected $debateService;
+
+    public function __construct(DebateService $debateService)
+    {
+        $this->debateService = $debateService;
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -140,7 +148,7 @@ class DebateRecordController extends Controller
         }
 
         $debate->load(['room.creator', 'affirmativeUser', 'negativeUser', 'messages.user', 'evaluations']);
-        $turns = $debate->getFormat();
+        $turns = $this->debateService->getFormat($debate);
         $evaluations = $debate->evaluations;
 
         return view('records.show', compact('debate', 'evaluations'));
