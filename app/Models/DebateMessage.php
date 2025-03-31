@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DebateMessage extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['debate_id', 'user_id', 'message', 'turn'];
 
@@ -19,16 +20,5 @@ class DebateMessage extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($debateMessage) {
-            if ($debateMessage->debate->room_status !== 'debating') {
-                return false;
-            }
-        });
     }
 }

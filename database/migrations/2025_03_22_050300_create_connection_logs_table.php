@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('connection_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->string('context_type'); // 'room' or 'debate'
             $table->unsignedBigInteger('context_id');
             $table->string('status');
@@ -26,6 +26,7 @@ return new class extends Migration
             $table->index(['user_id', 'created_at']);
             $table->index(['user_id', 'context_type', 'context_id']);
             $table->index(['context_type', 'context_id', 'status']);
+            $table->index(['context_type', 'context_id']);
         });
     }
 

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class Debate extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['room_id', 'affirmative_user_id', 'negative_user_id', 'current_turn', 'turn_end_time'];
 

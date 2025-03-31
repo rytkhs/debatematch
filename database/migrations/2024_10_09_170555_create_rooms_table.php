@@ -16,12 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('topic');
             $table->text('remarks')->nullable();
-            $table->enum('status', ['waiting', 'ready', 'debating', 'finished', 'deleted', 'terminated'])->default('waiting');
-            $table->foreignId('created_by')->constrained('users');
+            $table->string('status')->default('waiting');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->string('language')->default('japanese');
             $table->string('format_type');
             $table->json('custom_format_settings')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
