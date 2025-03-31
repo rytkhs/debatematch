@@ -1,0 +1,107 @@
+<div class="h-full flex flex-col p-4 overflow-auto">
+    <h2 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+        <span class="material-icons mr-2">people</span>ディベーター
+    </h2>
+
+    <!-- 肯定側 -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="font-medium text-green-600 flex items-center">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>肯定側
+            </h3>
+            @if($currentSpeaker === 'affirmative')
+                <span class="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">発言中</span>
+            @endif
+        </div>
+
+        <div class="flex items-center p-3 {{ $currentSpeaker === 'affirmative' ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
+            <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-green-700 mr-3">
+                {{ substr($debate->affirmativeUser->name, 0, 1) }}
+            </div>
+            <div>
+                <div class="font-medium">{{ $debate->affirmativeUser->name }}</div>
+                <!-- オンライン状態表示 -->
+                <div class="flex items-center mt-1 text-xs text-gray-500">
+                    <span class="w-2 h-2 {{ $onlineUsers[$debate->affirmative_user_id] ?? false ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
+                    {{ $onlineUsers[$debate->affirmative_user_id] ?? false ? 'オンライン' : 'オフライン' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 否定側 -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="font-medium text-red-600 flex items-center">
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>否定側
+            </h3>
+            @if($currentSpeaker === 'negative')
+                <span class="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full">発言中</span>
+            @endif
+        </div>
+
+        <div class="flex items-center p-3 {{ $currentSpeaker === 'negative' ? 'bg-red-50 border border-red-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
+            <div class="w-10 h-10 rounded-full bg-red-200 flex items-center justify-center text-red-700 mr-3">
+                {{ substr($debate->negativeUser->name, 0, 1) }}
+            </div>
+            <div>
+                <div class="font-medium">{{ $debate->negativeUser->name }}</div>
+                <!-- オンライン状態表示 -->
+                <div class="flex items-center mt-1 text-xs text-gray-500">
+                    <span class="w-2 h-2 {{ $onlineUsers[$debate->negative_user_id] ?? false ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
+                    {{ $onlineUsers[$debate->negative_user_id] ?? false ? 'オンライン' : 'オフライン' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ターン終了ボタン -->
+    @if($isMyTurn)
+    <div class="mt-auto">
+        <button wire:click="advanceTurnManually" wire:loading.attr="disabled"
+            wire:confirm="{{$currentTurnName}}を終了し、{{$nextTurnName}}に進みます。\nパートを終了してよろしいですか?"
+            class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+            <span class="flex items-center justify-center">
+                <span class="material-icons mr-2">arrow_forward</span>
+                パートを終了する
+            </span>
+        </button>
+
+        <!-- ターン情報 -->
+        <div class="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
+            <p class="text-xs text-gray-600 mb-2">現在のターン情報</p>
+            <div class="flex items-center justify-between text-sm">
+                <span class="font-medium">{{$currentTurnName}}</span>
+                <span class="bg-primary-light text-primary px-2 py-0.5 rounded-full text-xs">
+                    残り時間: <span id="time-left-small"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @script
+    <script>
+    document.addEventListener('livewire:initialized', function() {
+        const timeLeftSmall = document.getElementById('time-left-small');
+        if (timeLeftSmall && window.debateCountdown) {
+            // グローバルカウントダウンから時間を取得
+            window.debateCountdown.addListener(timeData => {
+                if (!timeData.isRunning) {
+                    timeLeftSmall.textContent = "終了";
+                    return;
+                }
+
+                timeLeftSmall.textContent = `${String(timeData.minutes).padStart(2, '0')}:${String(timeData.seconds).padStart(2, '0')}`;
+
+                if (timeData.isWarning) {
+                    timeLeftSmall.classList.add('text-red-600', 'font-bold');
+                } else {
+                    timeLeftSmall.classList.remove('text-red-600', 'font-bold');
+                }
+            });
+        }
+    });
+    </script>
+    @endscript
+</div>
