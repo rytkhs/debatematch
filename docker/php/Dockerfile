@@ -29,7 +29,7 @@ RUN apk update && apk add --no-cache --virtual .build-deps \
     tzdata
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions exif gd intl mbstring pdo_mysql sockets zip
+RUN install-php-extensions exif gd intl mbstring pdo_mysql sockets zip redis
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN sed -i 's/memory_limit = .*/memory_limit = 256M/' $PHP_INI_DIR/php.ini \
@@ -63,14 +63,16 @@ COPY --from=build /var/www/html /var/www/html
 
 RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs \
     && mkdir -p bootstrap/cache \
+    && mkdir -p /var/www/html/public/vendor \
     && php artisan config:cache \
     && php artisan route:cache \
-    && php artisan view:cache
+    && php artisan view:cache \
+    && php artisan livewire:publish --assets
 
 RUN apk del .build-deps
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/vendor \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/vendor
 
 USER www-data
 
