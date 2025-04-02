@@ -29,7 +29,7 @@
                 続行することで、以下に同意したものとみなされます
             </p>
             <p class="text-gray-500 text-sm text-center">
-                <a href="#" class="text-gray-500 underline">利用規約</a> | <a href="#" class="text-gray-500 underline">プライバシーポリシー</a>
+                <a href="{{ route('terms') }}" class="text-gray-500 underline">利用規約</a> | <a href="{{ route('privacy') }}" class="text-gray-500 underline">プライバシーポリシー</a>
             </p>
         </div>
     </div>
