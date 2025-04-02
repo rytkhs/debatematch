@@ -16,6 +16,16 @@
         @stack('styles')
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-F13NEPXT56"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-F13NEPXT56');
+        </script>
     </head>
     <body class="font-sans antialiased" >
         <div class="min-h-screen bg-gray-100 flex flex-col @if(!in_array(request()->route()->getName(), ['debate.show', 'rooms.show'])) mt-16 @endif">
