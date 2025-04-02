@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 text-center">アカウントの作成</h2>
+    <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">アカウントの作成</h2>
 
     <form method="POST" action="{{ route('register') }}">
         @csrf
@@ -9,7 +9,7 @@
             <x-input-label for="name" :value="__('ユーザーネーム')" />
             <x-text-input id="name" class="block mt-1 w-full"
                 type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2 dark:text-red-400" />
+            <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
@@ -17,7 +17,7 @@
             <x-input-label for="email" :value="__('メールアドレス')" />
             <x-text-input id="email" class="block mt-1 w-full"
                 type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2 dark:text-red-400" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
@@ -28,7 +28,7 @@
                 class="block mt-1 w-full" type="password"
                 name="password" required autocomplete="new-password" />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2 dark:text-red-400" />
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Confirm Password -->
@@ -39,7 +39,7 @@
                 class="block mt-1 w-full" type="password"
                 name="password_confirmation" required autocomplete="new-password" />
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 dark:text-red-400" />
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
         <div class="mt-8">
@@ -48,9 +48,9 @@
             </button>
         </div>
 
-        <div class="mt-4 text-center dark:text-gray-200">
+        <div class="mt-4 text-center">
             すでにアカウントをお持ちですか？ <a href="{{ route('login') }}"
-                class="text-gray-500 hover:text-gray-400 dark:text-gray-300 dark:hover:text-gray-200">{{ __('ログイン')
+                class="text-gray-500 hover:text-gray-400">{{ __('ログイン')
                 }}</a>
         </div>
         @if(config('services.google.client_id') || config('services.twitter.client_id'))

@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <div class="mb-4 text-sm text-gray-600">
         {{ __('新しいパスワードを設定するリンクをメールでお送りします。') }}
     </div>
 
@@ -19,7 +19,7 @@
 
         <div class="flex items-center justify-end mt-4 ">
             <x-primary-button
-                class="w-full justify-center bg-teal-600 hover:bg-teal-500 dark:bg-teal-500 dark:hover:bg-teal-400">
+                class="w-full justify-center bg-teal-600 hover:bg-teal-500">
                 {{ __('送信') }}
             </x-primary-button>
         </div>
