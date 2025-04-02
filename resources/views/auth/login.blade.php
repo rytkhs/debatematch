@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4 text-center">ログイン</h2>
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">ログイン</h2>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -31,9 +31,9 @@
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox"
-                    class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
+                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                     name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('ログイン状態を維持する') }}</span>
+                <span class="ms-2 text-sm text-gray-600">{{ __('ログイン状態を維持する') }}</span>
             </label>
         </div>
 
@@ -45,7 +45,7 @@
 
         <div class="mt-4 text-center">
             <a href="{{ route('register') }}"
-            class="text-gray-600 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300">
+            class="text-gray-600 hover:text-gray-500">
             {{ __('アカウントを作成') }}
         </a>
         </div>

@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <div class="mb-4 text-sm text-gray-600">
         {{ __('続行する前にパスワードを確認してください。') }}
     </div>
     <form method="POST" action="{{ route('password.confirm') }}">
