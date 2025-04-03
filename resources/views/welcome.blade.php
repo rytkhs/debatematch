@@ -148,52 +148,55 @@
                     </div>
 
                     <div class="space-y-6">
-                        <!-- FAQ項目 -->
+                        <!-- FAQ項目1：初心者向け -->
                         <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
                             <button @click="open = !open" class="flex justify-between items-center w-full px-6 py-4 text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
-                                <span>ディベート経験がなくても参加できますか？</span>
-                                <svg class="w-5 h-5 text-primary" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <span>ディベート初心者でも参加できますか？</span>
+                                <svg class="w-5 h-5 text-primary transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="open" x-transition class="px-6 py-4 text-gray-600 bg-gray-50">
-                                はい、初心者の方でも安心して参加いただけます。チュートリアルやAIのサポートで、基本的なルールから丁寧に学べます。また、初心者向けのルームもご用意しています。
+                            <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
+                                はい、大歓迎です！ DebateMatchは、ディベート経験がない方でも気軽に参加し、楽しみながら学べるように設計されています。AIによるフィードバック機能も、スキルアップの助けになります。まずは<a href="{{ route('guide') }}" class="text-primary hover:underline">使い方ガイド</a>をご覧になり、簡単なルームから参加してみることをお勧めします。
                             </div>
                         </div>
 
+                        <!-- FAQ項目2：料金 -->
                         <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
                             <button @click="open = !open" class="flex justify-between items-center w-full px-6 py-4 text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
-                                <span>1回のディベートにどのくらいの時間がかかりますか？</span>
-                                <svg class="w-5 h-5 text-primary" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <span>利用料金はかかりますか？</span>
+                                <svg class="w-5 h-5 text-primary transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="open" x-transition class="px-6 py-4 text-gray-600 bg-gray-50">
-                                基本的な1セッションは30分程度です。準備時間、ディベート時間、振り返りの時間が含まれます。ルーム作成時に時間設定をカスタマイズすることも可能です。
+                            <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
+                                現在、DebateMatchのすべての機能を無料でご利用いただけます。アカウント登録も無料です。
                             </div>
                         </div>
 
+                        <!-- FAQ項目3：必要なもの -->
                         <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
                             <button @click="open = !open" class="flex justify-between items-center w-full px-6 py-4 text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
-                                <span>どんなテーマでディベートができますか？</span>
-                                <svg class="w-5 h-5 text-primary" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <span>ディベートに参加するために必要なものは何ですか？</span>
+                                <svg class="w-5 h-5 text-primary transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="open" x-transition class="px-6 py-4 text-gray-600 bg-gray-50">
-                                社会問題、テクノロジー、教育など、様々なジャンルのテーマをご用意しています。また、カスタムテーマを作成することも可能です。定期的に新しいテーマも追加されます。
+                            <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
+                                インターネットに接続されたパソコンやタブレット、スマートフォンと、最新版のウェブブラウザ（Google Chrome, Firefox, Safari, Edgeなど）があれば参加できます。特別なソフトウェアのインストールは不要です。安定したディベートのためには、Wi-Fiなどの安定したネットワーク環境を推奨します。
                             </div>
                         </div>
 
-                        <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
+                        <!-- FAQ項目4：AIフィードバック -->
+                         <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
                             <button @click="open = !open" class="flex justify-between items-center w-full px-6 py-4 text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
-                                <span>AIフィードバックはどのように機能しますか？</span>
-                                <svg class="w-5 h-5 text-primary" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <span>AIフィードバックとは具体的にどのようなものですか？</span>
+                                <svg class="w-5 h-5 text-primary transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </button>
-                            <div x-show="open" x-transition class="px-6 py-4 text-gray-600 bg-gray-50">
-                                ディベート中の発言を分析し、論理性、説得力、反論の適切さなどを評価します。改善点を具体的にアドバイスするほか、ディベート全体の勝敗判定も行います。フィードバック内容は保存でき、自分の成長を確認できます。
+                            <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
+                                ディベート終了後、AIが議論全体の内容を分析します。公平な視点から勝敗を判定し、その理由を説明します。さらに、肯定側・否定側それぞれに対し、議論の良かった点や改善すべき点を具体的に指摘するフィードバックを提供します。これにより、客観的な視点から自身のディベートスキルを振り返り、向上させることができます。
                             </div>
                         </div>
                     </div>

@@ -42,14 +42,14 @@
                         <span class="material-icons text-primary text-3xl">timer</span>
                     </div>
                     <h3 class="text-xl font-semibold mb-3 text-gray-900">自動進行 & タイマー</h3>
-                    <p class="text-gray-600 text-sm">設定されたフォーマットに基づき、タイマーとターン進行が自動で管理されます。</p>
+                    <p class="text-gray-600 text-sm">設定されたフォーマットに基づき、タイマーと進行が自動で管理されます。</p>
                 </div>
-                {{-- 機能カード: AIによる評価 --}}
+                {{-- 機能カード: AIによる講評 --}}
                  <div class="feature-card bg-white p-6 rounded-lg shadow-sm text-center">
                     <div class="w-16 h-16 rounded-full bg-primary-light flex items-center justify-center mb-5 mx-auto">
                         <span class="material-icons text-primary text-3xl">psychology</span>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3 text-gray-900">AIによる評価</h3>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-900">AIによる講評</h3>
                     <p class="text-gray-600 text-sm">ディベート終了後、AIが議論を分析し、勝敗判定と詳細なフィードバックを提供します。</p>
                 </div>
             </div>
@@ -115,11 +115,11 @@
                     <div class="guide-step bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
                         <h4 class="text-lg font-medium mb-3">5. ディベート画面の見方と操作</h4>
                         <div class="space-y-4 text-gray-600 text-sm">
-                            <p><strong class="font-semibold text-gray-800">タイムライン:</strong> 現在のターン、残り時間、全体の進行状況が表示されます。</p>
+                            <p><strong class="font-semibold text-gray-800">タイムライン:</strong> 現在のパート、残り時間、全体の進行状況が表示されます。</p>
                             <p><strong class="font-semibold text-gray-800">チャットエリア:</strong> ディベートの発言がリアルタイムで表示されます。</p>
-                            <p><strong class="font-semibold text-gray-800">メッセージ入力欄:</strong> 自分のターンの時に発言を入力し、送信します。</p>
+                            <p><strong class="font-semibold text-gray-800">メッセージ入力欄:</strong> 自分のパートの時に発言を入力し、送信します。</p>
                             <p><strong class="font-semibold text-gray-800">参加者リスト:</strong> 肯定側・否定側の参加者が表示されます。</p>
-                            <p><strong class="font-semibold text-gray-800">タイマー:</strong> 各ターンの制限時間がカウントダウンされます。時間切れになると自動的に次のターンへ移行します。</p>
+                            <p><strong class="font-semibold text-gray-800">タイマー:</strong> 各パートの制限時間がカウントダウンされます。時間切れになると自動的に次のパートへ移行します。</p>
                             <p><strong class="font-semibold text-gray-800">準備時間:</strong> フォーマットによっては準備時間が設けられています。この時間は相手の発言はありません。</p>
                             <p><strong class="font-semibold text-gray-800">質疑応答:</strong> フォーマットによっては質疑応答の時間が設けられています。質問側と応答側に分かれます。</p>
                              <p><strong class="font-semibold text-gray-800">退出/中断:</strong> ディベート中の退出は原則できません。相手の接続が切れた場合など、システムが異常を検知した場合はディベートが中断されることがあります。</p>
@@ -127,22 +127,22 @@
                     </div>
                 </div>
 
-                {{-- ステップ 4: 評価と履歴 --}}
+                {{-- ステップ 4: 講評と履歴 --}}
                 <div>
                     <h3 class="text-xl font-semibold text-primary mb-6 flex items-center">
-                        <span class="material-icons mr-2">analytics</span> ステップ4：評価と履歴
+                        <span class="material-icons mr-2">analytics</span> ステップ4：講評と履歴
                     </h3>
                     <div class="grid md:grid-cols-2 gap-8">
-                        {{-- 評価ステップ1: ディベート終了とAI評価 --}}
+                        {{-- 講評テップ1: ディベート終了とAI講評 --}}
                         <div class="guide-step bg-gray-50 p-6 rounded-lg border border-gray-200">
-                            <h4 class="text-lg font-medium mb-3">6. ディベート終了とAI評価</h4>
-                             <p class="text-gray-600 text-sm mb-4">最後のターンが終了すると、ディベートは自動的に完了します。その後、AIによる評価がバックグラウンドで開始されます。</p>
+                            <h4 class="text-lg font-medium mb-3">6. ディベート終了とAI講評</h4>
+                             <p class="text-gray-600 text-sm mb-4">最後のパートが終了すると、ディベートは自動的に完了します。その後、AIによる評価がバックグラウンドで開始されます。</p>
                              <p class="text-gray-600 text-sm">評価には数十秒〜数分程度かかる場合があります。評価が完了すると、結果ページへ自動的にリダイレクトされるか、通知が表示されます。</p>
                          </div>
-                         {{-- 評価ステップ2: 結果の確認 --}}
+                         {{-- 講評ステップ2: 結果の確認 --}}
                          <div class="guide-step bg-gray-50 p-6 rounded-lg border border-gray-200">
                             <h4 class="text-lg font-medium mb-3">7. 結果の確認</h4>
-                            <p class="text-gray-600 text-sm mb-2">結果ページでは、AIによる以下の評価を確認できます。</p>
+                            <p class="text-gray-600 text-sm mb-2">結果ページでは、AIによる以下の講評を確認できます。</p>
                             <ul class="list-disc list-inside text-gray-600 text-sm space-y-1">
                                 <li>勝敗判定 (肯定側/否定側)</li>
                                 <li>論点の分析</li>
@@ -151,7 +151,7 @@
                             </ul>
                             <p class="text-gray-600 text-sm mt-2">タブを切り替えることで、ディベート中のチャットログも確認できます。</p>
                         </div>
-                         {{-- 評価ステップ3: ディベート履歴の確認 --}}
+                         {{-- 講評ステップ3: ディベート履歴の確認 --}}
                          <div class="guide-step bg-gray-50 p-6 rounded-lg border border-gray-200 md:col-span-2">
                              <h4 class="text-lg font-medium mb-3">8. ディベート履歴の確認</h4>
                              <p class="text-gray-600 text-sm mb-4">ナビゲーションメニューの<a href="{{ route('records.index') }}" class="text-primary hover:underline">ディベート履歴</a>から、過去に参加したディベートの結果と内容を確認できます。</p>
@@ -169,7 +169,7 @@
             <h2 class="text-2xl font-bold text-gray-900 text-center mb-12">ディベートフォーマット</h2>
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <p class="text-gray-600 mb-4">DebateMatchでは、主要なディベート大会の公式ルールに基づいたフォーマットを複数用意しています。ルーム作成時に、希望のフォーマットを選択してください。</p>
-                <h4 class="text-lg font-medium mb-3">利用可能なフォーマット</h4>
+                <h4 class="text-lg font-medium mb-3">現在利用可能なフォーマット</h4>
                 {{-- config/debate.php からフォーマット名を取得してリスト表示 --}}
                 <ul class="list-disc list-inside text-gray-600 space-y-1 mb-4">
                     @foreach(config('debate.formats') as $name => $format)
@@ -177,7 +177,7 @@
                     @endforeach
                 </ul>
                 <h4 class="text-lg font-medium mb-3">カスタムフォーマット</h4>
-                <p class="text-gray-600">上記の既存フォーマット以外に、自分でターン構成（話者、名称、時間など）を自由に設定できる「カスタム」フォーマットも利用可能です。ルーム作成時に「カスタム」を選択し、詳細を設定してください。</p>
+                <p class="text-gray-600">上記の既存フォーマット以外に、自分でパート構成（話者、名称、時間など）を自由に設定できる「カスタム」フォーマットも利用可能です。ルーム作成時に「カスタム」を選択し、詳細を設定してください。</p>
             </div>
         </div>
     </section>
@@ -196,7 +196,7 @@
                         </svg>
                     </button>
                     <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
-                        はい、初心者の方でも安心して参加いただけます。このガイドや、AIによる評価フィードバックを通じて、ルールやコツを学ぶことができます。まずは気軽に参加してみてください。
+                        はい、大歓迎です！ DebateMatchは、ディベート経験がない方でも気軽に参加し、楽しみながら学べるように設計されています。AIによるフィードバック機能も、スキルアップの助けになります。まずは、簡単なルームから参加してみることをお勧めします
                     </div>
                 </div>
                 {{-- FAQ項目2 --}}
@@ -208,7 +208,7 @@
                         </svg>
                     </button>
                     <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
-                        選択するディベートフォーマットによって異なります。例えば、「ディベート甲子園(高校の部)」形式では約1時間程度です。カスタムフォーマットでは自由に時間を設定できます。各ターンの時間はディベート画面のタイムラインで確認できます。
+                        選択するフォーマットによって異なります。例えば、「ディベート甲子園(高校の部)」形式では約1時間程度です。カスタムフォーマットでは自由に時間を設定できます。各パートの時間はディベート画面のタイムラインで確認できます。
                     </div>
                 </div>
                 {{-- FAQ項目3 --}}
@@ -220,7 +220,7 @@
                         </svg>
                     </button>
                     <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
-                        ルーム作成者が自由に論題を設定できます。社会問題、科学技術、倫理、政策など、様々なテーマでのディベートが可能です。ルーム一覧で興味のある論題を探してみてください。
+                        ルーム作成者が自由に論題を設定できます。社会問題、科学技術、倫理、政策など、様々なテーマでのディベートが可能です。
                     </div>
                 </div>
                 {{-- FAQ項目4 --}}
@@ -232,7 +232,7 @@
                         </svg>
                     </button>
                     <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
-                         ディベート中の全発言をテキストデータとしてAIに渡し、設定された評価基準（公平性、客観性、論理性、説得力など）に基づいて分析を行います。分析結果から、最終的な勝敗判定、判定理由、各サイドへの具体的な改善点を含むフィードバックを生成します。
+                         ディベート中の全発言をテキストデータとしてAIに渡し、評価基準に基づいて分析を行います。分析結果から、最終的な勝敗判定、判定理由、各サイドへの具体的な改善点を含むフィードバックを生成します。
                     </div>
                 </div>
                  {{-- FAQ項目5 --}}
@@ -266,7 +266,7 @@
                  <a href="{{ route('privacy') }}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-gray-50 shadow-sm">
                     <span class="material-icons-outlined mr-2">shield</span> プライバシーポリシー
                 </a>
-                <a href="mailto:info@debatematch.com" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark shadow-sm">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeojaEKvwrH1Ewi49qqN8S6i3HqF9yoeMSCvKpGk58soFLuqA/viewform?usp=dialog" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark shadow-sm">
                     <span class="material-icons-outlined mr-2">email</span> お問い合わせ
                 </a>
             </div>

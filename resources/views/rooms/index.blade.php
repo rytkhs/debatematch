@@ -16,7 +16,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                         </svg>
-                        <p class="text-xl font-medium text-gray-500 mb-2">参加可能なルームがありません</p>
+                        <p class="text-xl font-medium text-gray-500 mb-2">現在参加可能なルームがありません</p>
                         <p class="text-gray-400 mb-6">新しいディベートルームを作成してみましょう</p>
                         <a href="{{ route('rooms.create') }}" class="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
