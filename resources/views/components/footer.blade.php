@@ -44,7 +44,7 @@
             <div class="col-span-1">
                 <h3 class="text-lg font-semibold mb-4">サポート</h3>
                 <ul class="space-y-2">
-                    <li><a href="mailto:info@debatematch.com" class="text-gray-400 hover:text-white transition">お問い合わせ</a></li>
+                    <li><a href="https://docs.google.com/forms/d/e/1FAIpQLSeojaEKvwrH1Ewi49qqN8S6i3HqF9yoeMSCvKpGk58soFLuqA/viewform?usp=dialog" class="text-gray-400 hover:text-white transition">お問い合わせ</a></li>
                     <li><a href="{{ route('terms') }}" class="text-gray-400 hover:text-white transition">利用規約</a></li>
                     <li><a href="{{ route('privacy') }}" class="text-gray-400 hover:text-white transition">プライバシーポリシー</a></li>
                 </ul>
