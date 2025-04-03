@@ -31,7 +31,7 @@
                                             <span class="material-icons-outlined text-gray-400 text-sm">subject</span>
                                         </div>
                                         <input type="text" id="topic" name="topic" value="{{ old('topic') }}"
-                                            placeholder="例：日本は内閣による衆議院の解散権を制限すべきである。是か非か" required
+                                            required
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                         <x-input-error :messages="$errors->get('topic')" class="mt-2" />
                                     </div>
@@ -47,7 +47,7 @@
                                             <span class="material-icons-outlined text-gray-400 text-sm">meeting_room</span>
                                         </div>
                                         <input type="text" id="name" name="name" value="{{ old('name') }}"
-                                            placeholder="例：初心者歓迎ルーム" required
+                                            required
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                                     </div>
