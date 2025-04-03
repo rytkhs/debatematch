@@ -47,7 +47,7 @@
                     @endif
 
                     <!-- メッセージ本文 -->
-                    <div class="max-w-[85%]">
+                    <div class="max-w-[95%]">
                         <div class="rounded-lg p-3 {{ $message->user_id === Auth::id()
                             ? 'bg-primary-light text-gray-800'
                             : ($message->user_id === $debate->affirmative_user_id

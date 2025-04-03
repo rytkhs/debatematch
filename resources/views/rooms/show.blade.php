@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app2-layout>
     <div class="min-h-screen bg-gray-50">
         <div class="container mx-auto max-w-7xl p-6">
             <!-- ヘッダー部分 -->
@@ -184,4 +184,4 @@
     </script>
     <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
     @vite('resources/js/rooms-show.js')
-</x-app-layout>
+</x-app2-layout>

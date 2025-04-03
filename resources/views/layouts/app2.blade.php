@@ -37,7 +37,7 @@
         </script>
     </head>
     <body class="font-sans antialiased" >
-        <div class="min-h-screen bg-gray-100 flex flex-col mt-16">
+        <div class="min-h-screen bg-gray-100 flex flex-col">
             <!-- Page Heading -->
             @isset($header)
             <header>
