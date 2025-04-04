@@ -27,6 +27,8 @@ services:
       - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
       - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
       - "QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}"
+      - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
+      - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
     volumes:
       - ./.env:/var/www/html/.env:ro
       - public-data:/var/www/html/public
