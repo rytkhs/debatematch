@@ -91,7 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // DOM要素の取得
         const elements = {
             leftSidebar: document.getElementById('left-sidebar'),
-            hamburgerBtns: document.querySelectorAll('#hamburger-menu'),
+            // デスクトップ用とモバイル用でIDを分ける
+            desktopHamburgerBtn: document.getElementById('desktop-hamburger-menu'),
+            mobileHamburgerBtns: document.querySelectorAll('#mobile-hamburger-menu'), // モバイル用は複数の場所に存在する可能性があるためquerySelectorAllを使用
             mobileSidebarOverlay: document.getElementById('mobile-sidebar-overlay'),
             mobileSidebarContent: document.getElementById('mobile-sidebar-content'),
             closeMobileSidebar: document.getElementById('close-mobile-sidebar')
@@ -103,17 +105,30 @@ document.addEventListener('DOMContentLoaded', function() {
         // 初期レイアウト調整
         adjustLayout();
 
-        // ハンバーガーメニュークリックイベント
-        elements.hamburgerBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const isMobile = window.innerWidth < 1024;
-                if (isMobile) {
-                    openMobileSidebar();
-                } else {
-                    toggleDesktopSidebar();
+        // デスクトップ用ハンバーガーメニュークリックイベント
+        if (elements.desktopHamburgerBtn) {
+            elements.desktopHamburgerBtn.addEventListener('click', toggleDesktopSidebar);
+        }
+
+        // モバイル用ハンバーガーメニュークリックイベント
+        elements.mobileHamburgerBtns.forEach(btn => {
+            btn.addEventListener('click', openMobileSidebar);
+        });
+
+        // 閉じるボタン（モバイル用）
+        if (elements.closeMobileSidebar) {
+            elements.closeMobileSidebar.addEventListener('click', closeMobileSidebar);
+        }
+
+        // オーバーレイクリック（モバイル用）
+        if (elements.mobileSidebarOverlay) {
+            elements.mobileSidebarOverlay.addEventListener('click', (e) => {
+                // イベントターゲットがオーバーレイ自身の場合のみ閉じる（コンテンツ部分のクリックでは閉じない）
+                if (e.target === elements.mobileSidebarOverlay) {
+                    closeMobileSidebar();
                 }
             });
-        });
+        }
 
         // デスクトップサイドバーの表示切替
         function toggleDesktopSidebar() {
@@ -124,22 +139,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // レイアウト調整
         function adjustLayout() {
-            const isMobile = window.innerWidth < 1024;
+            const isMobileOrTablet = window.innerWidth < 768; // Tailwindのmdブレークポイント
 
+            // leftSidebar要素が存在するか確認
             if (elements.leftSidebar) {
-                if (isMobile) {
+                if (isMobileOrTablet) {
+                    // モバイル/タブレットビューでは、デスクトップサイドバーを常に非表示にする
                     elements.leftSidebar.classList.add('hidden');
+                } else {
+
                 }
             }
 
-            if (isMobile) {
-                // モバイル時はオーバーレイを使用可能に
-                if (elements.mobileSidebarOverlay) {
-                    elements.mobileSidebarOverlay.classList.remove('hidden');
-                }
-            } else {
-                // デスクトップ時はオーバーレイを非表示
-                if (elements.mobileSidebarOverlay) {
+            // mobileSidebarOverlay要素が存在するか確認
+            if (elements.mobileSidebarOverlay) {
+                if (isMobileOrTablet) {
+                    // モバイル/タブレット時はオーバーレイを利用可能にする
+                } else {
+                    // デスクトップ時はオーバーレイを強制的に非表示にし、閉じる
+                    closeMobileSidebar();
                     elements.mobileSidebarOverlay.classList.add('hidden');
                 }
             }
@@ -149,10 +167,24 @@ document.addEventListener('DOMContentLoaded', function() {
         function openMobileSidebar() {
             if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
 
+            // オーバーレイ表示
             elements.mobileSidebarOverlay.classList.remove('hidden');
+            // 少し遅延させてから transform を適用し、アニメーションを開始
             setTimeout(() => {
                 elements.mobileSidebarContent.classList.remove('-translate-x-full');
             }, 10);
+        }
+
+        // モバイルサイドバーを閉じる
+        function closeMobileSidebar() {
+            if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
+
+            // サイドバーを左にスライドアウト
+            elements.mobileSidebarContent.classList.add('-translate-x-full');
+            // トランジション完了後にオーバーレイを非表示にする
+            setTimeout(() => {
+                elements.mobileSidebarOverlay.classList.add('hidden');
+            }, 300);
         }
     }
     /**

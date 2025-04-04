@@ -3,8 +3,8 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <!-- 左側: トピック情報 -->
             <div class="mb-2 md:mb-0 flex items-center">
-                <!-- ハンバーガーメニュー -->
-                <button id="hamburger-menu" class="hidden md:block text-gray-700 p-2 rounded-full hover:bg-gray-100">
+                <!-- デスクトップ用ハンバーガーメニュー -->
+                <button id="desktop-hamburger-menu" class="hidden md:block text-gray-700 p-2 rounded-full hover:bg-gray-100">
                     <span class="material-icons">menu</span>
                 </button>
 
@@ -20,7 +20,7 @@
             <!-- 右側: ターン情報とタイマー -->
             <div class="flex items-center space-x-4">
                 <!-- モバイル用ハンバーガーメニュー -->
-                <button id="hamburger-menu" class="md:hidden mr-2 text-gray-700 p-2 rounded-full hover:bg-gray-100">
+                <button id="mobile-hamburger-menu" class="md:hidden mr-2 text-gray-700 p-2 rounded-full hover:bg-gray-100">
                     <span class="material-icons">menu</span>
                 </button>
 
@@ -99,55 +99,6 @@
                 window.debateCountdown.stop();
             }
         });
-
-        /**
-         * ハンバーガーメニュー
-         */
-        const elements = {
-            hamburgerBtns: document.querySelectorAll('#hamburger-menu'),
-            mobileSidebarOverlay: document.getElementById('mobile-sidebar-overlay'),
-            mobileSidebarContent: document.getElementById('mobile-sidebar-content'),
-            closeMobileSidebar: document.getElementById('close-mobile-sidebar')
-        };
-
-        // ハンバーガーメニュークリック
-        elements.hamburgerBtns.forEach(btn => {
-            btn.addEventListener('click', openMobileSidebar);
-        });
-
-        // 閉じるボタン
-        if (elements.closeMobileSidebar) {
-            elements.closeMobileSidebar.addEventListener('click', closeMobileSidebar);
-        }
-
-        // オーバーレイクリック
-        if (elements.mobileSidebarOverlay) {
-            elements.mobileSidebarOverlay.addEventListener('click', (e) => {
-                if (e.target === elements.mobileSidebarOverlay) {
-                    closeMobileSidebar();
-                }
-            });
-        }
-
-        // モバイルサイドバーを開く
-        function openMobileSidebar() {
-            if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
-
-            elements.mobileSidebarOverlay.classList.remove('hidden');
-            setTimeout(() => {
-                elements.mobileSidebarContent.classList.remove('-translate-x-full');
-            }, 10);
-        }
-
-        // モバイルサイドバーを閉じる
-        function closeMobileSidebar() {
-            if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
-
-            elements.mobileSidebarContent.classList.add('-translate-x-full');
-            setTimeout(() => {
-                elements.mobileSidebarOverlay.classList.add('hidden');
-            }, 300);
-        }
 
     });
 
