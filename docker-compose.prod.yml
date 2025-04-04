@@ -27,6 +27,8 @@ services:
       - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
       - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
       - "QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}"
+      - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
+      - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
     volumes:
       - ./.env:/var/www/html/.env:ro
       - public-data:/var/www/html/public
@@ -59,7 +61,7 @@ services:
       dockerfile: docker/php/Dockerfile
     container_name: debate_match_worker
     restart: unless-stopped
-    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=60
+    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=300 --max-jobs=500 --max-time=1800
     environment:
       - "APP_ENV=production"
       - "DB_CONNECTION=mysql"

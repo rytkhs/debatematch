@@ -17,6 +17,7 @@ class Participants extends Component
     public bool $isMyTurn = false;
     public array $onlineUsers = [];
     protected $debateService;
+    public bool $isProcessing = false;
 
     public function boot(DebateService $debateService)
     {
@@ -34,6 +35,7 @@ class Participants extends Component
     {
         $this->debate->refresh();
         $this->syncTurnState();
+        $this->isProcessing = false;
     }
 
     #[On('member-online')]
@@ -77,7 +79,15 @@ class Participants extends Component
 
     public function advanceTurnManually(): void
     {
-        $this->debateService->advanceToNextTurn($this->debate);
+        if ($this->isProcessing) {
+            return;
+        }
+
+        $this->isProcessing = true;
+
+        $currentTurn = $this->debate->current_turn;
+        $this->debateService->advanceToNextTurn($this->debate, $currentTurn);
+
         $this->dispatch('showFlashMessage', 'パートを終了しました', 'success');
     }
 

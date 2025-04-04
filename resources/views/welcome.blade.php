@@ -187,8 +187,21 @@
                             </div>
                         </div>
 
-                        <!-- FAQ項目4：AIフィードバック -->
-                         <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
+                        <!-- FAQ項目4：スマホ利用 -->
+                        <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
+                            <button @click="open = !open" class="flex justify-between items-center w-full px-6 py-4 text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
+                                <span>スマートフォンやタブレットでも利用できますか？</span>
+                                <svg class="w-5 h-5 text-primary transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <div x-show="open" x-transition.duration.300ms class="px-6 py-4 text-gray-600 bg-gray-50">
+                                はい、スマートフォンやタブレットでもご利用いただけます。ただし、ディベート中は多くの情報を表示するため、より快適にご利用いただくためには、画面の大きいパソコンやタブレットでの利用を推奨します。
+                            </div>
+                        </div>
+
+                        <!-- FAQ項目5：AIフィードバック -->
+                        <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
                             <button @click="open = !open" class="flex justify-between items-center w-full px-6 py-4 text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
                                 <span>AIフィードバックとは具体的にどのようなものですか？</span>
                                 <svg class="w-5 h-5 text-primary transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

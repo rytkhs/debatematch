@@ -4,7 +4,7 @@
     </x-slot>
 
     <div class="min-h-screen bg-gray-50 py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 leading-normal text-gray-700 prose">
+        <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 leading-normal text-gray-700 prose">
                     {!! Str::markdown(file_get_contents(resource_path('markdown/terms.md'))) !!}
         </div>
     </div>
