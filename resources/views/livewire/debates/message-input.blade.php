@@ -21,7 +21,12 @@
             </div>
 
             <!-- 現在の入力者表示 -->
-            @if($isMyTurn)
+            @if($isPrepTime)
+                <div class="text-sm text-gray-500 flex items-center">
+                    <span class="material-icons text-sm mr-1">timer</span>
+                    準備時間中
+                </div>
+            @elseif($isMyTurn)
                 <div class="text-sm text-primary font-medium flex items-center">
                     <span class="material-icons text-sm mr-1">edit</span>
                     送信可能
@@ -51,9 +56,9 @@
 
             <button
                 type="submit"
-                {{ $isMyTurn || $isQuestioningTurn ? '' : 'disabled' }}
+                {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? '' : 'disabled' }}
                 class="ml-2 w-10 h-10 rounded-full flex items-center justify-center self-end
-                       {{ $isMyTurn || $isQuestioningTurn
+                       {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime
                           ? 'bg-primary hover:bg-primary-dark text-white'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}"
             >

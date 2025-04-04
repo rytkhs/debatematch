@@ -3,10 +3,10 @@
         <!-- ヘッダー -->
         <livewire:debates.header :debate="$debate" />
 
-        <!-- メインコンテンツ: 2カラムレイアウト (モバイルでは単一カラム) -->
-        <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
+        <!-- メインコンテンツ: 2カラムレイアウト (モバイルとタブレットでは単一カラム) -->
+        <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
             <!-- 左サイドバー: ディベート情報 -->
-            <div class="w-full lg:w-1/4 xl:w-1/5 lg:border-r border-gray-200 bg-white lg:overflow-y-auto shadow-md z-20 lg:flex-shrink-0" id="left-sidebar">
+            <div class="w-full md:w-1/4 xl:w-1/5 md:border-r border-gray-200 bg-white md:overflow-y-auto shadow-md z-20 md:flex-shrink-0" id="left-sidebar">
                 <!-- タブナビゲーション -->
                 <div class="flex border-b border-gray-200">
                     <button id="participants-tab" class="flex-1 py-3 px-4 text-center border-b-2 border-primary text-primary font-medium">
@@ -28,7 +28,7 @@
             </div>
 
             <!-- メインコンテンツ: チャットエリア -->
-            <div class="flex-1 flex flex-col relative h-full w-full lg:w-3/4">
+            <div class="flex-1 flex flex-col relative h-full w-full md:w-3/4">
                 <!-- チャットメッセージ表示エリア -->
                 <div class="flex-1 overflow-y-auto bg-pattern" id="chat-container">
                     <livewire:debates.chat :debate="$debate" />
@@ -41,8 +41,8 @@
             </div>
         </div>
 
-        <!-- ハンバーガーメニューオーバーレイ (モバイル用) -->
-        <div id="mobile-sidebar-overlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden">
+        <!-- ハンバーガーメニューオーバーレイ (モバイルとタブレット用) -->
+        <div id="mobile-sidebar-overlay" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden">
             <div id="mobile-sidebar-content" class="w-80 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out">
                 <!-- サイドバーヘッダー -->
                 <div class="p-4 border-b border-gray-200">

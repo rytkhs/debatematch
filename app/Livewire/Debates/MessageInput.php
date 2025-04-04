@@ -78,6 +78,12 @@ class MessageInput extends Component
         if (!$this->debate || !$this->debate->room || $this->debate->room->status !== Room::STATUS_DEBATING) {
             return;
         }
+
+        // 準備時間中は送信不可
+        if ($this->isPrepTime) {
+            return;
+        }
+
         // 発言権がない場合は送信不可（質疑応答時は例外）
         if (!$this->isMyTurn && !$this->isQuestioningTurn) {
             return;
