@@ -58,12 +58,16 @@
     <!-- ターン終了ボタン -->
     @if($isMyTurn)
     <div class="mt-auto">
-        <button wire:click="advanceTurnManually" wire:loading.attr="disabled"
+        <button wire:click="advanceTurnManually"
             wire:confirm="{{$currentTurnName}}を終了し、{{$nextTurnName}}に進みます。\nパートを終了してよろしいですか?"
-            class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+            wire:loading.attr="disabled"
+            wire:loading.class="opacity-50 cursor-not-allowed"
+            wire:target="advanceTurnManually"
+            @if($isProcessing) disabled @endif
+            class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 {{ $isProcessing ? 'opacity-50 cursor-not-allowed' : '' }}">
             <span class="flex items-center justify-center">
                 <span class="material-icons mr-2">arrow_forward</span>
-                パートを終了する
+                <span>{{ $isProcessing ? '処理中...' : 'パートを終了する' }}</span>
             </span>
         </button>
 

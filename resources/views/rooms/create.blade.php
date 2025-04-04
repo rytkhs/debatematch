@@ -31,6 +31,7 @@
                                             <span class="material-icons-outlined text-gray-400 text-sm">subject</span>
                                         </div>
                                         <input type="text" id="topic" name="topic" value="{{ old('topic') }}"
+                                            placeholder="論題を入力"
                                             required
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                         <x-input-error :messages="$errors->get('topic')" class="mt-2" />
@@ -47,6 +48,7 @@
                                             <span class="material-icons-outlined text-gray-400 text-sm">meeting_room</span>
                                         </div>
                                         <input type="text" id="name" name="name" value="{{ old('name') }}"
+                                            placeholder="ルーム名を入力"
                                             required
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
@@ -227,7 +229,7 @@
                                         </div>
                                         <div class="sm:col-span-5">
                                             <label class="block text-xs text-gray-500">パート名</label>
-                                            <input type="text" name="turns[0][name]" placeholder="立論"
+                                            <input type="text" name="turns[0][name]" placeholder="立論、反駁など"
                                                 list="part-suggestions"
                                                 class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                             <datalist id="part-suggestions">
@@ -433,7 +435,7 @@
     </div>
     <div class="sm:col-span-5">
         <label class="block text-xs text-gray-500">パート名</label>
-        <input type="text" name="turns[${turnCount}][name]" placeholder="反駁" list="part-suggestions" class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <input type="text" name="turns[${turnCount}][name]" placeholder="立論、反駁など" list="part-suggestions" class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
     </div>
     <div class="sm:col-span-2">
         <label class="block text-xs text-gray-500">時間（分）</label>
@@ -447,7 +449,7 @@
             </label>
             <label class="inline-flex items-center">
                 <input type="checkbox" name="turns[${turnCount}][is_prep_time]" class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-                <span class="ml-1 text-xs text-gray-500">準備</span>
+                <span class="ml-1 text-xs text-gray-500">準備時間</span>
             </label>
         </div>
     </div>
