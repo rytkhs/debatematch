@@ -7,7 +7,7 @@
     <div class="bg-white pt-16 pb-12">
         <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
             {{-- ページタイトル --}}
-            <h1 class="text-3xl md:text-4xl font-bold text-primary mb-4">DebateMatch 使い方ガイド</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-primary my-4">DebateMatch 使い方ガイド</h1>
             {{-- ページ概要説明 --}}
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
                 DebateMatchへようこそ！このガイドでは、サービスの基本的な使い方から応用的な機能までをわかりやすく解説します。
