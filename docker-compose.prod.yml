@@ -52,7 +52,7 @@ services:
 
     networks:
       - sail
-      - sail_stg
+      - stg_sail_stg
     depends_on:
       - app
 
@@ -100,7 +100,7 @@ services:
 networks:
   sail:
     driver: bridge
-  sail_stg:
+    stg_sail_stg:
     external: true
 
 volumes:

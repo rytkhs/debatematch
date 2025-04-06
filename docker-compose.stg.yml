@@ -30,7 +30,7 @@ services:
       - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
       - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
     volumes:
-      - ./.env.stg:/var/www/html/.env:ro
+      - ./.env:/var/www/html/.env:ro
     networks:
       - sail_stg
     depends_on:
@@ -55,7 +55,7 @@ services:
       - "QUEUE_CONNECTION=sqs"
       - "SQS_QUEUE=${SQS_QUEUE}"
     volumes:
-      - ./.env.stg:/var/www/html/.env:ro
+      - ./.env:/var/www/html/.env:ro
     networks:
       - sail_stg
     depends_on:
