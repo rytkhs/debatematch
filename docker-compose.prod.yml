@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: docker/prod/php/Dockerfile
     container_name: debate_match_app
     restart: unless-stopped
     environment:
@@ -45,21 +45,20 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/prod/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /home/ec2-user/app/data/certbot/www:/var/www/certbot
       - public-data:/var/www/html/public:ro
 
     networks:
       - sail
-      - stg_sail_stg
     depends_on:
       - app
 
   worker:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: docker/prod/php/Dockerfile
     container_name: debate_match_worker
     restart: unless-stopped
     command: php artisan queue:work sqs --sleep=3 --tries=3 --timeout=300 --max-jobs=500 --max-time=1800
@@ -101,8 +100,6 @@ services:
 networks:
   sail:
     driver: bridge
-  stg_sail_stg:
-    external: true
 
 volumes:
   redis-data:
