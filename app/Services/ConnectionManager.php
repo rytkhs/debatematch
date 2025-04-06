@@ -20,8 +20,8 @@ class ConnectionManager
     const STATUS_GRACEFULLY_DISCONNECTED = 'gracefully_disconnected';
 
     // 猶予期間（秒）
-    private $roomGracePeriod = 30;
-    private $debateGracePeriod = 60;
+    private $roomGracePeriod = 300;
+    private $debateGracePeriod = 300;
 
     /**
      * 新規セッション開始時に初回接続を記録
@@ -120,7 +120,7 @@ class ConnectionManager
 
             // ディベート中の場合、不安定接続に対して猶予期間を延長
             if ($context['type'] === 'debate' && $frequentDisconnections) {
-                $gracePeriod = min($gracePeriod * 1.5, 90); // 最大90秒まで
+                $gracePeriod = min($gracePeriod * 1.5, 450); // 最大450秒まで
             }
 
             return HandleUserDisconnection::dispatch($userId, $context)

@@ -44,7 +44,7 @@ class RoomController extends Controller
                 'turns' => 'required|array|min:1',
                 'turns.*.speaker' => 'required|in:affirmative,negative',
                 'turns.*.name' => 'required|string|max:255',
-                'turns.*.duration' => 'required|integer|min:1|max:20',
+                'turns.*.duration' => 'required|integer|min:1|max:14',
                 'turns.*.is_prep_time' => 'nullable|boolean',
                 'turns.*.is_questions' => 'nullable|boolean',
             ]);
