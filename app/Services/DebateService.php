@@ -65,8 +65,8 @@ class DebateService
     {
         $format = $this->getFormat($debate);
         $debate->current_turn = $nextTurn;
-        // 2ターン目以降は2秒追加
-        $duration = $format[$nextTurn]['duration'] + 2;
+        // 2ターン目以降は7秒追加
+        $duration = $format[$nextTurn]['duration'] + 7;
         $debate->turn_end_time = Carbon::now()->addSeconds($duration);
         $debate->save();
     }
