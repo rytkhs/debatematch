@@ -101,7 +101,7 @@ networks:
   sail:
     driver: bridge
   sail_stg:
-    driver: bridge
+    external: true
 
 volumes:
   redis-data:
