@@ -101,7 +101,7 @@ services:
 networks:
   sail:
     driver: bridge
-    stg_sail_stg:
+  stg_sail_stg:
     external: true
 
 volumes:
