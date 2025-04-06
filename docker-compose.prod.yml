@@ -62,7 +62,7 @@ services:
       dockerfile: docker/php/Dockerfile
     container_name: debate_match_worker
     restart: unless-stopped
-    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=300 --max-jobs=500 --max-time=1800
+    command: php artisan queue:work sqs --sleep=3 --tries=3 --timeout=300 --max-jobs=500 --max-time=1800
     environment:
       - "APP_ENV=production"
       - "DB_CONNECTION=mysql"
@@ -74,7 +74,8 @@ services:
       - "REDIS_HOST=redis"
       - "REDIS_PORT=6379"
       - "PUSHER_APP_ID=${PUSHER_APP_ID}"
-      - "QUEUE_CONNECTION=redis"
+      - "QUEUE_CONNECTION=sqs"
+      - "SQS_QUEUE=${SQS_QUEUE}"
     volumes:
       - ./.env:/var/www/html/.env:ro
     networks:
