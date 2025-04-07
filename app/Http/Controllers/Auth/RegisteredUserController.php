@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\SMSController;
+use App\Http\Controllers\SNSController;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
-    protected SMSController $smsController;
+    protected SNSController $snsController;
 
-    public function __construct(SMSController $smsController)
+    public function __construct(SNSController $snsController)
     {
-        $this->smsController = $smsController;
+        $this->snsController = $snsController;
     }
 
     /**
@@ -52,20 +52,20 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        $adminPhoneNumber = env('SMS_ADMIN_PHONE_NUMBER');
+        // 新規ユーザー登録通知を送信
+        $message = "新規ユーザー登録がありました。\n"
+            . "名前: {$user->name}\n";
 
-        if ($adminPhoneNumber) {
-            $message = "新規ユーザー登録がありました。\n名前: {$user->name}\nメール: {$user->email}";
+        // 通知を送信（メール）
+        $result = $this->snsController->sendNotification(
+            $message,
+            "【DebateMatch】新規ユーザー登録"
+        );
 
-            $result = $this->smsController->sendSms($adminPhoneNumber, $message);
-
-            if ($result) {
-                Log::info("SMSを送信しました。 User ID: {$user->id}");
-            } else {
-                Log::warning("送信に失敗しました。 User ID: {$user->id}");
-            }
+        if ($result) {
+            Log::info("通知を送信しました。 User ID: {$user->id}");
         } else {
-            Log::warning('SMS_ADMIN_PHONE_NUMBERが設定されていません。');
+            Log::warning("通知の送信に失敗しました。 User ID: {$user->id}");
         }
 
         Auth::login($user);
