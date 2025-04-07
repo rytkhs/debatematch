@@ -62,7 +62,7 @@ Route::middleware(['auth', CheckUserActiveStatus::class])->group(function () {
 });
 
 // 認証が必要なルートグループ
-Route::middleware(['auth','verified', CheckUserActiveStatus::class])->group(function () {
+Route::middleware(['auth', 'verified', CheckUserActiveStatus::class])->group(function () {
 
     // ルーム関連
     Route::prefix('rooms')->name('rooms.')->group(function () {
@@ -75,10 +75,9 @@ Route::middleware(['auth','verified', CheckUserActiveStatus::class])->group(func
     Route::prefix('debate')->name('debate.')->group(function () {
         Route::get('/{debate}', [DebateController::class, 'show'])->name('show');
     });
-
 });
 
-Route::middleware(['auth','verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/{room}/exit', [RoomController::class, 'exit'])->name('rooms.exit');
     Route::post('/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
     Route::post('/{room}/start', [RoomController::class, 'startDebate'])->name('rooms.start');
@@ -108,7 +107,7 @@ Route::post('/pusher/auth', function (Request $request) {
         Auth::user()->id,
         ['name' => Auth::user()->name]
     );
-})->middleware(['auth','verified'])->withoutMiddleware([ValidateCsrfToken::class]);
+})->middleware(['auth', 'verified'])->withoutMiddleware([ValidateCsrfToken::class]);
 
 // ハートビートエンドポイント
 Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])

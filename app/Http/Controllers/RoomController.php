@@ -11,10 +11,17 @@ use App\Events\UserLeftRoom;
 use App\Events\CreatorLeftRoom;
 use Illuminate\Support\Facades\DB;
 use App\Services\ConnectionManager;
-
+use App\Http\Controllers\SMSController;
 
 class RoomController extends Controller
 {
+    protected SMSController $smsController;
+
+    public function __construct(SMSController $smsController)
+    {
+        $this->smsController = $smsController;
+    }
+
     public function index()
     {
         $rooms = Room::where('status', Room::STATUS_WAITING)->get();
@@ -85,6 +92,17 @@ class RoomController extends Controller
             $room->users()->attach(Auth::id(), [
                 'side' => $validatedData['side'],
             ]);
+
+            $adminPhoneNumber = env('SMS_ADMIN_PHONE_NUMBER');
+            if ($adminPhoneNumber) {
+                $user = Auth::user();
+                $message = "新しいルームが作成されました。\n"
+                    . "ルーム名: {$room->name}\n"
+                    . "トピック: {$room->topic}\n"
+                    . "作成者: {$user->name}";
+
+                $this->smsController->sendSms($adminPhoneNumber, $message);
+            }
 
             return redirect()->route('rooms.show', compact('room'))->with('success', 'ルームを作成しました');
         });
@@ -164,6 +182,19 @@ class RoomController extends Controller
                 // ホストに参加者が参加したことを通知
                 broadcast(new UserJoinedRoom($room, $user))->toOthers();
             });
+
+            $adminPhoneNumber = env('SMS_ADMIN_PHONE_NUMBER');
+            if ($adminPhoneNumber) {
+                // ルーム作成者の情報を取得
+                $creator = $room->creator;
+                $message = "ユーザーがルームに参加しました。\n"
+                    . "ルーム名: {$room->name}\n"
+                    . "参加者: {$user->name}\n"
+                    . "ホスト: {$creator->name}\n"
+                    . "マッチングが成立し、ディベートを開始できる状態になりました。";
+
+                $this->smsController->sendSms($adminPhoneNumber, $message);
+            }
 
             return redirect()->route('rooms.show', $room)->with('success', 'ルームに参加しました。');
         });
