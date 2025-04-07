@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "615a00ded0bb8bf86d5f8459d5d38c17",
+    "content-hash": "7be74ca472465bdb586f21ece23458ec",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -156,6 +156,84 @@
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.342.20"
             },
             "time": "2025-04-03T18:11:14+00:00"
+        },
+        {
+            "name": "aws/aws-sdk-php-laravel",
+            "version": "3.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aws/aws-sdk-php-laravel.git",
+                "reference": "c1477b1efd43a61238090c0e8f1ede979573dd4b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php-laravel/zipball/c1477b1efd43a61238090c0e8f1ede979573dd4b",
+                "reference": "c1477b1efd43a61238090c0e8f1ede979573dd4b",
+                "shasum": ""
+            },
+            "require": {
+                "aws/aws-sdk-php": "^3.338.0",
+                "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.0 || ^9.0",
+                "vlucas/phpdotenv": "^1.0 || ^2.0 || ^3.0 || ^4.0 || ^5.0",
+                "yoast/phpunit-polyfills": "^1.0"
+            },
+            "suggest": {
+                "laravel/framework": "To test the Laravel bindings",
+                "laravel/lumen-framework": "To test the Lumen bindings"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "AWS": "Aws\\Laravel\\AwsFacade"
+                    },
+                    "providers": [
+                        "Aws\\Laravel\\AwsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Aws\\Laravel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Amazon Web Services",
+                    "homepage": "http://aws.amazon.com"
+                }
+            ],
+            "description": "A simple Laravel 6/7/8/9/10/11/12 service provider for including the AWS SDK for PHP.",
+            "homepage": "https://aws.amazon.com/sdk-for-php/",
+            "keywords": [
+                "amazon",
+                "aws",
+                "dynamodb",
+                "ec2",
+                "laravel",
+                "laravel 10",
+                "laravel 11",
+                "laravel 12",
+                "laravel 6",
+                "laravel 7",
+                "laravel 8",
+                "laravel 9",
+                "s3",
+                "sdk"
+            ],
+            "support": {
+                "issues": "https://github.com/aws/aws-sdk-php-laravel/issues",
+                "source": "https://github.com/aws/aws-sdk-php-laravel/tree/3.10.0"
+            },
+            "time": "2025-02-26T22:25:56+00:00"
         },
         {
             "name": "brick/math",
