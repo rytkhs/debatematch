@@ -8,6 +8,7 @@ services:
     environment:
       - "APP_ENV=production"
       - "APP_URL=https://debate-match.com"
+      - "APP_KEY=${APP_KEY}"
       - "DB_CONNECTION=mysql"
       - "DB_HOST=${DB_HOST}"
       - "DB_PORT=${DB_PORT}"
@@ -29,8 +30,13 @@ services:
       - "QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}"
       - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
       - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
+      - "AWS_SNS_NOTIFICATION_TOPIC_ARN=${AWS_SNS_NOTIFICATION_TOPIC_ARN}"
+      - "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+      - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+      - "AWS_REGION=${AWS_REGION}"
+      - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
     volumes:
-      - ./.env:/var/www/html/.env:ro
+      - ./.env:/var/www/html/.env
       - public-data:/var/www/html/public
     networks:
       - sail
@@ -75,8 +81,24 @@ services:
       - "PUSHER_APP_ID=${PUSHER_APP_ID}"
       - "QUEUE_CONNECTION=sqs"
       - "SQS_QUEUE=${SQS_QUEUE}"
+      - "PUSHER_APP_KEY=${PUSHER_APP_KEY}"
+      - "PUSHER_APP_SECRET=${PUSHER_APP_SECRET}"
+      - "PUSHER_HOST=${PUSHER_HOST}"
+      - "PUSHER_PORT=${PUSHER_PORT}"
+      - "PUSHER_SCHEME=${PUSHER_SCHEME}"
+      - "PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}"
+      - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
+      - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
+      - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
+      - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
+      - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
+      - "AWS_SNS_NOTIFICATION_TOPIC_ARN=${AWS_SNS_NOTIFICATION_TOPIC_ARN}"
+      - "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+      - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+      - "AWS_REGION=${AWS_REGION}"
+      - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
     volumes:
-      - ./.env:/var/www/html/.env:ro
+      - ./.env:/var/www/html/.env
     networks:
       - sail
     depends_on:
