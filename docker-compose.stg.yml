@@ -83,7 +83,6 @@ services:
       - "REDIS_PORT=6379"
       - "PUSHER_APP_ID=${PUSHER_APP_ID}"
       - "QUEUE_CONNECTION=sqs"
-      - "SQS_QUEUE=${SQS_QUEUE}"
       - "PUSHER_APP_KEY=${PUSHER_APP_KEY}"
       - "PUSHER_APP_SECRET=${PUSHER_APP_SECRET}"
       - "PUSHER_HOST=${PUSHER_HOST}"
