@@ -19,7 +19,7 @@
                                 を始めよう
                             </h2>
                             <p class="text-base md:text-lg text-gray-600 mb-12 md:mb-20 max-w-2xl mx-auto">
-                                DebateMatchは、誰でも簡単に参加できるオンラインディベートプラットフォームです。
+                                DebateMatch(ディベートマッチ)は、誰でも簡単に参加できるオンラインディベートプラットフォームです。
                                 意見を交わし、新しい視点を見つけましょう。
                             </p>
                             <!-- メインアクション -->
