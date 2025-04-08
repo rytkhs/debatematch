@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SNSController;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -11,9 +12,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
+    protected SNSController $snsController;
+
+    public function __construct(SNSController $snsController)
+    {
+        $this->snsController = $snsController;
+    }
+
     /**
      * Display the registration view.
      */
@@ -31,7 +40,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -42,6 +51,22 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        // 新規ユーザー登録通知を送信
+        $message = "新規ユーザー登録がありました。\n"
+            . "名前: {$user->name}\n";
+
+        // 通知を送信（メール）
+        $result = $this->snsController->sendNotification(
+            $message,
+            "【DebateMatch】新規ユーザー登録"
+        );
+
+        if ($result) {
+            Log::info("通知を送信しました。 User ID: {$user->id}");
+        } else {
+            Log::warning("通知の送信に失敗しました。 User ID: {$user->id}");
+        }
 
         Auth::login($user);
 

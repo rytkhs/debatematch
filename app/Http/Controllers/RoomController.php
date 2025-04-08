@@ -11,10 +11,17 @@ use App\Events\UserLeftRoom;
 use App\Events\CreatorLeftRoom;
 use Illuminate\Support\Facades\DB;
 use App\Services\ConnectionManager;
-
+use App\Http\Controllers\SNSController;
 
 class RoomController extends Controller
 {
+    protected SNSController $snsController;
+
+    public function __construct(SNSController $snsController)
+    {
+        $this->snsController = $snsController;
+    }
+
     public function index()
     {
         $rooms = Room::where('status', Room::STATUS_WAITING)->get();
@@ -85,6 +92,18 @@ class RoomController extends Controller
             $room->users()->attach(Auth::id(), [
                 'side' => $validatedData['side'],
             ]);
+
+            $user = Auth::user();
+            $message = "新しいルームが作成されました。\n"
+                . "ルーム名: {$room->name}\n"
+                . "トピック: {$room->topic}\n"
+                . "作成者: {$user->name}";
+
+            // メール通知のみ送信
+            $this->snsController->sendNotification(
+                $message,
+                "【DebateMatch】新規ルーム作成"
+            );
 
             return redirect()->route('rooms.show', compact('room'))->with('success', 'ルームを作成しました');
         });
@@ -164,6 +183,20 @@ class RoomController extends Controller
                 // ホストに参加者が参加したことを通知
                 broadcast(new UserJoinedRoom($room, $user))->toOthers();
             });
+
+            // ルーム作成者の情報を取得
+            $creator = $room->creator;
+            $message = "ユーザーがルームに参加しました。\n"
+                . "ルーム名: {$room->name}\n"
+                . "参加者: {$user->name}\n"
+                . "ホスト: {$creator->name}\n"
+                . "マッチングが成立し、ディベートを開始できる状態になりました。";
+
+            // メール通知のみ送信
+            $this->snsController->sendNotification(
+                $message,
+                "【DebateMatch】ルーム参加・マッチング成立"
+            );
 
             return redirect()->route('rooms.show', $room)->with('success', 'ルームに参加しました。');
         });
