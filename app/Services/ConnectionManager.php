@@ -20,7 +20,7 @@ class ConnectionManager
     const STATUS_GRACEFULLY_DISCONNECTED = 'gracefully_disconnected';
 
     // 猶予期間（秒）
-    private $roomGracePeriod = 300;
+    private $roomGracePeriod = 840;
     private $debateGracePeriod = 300;
 
     /**
