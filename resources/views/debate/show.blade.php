@@ -104,7 +104,7 @@
 
         <!-- パート更新通知音 -->
         <audio id="turnAdvancedNotification" preload="auto">
-            <source src="{{ asset('sounds/turnAdvanced.mp3') }}" type="audio/mp3">
+            <source src="{{ asset('sounds/turnadvanced.mp3') }}" type="audio/mp3">
         </audio>
     </div>
 

@@ -171,13 +171,13 @@ class EventListener {
 
         document.body.appendChild(overlay);
 
-        // 20秒後に結果ページへのリンクを表示
+        // 3分後に結果ページへのリンクを表示
         setTimeout(() => {
             const resultLink = document.getElementById('result-page-link');
             if (resultLink) {
                 resultLink.classList.remove('hidden');
             }
-        }, 20000);
+        }, 180000);
 
     }
 
