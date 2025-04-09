@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/debate/presence.js',
                 'resources/js/debate/ui.js',
                 'resources/js/rooms-show.js',
+                'resources/js/debate/notification.js',
             ],
             refresh: true,
         }),
