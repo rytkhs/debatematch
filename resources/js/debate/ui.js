@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTabsModule();
     initSidebarModule();
     initModalModule();
+    initFullscreenModule();
 
     /**
      * タブ機能モジュール
@@ -220,6 +221,75 @@ document.addEventListener('DOMContentLoaded', function() {
                     elements.helpModal.classList.add('hidden');
                 }
             });
+        }
+    }
+
+    function initFullscreenModule() {
+        const fullscreenToggle = document.getElementById('fullscreen-toggle');
+        const fullscreenIcon = fullscreenToggle?.querySelector('.fullscreen-icon');
+
+        if (!fullscreenToggle) return;
+
+        // 全画面APIのプレフィックス対応
+        const fullscreenEnabled = document.fullscreenEnabled ||
+                                document.webkitFullscreenEnabled ||
+                                document.mozFullScreenEnabled ||
+                                document.msFullscreenEnabled;
+
+        // 全画面非対応ブラウザでは表示しない
+        if (!fullscreenEnabled) {
+            fullscreenToggle.style.display = 'none';
+            return;
+        }
+
+        // 全画面切替処理
+        fullscreenToggle.addEventListener('click', () => {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                // 全画面解除
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen';
+            } else {
+                // 全画面化
+                const debateContainer = document.documentElement;
+                if (debateContainer.requestFullscreen) {
+                    debateContainer.requestFullscreen();
+                } else if (debateContainer.webkitRequestFullscreen) {
+                    debateContainer.webkitRequestFullscreen();
+                } else if (debateContainer.mozRequestFullScreen) {
+                    debateContainer.mozRequestFullScreen();
+                } else if (debateContainer.msRequestFullscreen) {
+                    debateContainer.msRequestFullscreen();
+                }
+                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen_exit';
+            }
+        });
+
+        // 全画面状態変更イベントリスナー
+        document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButtonIcon);
+        document.addEventListener('mozfullscreenchange', updateFullscreenButtonIcon);
+        document.addEventListener('MSFullscreenChange', updateFullscreenButtonIcon);
+
+        function updateFullscreenButtonIcon() {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen_exit';
+            } else {
+                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen';
+            }
         }
     }
 });

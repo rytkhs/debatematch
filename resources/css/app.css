@@ -157,3 +157,16 @@
         transform: scale(0.97);
     }
 }
+
+/* 全画面モードでのスタイル調整 */
+:fullscreen {
+    background-color: white;
+}
+
+:fullscreen .debate-header {
+    padding-top: env(safe-area-inset-top);
+}
+
+:fullscreen .fixed {
+    padding-bottom: env(safe-area-inset-bottom);
+}
