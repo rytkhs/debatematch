@@ -24,6 +24,11 @@
                     <span class="material-icons">menu</span>
                 </button>
 
+                <!-- 全画面切替ボタン（モバイルのみ表示） -->
+                <button id="fullscreen-toggle" class="md:hidden text-gray-700 p-2 rounded-full hover:bg-gray-100">
+                    <span class="material-icons fullscreen-icon">fullscreen</span>
+                </button>
+
                 <!-- 現在のターン表示 -->
                 <div class="flex flex-col items-center text-center">
                     <div class="px-3 py-1 rounded-full {{ $isMyTurn ? 'bg-primary-light text-primary' : 'bg-gray-100 text-gray-800' }}">

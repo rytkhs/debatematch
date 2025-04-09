@@ -35,6 +35,12 @@
 
         gtag('config', 'G-F13NEPXT56');
         </script>
+
+        <!-- PWA関連メタタグを追加 -->
+        <meta name="theme-color" content="#4F46E5">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <link rel="apple-touch-icon" href="{{ asset('images/icons/icon-192x192.png') }}">
     </head>
     <body class="font-sans antialiased" >
         <div class="min-h-screen bg-gray-100 flex flex-col">
