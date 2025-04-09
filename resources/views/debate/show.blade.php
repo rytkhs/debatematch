@@ -96,6 +96,16 @@
                 </div>
             </div>
         </div> --}}
+
+        <!-- メッセージ通知音 -->
+        <audio id="messageNotification" preload="auto">
+            <source src="{{ asset('sounds/notification.mp3') }}" type="audio/mp3">
+        </audio>
+
+        <!-- パート更新通知音 -->
+        <audio id="turnAdvancedNotification" preload="auto">
+            <source src="{{ asset('sounds/turnAdvanced.mp3') }}" type="audio/mp3">
+        </audio>
     </div>
 
     <script>
@@ -108,6 +118,12 @@
     };
     </script>
     <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
-    @vite(['resources/js/debate/ui.js', 'resources/js/debate/presence.js', 'resources/js/debate/countdown.js', 'resources/js/debate/event-listener.js'])
+    @vite([
+        'resources/js/debate/ui.js',
+        'resources/js/debate/presence.js',
+        'resources/js/debate/countdown.js',
+        'resources/js/debate/event-listener.js',
+        'resources/js/debate/notification.js'
+    ])
 
 </x-show-layout>
