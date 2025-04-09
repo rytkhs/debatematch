@@ -24,8 +24,8 @@
                     <span class="material-icons">menu</span>
                 </button>
 
-                <!-- 全画面切替ボタン（モバイルのみ表示） -->
-                <button id="fullscreen-toggle" class="md:hidden text-gray-700 p-2 rounded-full hover:bg-gray-100">
+                <!-- 全画面切替ボタン -->
+                <button id="fullscreen-toggle" class="text-gray-700 p-2 rounded-full hover:bg-gray-100">
                     <span class="material-icons fullscreen-icon">fullscreen</span>
                 </button>
 
