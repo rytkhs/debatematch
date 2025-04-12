@@ -7,6 +7,7 @@ use App\Models\Debate;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use App\Services\DebateService;
+use Illuminate\Support\Facades\Lang;
 
 class Participants extends Component
 {
@@ -88,7 +89,7 @@ class Participants extends Component
         $currentTurn = $this->debate->current_turn;
         $this->debateService->advanceToNextTurn($this->debate, $currentTurn);
 
-        $this->dispatch('showFlashMessage', 'パートを終了しました', 'success');
+        $this->dispatch('showFlashMessage', __('flash.participants.turn.advanced'), 'success');
     }
 
     public function render()

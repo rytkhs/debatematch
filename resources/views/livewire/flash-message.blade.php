@@ -29,7 +29,7 @@
             <span class="mr-2 text-lg"><i class="fa-solid fa-circle-check"></i></span>
             <div class="ml-2 text-sm font-medium">{{ $message }}</div>
             <button type="button" wire:click="hideFlashMessage" class="ml-auto -mx-1.5 -my-1.5 text-white hover:text-white focus:ring-2 focus:ring-emerald-400 p-1.5 inline-flex h-8 w-8 rounded-lg">
-                <span class="sr-only">閉じる</span>
+                <span class="sr-only">{{ __('messages.close') }}</span>
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -40,7 +40,7 @@
             <span class="mr-2 text-lg"><i class="fa-solid fa-triangle-exclamation"></i></span>
             <div class="ml-2 text-sm font-medium">{{ $message }}</div>
             <button type="button" wire:click="hideFlashMessage" class="ml-auto -mx-1.5 -my-1.5 text-white hover:text-white focus:ring-2 focus:ring-red-400 p-1.5 inline-flex h-8 w-8 rounded-lg">
-                <span class="sr-only">閉じる</span>
+                <span class="sr-only">{{ __('messages.close') }}</span>
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -51,7 +51,7 @@
             <span class="mr-2 text-lg"><i class="fa-solid fa-circle-info"></i></span>
             <div class="ml-2 text-sm font-medium">{{ $message }}</div>
             <button type="button" wire:click="hideFlashMessage" class="ml-auto -mx-1.5 -my-1.5 text-white hover:text-white focus:ring-2 focus:ring-blue-400 p-1.5 inline-flex h-8 w-8 rounded-lg">
-                <span class="sr-only">閉じる</span>
+                <span class="sr-only">{{ __('messages.close') }}</span>
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -62,7 +62,7 @@
             <span class="mr-2 text-lg"><i class="fa-solid fa-triangle-exclamation"></i></span>
             <div class="ml-2 text-sm font-medium">{{ $message }}</div>
             <button type="button" wire:click="hideFlashMessage" class="ml-auto -mx-1.5 -my-1.5 text-white hover:text-white focus:ring-2 focus:ring-yellow-400 p-1.5 inline-flex h-8 w-8 rounded-lg">
-                <span class="sr-only">閉じる</span>
+                <span class="sr-only">{{ __('messages.close') }}</span>
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>

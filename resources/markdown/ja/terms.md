@@ -68,11 +68,11 @@
 *   本規約は、日本法に準拠し、解釈されるものとします。
 *   本サービスに関連する紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
 
-<!-- ## 10. 連絡先
+## 10. 連絡先
 
 本サービスに関するお問い合わせは、以下のGoogleフォームからお願いいたします。
 
-[Googleフォームへのリンク] -->
+[お問い合わせ](https://docs.google.com/forms/d/e/1FAIpQLSeojaEKvwrH1Ewi49qqN8S6i3HqF9yoeMSCvKpGk58soFLuqA/viewform?usp=dialog)
 
 ---
 附則

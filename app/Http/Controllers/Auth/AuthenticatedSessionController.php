@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Lang;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,7 +29,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('welcome', absolute: false))->with('success', 'ログインしました');
+        return redirect()->intended(route('welcome', absolute: false))->with('success', __('flash.auth.login.success'));
     }
 
     /**
@@ -42,6 +43,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('success', 'ログアウトしました');
+        return redirect('/')->with('success', __('flash.auth.logout.success'));
     }
 }

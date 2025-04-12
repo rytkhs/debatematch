@@ -6,22 +6,22 @@
     <div class="max-w-7xl min-h-screen mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- 統計概要 -->
         {{-- <div class="mb-8 bg-white rounded-lg shadow-sm p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">あなたの戦績</h2>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ __('messages.your_stats') }}</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-primary">
-                    <p class="text-sm text-gray-500">総ディベート数</p>
+                    <p class="text-sm text-gray-500">{{ __('messages.total_debates') }}</p>
                     <p class="text-2xl font-bold">{{ $stats['total'] }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-success">
-                    <p class="text-sm text-gray-500">勝利数</p>
+                    <p class="text-sm text-gray-500">{{ __('messages.wins_count') }}</p>
                     <p class="text-2xl font-bold">{{ $stats['wins'] }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-danger">
-                    <p class="text-sm text-gray-500">敗北数</p>
+                    <p class="text-sm text-gray-500">{{ __('messages.losses_count') }}</p>
                     <p class="text-2xl font-bold">{{ $stats['losses'] }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-warning">
-                    <p class="text-sm text-gray-500">勝率</p>
+                    <p class="text-sm text-gray-500">{{ __('messages.win_rate') }}</p>
                     <p class="text-2xl font-bold">{{ $stats['win_rate'] }}%</p>
                 </div>
             </div>
@@ -30,42 +30,42 @@
         <!-- フィルターとソート -->
         <div class="mb-5 sm:mb-6">
             <div class="flex items-center justify-between mb-3 sm:mb-4">
-                {{-- <h2 class="text-lg font-semibold text-gray-900">フィルターと検索</h2> --}}
+                {{-- <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.filter_and_search') }}</h2> --}}
             </div>
 
             <form id="filterForm" action="{{ route('records.index') }}" method="GET" class="mb-5 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
                 <div class="flex flex-wrap items-center gap-2 sm:gap-4">
                     <div class="relative">
                         <select name="side" class="filter-select appearance-none bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 pr-7 sm:pr-8 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-xs sm:text-sm">
-                            <option value="all" {{ request('side') == 'all' ? 'selected' : '' }}>すべての立場</option>
-                            <option value="affirmative" {{ request('side') == 'affirmative' ? 'selected' : '' }}>肯定側</option>
-                            <option value="negative" {{ request('side') == 'negative' ? 'selected' : '' }}>否定側</option>
+                            <option value="all" {{ request('side') == 'all' ? 'selected' : '' }}>{{ __('messages.all_sides') }}</option>
+                            <option value="affirmative" {{ request('side') == 'affirmative' ? 'selected' : '' }}>{{ __('messages.affirmative_side') }}</option>
+                            <option value="negative" {{ request('side') == 'negative' ? 'selected' : '' }}>{{ __('messages.negative_side') }}</option>
                         </select>
                     </div>
                     <div class="relative">
                         <select name="result" class="filter-select appearance-none bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 pr-7 sm:pr-8 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-xs sm:text-sm">
-                            <option value="all" {{ request('result') == 'all' ? 'selected' : '' }}>すべての結果</option>
-                            <option value="win" {{ request('result') == 'win' ? 'selected' : '' }}>勝利</option>
-                            <option value="lose" {{ request('result') == 'lose' ? 'selected' : '' }}>敗北</option>
+                            <option value="all" {{ request('result') == 'all' ? 'selected' : '' }}>{{ __('messages.all_results') }}</option>
+                            <option value="win" {{ request('result') == 'win' ? 'selected' : '' }}>{{ __('messages.win') }}</option>
+                            <option value="lose" {{ request('result') == 'lose' ? 'selected' : '' }}>{{ __('messages.loss') }}</option>
                         </select>
                     </div>
                     <div class="relative">
                         <select name="sort" class="filter-select appearance-none bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 pr-7 sm:pr-8 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-xs sm:text-sm">
-                            <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>新しい順</option>
-                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>古い順</option>
+                            <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>{{ __('messages.newest_first') }}</option>
+                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>{{ __('messages.oldest_first') }}</option>
                         </select>
                     </div>
                     <div class="relative flex-1 max-w-xs">
-                        <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="論題を検索..."
+                        <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="{{ __('messages.search_topic_placeholder') }}"
                             class="filter-input w-full px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-xs sm:text-sm">
                     </div>
                 </div>
                 <div class="flex justify-end space-x-2">
                     <button type="button" id="resetFilters" class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                        リセット
+                        {{ __('messages.reset_filters') }}
                     </button>
                     <button type="submit" class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-primary border border-transparent rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                        適用
+                        {{ __('messages.apply_filters') }}
                     </button>
                 </div>
             </form>
@@ -74,13 +74,13 @@
         <!-- 表示件数と検索情報 -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
             <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-0">
-                {{ $debates->total() }}件中 {{ $debates->firstItem() ?? 0 }}〜{{ $debates->lastItem() ?? 0 }}件表示
+                {{ __('messages.records_count', ['first' => $debates->firstItem() ?? 0, 'last' => $debates->lastItem() ?? 0, 'total' => $debates->total()]) }}
                 @if(request('keyword') || request('side') != 'all' || request('result') != 'all')
-                    <span class="font-semibold">（フィルター適用中）</span>
+                    <span class="font-semibold">{{ __('messages.filter_applied_indicator') }}</span>
                 @endif
             </p>
             <div class="hidden md:flex items-center">
-                <span class="mr-2 text-xs sm:text-sm text-gray-600">表示形式:</span>
+                <span class="mr-2 text-xs sm:text-sm text-gray-600">{{ __('messages.view_format_label') }}</span>
                 <button id="viewGrid" class="p-1.5 sm:p-2 text-gray-600 hover:text-primary focus:outline-none view-button active">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
@@ -111,12 +111,12 @@
                             $resultClass = $isWinner
                                 ? 'bg-success-light text-success border-success/30'
                                 : 'bg-danger-light text-danger border-danger/30';
-                            $resultText = $isWinner ? '勝利' : '敗北';
+                            $resultText = $isWinner ? __('messages.win') : __('messages.loss');
                             $resultIcon = $isWinner
                                 ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>'
                                 : '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
 
-                            $side = $isAffirmative ? '肯定側' : '否定側';
+                            $side = $isAffirmative ? __('messages.affirmative_side') : __('messages.negative_side');
                             $sideClass = $isAffirmative ? 'text-success' : 'text-danger';
                             $opponent = $isAffirmative ? $debate->negativeUser->name ?? '不明' : $debate->affirmativeUser->name ?? '不明';
                         @endphp
@@ -138,18 +138,18 @@
                     <div class="p-3 sm:p-4 bg-gray-50 flex-grow">
                         <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-2 sm:mb-3">
                             <div>
-                                <p class="text-xs text-gray-500 mb-0.5 sm:mb-1">あなたの立場</p>
+                                <p class="text-xs text-gray-500 mb-0.5 sm:mb-1">{{ __('messages.your_side') }}</p>
                                 <p class="text-xs sm:text-sm font-medium {{ $sideClass }}">{{ $side }}</p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-500 mb-0.5 sm:mb-1">対戦相手</p>
+                                <p class="text-xs text-gray-500 mb-0.5 sm:mb-1">{{ __('messages.opponent') }}</p>
                                 <p class="text-xs sm:text-sm font-medium">{{ $opponent }}</p>
                             </div>
                         </div>
 
                         @if($debate->evaluations)
                             <div class="text-xs text-gray-600 mb-0.5 sm:mb-1">
-                                <span class="font-medium">評価: </span>
+                                <span class="font-medium">{{ __('messages.evaluation_label') }}</span>
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">
                                 {{ Str::limit($isAffirmative ? $debate->evaluations->feedback_for_affirmative : $debate->evaluations->feedback_for_negative, 80) }}
@@ -164,7 +164,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            詳細を見る
+                            {{ __('messages.view_details') }}
                         </a>
                     </div>
                 </div>
@@ -173,12 +173,12 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-gray-400 mb-3 sm:mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">ディベート履歴がありません</h3>
+                    <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">{{ __('messages.no_debate_records') }}</h3>
                     <a href="{{ route('rooms.index') }}" class="btn-primary inline-flex items-center text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
-                        ディベートルームを探す
+                        {{ __('messages.find_debate_room') }}
                     </a>
                 </div>
             @endforelse
@@ -197,9 +197,9 @@
                             $resultClass = $isWinner
                                 ? 'bg-success-light text-success border-success/30'
                                 : 'bg-danger-light text-danger border-danger/30';
-                            $resultText = $isWinner ? '勝利' : '敗北';
+                            $resultText = $isWinner ? __('messages.win') : __('messages.loss');
 
-                            $side = $isAffirmative ? '肯定側' : '否定側';
+                            $side = $isAffirmative ? __('messages.affirmative_side') : __('messages.negative_side');
                             $sideClass = $isAffirmative ? 'text-success' : 'text-danger';
                             $opponent = $isAffirmative ? $debate->negativeUser->name ?? '不明' : $debate->affirmativeUser->name ?? '不明';
                         @endphp
@@ -228,7 +228,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                詳細を見る
+                                {{ __('messages.view_details') }}
                             </a>
                         </div>
 
@@ -257,12 +257,12 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-gray-400 mb-3 sm:mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">ディベート履歴がありません</h3>
+                    <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">{{ __('messages.no_debate_records') }}</h3>
                     <a href="{{ route('rooms.index') }}" class="btn-primary inline-flex items-center text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
-                        ディベートルームを探す
+                        {{ __('messages.find_debate_room') }}
                     </a>
                 </div>
             @endforelse
