@@ -11,6 +11,7 @@ use App\Events\DebateMessageSent;
 use Livewire\Attributes\On;
 use App\Models\Room;
 use App\Services\DebateService;
+use Illuminate\Support\Facades\Lang;
 
 class MessageInput extends Component
 {
@@ -105,7 +106,7 @@ class MessageInput extends Component
         $this->newMessage = '';
 
         // フラッシュメッセージ表示
-        $this->dispatch('showFlashMessage', 'メッセージを送信しました', 'info');
+        $this->dispatch('showFlashMessage', __('flash.message_input.send.success'), 'info');
     }
 
     public function render()

@@ -17,11 +17,12 @@ use Illuminate\Support\Facades\DB;
 class DebateService
 {
     /**
-     * フォーマットを取得（キャッシュを活用）
+     * フォーマットを取得
      */
     public function getFormat(Debate $debate): array
     {
-        return Cache::remember("debate_format_{$debate->room_id}", 60, function () use ($debate) {
+        $locale = app()->getLocale();
+        return Cache::remember("debate_format_{$debate->room_id}_{$locale}", 60, function () use ($debate) {
             return $debate->room->getDebateFormat();
         });
     }
@@ -132,17 +133,19 @@ class DebateService
                     $this->updateTurn($debate, $nextTurn);
 
                     // イベントデータを充実させて、DB再取得を減らす
+                    // ターン名 ('turn_name') はイベントデータに含めず、各クライアントで解決させる
                     $eventData = [
-                        'turn_number' => $nextTurn,
+                        'turn_number' => $nextTurn, // ターン番号のみ渡す
                         'turn_end_time' => $debate->turn_end_time->timestamp,
                         'speaker' => $this->getFormat($debate)[$nextTurn]['speaker'] ?? null,
-                        'turn_name' => $this->getFormat($debate)[$nextTurn]['name'] ?? null,
+                        // 'turn_name' => $this->getFormat($debate)[$nextTurn]['name'] ?? null, // 翻訳済みのターン名は含めない
                         'is_prep_time' => $this->getFormat($debate)[$nextTurn]['is_prep_time'] ?? false
                     ];
 
                     // トランザクションコミット後に実行
                     DB::afterCommit(function () use ($debate, $nextTurn, $eventData) {
                         try {
+                            // イベントデータには翻訳前の情報（ターン番号など）を渡す
                             broadcast(new TurnAdvanced($debate, $eventData));
 
                             AdvanceDebateTurnJob::dispatch($debate->id, $nextTurn)
@@ -161,6 +164,7 @@ class DebateService
                         }
                     });
                 } else {
+                    // 最後のターンが終了した場合、ディベートを終了
                     $this->finishDebate($debate);
                 }
             });
@@ -173,7 +177,7 @@ class DebateService
                 'trace' => $e->getTraceAsString()
             ]);
 
-            // 深刻なエラーの場合はディベートを終了
+            // 深刻なエラーの場合はディベートを強制終了
             try {
                 $this->terminateDebate($debate);
             } catch (\Exception $termException) {

@@ -77,16 +77,43 @@ return [
     |--------------------------------------------------------------------------
     |
     | The application locale determines the default locale that will be used
-    | by Laravel's translation / localization methods. This option can be
-    | set to any locale for which you plan to have translation strings.
+    | by the translation service provider. You are free to set this value
+    | to any of the locales which will be supported by the application.
     |
     */
 
-    'locale' => env('APP_LOCALE', 'ja'),
+    'locale' => 'ja',
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    /*
+    |--------------------------------------------------------------------------
+    | Application Fallback Locale
+    |--------------------------------------------------------------------------
+    |
+    | The fallback locale determines the locale to use when the current one
+    | is not available. You may change the value to correspond to any of
+    | the language folders that are provided through your application.
+    |
+    */
+
+    'fallback_locale' => 'en',
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'ja_JP'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Available Locales
+    |--------------------------------------------------------------------------
+    |
+    | Define the locales available in the application. The key is the locale
+    | code (e.g., 'en') and the value is the display name (e.g., 'English').
+    | This will be used for the language switcher UI.
+    |
+    */
+
+    'available_locales' => [
+        'en' => 'English',
+        'ja' => '日本語',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -156,5 +183,16 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'AWS' => Aws\Laravel\AwsFacade::class,
     ])->toArray(),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supported Locales
+    |--------------------------------------------------------------------------
+    |
+    | A list of locales that the application supports. Used by the SetLocale
+    | middleware and potentially other parts of the application.
+    |
+    */
+    'supported_locales' => ['ja', 'en'],
 
 ];

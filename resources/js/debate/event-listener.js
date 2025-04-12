@@ -37,8 +37,8 @@ class EventListener {
     handleDebateFinished(event) {
         // 終了通知を表示
         this.showNotification({
-            title: 'ディベートが終了しました',
-            message: 'AIによる評価を行っています。しばらくお待ちください...',
+            title: window.translations?.debate_finished_title || 'ディベートが終了しました',
+            message: window.translations?.evaluating_message || 'AIによる評価を行っています。しばらくお待ちください...',
             type: 'info',
             duration: 10000
         });
@@ -53,8 +53,8 @@ class EventListener {
     handleDebateEvaluated(event) {
         // 完了通知を表示
         this.showNotification({
-            title: 'ディベート評価が完了しました',
-            message: '結果ページへ移動します',
+            title: window.translations?.evaluation_complete_title || 'ディベート評価が完了しました',
+            message: window.translations?.redirecting_to_results || '結果ページへ移動します',
             type: 'success',
             duration: 2000
         });
@@ -74,8 +74,7 @@ class EventListener {
      */
     handleDebateTerminated(event) {
         // 終了通知を表示
-        // this.showTerminationNotification();
-        alert('相手との接続が切断されたため、ディベートを終了します');
+        alert(window.translations?.host_left_terminated || '相手との接続が切断されたため、ディベートを終了します');
         window.location.href = '/';
     }
 
@@ -153,8 +152,8 @@ class EventListener {
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary bg-opacity-10 mb-4">
                         <span class="material-icons text-primary text-5xl">emoji_events</span>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">ディベート終了</h2>
-                    <p class="text-gray-600 mb-6 leading-relaxed">ディベートが終了しました。現在、AIが評価を行っています...</p>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">${window.translations?.debate_finished_overlay_title || 'ディベート終了'}</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">${window.translations?.evaluating_overlay_message || 'ディベートが終了しました。現在、AIが評価を行っています...'}</p>
                     <div class="flex items-center justify-center space-x-3 mb-8">
                         <div class="w-3 h-3 bg-primary rounded-full animate-pulse" style="animation-delay: 0s"></div>
                         <div class="w-4 h-4 bg-primary rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
@@ -163,7 +162,7 @@ class EventListener {
                     <a id="result-page-link" href="${window.location.origin}/debate/${this.debateId}/result"
                        class="hidden inline-flex items-center justify-center bg-primary text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105 hover:shadow-lg">
                         <span class="material-icons mr-2">analytics</span>
-                        結果ページへ
+                        ${window.translations?.go_to_results_page || '結果ページへ'}
                     </a>
                 </div>
             </div>

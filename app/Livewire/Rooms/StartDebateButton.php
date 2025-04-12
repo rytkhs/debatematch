@@ -11,6 +11,7 @@ use App\Events\DebateStarted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\DebateService;
+use Illuminate\Support\Facades\Lang;
 
 class StartDebateButton extends Component
 {
@@ -41,19 +42,19 @@ class StartDebateButton extends Component
     {
         // 参加者が2名揃っているか確認
         if ($this->room->users->count() !== 2) {
-            session()->flash('error', 'ディベーターが揃っていません。');
+            session()->flash('error', __('flash.start_debate.error.not_enough_participants'));
             return;
         }
 
         // すでにディベートが開始されているか確認
         if ($this->room->status !== 'ready') {
-            session()->flash('error', 'ディベートはすでに開始されています。');
+            session()->flash('error', __('flash.start_debate.error.already_started'));
             return;
         }
 
         //ルームの作成者か確認
         if (Auth::id() != $this->room->created_by) {
-            return redirect()->route('rooms.show', $this->room)->with('error', 'ディベートを開始する権限がありません。');
+            return redirect()->route('rooms.show', $this->room)->with('error', __('flash.start_debate.unauthorized'));
         }
 
         return DB::transaction(function () {

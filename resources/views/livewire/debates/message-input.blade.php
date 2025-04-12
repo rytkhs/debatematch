@@ -24,16 +24,16 @@
             @if($isPrepTime)
                 <div class="text-sm text-gray-500 flex items-center">
                     <span class="material-icons text-sm mr-1">timer</span>
-                    準備時間中
+                    {{ __('messages.prep_time_in_progress') }}
                 </div>
             @elseif($isMyTurn)
                 <div class="text-sm text-primary font-medium flex items-center">
                     <span class="material-icons text-sm mr-1">edit</span>
-                    送信可能
+                    {{ __('messages.ready_to_send') }}
                 </div>
             @else
                 <div class="text-sm text-gray-500 flex items-center">
-                    {{ $isQuestioningTurn ? '質疑応答中' : '' }}
+                    {{ $isQuestioningTurn ? __('messages.questioning_in_progress') : '' }}
                 </div>
             @endif
 
@@ -48,7 +48,7 @@
             <textarea
                 id="message-input"
                 wire:model.live="newMessage"
-                placeholder="メッセージを入力..."
+                placeholder="{{ __('messages.enter_message_placeholder') }}"
                 class="flex-1 border rounded-lg px-4 py-2 focus:ring-primary focus:border-primary resize-none overflow-y-auto bg-white"
                 maxlength="5000"
                 rows="3"

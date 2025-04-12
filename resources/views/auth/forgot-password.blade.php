@@ -1,6 +1,6 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('新しいパスワードを設定するリンクをメールでお送りします。') }}
+    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        {{ __('messages.forgot_password_message') }}
     </div>
 
     <!-- Session Status -->
@@ -11,16 +11,14 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('メールアドレス')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
-                autofocus />
+            <x-input-label for="email" :value="__('messages.email')" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4 ">
-            <x-primary-button
-                class="w-full justify-center bg-teal-600 hover:bg-teal-500">
-                {{ __('送信') }}
+        <div class="flex items-center justify-end mt-4">
+            <x-primary-button>
+                {{ __('messages.submit') }}
             </x-primary-button>
         </div>
     </form>

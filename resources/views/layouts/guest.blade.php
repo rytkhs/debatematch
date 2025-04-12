@@ -45,10 +45,10 @@
             {{ $slot }}
 
             <p class="text-gray-500 text-sm mt-4 text-center">
-                続行することで、以下に同意したものとみなされます
+                {{ __('messages.agree_terms_privacy') }}
             </p>
             <p class="text-gray-500 text-sm text-center">
-                <a href="{{ route('terms') }}" class="text-gray-500 underline">利用規約</a> | <a href="{{ route('privacy') }}" class="text-gray-500 underline">プライバシーポリシー</a>
+                <a href="{{ route('terms') }}" class="text-gray-500 underline">{{ __('messages.terms_of_service') }}</a> | <a href="{{ route('privacy') }}" class="text-gray-500 underline">{{ __('messages.privacy_policy') }}</a>
             </p>
         </div>
     </div>

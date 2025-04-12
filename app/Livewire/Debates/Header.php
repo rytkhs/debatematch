@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Livewire\Attributes\On;
 use App\Services\DebateService;
+use Illuminate\Support\Facades\Lang;
 
 class Header extends Component
 {
@@ -35,49 +36,49 @@ class Header extends Component
     #[On("echo-private:debate.{debate.id},TurnAdvanced")]
     public function handleTurnAdvanced($data): void
     {
-        // データベースリフレッシュの代わりにイベントデータを使用
-        $this->currentTurn = $data['current_turn'] ?? $this->debate->current_turn;
-        $this->currentTurnName = $data['turn_name'] ?? '終了';
-        $this->nextTurnName = $this->getNextTurnName($data['current_turn'] ?? $this->debate->current_turn);
+        $this->currentTurn = $data['turn_number'] ?? $this->debate->refresh()->current_turn;
+
+        $format = $this->debateService->getFormat($this->debate);
+
+        $this->currentTurnName = $format[$this->currentTurn]['name'] ?? __('messages.finished');
+        $this->nextTurnName = $format[$this->currentTurn + 1]['name'] ?? __('messages.finished');
+
         $this->currentSpeaker = $data['speaker'] ?? null;
         $this->isPrepTime = $data['is_prep_time'] ?? false;
         $this->turnEndTime = $data['turn_end_time'] ?? null;
 
         $this->isMyTurn = $this->checkIfUsersTurn(Auth::id());
 
-        // 最小限の更新のみ実行しデータベースに負荷をかけない
         $this->debate->current_turn = $this->currentTurn;
         if (isset($data['turn_end_time'])) {
             $this->debate->turn_end_time = Carbon::createFromTimestamp($data['turn_end_time']);
+        } else {
+            $this->debate->turn_end_time = null;
         }
 
-        // フロントエンドにもイベントをディスパッチ
         $this->dispatch('turn-advanced', [
             'turnEndTime' => $this->turnEndTime
         ]);
 
-        // **自分のターンになったらフラッシュメッセージを表示**
         if ($this->isMyTurn) {
-            $this->dispatch('showFlashMessage', 'あなたのパートです', 'info');
+            $this->dispatch('showFlashMessage', __('flash.header.turn.my_turn'), 'info');
         }
-    }
-
-    private function getNextTurnName($currentTurn): string
-    {
-        $turns = $this->debateService->getFormat($this->debate);
-        $nextTurn = $currentTurn + 1;
-        return $turns[$nextTurn]['name'] ?? '終了';
     }
 
     private function syncTurnState(): void
     {
-        $turns = $this->debateService->getFormat($this->debate);
-        $currentTurn = $this->debate->current_turn;
+        $this->debate->refresh();
 
-        $this->currentTurnName = $turns[$currentTurn]['name'] ?? '終了';
-        $this->nextTurnName = $turns[$currentTurn + 1]['name'] ?? '終了';
-        $this->currentSpeaker = $turns[$currentTurn]['speaker'] ?? null;
-        $this->isPrepTime = $turns[$currentTurn]['is_prep_time'] ?? false;
+        $currentTurn = $this->debate->current_turn;
+        $this->currentTurn = $currentTurn;
+
+        $format = $this->debateService->getFormat($this->debate);
+
+        $this->currentTurnName = $format[$currentTurn]['name'] ?? __('messages.finished');
+        $this->nextTurnName = $format[$currentTurn + 1]['name'] ?? __('messages.finished');
+        $this->currentSpeaker = $format[$currentTurn]['speaker'] ?? null;
+        $this->isPrepTime = $format[$currentTurn]['is_prep_time'] ?? false;
+
         $this->turnEndTime = $this->debate->turn_end_time?->timestamp;
 
         $this->isMyTurn = $this->checkIfUsersTurn(Auth::id());

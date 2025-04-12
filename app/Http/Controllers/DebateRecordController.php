@@ -34,7 +34,7 @@ class DebateRecordController extends Controller
                 $query->where('affirmative_user_id', $user->id)
                     ->orWhere('negative_user_id', $user->id);
             })
-            ->whereHas('evaluations'); // evaluationsが存在するDebateに絞り込む
+            ->whereHas('evaluations');
 
 
         if ($result !== 'all') {

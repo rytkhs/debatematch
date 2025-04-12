@@ -1,16 +1,16 @@
 <div class="h-full flex flex-col p-4 overflow-auto">
     <h2 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
-        <span class="material-icons mr-2">people</span>ディベーター
+        <span class="material-icons mr-2">people</span>{{ __('messages.debaters') }}
     </h2>
 
     <!-- 肯定側 -->
     <div class="mb-6">
         <div class="flex items-center justify-between mb-2">
             <h3 class="font-medium text-green-600 flex items-center">
-                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>肯定側
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>{{ __('messages.affirmative_side_label') }}
             </h3>
             @if($currentSpeaker === 'affirmative')
-                <span class="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">発言中</span>
+                <span class="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">{{ __('messages.speaking') }}</span>
             @endif
         </div>
 
@@ -23,7 +23,7 @@
                 <!-- オンライン状態表示 -->
                 <div class="flex items-center mt-1 text-xs text-gray-500">
                     <span class="w-2 h-2 {{ $onlineUsers[$debate->affirmative_user_id] ?? false ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
-                    {{ $onlineUsers[$debate->affirmative_user_id] ?? false ? 'オンライン' : 'オフライン' }}
+                    {{ $onlineUsers[$debate->affirmative_user_id] ?? false ? __('messages.online') : __('messages.offline') }}
                 </div>
             </div>
         </div>
@@ -33,10 +33,10 @@
     <div class="mb-6">
         <div class="flex items-center justify-between mb-2">
             <h3 class="font-medium text-red-600 flex items-center">
-                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>否定側
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>{{ __('messages.negative_side_label') }}
             </h3>
             @if($currentSpeaker === 'negative')
-                <span class="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full">発言中</span>
+                <span class="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full">{{ __('messages.speaking') }}</span>
             @endif
         </div>
 
@@ -49,7 +49,7 @@
                 <!-- オンライン状態表示 -->
                 <div class="flex items-center mt-1 text-xs text-gray-500">
                     <span class="w-2 h-2 {{ $onlineUsers[$debate->negative_user_id] ?? false ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
-                    {{ $onlineUsers[$debate->negative_user_id] ?? false ? 'オンライン' : 'オフライン' }}
+                    {{ $onlineUsers[$debate->negative_user_id] ?? false ? __('messages.online') : __('messages.offline') }}
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
     @if($isMyTurn)
     <div class="mt-auto">
         <button wire:click="advanceTurnManually"
-            wire:confirm="{{$currentTurnName}}を終了し、{{$nextTurnName}}に進みます。\nパートを終了してよろしいですか?"
+            wire:confirm="{{ __('messages.confirm_end_turn', ['currentTurnName' => $currentTurnName, 'nextTurnName' => $nextTurnName]) }}"
             wire:loading.attr="disabled"
             wire:loading.class="opacity-50 cursor-not-allowed"
             wire:target="advanceTurnManually"
@@ -67,17 +67,17 @@
             class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 {{ $isProcessing ? 'opacity-50 cursor-not-allowed' : '' }}">
             <span class="flex items-center justify-center">
                 <span class="material-icons mr-2">arrow_forward</span>
-                <span>{{ $isProcessing ? '処理中...' : 'パートを終了する' }}</span>
+                <span>{{ $isProcessing ? __('messages.processing') : __('messages.end_turn') }}</span>
             </span>
         </button>
 
         <!-- ターン情報 -->
         <div class="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
-            <p class="text-xs text-gray-600 mb-2">現在のターン情報</p>
+            <p class="text-xs text-gray-600 mb-2">{{ __('messages.current_turn_info') }}</p>
             <div class="flex items-center justify-between text-sm">
                 <span class="font-medium">{{$currentTurnName}}</span>
                 <span class="bg-primary-light text-primary px-2 py-0.5 rounded-full text-xs">
-                    残り時間: <span id="time-left-small"></span>
+                    {{ __('messages.remaining_time_label') }} <span id="time-left-small"></span>
                 </span>
             </div>
         </div>

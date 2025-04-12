@@ -52,7 +52,6 @@ class Room extends Model
     public function updateStatus(string $status): void
     {
         // 有効な状態遷移を定義
-        // terminatedはどこからでも遷移できるように
         $validTransitions = [
             self::STATUS_WAITING => [self::STATUS_READY, self::STATUS_DELETED, self::STATUS_TERMINATED],
             self::STATUS_READY => [self::STATUS_DEBATING, self::STATUS_WAITING, self::STATUS_DELETED, self::STATUS_TERMINATED],
@@ -72,8 +71,9 @@ class Room extends Model
     }
 
     /**
-     * ディベートのフォーマットを取得する
+     * ディベートのフォーマットを取得する(翻訳済み)
      */
+
     public function getDebateFormat()
     {
         // カスタムフォーマットの場合はカスタム設定を返す
@@ -81,8 +81,19 @@ class Room extends Model
             return $this->custom_format_settings;
         }
 
-        // それ以外は選択されたフォーマットタイプのconfig設定を返す
-        return config("debate.formats.{$this->format_type}", []);
+        // 標準フォーマットの場合はconfig設定を取得
+        $format = config("debate.formats.{$this->format_type}", []);
+
+        // 各ターンの名前を翻訳
+        $translatedFormat = [];
+        foreach ($format as $index => $turn) {
+            $translatedTurn = $turn;
+            // ターン名を翻訳
+            $translatedTurn['name'] = __('debates.' . $turn['name']);
+            $translatedFormat[$index] = $translatedTurn;
+        }
+// dd($translatedFormat);
+        return $translatedFormat;
     }
 
     /**
@@ -92,11 +103,11 @@ class Room extends Model
     {
         // format_typeがconfig('debate.formats')のキーに存在する場合は、その名前を返す
         if (array_key_exists($this->format_type, config('debate.formats'))) {
-            return $this->format_type;
+            return __('debates.' . $this->format_type);
         }
         // カスタムフォーマットの場合は'カスタム'を返す
         if ($this->format_type === 'custom') {
-            return 'カスタム';
+            return __('debates.custom');
         }
 
         return '';

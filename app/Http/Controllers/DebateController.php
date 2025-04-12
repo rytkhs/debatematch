@@ -23,9 +23,9 @@ class DebateController extends Controller
     {
         if ($debate->room->status === Room::STATUS_FINISHED) {
             return redirect()->route('debate.result', $debate)
-                ->with('info', 'ディベートは終了しました。');
+                ->with('info', __('flash.debate.show.finished'));
         } elseif ($debate->room->status === Room::STATUS_TERMINATED) {
-            return redirect()->route('welcome')->with('error', '切断されました。');
+            return redirect()->route('welcome')->with('error', __('flash.debate.show.terminated'));
         } elseif ($debate->room->status !== Room::STATUS_DEBATING) {
             return redirect()->back();
         }
@@ -68,6 +68,6 @@ class DebateController extends Controller
         $this->debateService->terminateDebate($debate);
 
         // welcomeページへリダイレクト
-        return redirect()->route('welcome')->with('warning', '相手との接続が切断されたため、ディベートを終了しました。');
+        return redirect()->route('welcome')->with('warning', __('flash.debate.terminate.success'));
     }
 }

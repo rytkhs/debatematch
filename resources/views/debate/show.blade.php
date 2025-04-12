@@ -10,10 +10,10 @@
                 <!-- タブナビゲーション -->
                 <div class="flex border-b border-gray-200">
                     <button id="participants-tab" class="flex-1 py-3 px-4 text-center border-b-2 border-primary text-primary font-medium">
-                        ディベート情報
+                        {{ __('messages.debate_information_tab') }}
                     </button>
                     <button id="timeline-tab" class="flex-1 py-3 px-4 text-center text-gray-500 hover:text-gray-700">
-                        タイムライン
+                        {{ __('messages.timeline_tab') }}
                     </button>
                 </div>
 
@@ -60,10 +60,10 @@
                     <!-- タブナビゲーション -->
                     <div class="flex border-b border-gray-200">
                         <button id="mobile-participants-tab" class="flex-1 py-3 px-4 text-center border-b-2 border-primary text-primary font-medium">
-                            ディベート情報
+                            {{ __('messages.debate_information_tab') }}
                         </button>
                         <button id="mobile-timeline-tab" class="flex-1 py-3 px-4 text-center text-gray-500 hover:text-gray-700">
-                            タイムライン
+                            {{ __('messages.timeline_tab') }}
                         </button>
                     </div>
 
@@ -86,7 +86,7 @@
         {{-- <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
             <div class="bg-white rounded-lg p-6 max-w-lg w-full shadow-xl m-4">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-gray-900">ディベートヘルプ</h3>
+                    <h3 class="text-xl font-bold text-gray-900">{{ __('messages.debate_help_modal_title') }}</h3>
                     <button id="close-help" class="text-gray-500 hover:text-gray-700">
                         <span class="material-icons">close</span>
                     </button>
@@ -116,6 +116,25 @@
         pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
         pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }}
     };
+
+    const translations = {
+        debate_finished_title: "{{ __('messages.debate_finished_title') }}",
+        evaluating_message: "{{ __('messages.evaluating_message') }}",
+        evaluation_complete_title: "{{ __('messages.evaluation_complete_title') }}",
+        redirecting_to_results: "{{ __('messages.redirecting_to_results') }}",
+        host_left_terminated: "{{ __('messages.host_left_terminated') }}",
+        debate_finished_overlay_title: "{{ __('messages.debate_finished_overlay_title') }}",
+        evaluating_overlay_message: "{{ __('messages.evaluating_overlay_message') }}",
+        go_to_results_page: "{{ __('messages.go_to_results_page') }}",
+        connection_restored: "{{ __('messages.connection_restored') }}",
+        connection_lost_title: "{{ __('messages.connection_lost_title') }}",
+        connection_lost_message: "{{ __('messages.connection_lost_message') }}",
+        reconnecting_message: "{{ __('messages.reconnecting_message') }}",
+        reconnecting_failed_message: "{{ __('messages.reconnecting_failed_message') }}",
+        redirecting_after_termination: "{{ __('messages.redirecting_after_termination') }}",
+    };
+    window.translations = translations;
+
     </script>
     <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
     @vite([
