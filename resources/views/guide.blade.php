@@ -210,8 +210,7 @@
                 {{-- config/debate.php からフォーマット名を取得してリスト表示 --}}
                 <ul class="list-disc list-inside text-xs sm:text-sm text-gray-600 space-y-1 mb-3 sm:mb-4">
                     @foreach(config('debate.formats') as $name => $format)
-                    {{-- フォーマット名自体も翻訳が必要な場合は、config側で翻訳キーを持たせるなどの工夫が必要 --}}
-                    <li>{{ $name }}</li>
+                    <li>{{ __('debates.'.$name) }}</li>
                     @endforeach
                 </ul>
                 <h4 class="text-base sm:text-lg font-medium mb-2 sm:mb-3">{{ __('messages.custom_format') }}</h4>
@@ -231,7 +230,13 @@
                     <button @click="open = !open"
                         class="flex justify-between items-center w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
                         <span>{{ __('messages.faq_guide1_q') }}</span>
-                        {{-- ... svg icon ... --}}
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-primary transition-transform duration-200"
+                        :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
                     </button>
                     <div x-show="open" x-transition.duration.300ms
                         class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 bg-gray-50">
@@ -239,23 +244,35 @@
                     </div>
                 </div>
                 {{-- FAQ項目2 --}}
-                <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
+                {{-- <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
                     <button @click="open = !open"
                         class="flex justify-between items-center w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
                         <span>{{ __('messages.faq_guide2_q') }}</span>
-                        {{-- ... svg icon ... --}}
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-primary transition-transform duration-200"
+                        :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
                     </button>
                     <div x-show="open" x-transition.duration.300ms
                         class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 bg-gray-50">
                         {{ __('messages.faq_guide2_a') }}
                     </div>
-                </div>
+                </div> --}}
                 {{-- FAQ項目3 --}}
                 <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
                     <button @click="open = !open"
                         class="flex justify-between items-center w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
                         <span>{{ __('messages.faq_guide3_q') }}</span>
-                        {{-- ... svg icon ... --}}
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-primary transition-transform duration-200"
+                        :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
                     </button>
                     <div x-show="open" x-transition.duration.300ms
                         class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 bg-gray-50">
