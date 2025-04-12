@@ -37,13 +37,21 @@
                                     <h2 class="text-base sm:text-lg font-semibold">{{ $room->name }}</h2>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 sm:space-x-3">
+                            <div
+                                class="flex items-center space-x-2 sm:space-x-3">
                                 <div
                                     class="px-1.5 py-0.5 sm:px-2 sm:py-1 bg-gray-100 rounded-md text-xs sm:text-sm text-gray-600 flex items-center">
                                     <span
                                         class="material-icons-outlined text-gray-400 mr-1 text-xs sm:text-sm">language</span>
                                     {{ $room->language === 'japanese' ? __('messages.japanese') : __('messages.english')
                                     }}
+                                </div>
+                                <!-- 証拠資料の有無を表示 -->
+                                <div
+                                    class="px-1.5 py-0.5 sm:px-2 sm:py-1 {{ $room->evidence_allowed ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600' }} rounded-md text-xs sm:text-sm flex items-center">
+                                    <span
+                                        class="material-icons-outlined mr-1 text-xs sm:text-sm">{{ $room->evidence_allowed ? 'fact_check' : 'no_sim' }}</span>
+                                    {{ $room->evidence_allowed ? __('messages.evidence_allowed') : __('messages.evidence_not_allowed') }}
                                 </div>
                                 <div class="flex items-center">
                                     <span

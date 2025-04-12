@@ -62,6 +62,7 @@ class RoomController extends Controller
             'remarks' => 'nullable|string|max:1000',
             'language' => 'required|in:japanese,english',
             'format_type' => 'required|string',
+            'evidence_allowed' => 'required|boolean',
         ]);
 
         $customFormatSettings = null;
@@ -105,6 +106,7 @@ class RoomController extends Controller
                 'language' => $validatedData['language'],
                 'format_type' => $validatedData['format_type'],
                 'custom_format_settings' => $customFormatSettings,
+                'evidence_allowed' => $validatedData['evidence_allowed'],
                 'created_by' => Auth::id(),
             ]);
 
@@ -120,10 +122,10 @@ class RoomController extends Controller
                 . "作成者: {$user->name}";
 
             // メール通知
-            // $this->snsController->sendNotification(
-            //     $message,
-            //     "【DebateMatch】新規ルーム作成"
-            // );
+            $this->snsController->sendNotification(
+                $message,
+                "【DebateMatch】新規ルーム作成"
+            );
 
             return redirect()->route('rooms.show', compact('room'))->with('success', __('flash.room.store.success'));
         });

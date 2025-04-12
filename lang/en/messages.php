@@ -452,4 +452,10 @@ return [
     'reconnecting_failed_message' => 'Reconnection failed. Please reload the page.',
     'redirecting_after_termination' => 'Redirecting to the top page in 5 seconds...',
 
+    'evidence_usage' => 'Evidence Usage',
+    'evidence_allowed' => 'Evidence Allowed',
+    'evidence_not_allowed' => 'No Evidence',
+    'can_use_evidence' => 'Can use external sources',
+    'cannot_use_evidence' => 'Only personal knowledge',
+
 ];

@@ -117,13 +117,13 @@
                                     <div class="grid grid-cols-2 gap-3 sm:gap-4">
                                         <label
                                             class="relative flex bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition">
-                                            <input type="radio" name="side" value="affirmative" checked
+                                            <input type="radio" name="side" value="affirmative"
                                                 class="form-radio absolute opacity-0">
                                             <div class="flex items-center">
                                                 <div
                                                     class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-green-500 flex items-center justify-center mr-2 sm:mr-3">
                                                     <div
-                                                        class="side-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500 opacity-100">
+                                                        class="side-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500 opacity-0">
                                                     </div>
                                                 </div>
                                                 <div>
@@ -156,6 +156,59 @@
                                         </label>
                                     </div>
                                     <x-input-error :messages="$errors->get('side')" class="mt-2" />
+                                </div>
+
+                                <!-- 証拠資料の使用有無 -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('messages.evidence_usage') }}
+                                    </label>
+                                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                                        <label
+                                            class="relative flex bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100 transition">
+                                            <input type="radio" name="evidence_allowed" value="1"
+                                                class="form-radio absolute opacity-0">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-blue-500 flex items-center justify-center mr-2 sm:mr-3">
+                                                    <div
+                                                        class="evidence-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500 opacity-0">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span class="block text-xs sm:text-sm font-medium text-blue-800">
+                                                        {{ __('messages.evidence_allowed') }}
+                                                    </span>
+                                                    <span class="text-xs text-blue-600">
+                                                        {{ __('messages.can_use_evidence') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </label>
+
+                                        <label
+                                            class="relative flex bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                                            <input type="radio" name="evidence_allowed" value="0"
+                                                class="form-radio absolute opacity-0">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-gray-500 flex items-center justify-center mr-2 sm:mr-3">
+                                                    <div
+                                                        class="evidence-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-gray-500 opacity-0">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span class="block text-xs sm:text-sm font-medium text-gray-800">
+                                                        {{ __('messages.evidence_not_allowed') }}
+                                                    </span>
+                                                    {{-- <span class="text-xs text-gray-600">
+                                                        {{ __('messages.cannot_use_evidence') }}
+                                                    </span> --}}
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('evidence_allowed')" class="mt-2" />
                                 </div>
 
                                 <!-- フォーマット選択 -->
@@ -361,6 +414,7 @@
         // サイド選択のラジオボタン動作
         document.addEventListener('DOMContentLoaded', function() {
             const sideRadios = document.querySelectorAll('input[name="side"]');
+            const evidenceRadios = document.querySelectorAll('input[name="evidence_allowed"]');
 
             sideRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
@@ -371,10 +425,26 @@
                 });
             });
 
+            // 証拠資料ラジオボタンのイベントハンドラ
+            evidenceRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.querySelectorAll('.evidence-indicator').forEach(indicator => {
+                        indicator.style.opacity = '0';
+                    });
+                    this.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
+                });
+            });
+
             // 初期状態で選択されているラジオボタンのインジケーターを表示
-            const checkedRadio = document.querySelector('input[name="side"]:checked');
-            if (checkedRadio) {
-                checkedRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
+            const checkedSideRadio = document.querySelector('input[name="side"]:checked');
+            if (checkedSideRadio) {
+                checkedSideRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
+            }
+
+            // 初期状態で選択されている証拠資料ラジオボタンのインジケーターを表示
+            const checkedEvidenceRadio = document.querySelector('input[name="evidence_allowed"]:checked');
+            if (checkedEvidenceRadio) {
+                checkedEvidenceRadio.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
             }
         });
 

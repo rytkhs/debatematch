@@ -500,5 +500,10 @@ return [
     'view_format_label' => '表示形式:',
     'opponent' => '対戦相手',
     'evaluation_label' => '評価',
-    'no_debate_records' => 'ディベート履歴がありません'
+    'no_debate_records' => 'ディベート履歴がありません',
+    'evidence_usage' => '証拠資料の使用',
+    'evidence_allowed' => '証拠資料あり',
+    'evidence_not_allowed' => '証拠資料なし',
+    'can_use_evidence' => '外部資料の引用可能',
+    'cannot_use_evidence' => '個人の知識のみ',
 ];

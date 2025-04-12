@@ -27,6 +27,10 @@
                                     <span class="bg-gray-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs text-gray-500 mr-1 sm:mr-2">
                                         {{ $room->language === 'ja' ? __('messages.language_ja') : __('messages.language_en') }}
                                     </span>
+                                    <span class="bg-gray-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs {{ $room->evidence_allowed ? 'text-blue-500' : 'text-gray-500' }} mr-1 sm:mr-2 flex items-center">
+                                        <span class="material-icons-outlined mr-0.5 text-xs">{{ $room->evidence_allowed ? 'fact_check' : 'no_sim' }}</span>
+                                        {{ $room->evidence_allowed ? __('messages.evidence_allowed') : __('messages.evidence_not_allowed') }}
+                                    </span>
                                     <div class="bg-gray-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs text-gray-500">
                                         {{ $room->created_at->format('Y/m/d') }}
                                     </div>

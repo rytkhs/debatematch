@@ -10,10 +10,21 @@ class Room extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'topic', 'remarks', 'status', 'created_by', 'language', 'format_type', 'custom_format_settings'];
+    protected $fillable = [
+        'name',
+        'topic',
+        'remarks',
+        'status',
+        'created_by',
+        'language',
+        'format_type',
+        'custom_format_settings',
+        'evidence_allowed'
+    ];
 
     protected $casts = [
         'custom_format_settings' => 'array',
+        'evidence_allowed' => 'boolean',
     ];
 
     // 状態の定数
@@ -92,7 +103,7 @@ class Room extends Model
             $translatedTurn['name'] = __('debates.' . $turn['name']);
             $translatedFormat[$index] = $translatedTurn;
         }
-// dd($translatedFormat);
+        // dd($translatedFormat);
         return $translatedFormat;
     }
 
