@@ -16,7 +16,7 @@ return [
     'room.exit.already_closed' => 'This room is already closed.',
     'room.exit.creator_success' => 'Room deleted successfully.',
     'room.exit.participant_success' => 'Exited the room successfully.',
-    'room.start_debate.unauthorized' => 'You do not have permission to start the debate.', // Moved from StartDebateButton
+    'room.start_debate.unauthorized' => 'You do not have permission to start the debate.',
 
     // AuthenticatedSessionController
     'auth.login.success' => 'Logged in successfully.',
@@ -37,4 +37,8 @@ return [
     // Livewire/Rooms/StartDebateButton.php
     'start_debate.error.not_enough_participants' => 'Not enough debaters.',
     'start_debate.error.already_started' => 'The debate has already started.',
+
+    // Middleware/CheckUserActiveStatus.php
+    'middleware.active_debate' => 'You are in an active debate.',
+    'middleware.active_room' => 'You are in a waiting room.',
 ];

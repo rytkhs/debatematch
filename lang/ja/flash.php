@@ -37,4 +37,8 @@ return [
     // Livewire/Rooms/StartDebateButton.php
     'start_debate.error.not_enough_participants' => 'ディベーターが揃っていません。',
     'start_debate.error.already_started' => 'ディベートはすでに開始されています。',
+
+    // Middleware/CheckUserActiveStatus.php
+    'middleware.active_debate' => 'ディベートが進行中です',
+    'middleware.active_room' => 'ルーム参加中です',
 ];
