@@ -82,7 +82,7 @@ return [
     |
     */
 
-    'locale' => 'ja',
+    'locale' => 'en',
 
     /*
     |--------------------------------------------------------------------------
@@ -97,7 +97,7 @@ return [
 
     'fallback_locale' => 'en',
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'ja_JP'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*
     |--------------------------------------------------------------------------

@@ -66,8 +66,8 @@ class DebateService
     {
         $format = $this->getFormat($debate);
         $debate->current_turn = $nextTurn;
-        // 2ターン目以降は7秒追加
-        $duration = $format[$nextTurn]['duration'] + 7;
+        // 2ターン目以降は2秒追加
+        $duration = $format[$nextTurn]['duration'] + 2;
         $debate->turn_end_time = Carbon::now()->addSeconds($duration);
         $debate->save();
     }
@@ -83,7 +83,7 @@ class DebateService
             }
 
             $debate->update(['turn_end_time' => null]);
-            // コミット後にイベント発行とジョブディスパッチ
+
             DB::afterCommit(function () use ($debate) {
                 broadcast(new DebateFinished($debate->id));
                 EvaluateDebateJob::dispatch($debate->id);
@@ -129,16 +129,13 @@ class DebateService
 
             DB::transaction(function () use ($debate, $nextTurn) {
                 if ($nextTurn) {
-                    // 次のターンへ
                     $this->updateTurn($debate, $nextTurn);
 
-                    // イベントデータを充実させて、DB再取得を減らす
-                    // ターン名 ('turn_name') はイベントデータに含めず、各クライアントで解決させる
                     $eventData = [
                         'turn_number' => $nextTurn, // ターン番号のみ渡す
                         'turn_end_time' => $debate->turn_end_time->timestamp,
                         'speaker' => $this->getFormat($debate)[$nextTurn]['speaker'] ?? null,
-                        // 'turn_name' => $this->getFormat($debate)[$nextTurn]['name'] ?? null, // 翻訳済みのターン名は含めない
+                        // 'turn_name' => $this->getFormat($debate)[$nextTurn]['name'] ?? null,
                         'is_prep_time' => $this->getFormat($debate)[$nextTurn]['is_prep_time'] ?? false
                     ];
 
