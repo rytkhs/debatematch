@@ -8,8 +8,9 @@
             <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
                 <div class="px-3 py-4 sm:px-4 sm:py-5">
                     <div class="flex items-center mb-6 sm:mb-8 border-b pb-3 sm:pb-4">
-                        <span class="material-icons-outlined text-indigo-600 text-xl sm:text-2xl mr-2 sm:mr-3">add_circle</span>
-                        <h1 class="text-lg sm:text-xl font-bold text-gray-700">新しいディベートルームを作成</h1>
+                        <span
+                            class="material-icons-outlined text-indigo-600 text-xl sm:text-2xl mr-2 sm:mr-3">add_circle</span>
+                        <h1 class="text-lg sm:text-xl font-bold text-gray-700">{{ __('messages.create_new_room') }}</h1>
                     </div>
 
                     <form action="{{ route('rooms.store') }}" method="POST" class="space-y-6 sm:space-y-8">
@@ -18,38 +19,42 @@
                         <!-- セクション1: 基本情報 -->
                         <div class="bg-gray-50 p-4 sm:p-6 rounded-lg border border-gray-200">
                             <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center">
-                                <span class="material-icons-outlined text-indigo-500 mr-2">info</span>基本情報
+                                <span class="material-icons-outlined text-indigo-500 mr-2">info</span>{{
+                                __('messages.basic_information') }}
                             </h2>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 <!-- 論題 -->
                                 <div class="md:col-span-2">
-                                    <label for="topic" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">論題 <span
-                                            class="text-red-500">*</span></label>
+                                    <label for="topic"
+                                        class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{{
+                                        __('messages.topic') }} <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span class="material-icons-outlined text-gray-400 text-xs sm:text-sm">subject</span>
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span
+                                                class="material-icons-outlined text-gray-400 text-xs sm:text-sm">subject</span>
                                         </div>
                                         <input type="text" id="topic" name="topic" value="{{ old('topic') }}"
-                                            placeholder="論題を入力"
-                                            required
+                                            placeholder="{{ __('messages.placeholder_topic') }}" required
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md">
                                         <x-input-error :messages="$errors->get('topic')" class="mt-2" />
                                     </div>
-                                    <p class="mt-1 text-xs text-gray-500">明確な是非を問う論題を設定してください</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ __('messages.topic_guideline') }}</p>
                                 </div>
 
                                 <!-- ルーム名 -->
                                 <div>
-                                    <label for="name" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">ルーム名 <span
-                                            class="text-red-500">*</span></label>
+                                    <label for="name" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{{
+                                        __('messages.room_name') }} <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span class="material-icons-outlined text-gray-400 text-xs sm:text-sm">meeting_room</span>
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span
+                                                class="material-icons-outlined text-gray-400 text-xs sm:text-sm">meeting_room</span>
                                         </div>
                                         <input type="text" id="name" name="name" value="{{ old('name') }}"
-                                            placeholder="ルーム名を入力"
-                                            required
+                                            placeholder="{{ __('messages.placeholder_room_name') }}" required
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md">
                                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                                     </div>
@@ -57,16 +62,19 @@
 
                                 <!-- 言語設定 -->
                                 <div>
-                                    <label for="language" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">言語 <span
-                                            class="text-red-500">*</span></label>
+                                    <label for="language"
+                                        class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{{
+                                        __('messages.language') }} <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span class="material-icons-outlined text-gray-400 text-xs sm:text-sm">language</span>
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span
+                                                class="material-icons-outlined text-gray-400 text-xs sm:text-sm">language</span>
                                         </div>
                                         <select id="language" name="language"
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md">
-                                            <option value="japanese">日本語</option>
-                                            <option value="english">英語</option>
+                                            <option value="english">{{ __('messages.english') }}</option>
+                                            <option value="japanese">{{ __('messages.japanese') }}</option>
                                         </select>
                                         <x-input-error :messages="$errors->get('language')" class="mt-2" />
                                     </div>
@@ -74,15 +82,19 @@
 
                                 <!-- 備考 -->
                                 <div class="md:col-span-2">
-                                    <label for="remarks" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                                        備考 <span class="text-gray-500 text-xs">（任意）</span>
+                                    <label for="remarks"
+                                        class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                                        {{ __('messages.remarks') }} <span class="text-gray-500 text-xs">({{
+                                            __('messages.optional') }})</span>
                                     </label>
                                     <div class="relative">
-                                        <div class="absolute top-2 sm:top-3 left-3 flex items-start pointer-events-none">
-                                            <span class="material-icons-outlined text-gray-400 text-xs sm:text-sm">description</span>
+                                        <div
+                                            class="absolute top-2 sm:top-3 left-3 flex items-start pointer-events-none">
+                                            <span
+                                                class="material-icons-outlined text-gray-400 text-xs sm:text-sm">description</span>
                                         </div>
                                         <textarea id="remarks" name="remarks" rows="3"
-                                            placeholder="特別なルールや注意事項があれば入力してください"
+                                            placeholder="{{ __('messages.placeholder_remarks') }}"
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md">{{ old('remarks') }}</textarea>
                                         <x-input-error :messages="$errors->get('remarks')" class="mt-2" />
                                     </div>
@@ -93,29 +105,32 @@
                         <!-- セクション2: ディベート設定 -->
                         <div class="bg-gray-50 p-4 sm:p-6 rounded-lg border border-gray-200">
                             <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center">
-                                <span class="material-icons-outlined text-indigo-500 mr-2">settings</span>ディベート設定
+                                <span class="material-icons-outlined text-indigo-500 mr-2">settings</span>{{
+                                __('messages.debate_settings') }}
                             </h2>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 <!-- サイドの選択 -->
                                 <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">あなたのサイド <span
-                                            class="text-red-500">*</span></label>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">{{
+                                        __('messages.your_side') }} <span class="text-red-500">*</span></label>
                                     <div class="grid grid-cols-2 gap-3 sm:gap-4">
                                         <label
                                             class="relative flex bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition">
-                                            <input type="radio" name="side" value="affirmative" checked
+                                            <input type="radio" name="side" value="affirmative"
                                                 class="form-radio absolute opacity-0">
                                             <div class="flex items-center">
                                                 <div
                                                     class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-green-500 flex items-center justify-center mr-2 sm:mr-3">
                                                     <div
-                                                        class="side-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500 opacity-100">
+                                                        class="side-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500 opacity-0">
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <span class="block text-xs sm:text-sm font-medium text-green-800">肯定側</span>
-                                                    <span class="text-xs text-green-600">論題に賛成</span>
+                                                    <span class="block text-xs sm:text-sm font-medium text-green-800">{{
+                                                        __('messages.affirmative_side') }}</span>
+                                                    <span class="text-xs text-green-600">{{
+                                                        __('messages.agree_with_topic') }}</span>
                                                 </div>
                                             </div>
                                         </label>
@@ -127,12 +142,15 @@
                                             <div class="flex items-center">
                                                 <div
                                                     class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-red-500 flex items-center justify-center mr-2 sm:mr-3">
-                                                    <div class="side-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500 opacity-0">
+                                                    <div
+                                                        class="side-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500 opacity-0">
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <span class="block text-xs sm:text-sm font-medium text-red-800">否定側</span>
-                                                    <span class="text-xs text-red-600">論題に反対</span>
+                                                    <span class="block text-xs sm:text-sm font-medium text-red-800">{{
+                                                        __('messages.negative_side') }}</span>
+                                                    <span class="text-xs text-red-600">{{
+                                                        __('messages.disagree_with_topic') }}</span>
                                                 </div>
                                             </div>
                                         </label>
@@ -140,42 +158,102 @@
                                     <x-input-error :messages="$errors->get('side')" class="mt-2" />
                                 </div>
 
+                                <!-- 証拠資料の使用有無 -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('messages.evidence_usage') }}
+                                    </label>
+                                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                                        <label
+                                            class="relative flex bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100 transition">
+                                            <input type="radio" name="evidence_allowed" value="1"
+                                                class="form-radio absolute opacity-0">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-blue-500 flex items-center justify-center mr-2 sm:mr-3">
+                                                    <div
+                                                        class="evidence-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500 opacity-0">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span class="block text-xs sm:text-sm font-medium text-blue-800">
+                                                        {{ __('messages.evidence_allowed') }}
+                                                    </span>
+                                                    <span class="text-xs text-blue-600">
+                                                        {{ __('messages.can_use_evidence') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </label>
+
+                                        <label
+                                            class="relative flex bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                                            <input type="radio" name="evidence_allowed" value="0"
+                                                class="form-radio absolute opacity-0">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-gray-500 flex items-center justify-center mr-2 sm:mr-3">
+                                                    <div
+                                                        class="evidence-indicator w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-gray-500 opacity-0">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span class="block text-xs sm:text-sm font-medium text-gray-800">
+                                                        {{ __('messages.evidence_not_allowed') }}
+                                                    </span>
+                                                    {{-- <span class="text-xs text-gray-600">
+                                                        {{ __('messages.cannot_use_evidence') }}
+                                                    </span> --}}
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('evidence_allowed')" class="mt-2" />
+                                </div>
+
                                 <!-- フォーマット選択 -->
                                 <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">フォーマット <span
-                                            class="text-red-500">*</span></label>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">{{
+                                        __('messages.format') }} <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span
                                                 class="material-icons-outlined text-gray-400 text-xs sm:text-sm">format_list_numbered</span>
                                         </div>
                                         <select name="format_type" id="format_type"
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md"
                                             onchange="toggleCustomFormat(this.value === 'custom'); updateFormatPreview(this.value);">
-                                            @foreach ($formats as $format => $turns)
-                                                <option value="{{ $format }}">{{ $format }}フォーマット</option>
+                                            @foreach ($translatedFormats as $translatedName => $turns)
+                                            <option value="{{ array_search($turns, $translatedFormats, true) }}">{{ $turns['name'] }}</option>
                                             @endforeach
-                                            <option value="custom">カスタムフォーマット</option>
+                                            <option value="custom">{{ __('messages.custom_format') }}</option>
                                         </select>
                                     </div>
-                                    <p class="mt-1 text-xs text-gray-500">一般的なフォーマットを選択するか、カスタムで設定できます</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ __('messages.format_selection_guide') }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- フォーマットプレビュー -->
-                        <div id="format-preview" class="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-gray-200">
-                            <button type="button" class="w-full text-left focus:outline-none group transition-all" onclick="toggleFormatPreview()">
-                                <h3 class="text-sm sm:text-md font-semibold text-gray-700 flex items-center justify-between">
+                        <div id="format-preview"
+                            class="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-gray-200">
+                            <button type="button" class="w-full text-left focus:outline-none group transition-all"
+                                onclick="toggleFormatPreview()">
+                                <h3
+                                    class="text-sm sm:text-md font-semibold text-gray-700 flex items-center justify-between">
                                     <span class="flex items-center">
                                         <span class="material-icons-outlined text-indigo-500 mr-2">preview</span>
-                                        <span id="format-preview-title">フォーマットプレビュー</span>
+                                        <span id="format-preview-title">{{ __('messages.format_preview') }}</span>
                                     </span>
-                                    <span class="material-icons-outlined text-gray-400 group-hover:text-indigo-500 transition-colors format-preview-icon">expand_more</span>
+                                    <span
+                                        class="material-icons-outlined text-gray-400 group-hover:text-indigo-500 transition-colors format-preview-icon">expand_more</span>
                                 </h3>
                             </button>
 
-                            <div id="format-preview-content" class="hidden mt-3 sm:mt-4 transition-all duration-300 transform">
+                            <div id="format-preview-content"
+                                class="hidden mt-3 sm:mt-4 transition-all duration-300 transform">
                                 <div class="pt-2 border-t border-gray-100">
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full border border-gray-100 rounded-lg">
@@ -189,77 +267,88 @@
                         </div>
 
                         <!-- カスタムフォーマット設定 -->
-                        <div id="custom-format-settings" class="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-gray-200 hidden">
+                        <div id="custom-format-settings"
+                            class="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-gray-200 hidden">
                             <h3 class="text-sm sm:text-md font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center">
                                 <span class="material-icons-outlined text-indigo-500 mr-2">edit</span>
-                                カスタムフォーマットを設定
+                                {{ __('messages.configure_custom_format') }}
                             </h3>
                             <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-md">
                                 <div class="flex">
                                     <div class="flex-shrink-0">
-                                        <span class="material-icons-outlined text-yellow-600 text-sm sm:text-base">info</span>
+                                        <span
+                                            class="material-icons-outlined text-yellow-600 text-sm sm:text-base">info</span>
                                     </div>
                                     <div class="ml-3">
                                         <p class="text-xs sm:text-sm text-yellow-700">
-                                            パートを追加して独自のディベート形式を作成できます。最低でも1つのパートが必要です。
+                                            {{ __('messages.custom_format_guide') }}
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             <div id="turns-container" class="space-y-3 sm:space-y-4">
                                 <!-- ターン設定テンプレート -->
-                                <div class="turn-card border rounded-lg p-3 sm:p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+                                <div
+                                    class="turn-card border rounded-lg p-3 sm:p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
                                     <div class="flex justify-between items-center mb-2 sm:mb-3">
                                         <div class="flex items-center">
-                                            <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-medium text-xs sm:text-sm">1</span>
-                                            <h4 class="text-xs sm:text-sm font-medium ml-2 text-gray-700">パート 1</h4>
+                                            <span
+                                                class="turn-number w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-medium text-xs sm:text-sm">1</span>
+                                            <h4 class="turn-title text-xs sm:text-sm font-medium ml-2 text-gray-700">{{
+                                                __('messages.part') }} 1</h4>
                                         </div>
-                                        <button type="button" class="delete-turn text-gray-400 hover:text-red-500 transition-colors">
+                                        <button type="button"
+                                            class="delete-turn text-gray-400 hover:text-red-500 transition-colors">
                                             <span class="material-icons-outlined text-sm sm:text-base">delete</span>
                                         </button>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4">
                                         <div class="sm:col-span-3">
-                                            <label class="block text-xs text-gray-500">サイド</label>
+                                            <label class="block text-xs text-gray-500">{{ __('messages.side') }}</label>
                                             <select name="turns[0][speaker]"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-                                                <option value="affirmative">肯定側</option>
-                                                <option value="negative">否定側</option>
+                                                <option value="affirmative">{{ __('messages.affirmative_side') }}
+                                                </option>
+                                                <option value="negative">{{ __('messages.negative_side') }}</option>
                                             </select>
                                         </div>
                                         <div class="sm:col-span-5">
-                                            <label class="block text-xs text-gray-500">パート名</label>
-                                            <input type="text" name="turns[0][name]" placeholder="立論、反駁など"
+                                            <label class="block text-xs text-gray-500">{{ __('messages.part_name')
+                                                }}</label>
+                                            <input type="text" name="turns[0][name]"
+                                                placeholder="{{ __('messages.placeholder_part_name') }}"
                                                 list="part-suggestions"
                                                 class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
                                             <datalist id="part-suggestions">
-                                                <option value="立論">
-                                                <option value="第一立論">
-                                                <option value="第二立論">
-                                                <option value="反駁">
-                                                <option value="第一反駁">
-                                                <option value="第二反駁">
-                                                <option value="質疑">
-                                                <option value="準備時間">
+                                                <option value="{{ __('messages.suggestion_constructive') }}">
+                                                <option value="{{ __('messages.suggestion_first_constructive') }}">
+                                                <option value="{{ __('messages.suggestion_second_constructive') }}">
+                                                <option value="{{ __('messages.suggestion_rebuttal') }}">
+                                                <option value="{{ __('messages.suggestion_first_rebuttal') }}">
+                                                <option value="{{ __('messages.suggestion_second_rebuttal') }}">
+                                                <option value="{{ __('messages.suggestion_questioning') }}">
+                                                <option value="{{ __('messages.suggestion_prep_time') }}">
                                             </datalist>
                                         </div>
                                         <div class="sm:col-span-2">
-                                            <label class="block text-xs text-gray-500">時間（分）</label>
-                                            <input type="number" name="turns[0][duration]" value="5" min="1"
-                                                max="14"
+                                            <label class="block text-xs text-gray-500">{{
+                                                __('messages.duration_minutes') }}</label>
+                                            <input type="number" name="turns[0][duration]" value="5" min="1" max="14"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
                                         </div>
                                         <div class="sm:col-span-2 flex flex-col justify-end">
                                             <div class="flex items-center space-x-2">
                                                 <label class="inline-flex items-center">
-                                                    <input type="checkbox" name="turns[0][is_questions]"
+                                                    <input type="checkbox" name="turns[0][is_questions]" value="1"
                                                         class="question-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
-                                                    <span class="ml-1 text-xs text-gray-500">質疑</span>
+                                                    <span class="ml-1 text-xs text-gray-500">{{
+                                                        __('messages.question_time') }}</span>
                                                 </label>
                                                 <label class="inline-flex items-center">
-                                                    <input type="checkbox" name="turns[0][is_prep_time]"
+                                                    <input type="checkbox" name="turns[0][is_prep_time]" value="1"
                                                         class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
-                                                    <span class="ml-1 text-xs text-gray-500">準備時間</span>
+                                                    <span class="ml-1 text-xs text-gray-500">{{ __('messages.prep_time')
+                                                        }}</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -270,7 +359,7 @@
                                 <button type="button" id="add-turn"
                                     class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
                                     <span class="material-icons-outlined text-xs sm:text-sm mr-1">add</span>
-                                    パートを追加
+                                    {{ __('messages.add_part') }}
                                 </button>
                             </div>
                         </div>
@@ -279,13 +368,14 @@
                         <div class="flex justify-between items-center pt-4 sm:pt-6 border-t">
                             <a href="{{ route('welcome') }}"
                                 class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                <span class="material-icons-outlined text-gray-500 mr-1 text-xs sm:text-sm">arrow_back</span>
-                                キャンセル
+                                <span
+                                    class="material-icons-outlined text-gray-500 mr-1 text-xs sm:text-sm">arrow_back</span>
+                                {{ __('messages.cancel') }}
                             </a>
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
                                 <span class="material-icons-outlined mr-1 text-sm">check_circle</span>
-                                ルームを作成
+                                {{ __('messages.create_room') }}
                             </button>
                         </div>
                     </form>
@@ -296,11 +386,35 @@
 
     <script>
         // フォーマットデータ
-        const formats = @json($formats);
+        const formats = @json($translatedFormats);
+        // 翻訳済みテキストをJavaScriptに渡す
+        const translations = {
+            affirmative: "{{ __('messages.affirmative_side') }}",
+            negative: "{{ __('messages.negative_side') }}",
+            formatInfoMissing: "{{ __('messages.format_info_missing') }}",
+            minuteSuffix: "{{ __('messages.minute_suffix') }}",
+            part: "{{ __('messages.part') }}",
+            side: "{{ __('messages.side') }}",
+            partName: "{{ __('messages.part_name') }}",
+            durationMinutes: "{{ __('messages.duration_minutes') }}",
+            questionTime: "{{ __('messages.question_time') }}",
+            prepTime: "{{ __('messages.prep_time') }}",
+            placeholderPartName: "{{ __('messages.placeholder_part_name') }}",
+            prepTimeSuggestion: "{{ __('messages.suggestion_prep_time') }}",
+            questionTimeSuggestion: "{{ __('messages.suggestion_questioning') }}",
+            suggestionConstructive: "{{ __('messages.suggestion_constructive') }}",
+            suggestionFirstConstructive: "{{ __('messages.suggestion_first_constructive') }}",
+            suggestionSecondConstructive: "{{ __('messages.suggestion_second_constructive') }}",
+            suggestionRebuttal: "{{ __('messages.suggestion_rebuttal') }}",
+            suggestionFirstRebuttal: "{{ __('messages.suggestion_first_rebuttal') }}",
+            suggestionSecondRebuttal: "{{ __('messages.suggestion_second_rebuttal') }}",
+            suggestionPrepTime: "{{ __('messages.suggestion_prep_time') }}",
+        };
 
         // サイド選択のラジオボタン動作
         document.addEventListener('DOMContentLoaded', function() {
             const sideRadios = document.querySelectorAll('input[name="side"]');
+            const evidenceRadios = document.querySelectorAll('input[name="evidence_allowed"]');
 
             sideRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
@@ -311,10 +425,26 @@
                 });
             });
 
+            // 証拠資料ラジオボタンのイベントハンドラ
+            evidenceRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.querySelectorAll('.evidence-indicator').forEach(indicator => {
+                        indicator.style.opacity = '0';
+                    });
+                    this.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
+                });
+            });
+
             // 初期状態で選択されているラジオボタンのインジケーターを表示
-            const checkedRadio = document.querySelector('input[name="side"]:checked');
-            if (checkedRadio) {
-                checkedRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
+            const checkedSideRadio = document.querySelector('input[name="side"]:checked');
+            if (checkedSideRadio) {
+                checkedSideRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
+            }
+
+            // 初期状態で選択されている証拠資料ラジオボタンのインジケーターを表示
+            const checkedEvidenceRadio = document.querySelector('input[name="evidence_allowed"]:checked');
+            if (checkedEvidenceRadio) {
+                checkedEvidenceRadio.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
             }
         });
 
@@ -327,26 +457,47 @@
         }
 
         // フォーマットプレビュー更新関数
-        function updateFormatPreview(format) {
-            if (format === 'custom') return;
+        function updateFormatPreview(formatKey) {
+            if (formatKey === 'custom') return;
 
             const previewBody = document.getElementById('format-preview-body');
             previewBody.innerHTML = '';
             const previewTitle = document.getElementById('format-preview-title');
-            previewTitle.textContent = format + "フォーマット";
 
-            if (!formats[format]) {
+            if (!formats[formatKey] || !formats[formatKey].turns) {
+                previewTitle.textContent = translations.formatInfoMissing;
                 previewBody.innerHTML =
-                    '<tr><td colspan="4" class="px-3 py-2 text-sm text-gray-500">フォーマット情報がありません</td></tr>';
+                    `<tr><td colspan="4" class="px-3 py-2 text-sm text-gray-500">${translations.formatInfoMissing}</td></tr>`;
                 return;
             }
 
-            Object.entries(formats[format]).forEach(([index, turn]) => {
+            previewTitle.textContent = formats[formatKey].name;
+
+            Object.entries(formats[formatKey].turns).forEach(([index, turn]) => {
                 const row = document.createElement('tr');
-                let speakerText = turn.speaker === 'affirmative' ? '肯定側' : '否定側';
-                let bgClass = turn.speaker === 'affirmative' ? 'bg-green-50' : 'bg-red-50';
-                let textClass = turn.speaker === 'affirmative' ? 'text-green-800' : 'text-red-800';
-                let badgeClass = turn.speaker === 'affirmative' ? 'bg-green-100' : 'bg-red-100';
+                const displayIndex = index;
+                let speakerText = '';
+                let bgClass = '';
+                let textClass = '';
+                let badgeClass = '';
+
+                if (turn.speaker === 'affirmative') {
+                    speakerText = translations.affirmative;
+                    bgClass = 'bg-green-50';
+                    textClass = 'text-green-800';
+                    badgeClass = 'bg-green-100';
+                } else if (turn.speaker === 'negative') {
+                    speakerText = translations.negative;
+                    bgClass = 'bg-red-50';
+                    textClass = 'text-red-800';
+                    badgeClass = 'bg-red-100';
+                } else {
+                    speakerText = turn.speaker;
+                    bgClass = 'bg-gray-50';
+                    textClass = 'text-gray-800';
+                    badgeClass = 'bg-gray-100';
+                }
+
                 let typeIcon = '';
 
                 if (turn.is_prep_time) {
@@ -358,18 +509,18 @@
                 }
 
                 row.className = bgClass;
-                row.innerHTML = `<td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">${index}</td>
-<td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm">
-    <span class="px-2 py-0.5 inline-flex items-center rounded-full ${badgeClass} ${textClass} text-xs font-medium">
-        ${speakerText}
-    </span>
-</td>
-<td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700 flex items-center">
-    ${typeIcon}${turn.name}
-</td>
-<td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">
-    ${Math.floor(turn.duration / 60)}分
-</td>`;
+                row.innerHTML = `<td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">${displayIndex}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm">
+                    <span class="px-2 py-0.5 inline-flex items-center rounded-full ${badgeClass} ${textClass} text-xs font-medium">
+                        ${speakerText}
+                    </span>
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700 flex items-center">
+                    ${typeIcon}${turn.name}
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">
+                    ${turn.duration / 60}${translations.minuteSuffix}
+                </td>`;
                 previewBody.appendChild(row);
             });
         }
@@ -397,6 +548,12 @@
 
         // ページ読み込み時に実行
         document.addEventListener('DOMContentLoaded', function() {
+            // サイド選択の初期状態設定
+            const checkedRadio = document.querySelector('input[name="side"]:checked');
+            if (checkedRadio) {
+                checkedRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
+            }
+
             const formatSelect = document.getElementById('format_type');
             toggleCustomFormat(formatSelect.value === 'custom');
             updateFormatPreview(formatSelect.value);
@@ -409,7 +566,7 @@
             // ターン追加ボタン
             const addTurnButton = document.getElementById('add-turn');
             const turnsContainer = document.getElementById('turns-container');
-            let turnCount = 1;
+            let turnCount = turnsContainer.children.length > 0 ? turnsContainer.children.length : 1;
 
             // ターン追加処理
             addTurnButton.addEventListener('click', function() {
@@ -417,145 +574,160 @@
                 newTurn.className =
                     'turn-card border rounded-lg p-3 sm:p-4 bg-white shadow-sm hover:shadow-md transition-shadow';
                 newTurn.innerHTML = `<div class="flex justify-between items-center mb-2 sm:mb-3">
-    <div class="flex items-center">
-        <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-medium text-xs sm:text-sm">${turnCount + 1}</span>
-        <h4 class="text-xs sm:text-sm font-medium ml-2 text-gray-700">パート ${turnCount + 1}</h4>
-    </div>
-    <button type="button" class="delete-turn text-gray-400 hover:text-red-500 transition-colors">
-        <span class="material-icons-outlined text-sm sm:text-base">delete</span>
-    </button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4">
-    <div class="sm:col-span-3">
-        <label class="block text-xs text-gray-500">サイド</label>
-        <select name="turns[${turnCount}][speaker]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-            <option value="affirmative">肯定側</option>
-            <option value="negative">否定側</option>
-        </select>
-    </div>
-    <div class="sm:col-span-5">
-        <label class="block text-xs text-gray-500">パート名</label>
-        <input type="text" name="turns[${turnCount}][name]" placeholder="立論、反駁など" list="part-suggestions" class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-    </div>
-    <div class="sm:col-span-2">
-        <label class="block text-xs text-gray-500">時間（分）</label>
-        <input type="number" name="turns[${turnCount}][duration]" value="3" min="1" max="14" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-    </div>
-    <div class="sm:col-span-2 flex flex-col justify-end">
-        <div class="flex items-center space-x-2">
-            <label class="inline-flex items-center">
-                <input type="checkbox" name="turns[${turnCount}][is_questions]" class="question-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
-                <span class="ml-1 text-xs text-gray-500">質疑</span>
-            </label>
-            <label class="inline-flex items-center">
-                <input type="checkbox" name="turns[${turnCount}][is_prep_time]" class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-                <span class="ml-1 text-xs text-gray-500">準備時間</span>
-            </label>
-        </div>
-    </div>
-</div>`;
+                    <div class="flex items-center">
+                        <span class="turn-number w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-medium text-xs sm:text-sm">${turnCount + 1}</span>
+                        <h4 class="turn-title text-xs sm:text-sm font-medium ml-2 text-gray-700">${translations.part} ${turnCount + 1}</h4>
+                    </div>
+                    <button type="button" class="delete-turn text-gray-400 hover:text-red-500 transition-colors">
+                        <span class="material-icons-outlined text-sm sm:text-base">delete</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4">
+                    <div class="sm:col-span-3">
+                        <label class="block text-xs text-gray-500">${translations.side}</label>
+                        <select name="turns[${turnCount}][speaker]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                            <option value="affirmative">${translations.affirmative}</option>
+                            <option value="negative">${translations.negative}</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-5">
+                        <label class="block text-xs text-gray-500">${translations.partName}</label>
+                        <input type="text" name="turns[${turnCount}][name]" placeholder="${translations.placeholderPartName}" list="part-suggestions" class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs text-gray-500">${translations.durationMinutes}</label>
+                        <input type="number" name="turns[${turnCount}][duration]" value="3" min="1" max="14" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                    </div>
+                    <div class="sm:col-span-2 flex flex-col justify-end">
+                        <div class="flex items-center space-x-2">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="turns[${turnCount}][is_questions]" value="1"
+                                    class="question-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
+                                <span class="ml-1 text-xs text-gray-500">${translations.questionTime}</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="turns[${turnCount}][is_prep_time]" value="1"
+                                    class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
+                                <span class="ml-1 text-xs text-gray-500">${translations.prepTime}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>`;
                 turnsContainer.appendChild(newTurn);
                 turnCount++;
 
-                // 削除ボタンにイベントリスナーを追加
                 attachDeleteListeners();
-
-                // 準備時間、質疑時間、パート名変更のイベントリスナー
-                attachInputListeners();
+                attachInputListenersToElement(newTurn);
             });
 
             // 削除ボタンのイベントリスナー設定
             function attachDeleteListeners() {
                 document.querySelectorAll('.delete-turn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        if (turnsContainer.children.length > 1) {
-                            this.closest('.turn-card').remove();
-                            // ターン番号を振り直す
-                            updateTurnNumbers();
-                        } else {
-                            // アニメーションで警告効果
-                            const turnCard = this.closest('.turn-card');
-                            turnCard.classList.add('border-red-500');
-                            setTimeout(() => {
-                                turnCard.classList.remove('border-red-500');
-                            }, 800);
-                        }
-                    });
+                    button.replaceWith(button.cloneNode(true));
+                });
+                document.querySelectorAll('.delete-turn').forEach(button => {
+                    button.addEventListener('click', handleDeleteTurn);
                 });
             }
 
-            // ターン番号の更新
-            function updateTurnNumbers() {
+            function handleDeleteTurn() {
+                if (turnsContainer.children.length > 1) {
+                    this.closest('.turn-card').remove();
+                    updateTurnNumbersAndNames();
+                } else {
+                    const turnCard = this.closest('.turn-card');
+                    turnCard.classList.add('border-red-500', 'animate-pulse');
+                    setTimeout(() => {
+                        turnCard.classList.remove('border-red-500', 'animate-pulse');
+                    }, 1000);
+                }
+            }
+
+            // ターン番号と Name 属性の更新
+            function updateTurnNumbersAndNames() {
                 const turns = turnsContainer.querySelectorAll('.turn-card');
                 turns.forEach((turn, index) => {
-                    // ターン番号表示の更新
-                    const numberDisplay = turn.querySelector('.w-6.h-6');
-                    numberDisplay.textContent = `${index + 1}`;
-                    const titleDisplay = turn.querySelector('h4');
-                    titleDisplay.textContent = `パート ${index + 1}`;
+                    const displayTurnNumber = index + 1;
+                    const numberDisplay = turn.querySelector('.turn-number');
+                    if(numberDisplay) numberDisplay.textContent = `${displayTurnNumber}`;
+                    const titleDisplay = turn.querySelector('.turn-title');
+                    if(titleDisplay) titleDisplay.textContent = `${translations.part} ${displayTurnNumber}`;
 
-                    // 入力フィールドの名前属性も更新
                     turn.querySelectorAll('input, select').forEach(input => {
                         const name = input.getAttribute('name');
                         if (name) {
-                            input.setAttribute('name', name.replace(/turns\[\d+\]/, `turns[${index}]`));
+                            const newName = name.replace(/turns\[\d+\]/, `turns[${index}]`);
+                            input.setAttribute('name', newName);
                         }
                     });
                 });
                 turnCount = turns.length;
             }
 
-            // イベントリスナー
-            function attachInputListeners() {
-                document.querySelectorAll('.part-name').forEach(input => {
-                    input.removeEventListener('input', partNameInputListener);
-                    input.addEventListener('input', partNameInputListener);
+            // 特定の要素内の入力にリスナーをアタッチ
+            function attachInputListenersToElement(element) {
+                element.querySelectorAll('.part-name').forEach(input => {
+                    input.removeEventListener('input', handlePartNameInput);
+                    input.addEventListener('input', handlePartNameInput);
                 });
-
-                document.querySelectorAll('.prep-time-checkbox, .question-time-checkbox').forEach(checkbox => {
-                    checkbox.removeEventListener('change', checkboxChangeListener);
-                    checkbox.addEventListener('change', checkboxChangeListener);
+                element.querySelectorAll('.prep-time-checkbox, .question-time-checkbox').forEach(checkbox => {
+                    checkbox.removeEventListener('change', handleCheckboxChange);
+                    checkbox.addEventListener('change', handleCheckboxChange);
                 });
             }
 
-            function partNameInputListener() {
+            // Part Name Input Handler
+            function handlePartNameInput() {
                 const turnCard = this.closest('.turn-card');
-                const partNameInput = turnCard.querySelector('.part-name');
+                if (!turnCard) return;
+                const partNameInput = this;
                 const prepTimeCheckbox = turnCard.querySelector('.prep-time-checkbox');
                 const questionTimeCheckbox = turnCard.querySelector('.question-time-checkbox');
 
-                if (partNameInput.value.trim() === '準備時間') {
+                if (!prepTimeCheckbox || !questionTimeCheckbox) return;
+
+                if (partNameInput.value.trim() === translations.prepTimeSuggestion) {
                     prepTimeCheckbox.checked = true;
                     questionTimeCheckbox.checked = false;
-                } else if (partNameInput.value.trim() === '質疑') {
+                } else if (partNameInput.value.trim() === translations.questionTimeSuggestion) {
                     questionTimeCheckbox.checked = true;
                     prepTimeCheckbox.checked = false;
                 } else {
-                    prepTimeCheckbox.checked = false;
-                    questionTimeCheckbox.checked = false;
                 }
             }
 
-            function checkboxChangeListener() {
+            // Checkbox Change Handler
+            function handleCheckboxChange() {
                 const turnCard = this.closest('.turn-card');
+                if (!turnCard) return;
                 const partNameInput = turnCard.querySelector('.part-name');
                 const prepTimeCheckbox = turnCard.querySelector('.prep-time-checkbox');
                 const questionTimeCheckbox = turnCard.querySelector('.question-time-checkbox');
 
-                if (this.classList.contains('prep-time-checkbox') && this.checked) {
-                    partNameInput.value = '準備時間';
-                    if (questionTimeCheckbox) questionTimeCheckbox.checked = false;
-                } else if (this.classList.contains('question-time-checkbox') && this.checked) {
-                    partNameInput.value = '質疑';
-                    if (prepTimeCheckbox) prepTimeCheckbox.checked = false;
-                } else if (!prepTimeCheckbox.checked && !questionTimeCheckbox.checked) {
-                    // どちらもチェックが外れた場合は空にしない
+                if (!partNameInput || !prepTimeCheckbox || !questionTimeCheckbox) return;
+
+                const isPrepTime = this === prepTimeCheckbox;
+                const isQuestionTime = this === questionTimeCheckbox;
+
+                if (isPrepTime && this.checked) {
+                    partNameInput.value = translations.prepTimeSuggestion;
+                    questionTimeCheckbox.checked = false;
+                } else if (isQuestionTime && this.checked) {
+                    partNameInput.value = translations.questionTimeSuggestion;
+                    prepTimeCheckbox.checked = false;
+                } else if (
+                    (isPrepTime && !this.checked && partNameInput.value === translations.prepTimeSuggestion) ||
+                    (isQuestionTime && !this.checked && partNameInput.value === translations.questionTimeSuggestion)
+                ) {
+                    partNameInput.value = '';
                 }
             }
 
-            // 初期化
+            // 初期化時に既存の要素にリスナーをアタッチ
             attachDeleteListeners();
-            attachInputListeners();
+            turnsContainer.querySelectorAll('.turn-card').forEach(card => {
+                attachInputListenersToElement(card);
+            });
         });
     </script>
 </x-app-layout>

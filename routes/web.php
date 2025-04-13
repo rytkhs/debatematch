@@ -14,6 +14,7 @@ use App\Http\Controllers\HeartbeatController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Admin\ConnectionAnalyticsController;
+use App\Http\Controllers\LocaleController;
 
 
 // 基本ルート
@@ -121,5 +122,8 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
         Route::get('/user/{user}', [ConnectionAnalyticsController::class, 'userDetail'])->name('user-detail');
     });
 });
+
+// 言語切り替えルート
+Route::get('language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
 
 require __DIR__ . '/auth.php';

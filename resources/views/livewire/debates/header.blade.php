@@ -33,11 +33,11 @@
                 <div class="flex flex-col items-center text-center">
                     <div class="px-3 py-1 rounded-full {{ $isMyTurn ? 'bg-primary-light text-primary' : 'bg-gray-100 text-gray-800' }}">
                         <span class="text-sm font-medium">
-                            {{ $currentSpeaker === 'affirmative' ? '肯定側' : ($currentSpeaker === 'negative' ? '否定側' : '') }}
+                            {{ $currentSpeaker === 'affirmative' ? __('messages.affirmative_side_label') : ($currentSpeaker === 'negative' ? __('messages.negative_side_label') : '') }}
                             <span>{{ $currentTurnName }}</span>
                         </span>
                     </div>
-                    <span class="text-xs text-gray-500 mt-0.5">{{ $isMyTurn ? 'あなたのパート' : ($isPrepTime ? '準備時間' : '相手のパート') }}</span>
+                    <span class="text-xs text-gray-500 mt-0.5">{{ $isMyTurn ? __('messages.your_turn') : ($isPrepTime ? __('messages.prep_time') : __('messages.opponent_turn')) }}</span>
                 </div>
 
                     <!-- タイマー -->
@@ -48,7 +48,7 @@
                             <span class="material-icons animate-spin">refresh</span>
                         </div>
                     </div>
-                    <span class="text-xs text-gray-500">残り時間</span>
+                    <span class="text-xs text-gray-500">{{ __('messages.remaining_time') }}</span>
                 </div>
 
             </div>
@@ -65,7 +65,7 @@
             // リスナーを登録
             window.debateCountdown.addListener(timeData => {
                 if (!timeData.isRunning) {
-                    countdownTextElement.textContent = "終了";
+                    countdownTextElement.textContent = "{{ __('messages.finished') }}";
                     return;
                 }
 

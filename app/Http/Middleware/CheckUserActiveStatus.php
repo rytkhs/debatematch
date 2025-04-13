@@ -47,7 +47,7 @@ class CheckUserActiveStatus
 
             // ディベートページ以外へのアクセスはリダイレクト
             return redirect()->route('debate.show', $activeDebate->id)
-                ->with('warning', 'ディベートが進行中です');
+                ->with('warning', __('flash.middleware.active_debate'));
         }
 
         // ルーム待機中かチェック
@@ -60,7 +60,7 @@ class CheckUserActiveStatus
 
             // ルームページ以外へのアクセスはリダイレクト
             return redirect()->route('rooms.show', $activeRoom->id)
-                ->with('warning', 'ルーム参加中です');
+                ->with('warning', __('flash.middleware.active_room'));
         }
 
         return $next($request);

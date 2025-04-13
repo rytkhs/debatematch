@@ -7,17 +7,23 @@
         'deleted' => ['bg-red-100', 'text-red-800']
     ];
 
-    $statusLabels = [
-        'waiting' => '募集中',
-        'ready' => '準備完了',
-        'debating' => 'ディベート中',
-        'finished' => '終了',
-        'deleted' => '閉鎖'
+    // 翻訳キーとステータスのマッピング
+    $statusTranslationKeys = [
+        'waiting' => 'messages.waiting_status',
+        'ready' => 'messages.ready_status',
+        'debating' => 'messages.debate_in_progress', // 進行中のステータス用キー
+        'finished' => 'messages.finished',
+        'deleted' => 'messages.closed_status'
     ];
+
+    // 翻訳キーを取得。存在しない場合は不明ステータス用キー
+    $translationKey = $statusTranslationKeys[$room->status] ?? 'messages.unknown_status';
+    // スタイルを取得。存在しない場合はfinishedのスタイル
+    $styleClasses = $statusStyles[$room->status] ?? $statusStyles['finished'];
 @endphp
 
 <div class="flex items-center rounded-lg p-1">
-    <span class="px-3 py-1 rounded-full text-md font-medium {{ implode(' ', $statusStyles[$room->status] ?? $statusStyles['finished']) }}">
-        {{ $statusLabels[$room->status] ?? '不明' }}
+    <span class="px-3 py-1 rounded-full text-md font-medium {{ implode(' ', $styleClasses) }}">
+        {{ __($translationKey) }}
     </span>
 </div>

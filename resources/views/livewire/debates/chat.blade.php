@@ -7,7 +7,7 @@
                 <button wire:click="$set('activeTab', 'all')"
                     class="px-3 py-1 text-sm rounded-full whitespace-nowrap focus:outline-none
                            {{ $activeTab === 'all' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
-                    全て
+                    {{ __('messages.all') }}
                 </button>
 
                 <!-- 各ターンのタブ -->
@@ -15,7 +15,7 @@
                 <button wire:click="$set('activeTab', '{{ $key }}')"
                     class="px-3 py-1 text-sm rounded-full whitespace-nowrap focus:outline-none
                            {{ $activeTab === (string) $key ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
-                           {{ $turn['speaker'] === 'affirmative' ? '肯定側' : '否定側' }}{{ $turn['name'] }}
+                           {{ $turn['speaker'] === 'affirmative' ? __('messages.affirmative_side_label') : __('messages.negative_side_label') }}{{ $turn['name'] }}
                 </button>
                 @endforeach
             </div>
@@ -29,7 +29,7 @@
                 @if($loop->first || $previousTurn !== $message->turn)
                     <div class="flex justify-center my-4">
                         <div class="px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-600">
-                            {{ ($turns[$message->turn]['speaker'] ?? '') === 'affirmative' ? '肯定側' : '否定側' }} {{ $turns[$message->turn]['name'] ?? '' }}
+                            {{ ($turns[$message->turn]['speaker'] ?? '') === 'affirmative' ? __('messages.affirmative_side_label') : __('messages.negative_side_label') }} {{ $turns[$message->turn]['name'] ?? '' }}
                         </div>
                     </div>
                     @php $previousTurn = $message->turn; @endphp
@@ -69,7 +69,7 @@
                 <div class="flex items-center justify-center h-full">
                     <div class="text-center text-gray-500">
                         <div class="material-icons text-4xl mb-2">chat</div>
-                        <p>メッセージはまだありません</p>
+                        <p>{{ __('messages.no_messages_yet') }}</p>
                     </div>
                 </div>
             @endforelse
@@ -78,7 +78,7 @@
             <div id="new-message-notification" class="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-full shadow-lg hidden">
                 <div class="flex items-center">
                     <span class="material-icons mr-1">arrow_downward</span>
-                    <span>新しいメッセージ</span>
+                    <span>{{ __('messages.new_message') }}</span>
                 </div>
             </div>
         </div>

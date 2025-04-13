@@ -8,6 +8,7 @@ use App\Models\DebateMessage;
 use Livewire\Attributes\On;
 use Illuminate\Database\Eloquent\Collection;
 use App\Services\DebateService;
+use Illuminate\Support\Facades\Lang;
 
 class Chat extends Component
 {
@@ -37,7 +38,7 @@ class Chat extends Component
         $this->dispatch('message-received');
 
         // フラッシュメッセージ表示
-        $this->dispatch('showFlashMessage', 'メッセージを受信しました', 'info');
+        $this->dispatch('showFlashMessage', __('flash.chat.message.received'), 'info');
     }
 
     #[On("message-sent")]

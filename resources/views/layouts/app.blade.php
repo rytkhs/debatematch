@@ -61,6 +61,9 @@
             </footer>
             @endisset
         </div>
+        <script>
+            window.translations = @json(__('messages'));
+        </script>
         @stack('scripts')
         @livewireScripts
     </body>

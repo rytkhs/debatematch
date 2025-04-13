@@ -38,7 +38,8 @@ class RoomManager {
         // ユーザー参加イベント
         this.channel.bind('App\\Events\\UserJoinedRoom', data => {
             if (data.user.id !== this.userId) {
-                this.showNotification(`${data.user.name} さんが参加しました`, 'info');
+                const message = (window.translations?.user_joined_room || ':name has joined.').replace(':name', data.user.name);
+                this.showNotification(message, 'info');
             }
             console.log(`${data.user.name} さんが参加しました`);
         });
@@ -46,7 +47,8 @@ class RoomManager {
         // ユーザー退出イベント
         this.channel.bind('App\\Events\\UserLeftRoom', data => {
             if (data.user.id !== this.userId) {
-                this.showNotification(`${data.user.name} さんが退出しました`, 'warning');
+                const message = (window.translations?.user_left_room || ':name has left.').replace(':name', data.user.name);
+                this.showNotification(message, 'warning');
             }
             console.log(`${data.user.name} さんが退出しました`);
         });
@@ -54,7 +56,7 @@ class RoomManager {
         // クリエイター退出イベント
         this.channel.bind('App\\Events\\CreatorLeftRoom', data => {
             if (data.creator.id === this.userId) return;
-            alert("ホストが退出したため、ルームは閉鎖されました");
+            alert(window.translations?.host_left_room_closed || "The host has left, so the room has been closed.");
 
             // this.showNotification("ホストが退出したため、ルームは閉鎖されました", 'error');
             window.location.href = '/';
@@ -65,7 +67,7 @@ class RoomManager {
             console.log('ディベート開始イベントを受信しました');
             console.log('ディベートID:', data.debateId);
 
-            this.showNotification('ディベートを開始します。ページ移動の準備をしています...', 'success');
+            this.showNotification(window.translations?.debate_starting_message || 'Starting the debate. Preparing to navigate...', 'success');
             this.showLoadingCountdown();
 
             const debateUrl = `/debate/${data.debateId}`;
@@ -75,7 +77,7 @@ class RoomManager {
             const countdownElement = document.querySelector('#countdown-overlay .text-gray-500');
 
             if (countdownElement) {
-                countdownElement.innerHTML = `${countdown}秒後にディベートページへ移動します...`;
+                countdownElement.innerHTML = (window.translations?.redirecting_in_seconds || 'Redirecting to the debate page in :seconds seconds...').replace(':seconds', countdown);
             }
 
             // カウントダウンタイマーで確実にリダイレクト
@@ -83,7 +85,7 @@ class RoomManager {
                 countdown--;
 
                 if (countdownElement) {
-                    countdownElement.innerHTML = `${countdown}秒後にディベートページへ移動します...`;
+                    countdownElement.innerHTML = (window.translations?.redirecting_in_seconds || 'Redirecting to the debate page in :seconds seconds...').replace(':seconds', countdown);
                 }
 
                 // カウントダウン終了時の処理
@@ -126,7 +128,7 @@ class RoomManager {
             } else if (states.current === 'connected' && states.previous === 'disconnected') {
                 this.disconnectionHandler.hideAlert();
                 this.disconnectionHandler.stopCountdown();
-                this.showNotification('接続が回復しました', 'success');
+                this.showNotification(window.translations?.connection_restored || 'Connection restored', 'success');
             }
         });
     }
@@ -200,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             contextType: 'room',
             contextId: window.roomData.roomId
         });
-        // 再接続処理を先にするため30秒後にハートビートを開始
+        // 30秒後にハートビートを開始
         setTimeout(() => {
             window.heartbeatService.start();
         }, 30000);

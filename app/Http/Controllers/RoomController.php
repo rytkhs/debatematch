@@ -12,6 +12,7 @@ use App\Events\CreatorLeftRoom;
 use Illuminate\Support\Facades\DB;
 use App\Services\ConnectionManager;
 use App\Http\Controllers\SNSController;
+use Illuminate\Support\Facades\Lang;
 
 class RoomController extends Controller
 {
@@ -27,11 +28,29 @@ class RoomController extends Controller
         $rooms = Room::where('status', Room::STATUS_WAITING)->get();
         return view('rooms.index', compact('rooms'));
     }
+
     public function create()
     {
-        $formats = config('debate.formats');
+        $rawFormats = config('debate.formats');
+        $translatedFormats = [];
 
-        return view('rooms.create', compact('formats'));
+        foreach ($rawFormats as $formatKey => $turns) {
+            $translatedFormatName = __('debates.' . $formatKey);
+
+            $translatedTurns = [];
+            foreach ($turns as $index => $turn) {
+                $translatedTurn = $turn;
+                $translatedTurn['name'] = __('debates.' . $turn['name']);
+
+                $translatedTurns[$index] = $translatedTurn;
+            }
+            $translatedFormats[$formatKey] = [
+                'name' => $translatedFormatName,
+                'turns' => $translatedTurns
+            ];
+        }
+
+        return view('rooms.create', compact('translatedFormats'));
     }
 
     public function store(Request $request)
@@ -43,6 +62,7 @@ class RoomController extends Controller
             'remarks' => 'nullable|string|max:1000',
             'language' => 'required|in:japanese,english',
             'format_type' => 'required|string',
+            'evidence_allowed' => 'required|boolean',
         ]);
 
         $customFormatSettings = null;
@@ -64,15 +84,16 @@ class RoomController extends Controller
                 // 分を秒に変換
                 $durationInSeconds = (int)$turn['duration'] * 60;
 
+                $isPrepTime = isset($turn['is_prep_time']);
+                $isQuestions = isset($turn['is_questions']);
+
                 $customFormatSettings[$index + 1] = [
                     'name' => $turn['name'],
                     'duration' => $durationInSeconds,
                     'speaker' => $turn['speaker'],
-                    'is_prep_time' => isset($turn['is_prep_time']) && $turn['is_prep_time'] == true,
-                    'is_questions' => isset($turn['is_questions']) && $turn['is_questions'] == true,
+                    'is_prep_time' => $isPrepTime,
+                    'is_questions' => $isQuestions,
                 ];
-
-                $index++;
             }
         }
 
@@ -85,6 +106,7 @@ class RoomController extends Controller
                 'language' => $validatedData['language'],
                 'format_type' => $validatedData['format_type'],
                 'custom_format_settings' => $customFormatSettings,
+                'evidence_allowed' => $validatedData['evidence_allowed'],
                 'created_by' => Auth::id(),
             ]);
 
@@ -99,13 +121,13 @@ class RoomController extends Controller
                 . "トピック: {$room->topic}\n"
                 . "作成者: {$user->name}";
 
-            // メール通知のみ送信
+            // メール通知
             $this->snsController->sendNotification(
                 $message,
                 "【DebateMatch】新規ルーム作成"
             );
 
-            return redirect()->route('rooms.show', compact('room'))->with('success', 'ルームを作成しました');
+            return redirect()->route('rooms.show', compact('room'))->with('success', __('flash.room.store.success'));
         });
     }
 
@@ -116,17 +138,19 @@ class RoomController extends Controller
             return redirect()->route('rooms.show', $room);
         }
 
-        return view('rooms.preview', compact('room'));
+        $format = $room->getDebateFormat();
+
+        return view('rooms.preview', compact('room', 'format'));
     }
 
     public function show(Room $room)
     {
         if ($room->status === Room::STATUS_TERMINATED && $room->created_by === Auth::id()) {
-            return redirect()->route('welcome')->with('error', '切断されました');
+            return redirect()->route('welcome')->with('error', __('flash.debate.show.terminated'));
         }
         // ルームが閉じられている場合
         if ($room->status !== Room::STATUS_WAITING && $room->status !== Room::STATUS_READY) {
-            return redirect()->route('rooms.index')->with('error', 'アクセスできません');
+            return redirect()->route('rooms.index')->with('error', __('flash.room.show.forbidden'));
         }
         // 参加していないユーザーはpreviewにリダイレクト
         if (!$room->users->contains(Auth::user())) {
@@ -139,10 +163,13 @@ class RoomController extends Controller
             'id' => $room->id
         ]);
 
+        $format = $room->getDebateFormat();
+        // dd($room->getFormatName(), $room->format_type);
         $isCreator = Auth::user()->id === $room->created_by;
         return view('rooms.show', [
             'room' => $room,
             'isCreator' => $isCreator,
+            'format' => $format,
         ]);
     }
 
@@ -157,17 +184,17 @@ class RoomController extends Controller
 
         if ($room->users->contains($user)) {
             // すでに参加しているか確認
-            return redirect()->route('rooms.show', $room)->with('error', 'すでにこのルームに参加しています。');
+            return redirect()->route('rooms.show', $room)->with('error', __('flash.room.join.already_joined'));
         }
 
         // 既に参加者がいるか確認
         if ($room->users()->where('user_id', '!=', $room->created_by)->exists()) {
-            return redirect()->back()->with('error', 'このルームは既に満員です。');
+            return redirect()->back()->with('error', __('flash.room.join.full'));
         }
 
         // ルームが待機中でない場合はエラー
         if ($room->status !== Room::STATUS_WAITING) {
-            return redirect()->route('rooms.index')->with('error', 'このルームには参加できません。');
+            return redirect()->route('rooms.index')->with('error', __('flash.room.join.not_waiting'));
         }
 
         return DB::transaction(function () use ($room, $user, $side) {
@@ -198,7 +225,7 @@ class RoomController extends Controller
                 "【DebateMatch】ルーム参加・マッチング成立"
             );
 
-            return redirect()->route('rooms.show', $room)->with('success', 'ルームに参加しました。');
+            return redirect()->route('rooms.show', $room)->with('success', __('flash.room.join.success'));
         });
     }
 
@@ -221,7 +248,7 @@ class RoomController extends Controller
             return redirect()->back();
         } elseif ($room->status === Room::STATUS_TERMINATED || $room->status === Room::STATUS_DELETED) {
             // 既に終了または削除されたルームからの退出
-            return redirect()->route('rooms.index')->with('info', 'このルームは既に終了しています。');
+            return redirect()->route('rooms.index')->with('info', __('flash.room.exit.already_closed'));
         } elseif ($room->status === Room::STATUS_WAITING || $room->status === Room::STATUS_READY) {
             // 待機中または準備完了状態のルームからの退出処理
             return DB::transaction(function () use ($room, $user) {
@@ -254,9 +281,9 @@ class RoomController extends Controller
                 });
 
                 if ($isCreator) {
-                    return redirect()->route('welcome')->with('success', 'ルームを削除しました。');
+                    return redirect()->route('welcome')->with('success', __('flash.room.exit.creator_success'));
                 } else {
-                    return redirect()->route('rooms.index')->with('success', 'ルームを退出しました。');
+                    return redirect()->route('rooms.index')->with('success', __('flash.room.exit.participant_success'));
                 }
             });
         }
