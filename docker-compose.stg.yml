@@ -6,6 +6,7 @@ services:
     container_name: debate_match_app
     restart: unless-stopped
     environment:
+      - "APP_NAME=${APP_NAME}"
       - "APP_ENV=staging"
       - "APP_URL=https://stg.debate-match.com"
       - "APP_KEY=${APP_KEY}"
