@@ -23,7 +23,7 @@
 @endphp
 
 <div class="flex items-center rounded-lg p-1">
-    <span class="px-3 py-1 rounded-full text-md font-medium {{ implode(' ', $styleClasses) }}">
+    <span class="px-2 py-0.5 rounded-full text-sm font-medium {{ implode(' ', $styleClasses) }}">
         {{ __($translationKey) }}
     </span>
 </div>

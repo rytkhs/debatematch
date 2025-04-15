@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Admin\ConnectionAnalyticsController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\Auth\GoogleLoginController;
 
 
 // 基本ルート
@@ -125,5 +126,8 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
 
 // 言語切り替えルート
 Route::get('language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
+
+Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 require __DIR__ . '/auth.php';
