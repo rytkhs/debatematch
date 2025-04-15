@@ -335,7 +335,7 @@ return [
     'step1_preparation' => 'Step 1: Preparation',
     'prep_step1_title' => '1. User Registration/Login',
     'prep_step1_desc1' => 'First, please <a href=":register_url" class="text-primary underline">register</a> or <a href=":login_url" class="text-primary underline">log in</a>.',
-    'prep_step1_desc2' => 'You can also log in using Google or X accounts.',
+    'prep_step1_desc2' => 'You can also log in using Google.',
     'prep_step2_title' => '2. Find or Create a Room',
     'prep_step2_desc1' => 'Find a room you want to join from the <a href=":index_url" class="text-primary underline">Room List</a> or <a href=":create_url" class="text-primary underline">create a new room</a>.',
     'prep_step2_desc2' => 'When creating, set the topic, language, and debate format.',
@@ -457,5 +457,7 @@ return [
     'evidence_not_allowed' => 'No Evidence',
     'can_use_evidence' => 'Can use external sources',
     'cannot_use_evidence' => 'Only personal knowledge',
+
+    'google_login_failed' => 'Google login failed. Please try again.',
 
 ];

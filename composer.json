@@ -10,6 +10,7 @@
         "aws/aws-sdk-php-laravel": "^3.10",
         "laravel/framework": "^11.9",
         "laravel/reverb": "^1.0",
+        "laravel/socialite": "^5.19",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
         "sentry/sentry-laravel": "^4.13"

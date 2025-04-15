@@ -22,6 +22,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'is_admin',
+        'google_id',
+        'email_verified_at',
     ];
 
     /**
@@ -62,7 +64,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function debates()
     {
         return $this->hasMany(Debate::class, 'affirmative_user_id')
-                    ->orWhere('negative_user_id', $this->id);
+            ->orWhere('negative_user_id', $this->id);
     }
 
     /**
