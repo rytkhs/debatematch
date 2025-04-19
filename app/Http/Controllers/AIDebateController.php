@@ -98,7 +98,7 @@ class AIDebateController extends Controller
         try {
             $debate = DB::transaction(function () use ($validatedData, $customFormatSettings, $user, $aiUser) {
                 $room = Room::create([
-                    'name' => 'AI Debate: ' . $validatedData['topic'],
+                    'name' => 'AI Debate',
                     'topic' => $validatedData['topic'],
                     'remarks' => null,
                     'status' => Room::STATUS_READY,

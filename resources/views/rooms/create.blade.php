@@ -333,7 +333,7 @@
                                         <div class="sm:col-span-2">
                                             <label class="block text-xs text-gray-500">{{
                                                 __('messages.duration_minutes') }}</label>
-                                            <input type="number" name="turns[0][duration]" value="5" min="1" max="14"
+                                            <input type="number" name="turns[0][duration]" value="5" min="1" max="60"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
                                         </div>
                                         <div class="sm:col-span-2 flex flex-col justify-end">
@@ -596,7 +596,7 @@
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-xs text-gray-500">${translations.durationMinutes}</label>
-                        <input type="number" name="turns[${turnCount}][duration]" value="3" min="1" max="14" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                        <input type="number" name="turns[${turnCount}][duration]" value="3" min="1" max="60" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
                     </div>
                     <div class="sm:col-span-2 flex flex-col justify-end">
                         <div class="flex items-center space-x-2">
