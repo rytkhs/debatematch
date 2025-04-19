@@ -16,6 +16,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Admin\ConnectionAnalyticsController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Auth\GoogleLoginController;
+use App\Http\Controllers\AIDebateController;
 
 
 // 基本ルート
@@ -86,9 +87,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/{debate}/exit', [DebateController::class, 'exit'])->name('debate.exit');
     Route::post('/{debate}/terminate', [DebateController::class, 'terminate'])->name('debate.terminate');
 
+    // AIディベート退出ルート
+    Route::post('/ai/debate/{debate}/exit', [AIDebateController::class, 'exit'])->name('ai.debate.exit');
+
     Route::prefix('debate')->name('debate.')->group(function () {
         Route::get('/{debate}/result', [DebateController::class, 'result'])->name('result');
     });
+});
+
+// AIディベートルート
+Route::middleware(['auth', 'verified', CheckUserActiveStatus::class])->prefix('ai/debate')->name('ai.debate.')->group(function () {
+    Route::get('/create', [AIDebateController::class, 'create'])->name('create');
+    Route::post('/', [AIDebateController::class, 'store'])->name('store');
 });
 
 // pusher関連

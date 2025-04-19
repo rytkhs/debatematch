@@ -32,6 +32,15 @@
                                     {{ __('messages.search_room') }}
                                 </a>
                             </div>
+
+                            <!-- AIとディベートボタン -->
+                            <div class="flex justify-center mb-8">
+                                <a href="{{ route('ai.debate.create') }}" class="hero-button bg-gradient-to-r from-teal-400 to-blue-500 text-white hover:from-teal-500 hover:to-blue-600 text-sm md:text-base shadow-lg relative group">
+                                    <span class="material-icons-outlined mr-2">smart_toy</span>
+                                    {{ __('messages.ai_debate_button') }}
+                                    <span class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full opacity-95">β</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
