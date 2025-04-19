@@ -31,6 +31,12 @@
                     <span class="material-icons text-sm mr-1">edit</span>
                     {{ __('messages.ready_to_send') }}
                 </div>
+            {{-- AIターン中の表示 --}}
+            @elseif(!$isMyTurn && !$isPrepTime && !$isQuestioningTurn && $debate->room->is_ai_debate)
+                <div class="text-sm text-blue-500 flex items-center animate-pulse">
+                    <span class="material-icons-outlined text-sm mr-1">smart_toy</span>
+                    {{ __('messages.ai_thinking') }}
+                </div>
             @else
                 <div class="text-sm text-gray-500 flex items-center">
                     {{ $isQuestioningTurn ? __('messages.questioning_in_progress') : '' }}
@@ -48,8 +54,8 @@
             <textarea
                 id="message-input"
                 wire:model.live="newMessage"
-                placeholder="{{ __('messages.enter_message_placeholder') }}"
-                class="flex-1 border rounded-lg px-4 py-2 focus:ring-primary focus:border-primary resize-none overflow-y-auto bg-white"
+                placeholder="{{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? __('messages.enter_message_placeholder') : __('messages.cannot_send_message_now') }}"
+                class="flex-1 border rounded-lg px-4 py-2 focus:ring-primary focus:border-primary resize-none overflow-y-auto bg-white disabled:bg-gray-100"
                 maxlength="5000"
                 rows="3"
             ></textarea>
@@ -57,7 +63,7 @@
             <button
                 type="submit"
                 {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? '' : 'disabled' }}
-                class="ml-2 w-10 h-10 rounded-full flex items-center justify-center self-end
+                class="ml-2 w-10 h-10 rounded-full flex items-center justify-center self-end transition-colors duration-200
                        {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime
                           ? 'bg-primary hover:bg-primary-dark text-white'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}"
@@ -84,9 +90,14 @@
             startHeight: 0,
             isVisible: true,
             defaultHeight: 72,
-            expandedHeight: window.innerHeight * 0.3, // 初期値は画面の30%
+            expandedHeight: window.innerHeight * 0.3,
             isAnimating: false,
         };
+
+        // 初期高さ設定
+        if (messageInput) {
+             state.defaultHeight = messageInput.offsetHeight;
+        }
 
         // 保存された高さを復元
         if (messageInput) {
@@ -98,8 +109,8 @@
             // 保存された表示状態を復元
             const savedVisibility = localStorage.getItem('debate_messageInputVisibility');
             if (savedVisibility === 'hidden') {
-                inputArea.classList.add('hidden');
-                toggleInputVisibility.querySelector('.material-icons').textContent = 'visibility_off';
+                if(inputArea) inputArea.classList.add('hidden');
+                if(toggleInputVisibility) toggleInputVisibility.querySelector('.material-icons').textContent = 'visibility_off';
                 state.isVisible = false;
             }
         }
@@ -111,7 +122,7 @@
                 state.isResizing = true;
                 state.startY = e.clientY;
                 state.startHeight = parseInt(getComputedStyle(messageInput).height, 10);
-                ensureInputVisible(); // 可視化を保証
+                ensureInputVisible();
                 state.isAnimating = false;
                 messageInput.style.transition = "none";
 
@@ -127,7 +138,7 @@
                 state.isResizing = true;
                 state.startY = e.touches[0].clientY;
                 state.startHeight = parseInt(getComputedStyle(messageInput).height, 10);
-                ensureInputVisible(); // 可視化を保証
+                ensureInputVisible();
                 state.isAnimating = false;
                 messageInput.style.transition = "none";
 
@@ -140,13 +151,12 @@
         // 入力エリア拡大ボタン
         if (expandInput && messageInput) {
             expandInput.addEventListener('click', function() {
-                // デバイスに基づいて最大拡大率を変更
-                const maxHeightPercentage = window.innerWidth < 768 ? 0.7 : 0.73; // モバイルなら70%、それ以外は73%
+                const maxHeightPercentage = window.innerWidth < 768 ? 0.7 : 0.73;
                 state.expandedHeight = window.innerHeight * maxHeightPercentage;
                 messageInput.style.transition = "height 0.2s ease";
                 messageInput.style.height = `${state.expandedHeight}px`;
                 saveInputHeight();
-                ensureInputVisible(); // 可視化を保証
+                ensureInputVisible();
                 state.isAnimating = true;
             });
         }
@@ -157,7 +167,7 @@
                 messageInput.style.transition = "height 0.2s ease";
                 messageInput.style.height = `${state.defaultHeight}px`;
                 saveInputHeight();
-                ensureInputVisible(); // 可視化を保証
+                ensureInputVisible();
                 state.isAnimating = true;
             });
         }
@@ -181,50 +191,40 @@
         // マウス移動処理
         function handleMouseMove(e) {
             if (!state.isResizing) return;
-
             const deltaY = state.startY - e.clientY;
-             // デバイスに基づいて最大拡大率を変更
             const maxHeightPercentage = window.innerWidth < 768 ? 0.6 : 0.73;
             const newHeight = Math.max(60, Math.min(window.innerHeight * maxHeightPercentage, state.startHeight + deltaY));
-
             messageInput.style.height = `${newHeight}px`;
         }
 
         // タッチ移動処理
         function handleTouchMove(e) {
             if (!state.isResizing || e.touches.length !== 1) return;
-
             const deltaY = state.startY - e.touches[0].clientY;
-            // デバイスに基づいて最大拡大率を変更
             const maxHeightPercentage = window.innerWidth < 768 ? 0.6 : 0.73;
             const newHeight = Math.max(60, Math.min(window.innerHeight * maxHeightPercentage, state.startHeight + deltaY));
-
             messageInput.style.height = `${newHeight}px`;
         }
 
         // マウスアップ処理
         function handleMouseUp() {
             if (!state.isResizing) return;
-
             state.isResizing = false;
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
             messageInput.style.transition = "";
             state.isAnimating = false;
-
             saveInputHeight();
         }
 
         // タッチ終了処理
         function handleTouchEnd() {
             if (!state.isResizing) return;
-
             state.isResizing = false;
             document.removeEventListener('touchmove', handleTouchMove);
             document.removeEventListener('touchend', handleTouchEnd);
             messageInput.style.transition = "";
             state.isAnimating = false;
-
             saveInputHeight();
         }
 
@@ -242,7 +242,7 @@
 
         // 入力エリアが非表示の場合に表示する関数
         function ensureInputVisible() {
-            if (!state.isVisible) {
+             if (!state.isVisible && inputArea && toggleInputVisibility) {
                 inputArea.classList.remove('hidden');
                 toggleInputVisibility.querySelector('.material-icons').textContent = 'visibility';
                 state.isVisible = true;

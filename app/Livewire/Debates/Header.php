@@ -18,13 +18,16 @@ class Header extends Component
     public ?string $currentSpeaker;
     public bool $isMyTurn = false;
     public bool $isPrepTime = false;
+    public bool $isAITurn = false;
     public ?int $turnEndTime;
     public int $currentTurn = 0;
     protected $debateService;
+    protected int $aiUserId;
 
     public function boot(DebateService $debateService)
     {
         $this->debateService = $debateService;
+        $this->aiUserId = (int)config('app.ai_user_id', 9);
     }
 
     public function mount(Debate $debate): void
@@ -47,7 +50,7 @@ class Header extends Component
         $this->isPrepTime = $data['is_prep_time'] ?? false;
         $this->turnEndTime = $data['turn_end_time'] ?? null;
 
-        $this->isMyTurn = $this->checkIfUsersTurn(Auth::id());
+        $this->checkIfUsersTurn(Auth::id());
 
         $this->debate->current_turn = $this->currentTurn;
         if (isset($data['turn_end_time'])) {
@@ -81,13 +84,30 @@ class Header extends Component
 
         $this->turnEndTime = $this->debate->turn_end_time?->timestamp;
 
-        $this->isMyTurn = $this->checkIfUsersTurn(Auth::id());
+        $this->checkIfUsersTurn(Auth::id());
     }
 
-    private function checkIfUsersTurn(int $userId): bool
+    /**
+     * 現在のターンが誰のものか判定し、isMyTurn と isAITurn を設定する
+     */
+    private function checkIfUsersTurn(int $userId): void
     {
-        return ($this->currentSpeaker === 'affirmative' && $this->debate->affirmativeUser->id === $userId)
-            || ($this->currentSpeaker === 'negative' && $this->debate->negativeUser->id === $userId);
+        $this->isMyTurn = false;
+        $this->isAITurn = false;
+
+        if ($this->currentSpeaker === 'affirmative') {
+            if ($this->debate->affirmative_user_id === $userId) {
+                $this->isMyTurn = true;
+            } elseif ($this->debate->room->is_ai_debate && $this->debate->affirmative_user_id === $this->aiUserId) {
+                $this->isAITurn = true;
+            }
+        } elseif ($this->currentSpeaker === 'negative') {
+            if ($this->debate->negative_user_id === $userId) {
+                $this->isMyTurn = true;
+            } elseif ($this->debate->room->is_ai_debate && $this->debate->negative_user_id === $this->aiUserId) {
+                $this->isAITurn = true;
+            }
+        }
     }
 
     public function render()

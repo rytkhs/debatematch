@@ -19,16 +19,21 @@ class Participants extends Component
     public array $onlineUsers = [];
     protected $debateService;
     public bool $isProcessing = false;
+    public int $aiUserId;
 
     public function boot(DebateService $debateService)
     {
         $this->debateService = $debateService;
+        $this->aiUserId = (int)config('app.ai_user_id', 9);
     }
 
     public function mount(Debate $debate): void
     {
         $this->debate = $debate;
         $this->syncTurnState();
+
+        $this->onlineUsers[$debate->affirmative_user_id] = $debate->affirmative_user_id !== $this->aiUserId ? false : true; // AI以外は初期オフライン
+        $this->onlineUsers[$debate->negative_user_id] = $debate->negative_user_id !== $this->aiUserId ? false : true; // AI以外は初期オフライン
     }
 
     #[On("echo-private:debate.{debate.id},TurnAdvanced")]
@@ -42,7 +47,7 @@ class Participants extends Component
     #[On('member-online')]
     public function handleMemberOnline($data): void
     {
-        if (isset($data['id'])) {
+        if (isset($data['id']) && $data['id'] !== $this->aiUserId) { // AIユーザーは無視
             $this->onlineUsers[$data['id']] = true;
         }
     }
@@ -50,7 +55,7 @@ class Participants extends Component
     #[On('member-offline')]
     public function handleMemberOffline($data): void
     {
-        if (isset($data['id'])) {
+        if (isset($data['id']) && $data['id'] !== $this->aiUserId) { // AIユーザーは無視
             $this->onlineUsers[$data['id']] = false;
         }
     }
@@ -75,6 +80,9 @@ class Participants extends Component
 
     public function isUserOnline($userId): bool
     {
+        if ($userId === $this->aiUserId) {
+            return true; // AIは常にオンライン扱い
+        }
         return $this->onlineUsers[$userId] ?? false;
     }
 

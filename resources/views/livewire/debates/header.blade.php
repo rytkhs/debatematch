@@ -9,7 +9,7 @@
                 </button>
 
                 <!-- PC表示時のルーム名とトピック -->
-                <div class="hidden lg:block">
+                <div class="hidden lg:block ml-2">
                     <h1 class="text-sm md:text-lg font-medium text-gray-800 truncate">{{ $debate->room->name }}</h1>
                     <p class="text-md md:text-xl font-bold text-gray-900 mt-0 break-words">
                         {{ $debate->room->topic }}
@@ -18,11 +18,24 @@
             </div>
 
             <!-- 右側: ターン情報とタイマー -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 sm:space-x-4">
                 <!-- モバイル用ハンバーガーメニュー -->
                 <button id="mobile-hamburger-menu" class="md:hidden mr-2 text-gray-700 p-2 rounded-full hover:bg-gray-100">
                     <span class="material-icons">menu</span>
                 </button>
+
+                <!-- AIディベートの場合は退出ボタンを表示 -->
+                @if($debate->room->is_ai_debate)
+                <form action="{{ route('ai.debate.exit', $debate) }}" method="POST"
+                    onSubmit="return confirm('{{ __('messages.confirm_exit_ai_debate') }}');">
+                    @csrf
+                    <button type="submit"
+                        class="btn-danger flex items-center px-2 py-1 sm:px-3 sm:py-1.5 text-xs rounded-lg transition-all hover:scale-105">
+                        <span class="material-icons-outlined mr-1 text-sm">exit_to_app</span>
+                        {{ __('messages.exit_debate') }}
+                    </button>
+                </form>
+                @endif
 
                 <!-- 全画面切替ボタン -->
                 <button id="fullscreen-toggle" class="text-gray-700 p-2 rounded-full hover:bg-gray-100">
@@ -31,22 +44,40 @@
 
                 <!-- 現在のターン表示 -->
                 <div class="flex flex-col items-center text-center">
-                    <div class="px-3 py-1 rounded-full {{ $isMyTurn ? 'bg-primary-light text-primary' : 'bg-gray-100 text-gray-800' }}">
-                        <span class="text-sm font-medium">
+                    <div class="px-3 py-1 rounded-full text-sm font-medium flex items-center {{
+                        $isMyTurn ? 'bg-primary-light text-primary' : (
+                        $isAITurn ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                        )
+                    }}">
+                        {{-- AIアイコン --}}
+                        @if($isAITurn)
+                            <span class="material-icons-outlined text-sm mr-1">smart_toy</span>
+                        @endif
+                        {{-- サイド表示 --}}
+                        <span>
                             {{ $currentSpeaker === 'affirmative' ? __('messages.affirmative_side_label') : ($currentSpeaker === 'negative' ? __('messages.negative_side_label') : '') }}
-                            <span>{{ $currentTurnName }}</span>
                         </span>
+                        {{-- ターン名 --}}
+                        <span class="ml-1">{{ $currentTurnName }}</span>
                     </div>
-                    <span class="text-xs text-gray-500 mt-0.5">{{ $isMyTurn ? __('messages.your_turn') : ($isPrepTime ? __('messages.prep_time') : __('messages.opponent_turn')) }}</span>
+                    {{-- ターン状況テキスト --}}
+                    <span class="text-xs text-gray-500 mt-0.5">
+                        @if($isMyTurn)
+                            {{ __('messages.your_turn') }}
+                        @elseif($isAITurn)
+                            {{ __('messages.ai_turn') }}
+                        @elseif($isPrepTime)
+                            {{ __('messages.prep_time') }}
+                        @else
+                            {{ __('messages.opponent_turn') }}
+                        @endif
+                    </span>
                 </div>
 
-                    <!-- タイマー -->
-                    <div class="flex flex-col items-center">
-                    <div class="text-2xl font-bold" id="countdown-timer">
-
-                        <div wire:loading>
-                            <span class="material-icons animate-spin">refresh</span>
-                        </div>
+                <!-- タイマー -->
+                <div class="flex flex-col items-center">
+                    <div class="text-2xl font-bold tabular-nums
+                        " id="countdown-timer">
                     </div>
                     <span class="text-xs text-gray-500">{{ __('messages.remaining_time') }}</span>
                 </div>
@@ -64,8 +95,17 @@
         if (countdownTextElement && window.debateCountdown) {
             // リスナーを登録
             window.debateCountdown.addListener(timeData => {
+                // wire:loading が表示されている場合は更新しない
+                if (countdownTextElement.querySelector('[wire\\:loading]')) {
+                    countdownTextElement.querySelector('[wire\\:loading]').style.display = 'none';
+                    if(countdownTextElement.querySelector('[wire\\:loading\\.remove]')) {
+                       countdownTextElement.querySelector('[wire\\:loading\\.remove]').style.display = 'inline';
+                    }
+                }
+
                 if (!timeData.isRunning) {
                     countdownTextElement.textContent = "{{ __('messages.finished') }}";
+                    countdownTextElement.classList.remove('text-red-600', 'text-primary');
                     return;
                 }
 
@@ -85,6 +125,13 @@
             // 初期表示時にカウントダウンを開始
             if ($wire.turnEndTime) {
                 window.debateCountdown.start($wire.turnEndTime);
+            } else {
+                 // turnEndTime がない場合は初期表示
+                 if(countdownTextElement.querySelector('[wire\\:loading\\.remove]')) {
+                    countdownTextElement.querySelector('[wire\\:loading\\.remove]').textContent = '--:--';
+                 } else {
+                    countdownTextElement.textContent = '--:--';
+                 }
             }
 
             // turnEndTimeが変更されたときに更新
