@@ -174,7 +174,7 @@ PROMPT;
 
 # Instruction
 Based on the debate history and your current speech, please provide a rebuttal, ask a question, or continue your constructive argument from your assigned position. Generate a logical, concise, and precise statement.
-If this is your questioning speech, ask one question at a time and continue asking as needed until no further questions are necessary or until the time limit is reached.
+If this is your cross examination, ask one question at a time and continue asking as needed until no further questions are necessary or until the time limit is reached.
 PROMPT;
         }
 
