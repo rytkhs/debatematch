@@ -41,4 +41,8 @@ return [
     // Middleware/CheckUserActiveStatus.php
     'middleware.active_debate' => 'You are in an active debate.',
     'middleware.active_room' => 'You are in a waiting room.',
+
+    // AIDebateController
+    'ai_debate.exit.success' => 'Successfully exited the AI debate.',
+    'ai_debate.exit.error' => 'Failed to exit the AI debate.',
 ];
