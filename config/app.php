@@ -154,6 +154,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'ai_user_id' => env('AI_USER_ID', 9),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
