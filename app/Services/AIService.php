@@ -193,15 +193,17 @@ PROMPT;
 あなたはディベート参加者です。以下の設定でディベートに参加しています。
 論題: {$topic}
 あなたの立場: {$sideName}
+証拠資料の使用の有無: 使用しない
 現在のパート: {$currentTurnName}
 あなたは指定された立場で、論題に対して説得力のある主張を行う必要があります。
 TEXT;
-        } else { // english
+        } else {
             $sideName = ($aiSide === 'affirmative') ? 'Affirmative' : 'Negative';
             return <<<TEXT
 You are a debate participant. You are participating in a debate with the following setup:
 Topic: {$topic}
 Your Side: {$sideName}
+Evidence Usage: Not used
 Current Speech: {$currentTurnName}
 You must make persuasive arguments for your assigned stance on the topic.
 TEXT;

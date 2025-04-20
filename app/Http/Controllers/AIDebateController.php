@@ -42,11 +42,6 @@ class AIDebateController extends Controller
             ];
         }
 
-        $translatedFormats['custom'] = [
-            'name' => __('debates.custom'),
-            'turns' => []
-        ];
-
         return view('ai.debate.create', compact('translatedFormats'));
     }
 
