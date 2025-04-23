@@ -350,350 +350,377 @@
         </div>
     </div>
 
-    <script>
-        // フォーマットデータ
-        const formats = @json($translatedFormats);
-        // 翻訳済みテキストをJavaScriptに渡す
-        const translations = {
-            affirmative: "{{ __('messages.affirmative_side') }}",
-            negative: "{{ __('messages.negative_side') }}",
-            formatInfoMissing: "{{ __('messages.format_info_missing') }}",
-            minuteSuffix: "{{ __('messages.minute_suffix') }}",
-            part: "{{ __('messages.part') }}",
-            side: "{{ __('messages.side') }}",
-            partName: "{{ __('messages.part_name') }}",
-            durationMinutes: "{{ __('messages.duration_minutes') }}",
-            questionTime: "{{ __('messages.question_time') }}",
-            prepTime: "{{ __('messages.prep_time') }}",
-            placeholderPartName: "{{ __('messages.placeholder_part_name') }}",
-            prepTimeSuggestion: "{{ __('messages.suggestion_prep_time') }}",
-            questionTimeSuggestion: "{{ __('messages.suggestion_questioning') }}",
-            suggestionConstructive: "{{ __('messages.suggestion_constructive') }}",
-            suggestionFirstConstructive: "{{ __('messages.suggestion_first_constructive') }}",
-            suggestionSecondConstructive: "{{ __('messages.suggestion_second_constructive') }}",
-            suggestionRebuttal: "{{ __('messages.suggestion_rebuttal') }}",
-            suggestionFirstRebuttal: "{{ __('messages.suggestion_first_rebuttal') }}",
-            suggestionSecondRebuttal: "{{ __('messages.suggestion_second_rebuttal') }}",
-            suggestionPrepTime: "{{ __('messages.suggestion_prep_time') }}",
-        };
+<script>
+    // フォーマットデータ
+    const formats = @json($translatedFormats);
+    // 翻訳済みテキストをJavaScriptに渡す
+    const translations = {
+        affirmative: "{{ __('messages.affirmative_side') }}",
+        negative: "{{ __('messages.negative_side') }}",
+        formatInfoMissing: "{{ __('messages.format_info_missing') }}",
+        minuteSuffix: "{{ __('messages.minute_suffix') }}",
+        part: "{{ __('messages.part') }}",
+        side: "{{ __('messages.side') }}",
+        partName: "{{ __('messages.part_name') }}",
+        durationMinutes: "{{ __('messages.duration_minutes') }}",
+        questionTime: "{{ __('messages.question_time') }}",
+        prepTime: "{{ __('messages.prep_time') }}",
+        placeholderPartName: "{{ __('messages.placeholder_part_name') }}",
+        prepTimeSuggestion: "{{ __('messages.suggestion_prep_time') }}",
+        questionTimeSuggestion: "{{ __('messages.suggestion_questioning') }}",
+        suggestionConstructive: "{{ __('messages.suggestion_constructive') }}",
+        suggestionFirstConstructive: "{{ __('messages.suggestion_first_constructive') }}",
+        suggestionSecondConstructive: "{{ __('messages.suggestion_second_constructive') }}",
+        suggestionRebuttal: "{{ __('messages.suggestion_rebuttal') }}",
+        suggestionFirstRebuttal: "{{ __('messages.suggestion_first_rebuttal') }}",
+        suggestionSecondRebuttal: "{{ __('messages.suggestion_second_rebuttal') }}",
+        suggestionPrepTime: "{{ __('messages.suggestion_prep_time') }}",
+    };
 
-        // サイド選択のラジオボタン動作
-        document.addEventListener('DOMContentLoaded', function() {
-            const sideRadios = document.querySelectorAll('input[name="side"]');
-            // const evidenceRadios = document.querySelectorAll('input[name="evidence_allowed"]');
+    // サイド選択のラジオボタン動作
+    document.addEventListener('DOMContentLoaded', function() {
+        const sideRadios = document.querySelectorAll('input[name="side"]');
+        // const evidenceRadios = document.querySelectorAll('input[name="evidence_allowed"]');
 
-            sideRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    document.querySelectorAll('.side-indicator').forEach(indicator => {
-                        indicator.style.opacity = '0';
-                    });
-                    this.closest('label').querySelector('.side-indicator').style.opacity = '1';
+        sideRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.side-indicator').forEach(indicator => {
+                    indicator.style.opacity = '0';
                 });
+                this.closest('label').querySelector('.side-indicator').style.opacity = '1';
             });
-
-            // 証拠資料ラジオボタンのイベントハンドラ
-            // evidenceRadios.forEach(radio => {
-            //     radio.addEventListener('change', function() {
-            //         document.querySelectorAll('.evidence-indicator').forEach(indicator => {
-            //             indicator.style.opacity = '0';
-            //         });
-            //         this.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
-            //     });
-            // });
-
-            // 初期状態で選択されているラジオボタンのインジケーターを表示
-            const checkedSideRadio = document.querySelector('input[name="side"]:checked');
-            if (checkedSideRadio) {
-                checkedSideRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
-            }
-
-            // 初期状態で選択されている証拠資料ラジオボタンのインジケーターを表示
-            const checkedEvidenceRadio = document.querySelector('input[name="evidence_allowed"]:checked');
-            if (checkedEvidenceRadio) {
-                checkedEvidenceRadio.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
-            }
         });
 
-        // カスタムフォーマット表示切替
-        function toggleCustomFormat(show) {
-            const customSettings = document.getElementById('custom-format-settings');
-            customSettings.classList.toggle('hidden', !show);
-            const formatPreview = document.getElementById('format-preview');
-            formatPreview.classList.toggle('hidden', show);
+        // 証拠資料ラジオボタンのイベントハンドラ
+        // evidenceRadios.forEach(radio => {
+        //     radio.addEventListener('change', function() {
+        //         document.querySelectorAll('.evidence-indicator').forEach(indicator => {
+        //             indicator.style.opacity = '0';
+        //         });
+        //         this.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
+        //     });
+        // });
+
+        // 初期状態で選択されているラジオボタンのインジケーターを表示
+        const checkedSideRadio = document.querySelector('input[name="side"]:checked');
+        if (checkedSideRadio) {
+            checkedSideRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
         }
 
-        // フォーマットプレビュー更新関数
-        function updateFormatPreview(formatKey) {
-            if (formatKey === 'custom') return;
+        // 初期状態で選択されている証拠資料ラジオボタンのインジケーターを表示
+        const checkedEvidenceRadio = document.querySelector('input[name="evidence_allowed"]:checked');
+        if (checkedEvidenceRadio) {
+            checkedEvidenceRadio.closest('label').querySelector('.evidence-indicator').style.opacity = '1';
+        }
+    });
 
-            const previewBody = document.getElementById('format-preview-body');
-            previewBody.innerHTML = '';
-            const previewTitle = document.getElementById('format-preview-title');
+    // カスタムフォーマットのサイド選択時に背景色を変更する関数を追加
+    function updateTurnCardBackground(turnCard, speakerValue) {
+        // 一旦全ての背景色クラスを削除
+        turnCard.classList.remove('bg-green-50', 'bg-red-50', 'bg-white');
 
-            if (!formats[formatKey] || !formats[formatKey].turns) {
-                previewTitle.textContent = translations.formatInfoMissing;
-                previewBody.innerHTML =
-                    `<tr><td colspan="4" class="px-3 py-2 text-sm text-gray-500">${translations.formatInfoMissing}</td></tr>`;
-                return;
-            }
+        // 選択されたサイドに応じて背景色クラスを追加
+        if (speakerValue === 'affirmative') {
+            turnCard.classList.add('bg-green-50');
+        } else if (speakerValue === 'negative') {
+            turnCard.classList.add('bg-red-50');
+        } else {
+            turnCard.classList.add('bg-white');
+        }
+    }
 
-            previewTitle.textContent = formats[formatKey].name;
+    // カスタムフォーマット表示切替
+    function toggleCustomFormat(show) {
+        const customSettings = document.getElementById('custom-format-settings');
+        customSettings.classList.toggle('hidden', !show);
+        const formatPreview = document.getElementById('format-preview');
+        formatPreview.classList.toggle('hidden', show);
+    }
 
-            Object.entries(formats[formatKey].turns).forEach(([index, turn]) => {
-                const row = document.createElement('tr');
-                const displayIndex = index;
-                let speakerText = '';
-                let bgClass = '';
-                let textClass = '';
-                let badgeClass = '';
+    // フォーマットプレビュー更新関数
+    function updateFormatPreview(formatKey) {
+        if (formatKey === 'custom') return;
 
-                if (turn.speaker === 'affirmative') {
-                    speakerText = translations.affirmative;
-                    bgClass = 'bg-green-50';
-                    textClass = 'text-green-800';
-                    badgeClass = 'bg-green-100';
-                } else if (turn.speaker === 'negative') {
-                    speakerText = translations.negative;
-                    bgClass = 'bg-red-50';
-                    textClass = 'text-red-800';
-                    badgeClass = 'bg-red-100';
-                } else {
-                    speakerText = turn.speaker;
-                    bgClass = 'bg-gray-50';
-                    textClass = 'text-gray-800';
-                    badgeClass = 'bg-gray-100';
-                }
+        const previewBody = document.getElementById('format-preview-body');
+        previewBody.innerHTML = '';
+        const previewTitle = document.getElementById('format-preview-title');
 
-                let typeIcon = '';
-
-                if (turn.is_prep_time) {
-                    typeIcon =
-                        '<span class="material-icons-outlined text-xs mr-1 text-gray-500">timer</span>';
-                } else if (turn.is_questions) {
-                    typeIcon =
-                        '<span class="material-icons-outlined text-xs mr-1 text-gray-500">help</span>';
-                }
-
-                row.className = bgClass;
-                row.innerHTML = `<td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">${displayIndex}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm">
-                    <span class="px-2 py-0.5 inline-flex items-center rounded-full ${badgeClass} ${textClass} text-xs font-medium">
-                        ${speakerText}
-                    </span>
-                </td>
-                <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700 flex items-center">
-                    ${typeIcon}${turn.name}
-                </td>
-                <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">
-                    ${turn.duration / 60}${translations.minuteSuffix}
-                </td>`;
-                previewBody.appendChild(row);
-            });
+        if (!formats[formatKey] || !formats[formatKey].turns) {
+            previewTitle.textContent = translations.formatInfoMissing;
+            previewBody.innerHTML =
+                `<tr><td colspan="4" class="px-3 py-2 text-sm text-gray-500">${translations.formatInfoMissing}</td></tr>`;
+            return;
         }
 
-        // フォーマットプレビューの開閉
-        function toggleFormatPreview() {
-            const content = document.getElementById('format-preview-content');
-            const icon = document.querySelector('.format-preview-icon');
+        previewTitle.textContent = formats[formatKey].name;
 
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.add('opacity-100');
-                }, 10);
-                icon.textContent = 'expand_less';
+        Object.entries(formats[formatKey].turns).forEach(([index, turn]) => {
+            const row = document.createElement('tr');
+            const displayIndex = index;
+            let speakerText = '';
+            let bgClass = '';
+            let textClass = '';
+            let badgeClass = '';
+
+            if (turn.speaker === 'affirmative') {
+                speakerText = translations.affirmative;
+                bgClass = 'bg-green-50';
+                textClass = 'text-green-800';
+                badgeClass = 'bg-green-100';
+            } else if (turn.speaker === 'negative') {
+                speakerText = translations.negative;
+                bgClass = 'bg-red-50';
+                textClass = 'text-red-800';
+                badgeClass = 'bg-red-100';
             } else {
-                content.classList.remove('opacity-100');
-                content.classList.add('opacity-0');
+                speakerText = turn.speaker;
+                bgClass = 'bg-gray-50';
+                textClass = 'text-gray-800';
+                badgeClass = 'bg-gray-100';
+            }
+
+            let typeIcon = '';
+
+            if (turn.is_prep_time) {
+                typeIcon =
+                    '<span class="material-icons-outlined text-xs mr-1 text-gray-500">timer</span>';
+            } else if (turn.is_questions) {
+                typeIcon =
+                    '<span class="material-icons-outlined text-xs mr-1 text-gray-500">help</span>';
+            }
+
+            row.className = bgClass;
+            row.innerHTML = `<td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">${displayIndex}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm">
+                <span class="px-2 py-0.5 inline-flex items-center rounded-full ${badgeClass} ${textClass} text-xs font-medium">
+                    ${speakerText}
+                </span>
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700 flex items-center">
+                ${typeIcon}${turn.name}
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-700">
+                ${turn.duration / 60}${translations.minuteSuffix}
+            </td>`;
+            previewBody.appendChild(row);
+        });
+    }
+
+    // フォーマットプレビューの開閉
+    function toggleFormatPreview() {
+        const content = document.getElementById('format-preview-content');
+        const icon = document.querySelector('.format-preview-icon');
+
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.add('opacity-100');
+            }, 10);
+            icon.textContent = 'expand_less';
+        } else {
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0');
+            setTimeout(() => {
+                content.classList.add('hidden');
+                icon.textContent = 'expand_more';
+            }, 200);
+        }
+    }
+
+    // ページ読み込み時に実行
+    document.addEventListener('DOMContentLoaded', function() {
+        // サイド選択の初期状態設定
+        const checkedRadio = document.querySelector('input[name="side"]:checked');
+        if (checkedRadio) {
+            checkedRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
+        }
+
+        const formatSelect = document.getElementById('format_type');
+        toggleCustomFormat(formatSelect.value === 'custom');
+        updateFormatPreview(formatSelect.value);
+
+        formatSelect.addEventListener('change', function() {
+            toggleCustomFormat(this.value === 'custom');
+            updateFormatPreview(this.value);
+        });
+
+        // ターン追加ボタン
+        const addTurnButton = document.getElementById('add-turn');
+        const turnsContainer = document.getElementById('turns-container');
+        let turnCount = turnsContainer.children.length > 0 ? turnsContainer.children.length : 1;
+
+        // ターン追加処理
+        addTurnButton.addEventListener('click', function() {
+            const newTurn = document.createElement('div');
+            newTurn.className =
+                'turn-card border rounded-lg p-3 sm:p-4 bg-white shadow-sm hover:shadow-md transition-shadow';
+            newTurn.innerHTML = `<div class="flex justify-between items-center mb-2 sm:mb-3">
+                <div class="flex items-center">
+                    <span class="turn-number w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-medium text-xs sm:text-sm">${turnCount + 1}</span>
+                    <h4 class="turn-title text-xs sm:text-sm font-medium ml-2 text-gray-700">${translations.part} ${turnCount + 1}</h4>
+                </div>
+                <button type="button" class="delete-turn text-gray-400 hover:text-red-500 transition-colors">
+                    <span class="material-icons-outlined text-sm sm:text-base">delete</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4">
+                <div class="sm:col-span-3">
+                    <label class="block text-xs text-gray-500">${translations.side}</label>
+                    <select name="turns[${turnCount}][speaker]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                        <option value="affirmative">${translations.affirmative}</option>
+                        <option value="negative">${translations.negative}</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-5">
+                    <label class="block text-xs text-gray-500">${translations.partName}</label>
+                    <input type="text" name="turns[${turnCount}][name]" placeholder="${translations.placeholderPartName}" list="part-suggestions" class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs text-gray-500">${translations.durationMinutes}</label>
+                    <input type="number" name="turns[${turnCount}][duration]" value="5" min="1" max="14" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                </div>
+                <div class="sm:col-span-2 flex flex-col justify-end">
+                    <div class="flex items-center space-x-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="turns[${turnCount}][is_questions]" value="1"
+                                class="question-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
+                            <span class="ml-1 text-xs text-gray-500">${translations.questionTime}</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="turns[${turnCount}][is_prep_time]" value="1"
+                                class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
+                            <span class="ml-1 text-xs text-gray-500">${translations.prepTime}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>`;
+            turnsContainer.appendChild(newTurn);
+            turnCount++;
+
+            attachDeleteListeners();
+            attachInputListenersToElement(newTurn);
+        });
+
+        // 削除ボタンのイベントリスナー設定
+        function attachDeleteListeners() {
+            document.querySelectorAll('.delete-turn').forEach(button => {
+                button.replaceWith(button.cloneNode(true));
+            });
+            document.querySelectorAll('.delete-turn').forEach(button => {
+                button.addEventListener('click', handleDeleteTurn);
+            });
+        }
+
+        function handleDeleteTurn() {
+            if (turnsContainer.children.length > 1) {
+                this.closest('.turn-card').remove();
+                updateTurnNumbersAndNames();
+            } else {
+                const turnCard = this.closest('.turn-card');
+                turnCard.classList.add('border-red-500', 'animate-pulse');
                 setTimeout(() => {
-                    content.classList.add('hidden');
-                    icon.textContent = 'expand_more';
-                }, 200);
+                    turnCard.classList.remove('border-red-500', 'animate-pulse');
+                }, 1000);
             }
         }
 
-        // ページ読み込み時に実行
-        document.addEventListener('DOMContentLoaded', function() {
-            // サイド選択の初期状態設定
-            const checkedRadio = document.querySelector('input[name="side"]:checked');
-            if (checkedRadio) {
-                checkedRadio.closest('label').querySelector('.side-indicator').style.opacity = '1';
-            }
+        // ターン番号と Name 属性の更新
+        function updateTurnNumbersAndNames() {
+            const turns = turnsContainer.querySelectorAll('.turn-card');
+            turns.forEach((turn, index) => {
+                const displayTurnNumber = index + 1;
+                const numberDisplay = turn.querySelector('.turn-number');
+                if(numberDisplay) numberDisplay.textContent = `${displayTurnNumber}`;
+                const titleDisplay = turn.querySelector('.turn-title');
+                if(titleDisplay) titleDisplay.textContent = `${translations.part} ${displayTurnNumber}`;
 
-            const formatSelect = document.getElementById('format_type');
-            toggleCustomFormat(formatSelect.value === 'custom');
-            updateFormatPreview(formatSelect.value);
+                turn.querySelectorAll('input, select').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        const newName = name.replace(/turns\[\d+\]/, `turns[${index}]`);
+                        input.setAttribute('name', newName);
+                    }
+                });
+            });
+            turnCount = turns.length;
+        }
 
-            formatSelect.addEventListener('change', function() {
-                toggleCustomFormat(this.value === 'custom');
-                updateFormatPreview(this.value);
+        // 特定の要素内の入力にリスナーをアタッチ
+        function attachInputListenersToElement(element) {
+            element.querySelectorAll('.part-name').forEach(input => {
+                input.removeEventListener('input', handlePartNameInput);
+                input.addEventListener('input', handlePartNameInput);
+            });
+            element.querySelectorAll('.prep-time-checkbox, .question-time-checkbox').forEach(checkbox => {
+                checkbox.removeEventListener('change', handleCheckboxChange);
+                checkbox.addEventListener('change', handleCheckboxChange);
             });
 
-            // ターン追加ボタン
-            const addTurnButton = document.getElementById('add-turn');
-            const turnsContainer = document.getElementById('turns-container');
-            let turnCount = turnsContainer.children.length > 0 ? turnsContainer.children.length : 1;
-
-            // ターン追加処理
-            addTurnButton.addEventListener('click', function() {
-                const newTurn = document.createElement('div');
-                newTurn.className =
-                    'turn-card border rounded-lg p-3 sm:p-4 bg-white shadow-sm hover:shadow-md transition-shadow';
-                newTurn.innerHTML = `<div class="flex justify-between items-center mb-2 sm:mb-3">
-                    <div class="flex items-center">
-                        <span class="turn-number w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-medium text-xs sm:text-sm">${turnCount + 1}</span>
-                        <h4 class="turn-title text-xs sm:text-sm font-medium ml-2 text-gray-700">${translations.part} ${turnCount + 1}</h4>
-                    </div>
-                    <button type="button" class="delete-turn text-gray-400 hover:text-red-500 transition-colors">
-                        <span class="material-icons-outlined text-sm sm:text-base">delete</span>
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4">
-                    <div class="sm:col-span-3">
-                        <label class="block text-xs text-gray-500">${translations.side}</label>
-                        <select name="turns[${turnCount}][speaker]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-                            <option value="affirmative">${translations.affirmative}</option>
-                            <option value="negative">${translations.negative}</option>
-                        </select>
-                    </div>
-                    <div class="sm:col-span-5">
-                        <label class="block text-xs text-gray-500">${translations.partName}</label>
-                        <input type="text" name="turns[${turnCount}][name]" placeholder="${translations.placeholderPartName}" list="part-suggestions" class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs text-gray-500">${translations.durationMinutes}</label>
-                        <input type="number" name="turns[${turnCount}][duration]" value="3" min="1" max="14" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-                    </div>
-                    <div class="sm:col-span-2 flex flex-col justify-end">
-                        <div class="flex items-center space-x-2">
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="turns[${turnCount}][is_questions]" value="1"
-                                    class="question-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
-                                <span class="ml-1 text-xs text-gray-500">${translations.questionTime}</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="turns[${turnCount}][is_prep_time]" value="1"
-                                    class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
-                                <span class="ml-1 text-xs text-gray-500">${translations.prepTime}</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>`;
-                turnsContainer.appendChild(newTurn);
-                turnCount++;
-
-                attachDeleteListeners();
-                attachInputListenersToElement(newTurn);
-            });
-
-            // 削除ボタンのイベントリスナー設定
-            function attachDeleteListeners() {
-                document.querySelectorAll('.delete-turn').forEach(button => {
-                    button.replaceWith(button.cloneNode(true));
-                });
-                document.querySelectorAll('.delete-turn').forEach(button => {
-                    button.addEventListener('click', handleDeleteTurn);
-                });
-            }
-
-            function handleDeleteTurn() {
-                if (turnsContainer.children.length > 1) {
-                    this.closest('.turn-card').remove();
-                    updateTurnNumbersAndNames();
-                } else {
+            // サイド選択の変更を検知するイベントリスナーを追加
+            const speakerSelect = element.querySelector('select[name*="[speaker]"]');
+            if (speakerSelect) {
+                speakerSelect.addEventListener('change', function() {
                     const turnCard = this.closest('.turn-card');
-                    turnCard.classList.add('border-red-500', 'animate-pulse');
-                    setTimeout(() => {
-                        turnCard.classList.remove('border-red-500', 'animate-pulse');
-                    }, 1000);
-                }
-            }
-
-            // ターン番号と Name 属性の更新
-            function updateTurnNumbersAndNames() {
-                const turns = turnsContainer.querySelectorAll('.turn-card');
-                turns.forEach((turn, index) => {
-                    const displayTurnNumber = index + 1;
-                    const numberDisplay = turn.querySelector('.turn-number');
-                    if(numberDisplay) numberDisplay.textContent = `${displayTurnNumber}`;
-                    const titleDisplay = turn.querySelector('.turn-title');
-                    if(titleDisplay) titleDisplay.textContent = `${translations.part} ${displayTurnNumber}`;
-
-                    turn.querySelectorAll('input, select').forEach(input => {
-                        const name = input.getAttribute('name');
-                        if (name) {
-                            const newName = name.replace(/turns\[\d+\]/, `turns[${index}]`);
-                            input.setAttribute('name', newName);
-                        }
-                    });
+                    updateTurnCardBackground(turnCard, this.value);
                 });
-                turnCount = turns.length;
+
+                // 初期状態の背景色を設定
+                updateTurnCardBackground(element, speakerSelect.value);
             }
+        }
 
-            // 特定の要素内の入力にリスナーをアタッチ
-            function attachInputListenersToElement(element) {
-                element.querySelectorAll('.part-name').forEach(input => {
-                    input.removeEventListener('input', handlePartNameInput);
-                    input.addEventListener('input', handlePartNameInput);
-                });
-                element.querySelectorAll('.prep-time-checkbox, .question-time-checkbox').forEach(checkbox => {
-                    checkbox.removeEventListener('change', handleCheckboxChange);
-                    checkbox.addEventListener('change', handleCheckboxChange);
-                });
+        // Part Name Input Handler
+        function handlePartNameInput() {
+            const turnCard = this.closest('.turn-card');
+            if (!turnCard) return;
+            const partNameInput = this;
+            const prepTimeCheckbox = turnCard.querySelector('.prep-time-checkbox');
+            const questionTimeCheckbox = turnCard.querySelector('.question-time-checkbox');
+
+            if (!prepTimeCheckbox || !questionTimeCheckbox) return;
+
+            if (partNameInput.value.trim() === translations.prepTimeSuggestion) {
+                prepTimeCheckbox.checked = true;
+                questionTimeCheckbox.checked = false;
+            } else if (partNameInput.value.trim() === translations.questionTimeSuggestion) {
+                questionTimeCheckbox.checked = true;
+                prepTimeCheckbox.checked = false;
+            } else {
             }
+        }
 
-            // Part Name Input Handler
-            function handlePartNameInput() {
-                const turnCard = this.closest('.turn-card');
-                if (!turnCard) return;
-                const partNameInput = this;
-                const prepTimeCheckbox = turnCard.querySelector('.prep-time-checkbox');
-                const questionTimeCheckbox = turnCard.querySelector('.question-time-checkbox');
+        // Checkbox Change Handler
+        function handleCheckboxChange() {
+            const turnCard = this.closest('.turn-card');
+            if (!turnCard) return;
+            const partNameInput = turnCard.querySelector('.part-name');
+            const prepTimeCheckbox = turnCard.querySelector('.prep-time-checkbox');
+            const questionTimeCheckbox = turnCard.querySelector('.question-time-checkbox');
 
-                if (!prepTimeCheckbox || !questionTimeCheckbox) return;
+            if (!partNameInput || !prepTimeCheckbox || !questionTimeCheckbox) return;
 
-                if (partNameInput.value.trim() === translations.prepTimeSuggestion) {
-                    prepTimeCheckbox.checked = true;
-                    questionTimeCheckbox.checked = false;
-                } else if (partNameInput.value.trim() === translations.questionTimeSuggestion) {
-                    questionTimeCheckbox.checked = true;
-                    prepTimeCheckbox.checked = false;
-                } else {
-                }
+            const isPrepTime = this === prepTimeCheckbox;
+            const isQuestionTime = this === questionTimeCheckbox;
+
+            if (isPrepTime && this.checked) {
+                partNameInput.value = translations.prepTimeSuggestion;
+                questionTimeCheckbox.checked = false;
+            } else if (isQuestionTime && this.checked) {
+                partNameInput.value = translations.questionTimeSuggestion;
+                prepTimeCheckbox.checked = false;
+            } else if (
+                (isPrepTime && !this.checked && partNameInput.value === translations.prepTimeSuggestion) ||
+                (isQuestionTime && !this.checked && partNameInput.value === translations.questionTimeSuggestion)
+            ) {
+                partNameInput.value = '';
             }
+        }
 
-            // Checkbox Change Handler
-            function handleCheckboxChange() {
-                const turnCard = this.closest('.turn-card');
-                if (!turnCard) return;
-                const partNameInput = turnCard.querySelector('.part-name');
-                const prepTimeCheckbox = turnCard.querySelector('.prep-time-checkbox');
-                const questionTimeCheckbox = turnCard.querySelector('.question-time-checkbox');
-
-                if (!partNameInput || !prepTimeCheckbox || !questionTimeCheckbox) return;
-
-                const isPrepTime = this === prepTimeCheckbox;
-                const isQuestionTime = this === questionTimeCheckbox;
-
-                if (isPrepTime && this.checked) {
-                    partNameInput.value = translations.prepTimeSuggestion;
-                    questionTimeCheckbox.checked = false;
-                } else if (isQuestionTime && this.checked) {
-                    partNameInput.value = translations.questionTimeSuggestion;
-                    prepTimeCheckbox.checked = false;
-                } else if (
-                    (isPrepTime && !this.checked && partNameInput.value === translations.prepTimeSuggestion) ||
-                    (isQuestionTime && !this.checked && partNameInput.value === translations.questionTimeSuggestion)
-                ) {
-                    partNameInput.value = '';
-                }
-            }
-
-            // 初期化時に既存の要素にリスナーをアタッチ
-            attachDeleteListeners();
-            turnsContainer.querySelectorAll('.turn-card').forEach(card => {
-                attachInputListenersToElement(card);
-            });
+        // 初期化時に既存の要素にリスナーをアタッチ
+        attachDeleteListeners();
+        turnsContainer.querySelectorAll('.turn-card').forEach(card => {
+            attachInputListenersToElement(card);
         });
-    </script>
+    });
+</script>
 </x-app-layout>

@@ -448,6 +448,21 @@
             }
         });
 
+        // カスタムフォーマットのサイド選択時に背景色を変更する関数を追加
+        function updateTurnCardBackground(turnCard, speakerValue) {
+            // 一旦全ての背景色クラスを削除
+            turnCard.classList.remove('bg-green-50', 'bg-red-50', 'bg-white');
+
+            // 選択されたサイドに応じて背景色クラスを追加
+            if (speakerValue === 'affirmative') {
+                turnCard.classList.add('bg-green-50');
+            } else if (speakerValue === 'negative') {
+                turnCard.classList.add('bg-red-50');
+            } else {
+                turnCard.classList.add('bg-white');
+            }
+        }
+
         // カスタムフォーマット表示切替
         function toggleCustomFormat(show) {
             const customSettings = document.getElementById('custom-format-settings');
@@ -596,7 +611,7 @@
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-xs text-gray-500">${translations.durationMinutes}</label>
-                        <input type="number" name="turns[${turnCount}][duration]" value="3" min="1" max="60" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
+                        <input type="number" name="turns[${turnCount}][duration]" value="5" min="1" max="60" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
                     </div>
                     <div class="sm:col-span-2 flex flex-col justify-end">
                         <div class="flex items-center space-x-2">
@@ -660,6 +675,12 @@
                             input.setAttribute('name', newName);
                         }
                     });
+
+                    // サイド選択の背景色も更新
+                    const speakerSelect = turn.querySelector('select[name*="[speaker]"]');
+                    if (speakerSelect) {
+                        updateTurnCardBackground(turn, speakerSelect.value);
+                    }
                 });
                 turnCount = turns.length;
             }
@@ -674,6 +695,18 @@
                     checkbox.removeEventListener('change', handleCheckboxChange);
                     checkbox.addEventListener('change', handleCheckboxChange);
                 });
+
+                // サイド選択の変更を検知するイベントリスナーを追加
+                const speakerSelect = element.querySelector('select[name*="[speaker]"]');
+                if (speakerSelect) {
+                    speakerSelect.addEventListener('change', function() {
+                        const turnCard = this.closest('.turn-card');
+                        updateTurnCardBackground(turnCard, this.value);
+                    });
+
+                    // 初期状態の背景色を設定
+                    updateTurnCardBackground(element, speakerSelect.value);
+                }
             }
 
             // Part Name Input Handler
