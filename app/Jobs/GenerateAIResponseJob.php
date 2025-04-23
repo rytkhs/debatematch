@@ -51,22 +51,36 @@ class GenerateAIResponseJob implements ShouldQueue
                 return;
             }
 
-            $aiUserId = (int)config('app.ai_user_id', 9);
+            $aiUserId = (int)config('app.ai_user_id', 1);
 
-            // 現在のターンが本当にAIのターンか念のため確認
+            // 質疑応答ターンの場合
+            $isQuestioningTurn = $debateService->isQuestioningTurn($debate, $this->currentTurn);
+
+            // 現在のターンが本当にAIのターンか念のため確認（質疑応答ターンはAIとユーザーが交互に発言するため例外）
             $format = $debateService->getFormat($debate);
             $currentTurnInfo = $format[$this->currentTurn] ?? null;
             $expectedSpeakerId = ($currentTurnInfo['speaker'] === 'affirmative')
                 ? $debate->affirmative_user_id
                 : $debate->negative_user_id;
 
-            if (!$currentTurnInfo || $expectedSpeakerId !== $aiUserId) {
+            // 準備時間の場合は処理をスキップする
+            if ($currentTurnInfo && isset($currentTurnInfo['is_prep_time']) && $currentTurnInfo['is_prep_time']) {
+                Log::info('GenerateAIResponseJob skipped: Current turn is prep time.', [
+                    'debate_id' => $this->debateId,
+                    'turn' => $this->currentTurn,
+                ]);
+                return;
+            }
+
+            // 質疑応答ターンか、AIのターンの場合のみ処理を続行する
+            if (!$currentTurnInfo || (!$isQuestioningTurn && $expectedSpeakerId !== $aiUserId)) {
                 Log::warning('GenerateAIResponseJob skipped: Not AI turn or invalid turn.', [
                     'debate_id' => $this->debateId,
                     'current_debate_turn' => $debate->current_turn,
                     'job_turn' => $this->currentTurn,
                     'expected_speaker_id' => $expectedSpeakerId,
                     'ai_user_id' => $aiUserId,
+                    'is_questioning_turn' => $isQuestioningTurn,
                 ]);
                 return;
             }
@@ -83,7 +97,6 @@ class GenerateAIResponseJob implements ShouldQueue
             broadcast(new DebateMessageSent($this->debateId))->toOthers();
 
             // 質疑応答ターンでない場合はAIの応答後ターンを更新
-            $isQuestioningTurn = $debateService->isQuestioningTurn($debate, $this->currentTurn);
             if (!$isQuestioningTurn) {
                 AdvanceDebateTurnJob::dispatch($debate->id, $this->currentTurn)
                     ->delay(now()->addSeconds(5));
@@ -106,7 +119,7 @@ class GenerateAIResponseJob implements ShouldQueue
             if ($this->attempts() < $this->tries) {
                 $this->release($this->backoff);
             } else {
-                $this->handleMaxRetries($debate ?? null, $aiUserId ?? (int)config('app.ai_user_id', 9), $e);
+                $this->handleMaxRetries($debate ?? null, $aiUserId ?? (int)config('app.ai_user_id', 1), $e);
             }
         }
     }
