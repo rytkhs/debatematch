@@ -26,6 +26,8 @@ services:
       - "PUSHER_SCHEME=${PUSHER_SCHEME}"
       - "PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}"
       - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
+      - "OPENROUTER_CHAT_MODEL=${OPENROUTER_CHAT_MODEL}"
+      - "OPENROUTER_EVALUATION_MODEL=${OPENROUTER_EVALUATION_MODEL}"
       - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
       - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
       - "QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}"
@@ -39,6 +41,7 @@ services:
       - "SQS_QUEUE=${SQS_QUEUE}"
       - "SQS_PREFIX=${SQS_PREFIX}"
       - "SQS_SUFFIX=${SQS_SUFFIX}"
+      - "AI_USER_ID=${AI_USER_ID}"
     volumes:
       - ./.env:/var/www/html/.env
       - public-data:/var/www/html/public
@@ -91,6 +94,8 @@ services:
       - "PUSHER_SCHEME=${PUSHER_SCHEME}"
       - "PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}"
       - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
+      - "OPENROUTER_CHAT_MODEL=${OPENROUTER_CHAT_MODEL}"
+      - "OPENROUTER_EVALUATION_MODEL=${OPENROUTER_EVALUATION_MODEL}"
       - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
       - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
       - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
@@ -103,6 +108,7 @@ services:
       - "SQS_QUEUE=${SQS_QUEUE}"
       - "SQS_PREFIX=${SQS_PREFIX}"
       - "SQS_SUFFIX=${SQS_SUFFIX}"
+      - "AI_USER_ID=${AI_USER_ID}"
     volumes:
       - ./.env:/var/www/html/.env
     networks:
