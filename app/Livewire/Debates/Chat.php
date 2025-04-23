@@ -37,7 +37,6 @@ class Chat extends Component
         // $this->dispatch('scroll-to-bottom');
         $this->dispatch('message-received');
 
-        // フラッシュメッセージ表示
         $this->dispatch('showFlashMessage', __('flash.chat.message.received'), 'info');
     }
 

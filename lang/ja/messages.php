@@ -28,7 +28,7 @@ return [
     'debate_rooms' => 'ディベートルーム',
     'create_room' => 'ルーム作成',
     'my_profile' => 'マイプロフィール',
-    'debate_history' => 'ディベート履歴',
+    'debate_history' => 'ディベート記録',
     'language_en_label' => 'English',
     'language_ja_label' => '日本語',
     'current_language_indicator' => '(現在)',
@@ -498,4 +498,24 @@ return [
     'can_use_evidence' => '外部資料の引用可能',
     'cannot_use_evidence' => '個人の知識のみ',
     'google_login_failed' => 'Googleログインに失敗しました。もう一度お試しください。',
+
+    'start_ai_debate' => 'AIとディベートを開始',
+    'ai_debate_button' => 'AIとディベート',
+    'ai_user_not_found' => 'AIユーザーが見つかりませんでした。システム管理者に連絡してください。',
+    'ai_debate_started' => 'AIとのディベートを開始しました！',
+    'ai_debate_creation_failed' => 'AIディベートの作成中にエラーが発生しました。もう一度お試しください。',
+
+    'ai_label' => 'AI',
+    'ai_thinking' => 'AIが応答を生成中...',
+    'ai_turn' => 'AIのターン',
+    'cannot_send_message_now' => '今はメッセージを送信できません',
+
+    'confirm_exit_ai_debate' => 'AIディベートを退出しますか? ディベートは削除されます。',
+    'exit_debate' => 'Exit',
+    'ai_turn' => 'AI が応答中',
+
+    'ai_evidence_not_supported' => '現在、AIディベートでは証拠資料に対応していません',
+
+    'fallback_response' => '申し訳ありません、現在応答を生成できません。',
+    'technical_issue' => '(技術的な問題が発生しました)',
 ];

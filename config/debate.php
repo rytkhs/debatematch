@@ -40,11 +40,11 @@ return [
         ],
         // NADA High School Format Key
         'format_name_nada_high' => [
-            1 => ['speaker' => 'affirmative', 'name' => 'suggestion_1st_constructive', 'duration' => 6 * 60, 'is_prep_time' => false, 'is_questions' => false],
+            1 => ['speaker' => 'affirmative', 'name' => 'suggestion_constructive', 'duration' => 6 * 60, 'is_prep_time' => false, 'is_questions' => false],
             2 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
             3 => ['speaker' => 'negative', 'name' => 'suggestion_questioning', 'duration' => 3 * 60, 'is_prep_time' => false, 'is_questions' => true],
             4 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
-            5 => ['speaker' => 'negative', 'name' => 'suggestion_1st_constructive', 'duration' => 6 * 60, 'is_prep_time' => false, 'is_questions' => false],
+            5 => ['speaker' => 'negative', 'name' => 'suggestion_constructive', 'duration' => 6 * 60, 'is_prep_time' => false, 'is_questions' => false],
             6 => ['speaker' => 'affirmative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
             7 => ['speaker' => 'affirmative', 'name' => 'suggestion_questioning', 'duration' => 3 * 60, 'is_prep_time' => false, 'is_questions' => true],
             8 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],

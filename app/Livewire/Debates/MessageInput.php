@@ -12,6 +12,7 @@ use Livewire\Attributes\On;
 use App\Models\Room;
 use App\Services\DebateService;
 use Illuminate\Support\Facades\Lang;
+use App\Jobs\GenerateAIResponseJob;
 
 class MessageInput extends Component
 {
@@ -62,7 +63,7 @@ class MessageInput extends Component
         $this->currentSpeaker = $turns[$currentTurn]['speaker'] ?? null;
         $this->currentTurnName = $turns[$currentTurn]['name'] ?? null;
         $this->isPrepTime = $turns[$currentTurn]['is_prep_time'] ?? false;
-        $this->isQuestioningTurn = strpos($this->currentTurnName, '質疑') !== false;
+        $this->isQuestioningTurn = $turns[$currentTurn]['is_questions'] ?? false;
 
         $this->isMyTurn = $this->checkIfUsersTurn(Auth::id());
     }
@@ -101,11 +102,16 @@ class MessageInput extends Component
 
         $this->dispatch('message-sent');
         broadcast(new DebateMessageSent($this->debate->id))->toOthers();
-        // $this->dispatch('scroll-to-bottom');
 
         $this->newMessage = '';
 
-        // フラッシュメッセージ表示
+        // AI対戦の場合、質疑応答ターンならAIの応答をトリガー
+        if ($this->debate->room->is_ai_debate && $this->isQuestioningTurn) {
+            $aiUserId = (int)config('app.ai_user_id', 1);
+
+            GenerateAIResponseJob::dispatch($this->debate->id, $this->debate->current_turn)->delay(now()->addSeconds(1));
+        }
+
         $this->dispatch('showFlashMessage', __('flash.message_input.send.success'), 'info');
     }
 

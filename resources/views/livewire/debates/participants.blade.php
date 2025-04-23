@@ -3,6 +3,12 @@
         <span class="material-icons mr-2">people</span>{{ __('messages.debaters') }}
     </h2>
 
+    @php
+        $aiUserId = (int)config('app.ai_user_id', 1);
+        $isAffirmativeAI = $debate->affirmative_user_id === $aiUserId;
+        $isNegativeAI = $debate->negative_user_id === $aiUserId;
+    @endphp
+
     <!-- 肯定側 -->
     <div class="mb-6">
         <div class="flex items-center justify-between mb-2">
@@ -15,16 +21,29 @@
         </div>
 
         <div class="flex items-center p-3 {{ $currentSpeaker === 'affirmative' ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
-            <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-green-700 mr-3">
-                {{ substr($debate->affirmativeUser->name, 0, 1) }}
+            {{-- アバター --}}
+            <div class="w-10 h-10 rounded-full {{ $isAffirmativeAI ? 'bg-blue-200 text-blue-700' : 'bg-green-200 text-green-700' }} flex items-center justify-center mr-3 flex-shrink-0">
+                @if($isAffirmativeAI)
+                    <span class="material-icons-outlined text-xl">smart_toy</span>
+                @else
+                    {{ substr($debate->affirmativeUser->name, 0, 1) }}
+                @endif
             </div>
             <div>
-                <div class="font-medium">{{ $debate->affirmativeUser->name }}</div>
-                <!-- オンライン状態表示 -->
-                <div class="flex items-center mt-1 text-xs text-gray-500">
-                    <span class="w-2 h-2 {{ $onlineUsers[$debate->affirmative_user_id] ?? false ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
-                    {{ $onlineUsers[$debate->affirmative_user_id] ?? false ? __('messages.online') : __('messages.offline') }}
+                {{-- 名前 --}}
+                <div class="font-medium flex items-center">
+                    {{ $debate->affirmativeUser->name }}
+                    @if($isAffirmativeAI)
+                        <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
+                    @endif
                 </div>
+                {{-- オンライン状態 --}}
+                @if(!$isAffirmativeAI)
+                    <div class="flex items-center mt-1 text-xs text-gray-500">
+                        <span class="w-2 h-2 {{ $this->isUserOnline($debate->affirmative_user_id) ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
+                        {{ $this->isUserOnline($debate->affirmative_user_id) ? __('messages.online') : __('messages.offline') }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -41,16 +60,29 @@
         </div>
 
         <div class="flex items-center p-3 {{ $currentSpeaker === 'negative' ? 'bg-red-50 border border-red-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
-            <div class="w-10 h-10 rounded-full bg-red-200 flex items-center justify-center text-red-700 mr-3">
-                {{ substr($debate->negativeUser->name, 0, 1) }}
+             {{-- アバター --}}
+            <div class="w-10 h-10 rounded-full {{ $isNegativeAI ? 'bg-blue-200 text-blue-700' : 'bg-red-200 text-red-700' }} flex items-center justify-center mr-3 flex-shrink-0">
+                @if($isNegativeAI)
+                    <span class="material-icons-outlined text-xl">smart_toy</span>
+                @else
+                    {{ substr($debate->negativeUser->name, 0, 1) }}
+                @endif
             </div>
             <div>
-                <div class="font-medium">{{ $debate->negativeUser->name }}</div>
-                <!-- オンライン状態表示 -->
-                <div class="flex items-center mt-1 text-xs text-gray-500">
-                    <span class="w-2 h-2 {{ $onlineUsers[$debate->negative_user_id] ?? false ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
-                    {{ $onlineUsers[$debate->negative_user_id] ?? false ? __('messages.online') : __('messages.offline') }}
+                 {{-- 名前 --}}
+                <div class="font-medium flex items-center">
+                    {{ $debate->negativeUser->name }}
+                     @if($isNegativeAI)
+                        <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
+                    @endif
                 </div>
+                 {{-- オンライン状態 --}}
+                @if(!$isNegativeAI)
+                    <div class="flex items-center mt-1 text-xs text-gray-500">
+                        <span class="w-2 h-2 {{ $this->isUserOnline($debate->negative_user_id) ? 'bg-green-500' : 'bg-gray-400' }} rounded-full mr-1"></span>
+                        {{ $this->isUserOnline($debate->negative_user_id) ? __('messages.online') : __('messages.offline') }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -92,7 +124,7 @@
             // グローバルカウントダウンから時間を取得
             window.debateCountdown.addListener(timeData => {
                 if (!timeData.isRunning) {
-                    timeLeftSmall.textContent = "終了";
+                    timeLeftSmall.textContent = "{{ __('messages.finished') }}";
                     return;
                 }
 

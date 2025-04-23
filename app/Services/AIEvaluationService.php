@@ -75,8 +75,10 @@ class AIEvaluationService
             'HTTP-Referer' => config('app.url'),
             'X-Title' => 'Debate Evaluation System',
             'Content-Type' => 'application/json',
-        ])->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'google/gemini-2.0-flash-thinking-exp:free',
+        ])
+        ->timeout(240)
+        ->post('https://openrouter.ai/api/v1/chat/completions', [
+            'model' => env('OPENROUTER_EVALUATION_MODEL'),
             'messages' => [
                 [
                     'role' => 'user',
@@ -176,13 +178,10 @@ class AIEvaluationService
         return $evaluationData;
     }
 
-    // getDefaultResponse メソッドの引数名を変更し、汎用的に
-    private function getDefaultResponse(string $message = "An error occurred while processing"): array
+    private function getDefaultResponse(string $message = "An error occurred while processing", string $language = 'english'): array
     {
-        $defaultLang = 'english';
-
-        $analysisMsg = $defaultLang === 'japanese' ? "解析に失敗しました" : "Analysis failed";
-        $feedbackMsg = $defaultLang === 'japanese' ? "システムエラー" : "System error";
+        $analysisMsg = $language === 'japanese' ? "解析に失敗しました" : "Analysis failed";
+        $feedbackMsg = $language === 'japanese' ? "システムエラー" : "System error";
 
         return [
             "is_analyzable" => false,
