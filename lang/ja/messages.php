@@ -28,7 +28,7 @@ return [
     'debate_rooms' => 'ディベートルーム',
     'create_room' => 'ルーム作成',
     'my_profile' => 'マイプロフィール',
-    'debate_history' => 'ディベート履歴',
+    'debate_history' => 'ディベート記録',
     'language_en_label' => 'English',
     'language_ja_label' => '日本語',
     'current_language_indicator' => '(現在)',
@@ -515,4 +515,7 @@ return [
     'ai_turn' => 'AI が応答中',
 
     'ai_evidence_not_supported' => '現在、AIディベートでは証拠資料に対応していません',
+
+    'fallback_response' => '申し訳ありません、現在応答を生成できません。',
+    'technical_issue' => '(技術的な問題が発生しました)',
 ];

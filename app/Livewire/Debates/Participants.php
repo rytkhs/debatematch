@@ -24,7 +24,7 @@ class Participants extends Component
     public function boot(DebateService $debateService)
     {
         $this->debateService = $debateService;
-        $this->aiUserId = (int)config('app.ai_user_id', 9);
+        $this->aiUserId = (int)config('app.ai_user_id', 1);
     }
 
     public function mount(Debate $debate): void

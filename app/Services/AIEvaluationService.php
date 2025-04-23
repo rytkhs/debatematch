@@ -178,7 +178,6 @@ class AIEvaluationService
         return $evaluationData;
     }
 
-    // getDefaultResponse メソッドの引数名を変更し、汎用的に
     private function getDefaultResponse(string $message = "An error occurred while processing", string $language = 'english'): array
     {
         $analysisMsg = $language === 'japanese' ? "解析に失敗しました" : "Analysis failed";

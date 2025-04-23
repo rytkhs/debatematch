@@ -4,7 +4,7 @@
     </h2>
 
     @php
-        $aiUserId = (int)config('app.ai_user_id', 9);
+        $aiUserId = (int)config('app.ai_user_id', 1);
         $isAffirmativeAI = $debate->affirmative_user_id === $aiUserId;
         $isNegativeAI = $debate->negative_user_id === $aiUserId;
     @endphp

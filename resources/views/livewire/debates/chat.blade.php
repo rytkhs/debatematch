@@ -24,7 +24,7 @@
 
     <!-- メッセージ表示エリア -->
     <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-container" x-data="{ previousTurn: null }">
-        @php $aiUserId = (int)config('app.ai_user_id', 9); @endphp
+        @php $aiUserId = (int)config('app.ai_user_id', 1); @endphp
         @forelse($filteredMessages as $message)
             <!-- ターン区切り表示 -->
             @if($loop->first || $previousTurn !== $message->turn)

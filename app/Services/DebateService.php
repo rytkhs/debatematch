@@ -21,7 +21,7 @@ class DebateService
 
     public function __construct()
     {
-        $this->aiUserId = (int)config('app.ai_user_id', 9);
+        $this->aiUserId = (int)config('app.ai_user_id', 1);
     }
 
 

@@ -476,4 +476,7 @@ return [
     'ai_turn' => 'AI is speaking',
 
     'ai_evidence_not_supported' => 'Currently, evidence are not supported in this mode.',
+
+    'fallback_response' => 'Sorry, I cannot generate a response at the moment.',
+    'technical_issue' => '(A technical issue occurred)',
 ];

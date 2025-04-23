@@ -57,7 +57,7 @@
                                 <div>
                                     <p class="font-medium text-sm sm:text-base text-gray-900">
                                         {{ $debate->affirmativeUser->name }}
-                                        @if($debate->affirmative_user_id === (int)config('app.ai_user_id', 9))
+                                        @if($debate->affirmative_user_id === (int)config('app.ai_user_id', 1))
                                             <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
                                         @endif
                                     </p>
@@ -84,7 +84,7 @@
                                 <div>
                                     <p class="font-medium text-sm sm:text-base text-gray-900">
                                         {{ $debate->negativeUser->name }}
-                                        @if($debate->negative_user_id === (int)config('app.ai_user_id', 9))
+                                        @if($debate->negative_user_id === (int)config('app.ai_user_id', 1))
                                             <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
                                         @endif
                                     </p>

@@ -82,7 +82,7 @@ class AIDebateController extends Controller
         }
 
         $user = Auth::user();
-        $aiUserId = (int)config('app.ai_user_id', 9);
+        $aiUserId = (int)config('app.ai_user_id', 1);
         $aiUser = User::find($aiUserId);
 
         if (!$aiUser) {

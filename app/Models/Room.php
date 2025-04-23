@@ -100,11 +100,10 @@ class Room extends Model
         $translatedFormat = [];
         foreach ($format as $index => $turn) {
             $translatedTurn = $turn;
-            // ターン名を翻訳
+            
             $translatedTurn['name'] = __('debates.' . $turn['name']);
             $translatedFormat[$index] = $translatedTurn;
         }
-        // dd($translatedFormat);
         return $translatedFormat;
     }
 
