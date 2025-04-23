@@ -6,7 +6,7 @@ use App\Models\Debate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
-use Throwable; // Throwable を use
+use Throwable;
 
 class AIService
 {
@@ -15,6 +15,7 @@ class AIService
     protected string $referer;
     protected string $title;
     protected DebateService $debateService;
+    protected int $aiUserId;
 
     public function __construct(DebateService $debateService)
     {
@@ -23,14 +24,15 @@ class AIService
         $this->referer = Config::get('services.openrouter.referer', config('app.url'));
         $this->title = Config::get('services.openrouter.title', config('app.name'));
         $this->debateService = $debateService;
+        $this->aiUserId = (int)config('app.ai_user_id', 1);
     }
 
     /**
      * ディベートの状況に基づいてAIの応答を生成する
      *
      * @param Debate $debate
-     * @return string AIの応答メッセージ
-     * @throws \Exception APIエラーやプロンプト生成エラーが発生した場合
+     * @return string
+     * @throws \Exception
      */
     public function generateResponse(Debate $debate): string
     {
@@ -78,13 +80,11 @@ class AIService
                     'debate_id' => $debate->id,
                     'response' => $response->json(),
                 ]);
-
                 return $this->getFallbackResponse($debate->room->language ?? 'japanese');
             }
 
             Log::info('Received AI response successfully', ['debate_id' => $debate->id]);
             return trim($content);
-
         } catch (Throwable $e) {
             Log::error('Error generating AI response', [
                 'debate_id' => $debate->id,
@@ -100,18 +100,15 @@ class AIService
      *
      * @param Debate $debate
      * @return string
+     * @throws \Exception
      */
     protected function buildPrompt(Debate $debate): string
     {
         $room = $debate->room;
         $language = $room->language ?? 'japanese';
         $topic = $room->topic;
-        // AIユーザーIDを定数または設定ファイルから取得
-        $aiUserId = (int)config('app.ai_user_id', 9);
 
-        // AIのサイドを決定
-        $aiSide = ($debate->affirmative_user_id === $aiUserId) ? 'affirmative' : 'negative';
-        $userSide = ($aiSide === 'affirmative') ? 'negative' : 'affirmative';
+        $aiRawSide = ($debate->affirmative_user_id === $this->aiUserId) ? 'affirmative' : 'negative';
 
         // ディベートフォーマットと現在のターン情報を取得
         $format = $this->debateService->getFormat($debate);
@@ -119,95 +116,118 @@ class AIService
         $currentTurnInfo = $format[$currentTurnNumber] ?? null;
 
         if (!$currentTurnInfo) {
+            Log::error("Could not get current turn info for debate {$debate->id}, turn {$currentTurnNumber}");
             throw new \Exception("Could not get current turn info for debate {$debate->id}, turn {$currentTurnNumber}");
         }
+
         $currentTurnName = $currentTurnInfo['name'];
+        $timeLimitMinutes = $currentTurnInfo['duration'] / 60 ?? 180;
 
         // ディベート履歴を整形
         $history = $debate->messages()
             ->with('user')
             ->orderBy('created_at')
             ->get()
-            ->map(function ($msg) use ($debate, $language, $aiUserId, $format) {
-                $turnName = $format[$msg->turn]['name'] ?? 'Unknown Turn';
+            ->map(function ($msg) use ($debate, $language, $format) {
+                $turnName = $format[$msg->turn]['name'] ?? 'unknown speech';
                 $speakerSide = ($msg->user_id === $debate->affirmative_user_id) ? 'affirmative' : 'negative';
                 $speakerLabel = '';
+
                 if ($language === 'japanese') {
                     $speakerLabel = ($speakerSide === 'affirmative' ? '肯定側' : '否定側');
-                    if ($msg->user_id === $aiUserId) $speakerLabel .= "(あなた)";
                 } else {
-                    $speakerLabel = ($speakerSide === 'affirmative' ? 'Affirmative' : 'Negative');
-                     if ($msg->user_id === $aiUserId) $speakerLabel .= "(You)";
+                    $speakerLabel = ($speakerSide === 'affirmative' ? 'Affirmative Side' : 'Negative Side');
                 }
-                return "[{$turnName}] {$speakerLabel}: {$msg->message}";
+                // 履歴として整形
+                $messageContent = nl2br(e($msg->message)); // HTMLエスケープと改行の保持
+                return "[{$turnName}] {$speakerLabel}:\n{$messageContent}"; // メッセージ内容を改行後に表示
             })
-            ->implode("\n");
+            ->implode("\n\n");
 
-        // 言語に応じた指示を生成
-        $instructions = $this->getInstructions($language, $aiSide, $topic, $currentTurnName);
+        // 言語に応じたプロンプトテンプレートを取得
+        $promptTemplateKey = ($language === 'japanese') ? 'ai_prompts.debate_ai_opponent_ja' : 'ai_prompts.debate_ai_opponent_en';
+        $promptTemplate = Config::get($promptTemplateKey);
 
-        // プロンプト全体を組み立て
-        $prompt = <<<PROMPT
-{$instructions}
-
-# ディベート履歴
-{$history}
-
-# あなたの現在の発言パート
-{$currentTurnName}
-
-# 指示
-上記のディベート履歴と現在のパートを踏まえ、あなたの立場で反駁、質疑、または立論の続きを行ってください。論理的で、簡潔かつ的確な発言を生成してください。
-あなたの質疑のパートの場合、質問は1つずつ行い、質問の必要がなくなるか、制限時間まで繰り返してください。
-PROMPT;
-
-        // 英語の場合
-        if ($language === 'english') {
-            $prompt = <<<PROMPT
-{$instructions}
-
-# Debate History
-{$history}
-
-# Your Current Speaking Speech
-{$currentTurnName}
-
-# Instruction
-Based on the debate history and your current speech, please provide a rebuttal, ask a question, or continue your constructive argument from your assigned position. Generate a logical, concise, and precise statement.
-If this is your cross examination, ask one question at a time and continue asking as needed until no further questions are necessary or until the time limit is reached.
-PROMPT;
+        if (!$promptTemplate) {
+            Log::error("AI opponent prompt template not found for language: {$language}");
+            throw new \Exception("AI opponent prompt template not configured for language: {$language}");
         }
 
+        $aiSideName = ($language === 'japanese')
+            ? (($aiRawSide === 'affirmative') ? '肯定側' : '否定側')
+            : (($aiRawSide === 'affirmative') ? 'Affirmative' : 'Negative');
+
+        // フォーマットの説明
+        $debateFormatDescription = $this->buildFormatDescription($debate);
+
+        $replacements = [
+            '{resolution}' => $topic,
+            '{ai_side}' => $aiSideName,
+            '{debate_format_description}' => $debateFormatDescription,
+            '{current_part_name}' => $currentTurnName,
+            '{time_limit_minutes}' => $timeLimitMinutes,
+            '{debate_history}' => $history ?: (($language === 'japanese') ? 'まだ発言はありません。' : 'No speeches yet.'),
+        ];
+
+        $prompt = str_replace(array_keys($replacements), array_values($replacements), $promptTemplate);
+
+        Log::debug('Built AI prompt', [
+            'debate_id' => $debate->id,
+            'language' => $language,
+            'template_key' => $promptTemplateKey,
+            'prompt' => $prompt
+        ]);
 
         return $prompt;
     }
 
     /**
-     * 言語とサイドに基づいて指示文を生成するヘルパー関数
+     * ディベートフォーマットの詳細な説明文字列を構築する
+     * 例:
+     * 1. 準備時間 (5分)
+     * 2. 肯定側 第一立論 (6分)
+     * 3. 否定側 第一立論 (6分)
+     * ...
+     *
+     * @param Debate $debate
+     * @return string
      */
-    protected function getInstructions(string $language, string $aiSide, string $topic, string $currentTurnName): string
+    protected function buildFormatDescription(Debate $debate): string
     {
-        if ($language === 'japanese') {
-            $sideName = ($aiSide === 'affirmative') ? '肯定側' : '否定側';
-            return <<<TEXT
-あなたはディベート参加者です。以下の設定でディベートに参加しています。
-論題: {$topic}
-あなたの立場: {$sideName}
-証拠資料の使用の有無: 使用しない
-現在のパート: {$currentTurnName}
-あなたは指定された立場で、論題に対して説得力のある主張を行う必要があります。
-TEXT;
-        } else {
-            $sideName = ($aiSide === 'affirmative') ? 'Affirmative' : 'Negative';
-            return <<<TEXT
-You are a debate participant. You are participating in a debate with the following setup:
-Topic: {$topic}
-Your Side: {$sideName}
-Evidence Usage: Not used
-Current Speech: {$currentTurnName}
-You must make persuasive arguments for your assigned stance on the topic.
-TEXT;
+        $format = $debate->room->getDebateFormat();
+        $formatDescriptionParts = [];
+        $turnNumber = 1;
+        // 言語に基づいてlangファイルを選択
+        $language = $debate->room->language ?? 'japanese';
+        // 言語に基づいたロケールを設定
+        $locale = $language === 'english' ? 'en' : 'ja';
+
+        foreach ($format as $turn) {
+            $part = $turnNumber . ". "; // 番号
+
+            // スピーカー情報を追加（肯定側/否定側）
+            if (!empty($turn['speaker'])) {
+                // 'affirmative' または 'negative'
+                $speakerLabel = __('debates.' . $turn['speaker'], [], $locale);
+                $part .= $speakerLabel . " ";
+            }
+
+            // ターン名を追加
+            $part .= $turn['name'];
+
+            // 時間を追加
+            $part .= " (" . ($turn['duration'] / 60 ?? 0) . __('messages.minute_unit', [], $locale) . ")";
+
+            // 質疑の有無を追加
+            if (isset($turn['is_questions']) && $turn['is_questions']) {
+                $part .= " (" . __('debates.cross_examination_available', [], $locale) . ")";
+            }
+
+            $formatDescriptionParts[] = $part;
+            $turnNumber++;
         }
+
+        return implode("\n", $formatDescriptionParts);
     }
 
     /**
@@ -215,14 +235,14 @@ TEXT;
      */
     protected function getFallbackResponse(string $language, ?string $errorInfo = null): string
     {
-        $baseMessage = ($language === 'japanese')
-            ? "申し訳ありません、現在応答を生成できません。"
-            : "Sorry, I cannot generate a response at the moment.";
+        $baseMessage = __('messages.fallback_response');
 
         if ($errorInfo) {
-             $techDetail = ($language === 'japanese') ? "(技術的な問題が発生しました)" : "(A technical issue occurred)";
-             // $techDetail .= $errorInfo;
-             return $baseMessage . " " . $techDetail;
+            $techDetail =  __('messages.technical_issue');
+            // if (config('app.debug') && $errorInfo) {
+            //     $techDetail .= ': ' . $errorInfo;
+            // }
+            return $baseMessage . " " . $techDetail;
         }
         return $baseMessage;
     }
