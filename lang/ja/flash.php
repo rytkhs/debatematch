@@ -41,4 +41,8 @@ return [
     // Middleware/CheckUserActiveStatus.php
     'middleware.active_debate' => 'ディベートが進行中です',
     'middleware.active_room' => 'ルーム参加中です',
+
+    // AIDebateController
+    'ai_debate.exit.success' => 'AIディベートを退出しました。',
+    'ai_debate.exit.error' => 'AIディベートの退出に失敗しました。',
 ];

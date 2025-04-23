@@ -26,7 +26,7 @@
                                 <p class="text-xs sm:text-sm text-gray-600">
                                     <span class="inline-flex items-center">
                                         <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        {{ $debate->created_at->format('Y年m月d日 H:i') }}
+                                        {{ App::getLocale() === 'ja' ? $debate->created_at->format('Y年m月d日 H:i') : $debate->created_at->format('M d, Y H:i') }}
                                     </span>
                                 </p>
                             </div>
@@ -57,6 +57,9 @@
                                 <div>
                                     <p class="font-medium text-sm sm:text-base text-gray-900">
                                         {{ $debate->affirmativeUser->name }}
+                                        @if($debate->affirmative_user_id === (int)config('app.ai_user_id', 1))
+                                            <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
+                                        @endif
                                     </p>
                                 </div>
                             </div>
@@ -81,6 +84,9 @@
                                 <div>
                                     <p class="font-medium text-sm sm:text-base text-gray-900">
                                         {{ $debate->negativeUser->name }}
+                                        @if($debate->negative_user_id === (int)config('app.ai_user_id', 1))
+                                            <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
+                                        @endif
                                     </p>
                                 </div>
                             </div>

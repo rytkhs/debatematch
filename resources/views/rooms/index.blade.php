@@ -32,7 +32,8 @@
                                         {{ $room->evidence_allowed ? __('messages.evidence_allowed') : __('messages.evidence_not_allowed') }}
                                     </span>
                                     <div class="bg-gray-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs text-gray-500">
-                                        {{ $room->created_at->format('Y/m/d') }}
+                                        {{ App::getLocale() === 'ja' ? $debate->created_at->format('Y/m/d') : $debate->created_at->format('M d, Y') }}
+
                                     </div>
                                 </div>
                             </div>

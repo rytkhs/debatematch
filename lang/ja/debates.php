@@ -22,4 +22,9 @@ return [
     'suggestion_2nd_constructive' => '第二立論',
 
     'custom' => 'カスタム',
+
+    'affirmative' => '肯定側',
+    'negative' => '否定側',
+
+    'cross_examination_available' => '質疑可'
 ];

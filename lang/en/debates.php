@@ -22,4 +22,9 @@ return [
     'suggestion_2nd_constructive' => '2nd Constructive',
 
     'custom' => 'Custom',
+
+    'affirmative' => 'Affirmative Side',
+    'negative' => 'Negative Side',
+
+    'cross_examination_available' => 'Cross Examination Available',
 ];

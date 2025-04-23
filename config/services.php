@@ -41,4 +41,10 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_CHAT_MODEL', 'google/gemini-pro'),
+        'referer' => config('app.url'),
+        'title' => config('app.name'),
+    ],
 ];

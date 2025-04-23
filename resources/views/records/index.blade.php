@@ -126,7 +126,10 @@
                             <span class="inline-flex items-center px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-medium border {{ $resultClass }}">
                                 {!! $resultIcon !!}{{ $resultText }}
                             </span>
-                            <span class="text-xs text-gray-500">{{ $debate->created_at->format('Y/m/d') }}</span>
+                            <span class="text-xs text-gray-500">
+                                {{ App::getLocale() === 'ja' ? $debate->created_at->format('Y/m/d') : $debate->created_at->format('M d, Y') }}
+
+                            </span>
                         </div>
 
                         <!-- 論題 -->

@@ -20,9 +20,7 @@ class EvaluateDebateJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private int $debateId;
-
-    // 再試行設定
-    public $tries = 2;
+    public $tries = 3;
     public $backoff = 10;
 
     public function __construct(int $debateId)
