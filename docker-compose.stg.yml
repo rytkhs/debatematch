@@ -5,6 +5,7 @@ services:
       dockerfile: docker/stg/php/Dockerfile
     container_name: debate_match_app
     restart: unless-stopped
+    command: php-fpm
     environment:
       - "APP_NAME=${APP_NAME}"
       - "APP_ENV=staging"
@@ -42,6 +43,9 @@ services:
       - "SQS_PREFIX=${SQS_PREFIX}"
       - "SQS_SUFFIX=${SQS_SUFFIX}"
       - "AI_USER_ID=${AI_USER_ID}"
+      - "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}"
+      - "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}"
+      - "GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}"
     volumes:
       - ./.env:/var/www/html/.env
       - public-data:/var/www/html/public
@@ -74,7 +78,6 @@ services:
       dockerfile: docker/stg/php/Dockerfile
     container_name: debate_match_worker
     restart: unless-stopped
-    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=300 --max-jobs=500 --max-time=1800
     environment:
       - "APP_ENV=staging"
       - "DB_CONNECTION=mysql"

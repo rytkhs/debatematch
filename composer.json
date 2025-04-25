@@ -9,6 +9,7 @@
         "aws/aws-sdk-php": "^3.342",
         "aws/aws-sdk-php-laravel": "^3.10",
         "laravel/framework": "^11.9",
+        "laravel/horizon": "^5.31",
         "laravel/reverb": "^1.0",
         "laravel/socialite": "^5.19",
         "laravel/tinker": "^2.9",

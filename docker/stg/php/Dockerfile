@@ -26,10 +26,11 @@ RUN apk update && apk add --no-cache --virtual .build-deps \
     icu-libs \
     oniguruma \
     mysql-client \
+    supervisor \
     tzdata
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions exif gd intl mbstring pdo_mysql sockets zip redis
+RUN install-php-extensions exif gd intl mbstring pdo_mysql sockets zip redis pcntl
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN sed -i 's/memory_limit = .*/memory_limit = 256M/' $PHP_INI_DIR/php.ini \
@@ -64,6 +65,7 @@ COPY --from=build /var/www/html /var/www/html
 RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs \
     && mkdir -p bootstrap/cache \
     && mkdir -p /var/www/html/public/vendor \
+    && mkdir -p /var/log/supervisor /var/run/supervisor \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \
@@ -72,10 +74,15 @@ RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs \
 RUN apk del .build-deps
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/vendor \
+    && chown -R www-data:www-data /var/log/supervisor /var/run/supervisor \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/vendor
+
+COPY docker/stg/supervisor/supervisord.conf /etc/supervisord.conf
+COPY docker/stg/supervisor/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
+COPY docker/stg/supervisor/horizon.conf /etc/supervisor/conf.d/horizon.conf
 
 USER www-data
 
-CMD ["php-fpm"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
 EXPOSE 9000
