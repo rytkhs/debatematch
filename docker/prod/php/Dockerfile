@@ -26,6 +26,7 @@ RUN apk update && apk add --no-cache --virtual .build-deps \
     icu-libs \
     oniguruma \
     mysql-client \
+    supervisor \
     tzdata
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
@@ -64,6 +65,7 @@ COPY --from=build /var/www/html /var/www/html
 RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs \
     && mkdir -p bootstrap/cache \
     && mkdir -p /var/www/html/public/vendor \
+    && mkdir -p /var/log/supervisor /var/run/supervisor \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \
@@ -72,10 +74,14 @@ RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs \
 RUN apk del .build-deps
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/vendor \
+    && chown -R www-data:www-data /var/log/supervisor /var/run/supervisor \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/vendor
+
+COPY docker/prod/supervisor/supervisord.conf /etc/supervisord.conf
+COPY docker/prod/supervisor/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
 
 USER www-data
 
-CMD ["php-fpm"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
 EXPOSE 9000

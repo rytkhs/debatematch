@@ -5,6 +5,7 @@ services:
       dockerfile: docker/stg/php/Dockerfile
     container_name: debate_match_app
     restart: unless-stopped
+    command: php-fpm
     environment:
       - "APP_NAME=${APP_NAME}"
       - "APP_ENV=staging"
@@ -77,7 +78,6 @@ services:
       dockerfile: docker/stg/php/Dockerfile
     container_name: debate_match_worker
     restart: unless-stopped
-    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=300 --max-jobs=500 --max-time=1800
     environment:
       - "APP_ENV=staging"
       - "DB_CONNECTION=mysql"
