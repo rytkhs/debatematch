@@ -50,7 +50,7 @@
                         @if($isAIMessage)
                             <span class="material-icons-outlined text-lg">smart_toy</span>
                         @else
-                            {{ substr($message->user->name, 0, 1) }}
+                            {{ mb_substr($message->user->name, 0, 1) }}
                         @endif
                     </div>
                 </div>

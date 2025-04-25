@@ -51,7 +51,7 @@
                             <div class="flex items-start gap-3 sm:gap-4">
                                 <div class="flex-shrink-0">
                                     <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-sm sm:text-lg font-semibold">
-                                        {{ substr($debate->affirmativeUser->name, 0, 1) }}
+                                        {{ mb_substr($debate->affirmativeUser->name, 0, 1) }}
                                     </div>
                                 </div>
                                 <div>
@@ -78,7 +78,7 @@
                             <div class="flex items-start gap-3 sm:gap-4">
                                 <div class="flex-shrink-0">
                                     <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-sm sm:text-lg font-semibold">
-                                        {{ substr($debate->negativeUser->name, 0, 1) }}
+                                        {{ mb_substr($debate->negativeUser->name, 0, 1) }}
                                     </div>
                                 </div>
                                 <div>
