@@ -30,7 +30,7 @@ RUN apk update && apk add --no-cache --virtual .build-deps \
     tzdata
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions exif gd intl mbstring pdo_mysql sockets zip redis
+RUN install-php-extensions exif gd intl mbstring pdo_mysql sockets zip redis pcntl
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN sed -i 's/memory_limit = .*/memory_limit = 256M/' $PHP_INI_DIR/php.ini \
@@ -79,6 +79,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 COPY docker/prod/supervisor/supervisord.conf /etc/supervisord.conf
 COPY docker/prod/supervisor/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
+COPY docker/prod/supervisor/horizon.conf /etc/supervisor/conf.d/horizon.conf
 
 USER www-data
 
