@@ -9,8 +9,10 @@ services:
     environment:
       - "APP_NAME=${APP_NAME}"
       - "APP_ENV=production"
-      - "APP_URL=https://debate-match.com"
+      - "APP_DEBUG=false"
+      - "APP_URL=${APP_URL}"
       - "APP_KEY=${APP_KEY}"
+      - "APP_TIMEZONE=${APP_TIMEZONE}"
       - "DB_CONNECTION=mysql"
       - "DB_HOST=${DB_HOST}"
       - "DB_PORT=${DB_PORT}"
@@ -19,6 +21,21 @@ services:
       - "DB_PASSWORD=${DB_PASSWORD}"
       - "REDIS_HOST=redis"
       - "REDIS_PORT=6379"
+      - "REDIS_CLIENT=${REDIS_CLIENT}"
+      - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
+      - "SESSION_LIFETIME=${SESSION_LIFETIME:-120}"
+      - "QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}"
+      - "MAIL_MAILER=${MAIL_MAILER}"
+      - "MAIL_PORT=${MAIL_PORT}"
+      - "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}"
+      - "MAIL_FROM_NAME=${MAIL_FROM_NAME}"
+      - "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+      - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+      - "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}"
+      - "AWS_BUCKET=${AWS_BUCKET}"
+      - "AWS_USE_PATH_STYLE_ENDPOINT=${AWS_USE_PATH_STYLE_ENDPOINT}"
+      - "AWS_SNS_NOTIFICATION_TOPIC_ARN=${AWS_SNS_NOTIFICATION_TOPIC_ARN}"
+      - "AWS_REGION=${AWS_REGION}"
       - "PUSHER_APP_ID=${PUSHER_APP_ID}"
       - "PUSHER_APP_KEY=${PUSHER_APP_KEY}"
       - "PUSHER_APP_SECRET=${PUSHER_APP_SECRET}"
@@ -26,26 +43,19 @@ services:
       - "PUSHER_PORT=${PUSHER_PORT}"
       - "PUSHER_SCHEME=${PUSHER_SCHEME}"
       - "PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}"
+      - "LOG_CHANNEL=${LOG_CHANNEL}"
+      - "LOG_DEPRECATIONS_CHANNEL=${LOG_DEPRECATIONS_CHANNEL}"
+      - "LOG_LEVEL=${LOG_LEVEL}"
+      - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
+      - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
       - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
       - "OPENROUTER_CHAT_MODEL=${OPENROUTER_CHAT_MODEL}"
       - "OPENROUTER_EVALUATION_MODEL=${OPENROUTER_EVALUATION_MODEL}"
-      - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
-      - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
-      - "QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}"
-      - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
-      - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
-      - "AWS_SNS_NOTIFICATION_TOPIC_ARN=${AWS_SNS_NOTIFICATION_TOPIC_ARN}"
-      - "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
-      - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-      - "AWS_REGION=${AWS_REGION}"
-      - "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}"
-      - "SQS_QUEUE=${SQS_QUEUE}"
-      - "SQS_PREFIX=${SQS_PREFIX}"
-      - "SQS_SUFFIX=${SQS_SUFFIX}"
       - "AI_USER_ID=${AI_USER_ID}"
       - "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}"
       - "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}"
       - "GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}"
+      - "BROADCAST_DRIVER=${BROADCAST_DRIVER}"
     volumes:
       - ./.env:/var/www/html/.env
       - public-data:/var/www/html/public
@@ -53,6 +63,13 @@ services:
       - sail
     depends_on:
       - redis
+    logging: &awslogs_config
+      driver: "awslogs"
+      options:
+        awslogs-region: "${AWS_REGION:-ap-northeast-1}"
+        awslogs-group: "/docker/DebateMatch/app"
+        awslogs-create-group: "true"
+        tag: "{{.Name}}-{{.ID}}"
 
   nginx:
     image: nginx:1.25-alpine
@@ -66,11 +83,17 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /home/ec2-user/app/data/certbot/www:/var/www/certbot
       - public-data:/var/www/html/public:ro
-
     networks:
       - sail
     depends_on:
       - app
+    logging:
+      <<: *awslogs_config
+      options:
+        awslogs-region: "${AWS_REGION:-ap-northeast-1}"
+        awslogs-group: "/docker/DebateMatch/nginx"
+        awslogs-create-group: "true"
+        tag: "{{.Name}}-{{.ID}}"
 
   worker:
     build:
@@ -88,8 +111,13 @@ services:
       - "DB_PASSWORD=${DB_PASSWORD}"
       - "REDIS_HOST=redis"
       - "REDIS_PORT=6379"
-      - "PUSHER_APP_ID=${PUSHER_APP_ID}"
+      - "REDIS_CLIENT=${REDIS_CLIENT}"
+      - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
+      - "SESSION_LIFETIME=${SESSION_LIFETIME:-120}"
+      - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
+      - "MEMCACHED_HOST=${MEMCACHED_HOST}"
       - "QUEUE_CONNECTION=redis"
+      - "PUSHER_APP_ID=${PUSHER_APP_ID}"
       - "PUSHER_APP_KEY=${PUSHER_APP_KEY}"
       - "PUSHER_APP_SECRET=${PUSHER_APP_SECRET}"
       - "PUSHER_HOST=${PUSHER_HOST}"
@@ -99,8 +127,6 @@ services:
       - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
       - "OPENROUTER_CHAT_MODEL=${OPENROUTER_CHAT_MODEL}"
       - "OPENROUTER_EVALUATION_MODEL=${OPENROUTER_EVALUATION_MODEL}"
-      - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
-      - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
       - "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}"
       - "SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-1.0}"
       - "AWS_SNS_NOTIFICATION_TOPIC_ARN=${AWS_SNS_NOTIFICATION_TOPIC_ARN}"
@@ -119,6 +145,13 @@ services:
     depends_on:
       - app
       - redis
+    logging:
+      <<: *awslogs_config
+      options:
+        awslogs-region: "${AWS_REGION:-ap-northeast-1}"
+        awslogs-group: "/docker/DebateMatch/worker"
+        awslogs-create-group: "true"  
+        tag: "{{.Name}}-{{.ID}}"
 
   redis:
     image: redis:7-alpine
