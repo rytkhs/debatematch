@@ -1,8 +1,11 @@
+import Logger from '../logger';
+
 /**
  * ディベート評価通知用モジュール
  */
 class EventListener {
     constructor(debateId) {
+        this.logger = new Logger('EventListener');
         this.debateId = debateId;
         this.channel = null;
         this.initEchoListeners();
@@ -13,7 +16,7 @@ class EventListener {
      */
     initEchoListeners() {
         if (!window.Echo || !this.debateId) {
-            console.error('Echo または debateId が設定されていません');
+            this.logger.error('Echo または debateId が設定されていません');
             return;
         }
 
@@ -26,7 +29,7 @@ class EventListener {
                 this.handleDebateEvaluated(e);
             })
             .listen('DebateTerminated', (e) => {
-                console.log('DebateTerminated イベントを受信:', e);
+                this.logger.log('DebateTerminated イベントを受信:', e);
                 this.handleDebateTerminated(e);
             });
     }

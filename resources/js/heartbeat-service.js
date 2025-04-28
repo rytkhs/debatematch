@@ -1,9 +1,12 @@
+import Logger from './logger';
+
 /**
  * シンプルなハートビートサービス
  * ユーザーの接続状態をサーバーに定期的に報告する
  */
 class HeartbeatService {
     constructor(options = {}) {
+        this.logger = new Logger('Heartbeat');
         this.options = {
             interval: 30000, // 30秒ごとにハートビート送信
             endpoint: '/api/heartbeat',
@@ -25,14 +28,14 @@ class HeartbeatService {
         if (this.isRunning) return;
 
         if (!this.options.contextType || !this.options.contextId) {
-            console.error('ハートビート: contextTypeとcontextIdが必要です');
+            this.logger.error('ハートビート: contextTypeとcontextIdが必要です');
             return;
         }
 
         this.isRunning = true;
         this.sendHeartbeat();
         this.timerId = setInterval(() => this.sendHeartbeat(), this.options.interval);
-        console.log('ハートビート開始: 間隔', this.options.interval, 'ms');
+        this.logger.log('ハートビート開始: 間隔', this.options.interval, 'ms');
     }
 
     /**
@@ -44,7 +47,7 @@ class HeartbeatService {
             this.timerId = null;
         }
         this.isRunning = false;
-        console.log('ハートビート停止');
+        this.logger.log('ハートビート停止');
     }
 
     /**
@@ -52,7 +55,7 @@ class HeartbeatService {
      */
     async sendHeartbeat() {
         if (!navigator.onLine) {
-            console.log('オフライン状態のためハートビートをスキップ');
+            this.logger.log('オフライン状態のためハートビートをスキップ');
             return;
         }
 
@@ -76,11 +79,11 @@ class HeartbeatService {
             this.consecutiveFailures = 0;
         } catch (error) {
             this.consecutiveFailures++;
-            console.error(`ハートビート失敗 (${this.consecutiveFailures}/${this.maxConsecutiveFailures}):`, error);
+            this.logger.error(`ハートビート失敗 (${this.consecutiveFailures}/${this.maxConsecutiveFailures}):`, error);
 
             // 連続失敗が上限に達した場合の処理
             if (this.consecutiveFailures >= this.maxConsecutiveFailures) {
-                console.warn('ハートビートの連続失敗: 接続が不安定な可能性があります');
+                this.logger.warn('ハートビートの連続失敗: 接続が不安定な可能性があります');
                 // ページがロードされているなら、Livewireイベントを発火
                 if (window.Livewire) {
                     // window.Livewire.dispatch('heartbeat-failed');

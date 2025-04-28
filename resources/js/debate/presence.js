@@ -3,11 +3,14 @@
  * オンラインステータスと接続管理
  */
 import HeartbeatService from '../heartbeat-service';
+import Logger from '../logger';
 
 document.addEventListener('DOMContentLoaded', function() {
+    const logger = new Logger('Presence');
+
     // グローバルデータの確認
     if (typeof window.debateData === 'undefined') {
-        console.error('Debate data not available');
+        logger.error('Debate data not available');
         return;
     }
 
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // メンバー参加イベント
     channel.bind('pusher:member_added', function(member) {
-        console.log('Member joined:', member.info.name);
+        logger.log('Member joined:', member.info.name);
         clearTimeout(offlineTimeout); // 既存のオフラインタイマーをクリア
         // ユーザーがオンラインになったとき
         Livewire.dispatch('member-online', { data: member });
@@ -57,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // メンバー退出イベント
     channel.bind('pusher:member_removed', function(member) {
-        console.log('Member left:', member.info.name);
+        logger.log('Member left:', member.info.name);
         clearTimeout(offlineTimeout); // 念のため既存のタイマーをクリア
         offlineTimeout = setTimeout(() => {
             // 遅延後にオフラインイベントをディスパッチ (リロード対策)
@@ -68,13 +71,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // 接続状態監視（自分の接続状態）
     pusher.connection.bind('state_change', function(states) {
         if (states.current === 'connected') {
-            console.log('Connection restored.');
+            logger.log('Connection restored.');
             Livewire.dispatch('connection-restored');
         } else if (states.current === 'disconnected' || states.current === 'failed') {
-            console.log('Connection lost.');
+            logger.log('Connection lost.');
             Livewire.dispatch('connection-lost');
         } else if (states.current === 'connecting') {
-            console.log('Connecting...');
+            logger.log('Connecting...');
         }
     });
 
@@ -94,10 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // });
 
     window.addEventListener('offline', function() {
-        console.log('offline');
-      });
+        logger.log('offline');
+    });
 
     window.addEventListener('online', function() {
-        console.log('online');
+        logger.log('online');
     });
 });

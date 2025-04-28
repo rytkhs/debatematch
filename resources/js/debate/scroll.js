@@ -2,7 +2,11 @@
  * Chat Scroll Module
  * チャットの自動スクロール機能を管理するモジュール
  */
+import Logger from '../logger';
+
 document.addEventListener('DOMContentLoaded', function() {
+    // const logger = new Logger('ScrollManager');
+
     // 初期化を遅延
     setTimeout(() => {
         initChatScrollManager();
@@ -15,19 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // 正しいチャットコンテナを取得
         const mainContainer = document.querySelector('#chat-container');
         if (!mainContainer) {
-            console.error('Main chat container not found. Auto-scrolling disabled.');
             return;
         }
 
         // 実際のメッセージを含む内部コンテナを取得
-        // Livewire.Debates.Chat コンポーネント内のスクロール可能な領域を取得
         let chatContainer = mainContainer.querySelector('.flex-1.overflow-y-auto.p-4.space-y-4');
         if (!chatContainer) {
             // バックアップ: 内部のoverflowを持つ要素を探す
             chatContainer = mainContainer.querySelector('.overflow-y-auto');
             if (!chatContainer) {
                 // フォールバック: メインコンテナを使用
-                console.warn('Internal scroll container not found, using main container');
                 chatContainer = mainContainer;
             }
         }
@@ -39,13 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let isInitialized = false;
         let hasOverflow = false; // スクロールが必要かどうかを追跡
 
-        console.log('Chat Scroll Manager initialized with container:', chatContainer);
-        console.log(`Initial container state: scrollTop=${chatContainer.scrollTop}, scrollHeight=${chatContainer.scrollHeight}, clientHeight=${chatContainer.clientHeight}`);
 
         // スクロールが必要かチェック
         const checkIfOverflowing = () => {
             hasOverflow = chatContainer.scrollHeight > chatContainer.clientHeight;
-            console.log(`Overflow check: scrollHeight=${chatContainer.scrollHeight}, clientHeight=${chatContainer.clientHeight}, hasOverflow=${hasOverflow}`);
             return hasOverflow;
         };
 
@@ -55,13 +53,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // スクロールが必要かチェック
             if (!checkIfOverflowing()) {
-                console.log('No overflow, scrolling not needed');
                 // スクロールは不要だが、状態はリセット
                 resetScrollState();
                 return;
             }
 
-            console.log(`Scrolling to bottom. Smooth: ${smooth}, Height: ${chatContainer.scrollHeight}`);
             chatContainer.scrollTo({
                 top: chatContainer.scrollHeight,
                 behavior: smooth ? 'smooth' : 'instant'
@@ -76,14 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 50);
         };
 
-        // 最下部にいるかチェックする関数
+        // 最下部にいるかチェックする
         const isNearBottom = () => {
             if (!chatContainer) return true;
             if (!checkIfOverflowing()) return true; // オーバーフローがなければ常に最下部と判断
 
             const threshold = 100;
             const scrollBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
-            console.log(`Scroll check: scrollTop=${chatContainer.scrollTop}, scrollHeight=${chatContainer.scrollHeight}, clientHeight=${chatContainer.clientHeight}, scrollBottom=${scrollBottom}, nearBottom=${scrollBottom < threshold}`);
             return scrollBottom < threshold;
         };
 
@@ -93,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!checkIfOverflowing()) return; // スクロールの必要がなければ通知しない
 
             newMessageNotification.classList.remove('hidden');
-            console.log('Showing new message notification');
             clearTimeout(newMessageNotification.timer);
             newMessageNotification.timer = setTimeout(hideNewMessageNotification, 5000);
         };
@@ -103,14 +97,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!newMessageNotification) return;
             newMessageNotification.classList.add('hidden');
             clearTimeout(newMessageNotification.timer);
-            console.log('Hiding new message notification');
         };
 
         // スクロール状態をリセット
         const resetScrollState = () => {
             isUserScrollingUp = false;
             manualScrollDetected = false;
-            console.log('Scroll state reset');
         };
 
         // チャットコンテンツの高さ変更を監視する関数
@@ -119,27 +111,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
             setInterval(() => {
                 if (chatContainer.scrollHeight !== lastHeight) {
-                    console.log(`Content height changed: ${lastHeight} -> ${chatContainer.scrollHeight}`);
                     lastHeight = chatContainer.scrollHeight;
 
                     // 高さ変更時に自動スクロールを検討
                     if (!isUserScrollingUp || isNearBottom()) {
-                        console.log('Content height changed, auto-scrolling');
                         scrollToBottom();
                     }
                 }
             }, 500);
         };
 
-        // --- イベントリスナー ---
 
         // 初期スクロール
         setTimeout(() => {
-            console.log('Forcing initial scroll to bottom');
             checkIfOverflowing(); // 初期状態を確認
-            scrollToBottom(true); // false から true に変更してアニメーションを有効に
+            scrollToBottom(true);
             isInitialized = true;
-            console.log('Initial scroll to bottom complete with animation');
             monitorContentHeight(); // コンテンツ高さの監視を開始
         }, 500);
 
@@ -150,7 +137,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // 10px以上の変化で手動スクロールと判断
             if (Math.abs(chatContainer.scrollTop - lastScrollTop) > 10) {
                 manualScrollDetected = true;
-                console.log(`Manual scroll detected: ${lastScrollTop} -> ${chatContainer.scrollTop}`);
             }
 
             lastScrollTop = chatContainer.scrollTop;
@@ -159,63 +145,51 @@ document.addEventListener('DOMContentLoaded', function() {
             var scrollTimeout = setTimeout(() => {
                 if (!isNearBottom() && manualScrollDetected) {
                     isUserScrollingUp = true;
-                    console.log('User scrolled up - not near bottom.');
                 } else if (isNearBottom()) {
                     resetScrollState();
                     hideNewMessageNotification();
-                    console.log('User scrolled to bottom.');
                 }
             }, 150);
         });
 
         // メッセージイベント処理
         const handleMessageEvent = (isSelf = false) => {
-            // コンテンツが更新されるのを待つ
             setTimeout(() => {
                 // オーバーフロー状態を再確認
                 checkIfOverflowing();
 
-                console.log(`Handle message event. isSelf: ${isSelf}, isUserScrollingUp: ${isUserScrollingUp}, hasOverflow: ${hasOverflow}, isNearBottom: ${isNearBottom()}`);
 
                 if (!hasOverflow) {
-                    console.log('No overflow after message, no scroll needed');
                     return;
                 }
 
                 if (isSelf) {
-                    console.log('Self message - scrolling to bottom');
                     scrollToBottom();
                 } else if (!isUserScrollingUp || isNearBottom()) {
-                    console.log('Other user message, appropriate for auto-scroll');
                     scrollToBottom();
                 } else {
-                    console.log('Other user message, user scrolled up - showing notification');
                     showNewMessageNotification();
                 }
-            }, 300); // メッセージ処理の遅延を長めに
+            }, 300); // メッセージ処理の遅延
         };
 
         // Livewireイベントリスナー
         if (window.Livewire) {
-            console.log('Setting up Livewire event listeners');
 
             Livewire.on('message-received', () => {
-                console.log('Event received: message-received');
                 handleMessageEvent(false);
             });
 
             Livewire.on('message-sent', () => {
-                console.log('Event received: message-sent');
                 handleMessageEvent(true);
             });
         } else {
-            console.warn('Livewire not available');
+            // logger.warn('Livewire not available');
         }
 
         // 通知クリックでスクロール
         if (newMessageNotification) {
             newMessageNotification.addEventListener('click', () => {
-                console.log('New message notification clicked.');
                 scrollToBottom();
                 hideNewMessageNotification();
             });
@@ -232,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (hasContentChanges) {
-                console.log('Chat content changed via DOM mutation');
                 checkIfOverflowing(); // 変更後にオーバーフロー状態を確認
             }
         });

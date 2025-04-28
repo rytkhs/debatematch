@@ -1,9 +1,13 @@
+import Logger from '../logger';
+
+const logger = new Logger('Notification');
+
 if (!window.debateData) {
-    console.error('window.debateDataが見つかりません');
+    logger.error('window.debateDataが見つかりません');
 }
 
 const { debateId } = window.debateData || {};
-console.log('debateId:', debateId);
+logger.log('debateId:', debateId);
 
 // 通知音を再生する関数
 function playNotificationSound(audioId = 'messageNotification') {
@@ -11,7 +15,7 @@ function playNotificationSound(audioId = 'messageNotification') {
     if (audio) {
         audio.currentTime = 0;
         audio.volume = 0.5;
-        audio.play().catch(err => console.error('通知音再生エラー:', err));
+        audio.play().catch(err => logger.error('通知音再生エラー:', err));
     }
 }
 
@@ -28,8 +32,8 @@ const activateAudio = () => {
             silentAudio.play().then(() => {
                 silentAudio.pause();
                 silentAudio.currentTime = 0;
-                console.log('オーディオコンテキストがアクティブ化されました');
-            }).catch(e => console.log('オーディオのアクティブ化に失敗:', e));
+                logger.log('オーディオコンテキストがアクティブ化されました');
+            }).catch(e => logger.log('オーディオのアクティブ化に失敗:', e));
         }
     }
 };
