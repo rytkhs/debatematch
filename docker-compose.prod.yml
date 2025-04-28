@@ -55,7 +55,6 @@ services:
       - "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}"
       - "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}"
       - "GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}"
-      - "BROADCAST_DRIVER=${BROADCAST_DRIVER}"
     volumes:
       - ./.env:/var/www/html/.env
       - public-data:/var/www/html/public
@@ -115,7 +114,6 @@ services:
       - "SESSION_DRIVER=${SESSION_DRIVER:-file}"
       - "SESSION_LIFETIME=${SESSION_LIFETIME:-120}"
       - "CACHE_DRIVER=${CACHE_DRIVER:-file}"
-      - "MEMCACHED_HOST=${MEMCACHED_HOST}"
       - "QUEUE_CONNECTION=redis"
       - "PUSHER_APP_ID=${PUSHER_APP_ID}"
       - "PUSHER_APP_KEY=${PUSHER_APP_KEY}"
@@ -150,7 +148,7 @@ services:
       options:
         awslogs-region: "${AWS_REGION:-ap-northeast-1}"
         awslogs-group: "/docker/DebateMatch/worker"
-        awslogs-create-group: "true"  
+        awslogs-create-group: "true"
         tag: "{{.Name}}-{{.ID}}"
 
   redis:

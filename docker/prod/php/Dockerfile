@@ -78,7 +78,6 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/vendor
 
 COPY docker/prod/supervisor/supervisord.conf /etc/supervisord.conf
-COPY docker/prod/supervisor/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
 COPY docker/prod/supervisor/horizon.conf /etc/supervisor/conf.d/horizon.conf
 
 USER www-data
