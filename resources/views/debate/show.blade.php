@@ -142,7 +142,8 @@
         'resources/js/debate/presence.js',
         'resources/js/debate/countdown.js',
         'resources/js/debate/event-listener.js',
-        'resources/js/debate/notification.js'
+        'resources/js/debate/notification.js',
+        'resources/js/debate/scroll.js',
     ])
 
 </x-show-layout>

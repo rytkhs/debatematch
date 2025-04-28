@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/debate/countdown.js',
                 'resources/js/debate/event-listener.js',
                 'resources/js/debate/presence.js',
+                'resources/js/debate/scroll.js',
                 'resources/js/debate/ui.js',
                 'resources/js/rooms-show.js',
                 'resources/js/debate/notification.js',
