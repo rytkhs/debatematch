@@ -91,14 +91,5 @@
                 </div>
             </div>
         @endforelse
-
-        <!-- 新メッセージ通知 -->
-        <div id="new-message-notification" class="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-full shadow-lg hidden cursor-pointer">
-            <div class="flex items-center">
-                <span class="material-icons mr-1">arrow_downward</span>
-                <span>{{ __('messages.new_message') }}</span>
-            </div>
-        </div>
     </div>
 </div>
-
