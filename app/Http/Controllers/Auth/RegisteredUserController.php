@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\SNSController;
+// use App\Http\Controllers\SNSController;
+use App\Services\SlackNotifier;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -16,11 +17,13 @@ use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
-    protected SNSController $snsController;
+    // protected SNSController $snsController;
+    protected SlackNotifier $slackNotifier;
 
-    public function __construct(SNSController $snsController)
+    public function __construct(SlackNotifier $slackNotifier)
     {
-        $this->snsController = $snsController;
+        // $this->snsController = $snsController;
+        $this->slackNotifier = $slackNotifier;
     }
 
     /**
@@ -57,10 +60,11 @@ class RegisteredUserController extends Controller
             . "名前: {$user->name}\n";
 
         // 通知を送信（メール）
-        $result = $this->snsController->sendNotification(
-            $message,
-            "【DebateMatch】新規ユーザー登録"
-        );
+        // $result = $this->snsController->sendNotification(
+        //     $message,
+        //     "【DebateMatch】新規ユーザー登録"
+        // );
+        $result = $this->slackNotifier->send($message);
 
         if ($result) {
             Log::info("通知を送信しました。 User ID: {$user->id}");

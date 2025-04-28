@@ -11,16 +11,20 @@ use App\Events\UserLeftRoom;
 use App\Events\CreatorLeftRoom;
 use Illuminate\Support\Facades\DB;
 use App\Services\ConnectionManager;
-use App\Http\Controllers\SNSController;
+// use App\Http\Controllers\SNSController;
+use App\Services\SlackNotifier;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 
 class RoomController extends Controller
 {
-    protected SNSController $snsController;
+    // protected SNSController $snsController;
+    protected SlackNotifier $slackNotifier;
 
-    public function __construct(SNSController $snsController)
+    public function __construct(SlackNotifier $slackNotifier)
     {
-        $this->snsController = $snsController;
+        // $this->snsController = $snsController;
+        $this->slackNotifier = $slackNotifier;
     }
 
     public function index()
@@ -119,13 +123,18 @@ class RoomController extends Controller
             $message = "新しいルームが作成されました。\n"
                 . "ルーム名: {$room->name}\n"
                 . "トピック: {$room->topic}\n"
-                . "作成者: {$user->name}";
+                . "作成者: {$user->name}"
+                . "URL: " . route('rooms.preview', $room);
 
             // メール通知
-            $this->snsController->sendNotification(
-                $message,
-                "【DebateMatch】新規ルーム作成"
-            );
+            // $this->snsController->sendNotification(
+            //     $message,
+            //     "【DebateMatch】新規ルーム作成"
+            // );
+            $result = $this->slackNotifier->send($message);
+            if (!$result) {
+                Log::warning("Slack通知の送信に失敗しました(ルーム作成)。 Room ID: {$room->id}");
+            }
 
             return redirect()->route('rooms.show', compact('room'))->with('success', __('flash.room.store.success'));
         });
@@ -220,10 +229,14 @@ class RoomController extends Controller
                 . "マッチングが成立し、ディベートを開始できる状態になりました。";
 
             // メール通知のみ送信
-            $this->snsController->sendNotification(
-                $message,
-                "【DebateMatch】ルーム参加・マッチング成立"
-            );
+            // $this->snsController->sendNotification(
+            //     $message,
+            //     "【DebateMatch】ルーム参加・マッチング成立"
+            // );
+            $result = $this->slackNotifier->send($message);
+            if (!$result) {
+                Log::warning("Slack通知の送信に失敗しました(ユーザー参加)。 Room ID: {$room->id}, User ID: {$user->id}");
+            }
 
             return redirect()->route('rooms.show', $room)->with('success', __('flash.room.join.success'));
         });
