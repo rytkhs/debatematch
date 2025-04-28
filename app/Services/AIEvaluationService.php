@@ -26,6 +26,7 @@ class AIEvaluationService
     {
         $room = $debate->room;
         $language = $room->language ?? 'japanese';
+        $evidenceAllowed = (bool) $room->evidence_allowed;
 
         // 1. ディベートメッセージを取得し、1つの文字列にまとめる
         $transcript = $debate->messages
@@ -49,14 +50,20 @@ class AIEvaluationService
             })
             ->implode("\n");
 
-        // 言語に応じたプロンプトキーを選択
-        $promptKey = ($language === 'english') ? 'ai_prompts.debate_evaluation_en' : 'ai_prompts.debate_evaluation_ja';
-
+        // 言語と証拠利用可否に基づいてプロンプトキーを選択
+        $basePromptKey = ($language === 'english') ? 'ai_prompts.debate_evaluation_en' : 'ai_prompts.debate_evaluation_ja';
+        $promptKey = $evidenceAllowed ? $basePromptKey : $basePromptKey . '_no_evidence';
+        Log::debug($promptKey);
         // 設定ファイルからプロンプトテンプレートを取得
         $promptTemplate = Config::get($promptKey);
         if (!$promptTemplate) {
-            Log::error('AI prompt template not found in config.', ['key' => $promptKey]);
-            return $this->getDefaultResponse("プロンプトテンプレートが見つかりません ({$promptKey})");
+            Log::error('AI prompt template not found in config.', ['key' => $promptKey, 'debate_id' => $debate->id, 'language' => $language, 'evidence_allowed' => $evidenceAllowed]);
+            $promptTemplate = Config::get($basePromptKey);
+            if (!$promptTemplate) {
+                Log::error('Base AI prompt template also not found.', ['key' => $basePromptKey, 'debate_id' => $debate->id]);
+                return $this->getDefaultResponse("プロンプトテンプレートが見つかりません ({$promptKey} も {$basePromptKey} も見つかりません)", $language);
+            }
+            Log::warning('Specific prompt not found, falling back to base prompt.', ['key' => $promptKey, 'fallback_key' => $basePromptKey, 'debate_id' => $debate->id]);
         }
 
         // プロンプトに変数を埋め込む
@@ -76,51 +83,51 @@ class AIEvaluationService
             'X-Title' => 'Debate Evaluation System',
             'Content-Type' => 'application/json',
         ])
-        ->timeout(240)
-        ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => env('OPENROUTER_EVALUATION_MODEL'),
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $prompt
-                ]
-            ],
-            'temperature' => 0.2,
-            'max_tokens' => 5000,
-            'response_format' => [
-                'type' => 'json_schema',
-                'json_schema' => [
-                    'name' => 'debateEvaluation',
-                    'strict' => true,
-                    'schema' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'isAnalyzable' => [
-                                'type' => 'boolean',
+            ->timeout(240)
+            ->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model' => env('OPENROUTER_EVALUATION_MODEL'),
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => $prompt
+                    ]
+                ],
+                'temperature' => 0.2,
+                'max_tokens' => 5000,
+                'response_format' => [
+                    'type' => 'json_schema',
+                    'json_schema' => [
+                        'name' => 'debateEvaluation',
+                        'strict' => true,
+                        'schema' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'isAnalyzable' => [
+                                    'type' => 'boolean',
+                                ],
+                                'analysis' => [
+                                    'type' => ['string', 'null'],
+                                ],
+                                'reason' => [
+                                    'type' => ['string', 'null'],
+                                ],
+                                'winner' => [
+                                    'type' => ['string', 'null'],
+                                    'enum' => $winnerEnum,
+                                ],
+                                'feedbackForAffirmative' => [
+                                    'type' => ['string', 'null'],
+                                ],
+                                'feedbackForNegative' => [
+                                    'type' => ['string', 'null'],
+                                ]
                             ],
-                            'analysis' => [
-                                'type' => ['string', 'null'],
-                            ],
-                            'reason' => [
-                                'type' => ['string', 'null'],
-                            ],
-                            'winner' => [
-                                'type' => ['string', 'null'],
-                                'enum' => $winnerEnum,
-                            ],
-                            'feedbackForAffirmative' => [
-                                'type' => ['string', 'null'],
-                            ],
-                            'feedbackForNegative' => [
-                                'type' => ['string', 'null'],
-                            ]
-                        ],
-                        'required' => ['isAnalyzable', 'analysis', 'reason', 'winner', 'feedbackForAffirmative', 'feedbackForNegative'],
-                        'additionalProperties' => false
+                            'required' => ['isAnalyzable', 'analysis', 'reason', 'winner', 'feedbackForAffirmative', 'feedbackForNegative'],
+                            'additionalProperties' => false
+                        ]
                     ]
                 ]
-            ]
-        ]);
+            ]);
 
         // 4. レスポンスを処理
         if ($response->failed()) {
@@ -130,7 +137,7 @@ class AIEvaluationService
                 'debate_id' => $debate->id,
                 'language' => $language
             ]);
-            return $this->getDefaultResponse("AI APIとの通信に失敗しました");
+            return $this->getDefaultResponse("AI APIとの通信に失敗しました", $language);
         }
 
         $aiResponseContent = $response->json('choices.0.message.content');
@@ -150,7 +157,7 @@ class AIEvaluationService
                 'debate_id' => $debate->id,
                 'language' => $language
             ]);
-            return $this->getDefaultResponse("AIからの応答の解析に失敗しました: " . $errorMessage);
+            return $this->getDefaultResponse("AIからの応答の解析に失敗しました: " . $errorMessage, $language);
         }
 
         // 5. データを変換
