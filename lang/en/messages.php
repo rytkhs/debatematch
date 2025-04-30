@@ -479,4 +479,6 @@ return [
 
     'fallback_response' => 'Sorry, I cannot generate a response at the moment.',
     'technical_issue' => '(A technical issue occurred)',
+
+    'app_meta_description' => 'DebateMatch is an online debate application where users can enhance their discussion skills, logical thinking, and expressive power through real-time text debates with AI feedback.',
 ];
