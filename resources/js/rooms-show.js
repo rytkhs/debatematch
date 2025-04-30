@@ -1,8 +1,10 @@
 import HeartbeatService from './heartbeat-service';
+import Logger from './logger';
 
 // ルームページの機能強化
 class RoomManager {
     constructor(options) {
+        this.logger = new Logger('RoomManager');
         this.roomId = options.roomId;
         this.userId = options.authUserId;
         this.pusherKey = options.pusherKey;
@@ -27,7 +29,7 @@ class RoomManager {
         this.channel = this.pusher.subscribe('rooms.' + this.roomId);
         this.presenceChannel = this.pusher.subscribe('presence-room.' + this.roomId);
 
-        console.log('チャンネル初期化:', this.channel);
+        this.logger.log('チャンネル初期化:', this.channel);
 
         // イベントハンドラの登録
         this.registerEventHandlers();
@@ -41,7 +43,7 @@ class RoomManager {
                 const message = (window.translations?.user_joined_room || ':name has joined.').replace(':name', data.user.name);
                 this.showNotification(message, 'info');
             }
-            console.log(`${data.user.name} さんが参加しました`);
+            this.logger.log(`${data.user.name} さんが参加しました`);
         });
 
         // ユーザー退出イベント
@@ -50,7 +52,7 @@ class RoomManager {
                 const message = (window.translations?.user_left_room || ':name has left.').replace(':name', data.user.name);
                 this.showNotification(message, 'warning');
             }
-            console.log(`${data.user.name} さんが退出しました`);
+            this.logger.log(`${data.user.name} さんが退出しました`);
         });
 
         // クリエイター退出イベント
@@ -64,8 +66,8 @@ class RoomManager {
 
         // ディベート開始イベント
         this.channel.bind('App\\Events\\DebateStarted', data => {
-            console.log('ディベート開始イベントを受信しました');
-            console.log('ディベートID:', data.debateId);
+            this.logger.log('ディベート開始イベントを受信しました');
+            this.logger.log('ディベートID:', data.debateId);
 
             this.showNotification(window.translations?.debate_starting_message || 'Starting the debate. Preparing to navigate...', 'success');
             this.showLoadingCountdown();
@@ -106,7 +108,7 @@ class RoomManager {
 
         // プレゼンスチャンネルのメンバー状態変更イベント
         this.presenceChannel.bind('pusher:member_removed', member => {
-            console.log(member.info.name + ' さんが切断されました');
+            this.logger.log(member.info.name + ' さんが切断されました');
             clearTimeout(offlineTimeout);
             offlineTimeout = setTimeout(() => {
                 // 遅延後にオフラインイベントをディスパッチ (リロード対策)
@@ -115,7 +117,7 @@ class RoomManager {
         });
 
         this.presenceChannel.bind('pusher:member_added', member => {
-            console.log(member.info.name + ' さんが再接続しました');
+            this.logger.log(member.info.name + ' さんが再接続しました');
             clearTimeout(offlineTimeout);
 
             Livewire.dispatch('member-online', { data: member });

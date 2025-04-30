@@ -61,7 +61,7 @@ class EventListener {
             type: 'success',
             duration: 2000
         });
-        console.log(event.debateId);
+        this.logger.log(event.debateId);
 
         // 評価結果ページへのURLを生成
         const resultUrl = `/debate/${this.debateId}/result`;
