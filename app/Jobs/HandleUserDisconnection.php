@@ -19,8 +19,8 @@ class HandleUserDisconnection implements ShouldQueue
 
     protected $userId;
     protected $context;
-    public $tries = 3; // 再試行回数
-    public $backoff = 5; // 再試行間隔（秒）
+    public $tries = 3;
+    public $backoff = 5;
 
     /**
      * Create a new job instance.
