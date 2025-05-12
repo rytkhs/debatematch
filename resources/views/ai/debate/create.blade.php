@@ -55,8 +55,9 @@
                                         </div>
                                         <select id="language" name="language"
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md">
-                                            <option value="english">{{ __('messages.english') }}</option>
-                                            <option value="japanese">{{ __('messages.japanese') }}</option>
+                                            @foreach ($languageOrder as $lang)
+                                                <option value="{{ $lang }}">{{ __('messages.' . $lang) }}</option>
+                                            @endforeach
                                         </select>
                                         <x-input-error :messages="$errors->get('language')" class="mt-2" />
                                     </div>

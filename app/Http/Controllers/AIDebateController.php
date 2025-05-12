@@ -28,7 +28,31 @@ class AIDebateController extends Controller
         $rawFormats = config('debate.formats');
         $translatedFormats = [];
 
-        foreach ($rawFormats as $formatKey => $turns) {
+        // アメリカと日本のフォーマットに分ける
+        $usFormats = [
+            'format_name_nsda_policy' => $rawFormats['format_name_nsda_policy'],
+            'format_name_nsda_ld' => $rawFormats['format_name_nsda_ld'],
+            'format_name_npda_parliamentary' => $rawFormats['format_name_npda_parliamentary'],
+        ];
+
+        $jpFormats = [
+            'format_name_nada_high' => $rawFormats['format_name_nada_high'],
+            'format_name_henda' => $rawFormats['format_name_henda'],
+            'format_name_coda' => $rawFormats['format_name_coda'],
+            'format_name_jda' => $rawFormats['format_name_jda'],
+        ];
+
+        // ロケールに基づいて順序を決定
+        $locale = app()->getLocale();
+        if ($locale === 'ja') {
+            $sortedFormats = array_merge($jpFormats, $usFormats);
+            $languageOrder = ['japanese', 'english']; // 日本語ロケールでは日本語を先に
+        } else {
+            $sortedFormats = array_merge($usFormats, $jpFormats);
+            $languageOrder = ['english', 'japanese']; // その他のロケールでは英語を先に
+        }
+
+        foreach ($sortedFormats as $formatKey => $turns) {
             $translatedFormatName = __('debates.' . $formatKey);
             $translatedTurns = [];
             foreach ($turns as $index => $turn) {
@@ -42,7 +66,7 @@ class AIDebateController extends Controller
             ];
         }
 
-        return view('ai.debate.create', compact('translatedFormats'));
+        return view('ai.debate.create', compact('translatedFormats', 'languageOrder'));
     }
 
     public function store(Request $request)
