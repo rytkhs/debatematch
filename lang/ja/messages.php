@@ -81,7 +81,7 @@ return [
     // ルーム作成 (create.blade.php)
     'create_new_room' => '新しいルームを作成', // ページタイトル
     'basic_information' => '基本情報',
-    'placeholder_topic' => '論題を入力',
+    'placeholder_topic' => '例: 日本は一定の年齢に達しない者のSNSの利用を大幅に制限すべきである。',
     'topic_guideline' => 'ディベートのテーマとなる明確な命題を入力してください。',
     'placeholder_room_name' => 'ルーム名を入力',
     'placeholder_remarks' => '特別なルールや注意事項があれば入力してください',

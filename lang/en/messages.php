@@ -70,7 +70,7 @@ return [
     // Room Creation (create.blade.php)
     'create_new_room' => 'Create New Room',
     'basic_information' => 'Basic Information',
-    'placeholder_topic' => 'Enter topic here',
+    'placeholder_topic' => 'e.g. The United States should drastically limits the use of social networking sites by those under a certain age.',
     'topic_guideline' => 'Enter a clear proposition for the debate topic.',
     'placeholder_room_name' => 'Enter room name here',
     'placeholder_remarks' => 'Enter any special rules or notes',
