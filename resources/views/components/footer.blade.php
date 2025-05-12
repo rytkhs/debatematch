@@ -26,7 +26,13 @@
 
             <!-- ソーシャルメディアリンク -->
             <div class="flex space-x-4">
-                <a href="https://x.com/debate_match" class="text-gray-500 hover:text-primary transition-colors" aria-label="Twitter">
+                @php
+                    // ロケールによってXアカウントのURLを切り替える
+                    $xUrl = app()->getLocale() === 'ja'
+                        ? 'https://x.com/debatematch_jp'
+                        : 'https://x.com/debatematch_en';
+                @endphp
+                <a href="{{ $xUrl }}" class="text-gray-500 hover:text-primary transition-colors" aria-label="Twitter">
                     <i class="fa-brands fa-x-twitter text-xl"></i>
                 </a>
             </div>
