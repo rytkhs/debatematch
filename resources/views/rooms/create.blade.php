@@ -251,12 +251,12 @@
                                         <span id="format-preview-title">{{ __('messages.format_preview') }}</span>
                                     </span>
                                     <span
-                                        class="material-icons-outlined text-gray-400 group-hover:text-indigo-500 transition-colors format-preview-icon">expand_more</span>
+                                        class="material-icons-outlined text-gray-400 group-hover:text-indigo-500 transition-colors format-preview-icon">expand_less</span>
                                 </h3>
                             </button>
 
                             <div id="format-preview-content"
-                                class="hidden mt-3 sm:mt-4 transition-all duration-300 transform">
+                                class="mt-3 sm:mt-4 transition-all duration-300 transform">
                                 <div class="pt-2 border-t border-gray-100">
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full border border-gray-100 rounded-lg">
