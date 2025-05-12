@@ -121,7 +121,7 @@
                                         <label
                                             class="relative flex bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition">
                                             <input type="radio" name="side" value="affirmative"
-                                                class="form-radio absolute opacity-0">
+                                                class="form-radio absolute opacity-0" {{ old('side') == 'affirmative' ? 'checked' : '' }}>
                                             <div class="flex items-center">
                                                 <div
                                                     class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-green-500 flex items-center justify-center mr-2 sm:mr-3">
@@ -141,7 +141,7 @@
                                         <label
                                             class="relative flex bg-red-50 p-3 sm:p-4 rounded-lg border border-red-200 cursor-pointer hover:bg-red-100 transition">
                                             <input type="radio" name="side" value="negative"
-                                                class="form-radio absolute opacity-0">
+                                                class="form-radio absolute opacity-0" {{ old('side') == 'negative' ? 'checked' : '' }}>
                                             <div class="flex items-center">
                                                 <div
                                                     class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-red-500 flex items-center justify-center mr-2 sm:mr-3">
@@ -170,7 +170,7 @@
                                         <label
                                             class="relative flex bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100 transition">
                                             <input type="radio" name="evidence_allowed" value="1"
-                                                class="form-radio absolute opacity-0">
+                                                class="form-radio absolute opacity-0" {{ old('evidence_allowed') == '1' ? 'checked' : '' }}>
                                             <div class="flex items-center">
                                                 <div
                                                     class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-blue-500 flex items-center justify-center mr-2 sm:mr-3">
@@ -192,7 +192,7 @@
                                         <label
                                             class="relative flex bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
                                             <input type="radio" name="evidence_allowed" value="0"
-                                                class="form-radio absolute opacity-0">
+                                                class="form-radio absolute opacity-0" {{ old('evidence_allowed') == '0' ? 'checked' : '' }}>
                                             <div class="flex items-center">
                                                 <div
                                                     class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-gray-500 flex items-center justify-center mr-2 sm:mr-3">
@@ -228,9 +228,9 @@
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md"
                                             onchange="toggleCustomFormat(this.value === 'custom'); updateFormatPreview(this.value);">
                                             @foreach ($translatedFormats as $translatedName => $turns)
-                                            <option value="{{ array_search($turns, $translatedFormats, true) }}">{{ $turns['name'] }}</option>
+                                            <option value="{{ array_search($turns, $translatedFormats, true) }}" {{ old('format_type') == array_search($turns, $translatedFormats, true) ? 'selected' : '' }}>{{ $turns['name'] }}</option>
                                             @endforeach
-                                            <option value="custom">{{ __('messages.custom_format') }}</option>
+                                            <option value="custom" {{ old('format_type') == 'custom' ? 'selected' : '' }}>{{ __('messages.custom_format') }}</option>
                                         </select>
                                     </div>
                                     <p class="mt-1 text-xs text-gray-500">{{ __('messages.format_selection_guide') }}
@@ -310,15 +310,15 @@
                                             <label class="block text-xs text-gray-500">{{ __('messages.side') }}</label>
                                             <select name="turns[0][speaker]"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
-                                                <option value="affirmative">{{ __('messages.affirmative_side') }}
-                                                </option>
+                                                <option value="affirmative">{{ __('messages.affirmative_side')
+                                                    }}</option>
                                                 <option value="negative">{{ __('messages.negative_side') }}</option>
                                             </select>
                                         </div>
                                         <div class="sm:col-span-5">
                                             <label class="block text-xs text-gray-500">{{ __('messages.part_name')
                                                 }}</label>
-                                            <input type="text" name="turns[0][name]"
+                                            <input type="text" name="turns[0][name]" value="{{ old('turns.0.name') }}"
                                                 placeholder="{{ __('messages.placeholder_part_name') }}"
                                                 list="part-suggestions"
                                                 class="part-name mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
@@ -336,20 +336,20 @@
                                         <div class="sm:col-span-2">
                                             <label class="block text-xs text-gray-500">{{
                                                 __('messages.duration_minutes') }}</label>
-                                            <input type="number" name="turns[0][duration]" value="5" min="1" max="60"
+                                            <input type="number" name="turns[0][duration]" value="{{ old('turns.0.duration', 5) }}" min="1" max="60"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm">
                                         </div>
                                         <div class="sm:col-span-2 flex flex-col justify-end">
                                             <div class="flex items-center space-x-2">
                                                 <label class="inline-flex items-center">
                                                     <input type="checkbox" name="turns[0][is_questions]" value="1"
-                                                        class="question-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
+                                                        class="question-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4" {{ old('turns.0.is_questions') ? 'checked' : '' }}>
                                                     <span class="ml-1 text-xs text-gray-500">{{
                                                         __('messages.question_time') }}</span>
                                                 </label>
                                                 <label class="inline-flex items-center">
                                                     <input type="checkbox" name="turns[0][is_prep_time]" value="1"
-                                                        class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4">
+                                                        class="prep-time-checkbox rounded text-indigo-600 focus:ring-indigo-500 h-3 w-3 sm:h-4 sm:w-4" {{ old('turns.0.is_prep_time') ? 'checked' : '' }}>
                                                     <span class="ml-1 text-xs text-gray-500">{{ __('messages.prep_time')
                                                         }}</span>
                                                 </label>
@@ -764,6 +764,12 @@
             turnsContainer.querySelectorAll('.turn-card').forEach(card => {
                 attachInputListenersToElement(card);
             });
+
+            // フォーマットタイプが「custom」の場合、カスタムフォーマット設定を表示
+            const formatType = "{{ old('format_type') }}";
+            if (formatType === 'custom') {
+                toggleCustomFormat(true);
+            }
         });
     </script>
 </x-app-layout>
