@@ -114,7 +114,7 @@
         roomId: {{ Js::from($debate->room->id) }},
         authUserId: {{ Js::from(auth()->id()) }},
         pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
-        pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }}
+        pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }},
     };
 
     const translations = {

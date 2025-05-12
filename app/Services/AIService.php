@@ -17,6 +17,10 @@ class AIService
     protected DebateService $debateService;
     protected int $aiUserId;
 
+    // 言語別の1分あたりの文字/単語数定数
+    const JAPANESE_CHARS_PER_MINUTE = 120;
+    const ENGLISH_WORDS_PER_MINUTE = 80;
+
     public function __construct(DebateService $debateService)
     {
         $this->apiKey = Config::get('services.openrouter.api_key');
@@ -55,14 +59,16 @@ class AIService
                 'HTTP-Referer' => $this->referer,
                 'X-Title' => $this->title,
                 'Content-Type' => 'application/json',
-            ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                'model' => $this->model,
-                'messages' => [
-                    ['role' => 'user', 'content' => $prompt]
-                ],
-                'temperature' => 0.7,
-                'max_tokens' => 7000,
-            ]);
+            ])
+                ->timeout(240)
+                ->post('https://openrouter.ai/api/v1/chat/completions', [
+                    'model' => $this->model,
+                    'messages' => [
+                        ['role' => 'user', 'content' => $prompt]
+                    ],
+                    'temperature' => 0.7,
+                    'max_tokens' => 7000,
+                ]);
 
             if ($response->failed()) {
                 Log::error('OpenRouter API Error', [
@@ -123,6 +129,9 @@ class AIService
         $currentTurnName = $currentTurnInfo['name'];
         $timeLimitMinutes = $currentTurnInfo['duration'] / 60 ?? 180;
 
+        // 言語に応じた文字数/単語数制限の計算
+        $characterLimit = $this->calculateCharacterLimit($timeLimitMinutes, $language);
+
         // ディベート履歴を整形
         $history = $debate->messages()
             ->with('user')
@@ -167,6 +176,7 @@ class AIService
             '{current_part_name}' => $currentTurnName,
             '{time_limit_minutes}' => $timeLimitMinutes,
             '{debate_history}' => $history ?: (($language === 'japanese') ? 'まだ発言はありません。' : 'No speeches yet.'),
+            '{character_limit}' => $characterLimit, // 文字数/単語数制限
         ];
 
         $prompt = str_replace(array_keys($replacements), array_values($replacements), $promptTemplate);
@@ -175,10 +185,31 @@ class AIService
             'debate_id' => $debate->id,
             'language' => $language,
             'template_key' => $promptTemplateKey,
+            'character_limit' => $characterLimit,
             'prompt' => $prompt
         ]);
 
         return $prompt;
+    }
+
+    /**
+     * 言語と時間に基づいて文字数/単語数制限を計算する
+     *
+     * @param float $timeLimitMinutes
+     * @param string $language
+     * @return string
+     */
+    protected function calculateCharacterLimit(float $timeLimitMinutes, string $language): string
+    {
+        if ($language === 'japanese') {
+            // 日本語の場合は文字数制限
+            $totalChars = (int)($timeLimitMinutes * self::JAPANESE_CHARS_PER_MINUTE);
+            return "{$totalChars}文字程度";
+        } else {
+            // 英語の場合は単語数制限
+            $totalWords = (int)($timeLimitMinutes * self::ENGLISH_WORDS_PER_MINUTE);
+            return "approximately {$totalWords} words";
+        }
     }
 
     /**

@@ -48,10 +48,9 @@ class MessageInput extends Component
         $this->syncTurnState();
     }
 
-    #[On("echo-private:debate.{debate.id},DebateFinished")]
-    public function handleDebateFinished(): void
+    #[On("echo-private:debate.{debate.id},DebateStarted")]
+    public function handleDebateStarted(): void
     {
-        // ディベート終了で初期化
         $this->newMessage = '';
     }
 

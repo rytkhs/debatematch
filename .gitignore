@@ -21,3 +21,6 @@ yarn-error.log
 /.zed
 .cursorrules
 .cursorignore
+.cursor/
+directorystructure.md
+technologystack.md

@@ -26,7 +26,7 @@
                 @if($isAffirmativeAI)
                     <span class="material-icons-outlined text-xl">smart_toy</span>
                 @else
-                    {{ mb_substr($debate->affirmativeUser->name, 0, 1) }}
+                    {{ mb_substr($debate->affirmativeUser->name, 0, 2) }}
                 @endif
             </div>
             <div>
@@ -65,7 +65,7 @@
                 @if($isNegativeAI)
                     <span class="material-icons-outlined text-xl">smart_toy</span>
                 @else
-                    {{ mb_substr($debate->negativeUser->name, 0, 1) }}
+                    {{ mb_substr($debate->negativeUser->name, 0, 2) }}
                 @endif
             </div>
             <div>

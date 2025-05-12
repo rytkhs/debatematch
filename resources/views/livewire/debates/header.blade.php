@@ -1,5 +1,5 @@
 <header class="debate-header bg-white border-b border-gray-200 shadow-sm z-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-1">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <!-- 左側: トピック情報 -->
             <div class="mb-2 md:mb-0 flex items-center">

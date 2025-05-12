@@ -93,7 +93,7 @@ class AIEvaluationService
                     ]
                 ],
                 'temperature' => 0.2,
-                'max_tokens' => 5000,
+                'max_tokens' => 8000,
                 'response_format' => [
                     'type' => 'json_schema',
                     'json_schema' => [
