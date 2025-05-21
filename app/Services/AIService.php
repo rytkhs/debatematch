@@ -18,7 +18,7 @@ class AIService
     protected int $aiUserId;
 
     // 言語別の1分あたりの文字/単語数定数
-    const JAPANESE_CHARS_PER_MINUTE = 120;
+    const JAPANESE_CHARS_PER_MINUTE = 150;
     const ENGLISH_WORDS_PER_MINUTE = 80;
 
     public function __construct(DebateService $debateService)

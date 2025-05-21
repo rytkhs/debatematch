@@ -43,8 +43,18 @@
                 </div>
             @endif
 
+            <!-- 音声認識中間結果表示エリア -->
+            <div wire:ignore id="voice-interim-results" class="hidden md:flex flex-1 ml-2 mr-2 relative">
+                <div class="min-h-[1.5rem] overflow-hidden text-sm font-medium text-primary-dark bg-primary-50 rounded-lg px-2 py-1 ml-4 text-ellipsis transition-opacity duration-200 opacity-0"></div>
+            </div>
+
+            <!-- 音声入力ボタン -->
+            <button wire:ignore type="button" id="voice-input-toggle" class="hidden md:block ml-auto p-1.5 rounded-full transition-all duration-200 hover:bg-gray-200 text-gray-500 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" title="{{ __('messages.voice_input') }}">
+                <span class="material-icons text-base">mic</span>
+            </button>
+
             <!-- 文字数カウンター -->
-            <div class="ml-auto text-xs text-gray-500">
+            <div class="ml-2 text-xs text-gray-500">
                 <span x-text="$wire.newMessage.length"></span>/5000
             </div>
         </div>
@@ -82,6 +92,8 @@
         const shrinkInput = document.getElementById('shrink-input');
         const toggleInputVisibility = document.getElementById('toggle-input-visibility');
         const inputArea = document.getElementById('input-area');
+        const voiceInputToggle = document.getElementById('voice-input-toggle');
+        const voiceInterimResults = document.getElementById('voice-interim-results');
 
         // 状態管理
         let state = {
@@ -92,6 +104,7 @@
             defaultHeight: 72,
             expandedHeight: window.innerHeight * 0.3,
             isAnimating: false,
+            isVoiceRecognizing: false,
         };
 
         // 初期高さ設定
@@ -248,6 +261,158 @@
                 state.isVisible = true;
                 saveInputVisibility(state.isVisible);
             }
+        }
+
+        // 音声認識機能
+        // SpeechRecognition または webkitSpeechRecognition が利用可能かチェック
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (voiceInputToggle && messageInput && SpeechRecognition) {
+            let recognition = new SpeechRecognition();
+            let currentMessageValue = '';
+
+            // 言語設定
+            const roomLanguage = "{{ $debate->room->language ?? 'english' }}";
+            recognition.lang = roomLanguage === 'japanese' ? 'ja-JP' : 'en-US';
+
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            // 音声認識開始時の処理
+            recognition.onstart = function() {
+                state.isVoiceRecognizing = true;
+                voiceInputToggle.querySelector('.material-icons').textContent = 'mic';
+                voiceInputToggle.classList.remove('hover:bg-gray-200', 'text-gray-500');
+                voiceInputToggle.classList.add('bg-primary', 'text-white', 'animate-pulse');
+
+                // 現在のテキストエリアの値を保存
+                currentMessageValue = messageInput.value;
+            };
+
+            // 音声認識結果の処理
+            recognition.onresult = function(event) {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                // 結果を処理
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                // 中間結果を表示エリアに表示
+                if (voiceInterimResults) {
+                    const resultElement = voiceInterimResults.querySelector('div');
+                    if (resultElement) {
+                        resultElement.textContent = interimTranscript;
+
+                        // 表示/非表示の切り替え
+                        if (interimTranscript) {
+                            resultElement.style.opacity = '1';
+                        } else {
+                            resultElement.style.opacity = '0';
+                        }
+                    }
+                }
+
+                // 最終結果があればテキストエリアとLivewireモデルを更新
+                if (finalTranscript) {
+                    let updatedText = currentMessageValue + finalTranscript;
+                    messageInput.value = updatedText;
+                    currentMessageValue = updatedText;
+                    @this.set('newMessage', updatedText);
+
+                    // 最終結果が確定したら中間結果表示をクリア
+                    if (voiceInterimResults) {
+                        const resultElement = voiceInterimResults.querySelector('div');
+                        if (resultElement) {
+                            resultElement.textContent = '';
+                            resultElement.style.opacity = '0';
+                        }
+                    }
+                }
+            };
+
+            // 音声認識終了時の処理
+            recognition.onend = function() {
+                if (state.isVoiceRecognizing) {
+                    // 自動的に終了した場合は再開
+                    recognition.start();
+                } else {
+                    // 手動で停止した場合
+                    voiceInputToggle.querySelector('.material-icons').textContent = 'mic';
+                    voiceInputToggle.classList.remove('bg-primary', 'text-white', 'animate-pulse');
+                    voiceInputToggle.classList.add('hover:bg-gray-200', 'text-gray-500');
+                }
+                // 認識終了時（エラー時も）に中間結果表示をクリア
+                if (voiceInterimResults) {
+                    const resultElement = voiceInterimResults.querySelector('div');
+                    if (resultElement) {
+                        resultElement.textContent = '';
+                        resultElement.style.opacity = '0';
+                    }
+                }
+            };
+
+            // エラー処理
+            recognition.onerror = function(event) {
+                console.error('音声認識エラー:', event.error);
+                state.isVoiceRecognizing = false;
+                voiceInputToggle.querySelector('.material-icons').textContent = 'mic';
+                voiceInputToggle.classList.remove('bg-primary', 'text-white', 'animate-pulse');
+                voiceInputToggle.classList.add('hover:bg-gray-200', 'text-gray-500');
+                // エラー発生時に中間結果表示をクリア
+                if (voiceInterimResults) {
+                    const resultElement = voiceInterimResults.querySelector('div');
+                    if (resultElement) {
+                        resultElement.textContent = '';
+                        resultElement.style.opacity = '0';
+                    }
+                }
+            };
+
+            // 音声入力ボタンのクリックイベント
+            voiceInputToggle.addEventListener('click', function() {
+                if (state.isVoiceRecognizing) {
+                    // 音声認識停止
+                    recognition.stop();
+                    state.isVoiceRecognizing = false;
+                } else {
+                    // 音声認識開始
+                    try {
+                        recognition.start();
+                        ensureInputVisible(); // 入力エリアが非表示の場合は表示する
+                    } catch (e) {
+                        console.error('{{ __('messages.voice_input_failed') }}', e);
+                        // エラー発生時にも状態をリセット
+                        state.isVoiceRecognizing = false;
+                        voiceInputToggle.querySelector('.material-icons').textContent = 'mic';
+                        voiceInputToggle.classList.remove('bg-primary', 'text-white', 'animate-pulse');
+                        voiceInputToggle.classList.add('hover:bg-gray-200', 'text-gray-500');
+                    }
+                }
+            });
+
+            // テキストエリアへの通常入力時の処理 カーソル位置を考慮した更新
+            messageInput.addEventListener('input', function(e) {
+                // 音声認識中かどうかに関わらず、テキストエリアの値が変更されたらLivewireモデルを更新
+                // これにより、ユーザーが手動で編集した場合もnewMessageプロパティが最新の状態に保たれる
+                @this.set('newMessage', messageInput.value);
+
+                // 音声認識中の場合、現在の保存値も更新
+                if (state.isVoiceRecognizing) {
+                    currentMessageValue = messageInput.value;
+                }
+            });
+
+        } else if (voiceInputToggle) {
+            // 音声認識非対応環境では音声入力ボタンを無効化
+            voiceInputToggle.disabled = true;
+            voiceInputToggle.title = "{{ __('messages.browser_does_not_support_voice_input') }}";
+            voiceInputToggle.classList.add('opacity-50', 'cursor-not-allowed');
         }
     });
     </script>

@@ -17,7 +17,7 @@ class AIUserSeeder extends Seeder
         User::updateOrCreate(
             ['id' => 9],
             [
-                'name' => 'AI Assistant',
+                'name' => 'AI Debater',
                 'email' => 'ai@debatematch.app',
                 'password' => Hash::make(str()->random(20)),
                 'email_verified_at' => now(),
