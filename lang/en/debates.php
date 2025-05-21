@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'format_name_npda_parliamentary' => 'NPDA Parliamentary Debate',
+    // 'format_name_npda_parliamentary' => 'NPDA Parliamentary Debate',
     'format_name_nsda_policy' => 'NSDA Policy Debate',
     'format_name_nsda_ld' => 'NSDA Lincoln-Douglas Debate',
     'format_name_nada_high' => 'Debate Koshien (High School Division) (NADA)',

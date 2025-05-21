@@ -32,7 +32,7 @@ class AIDebateController extends Controller
         $usFormats = [
             'format_name_nsda_policy' => $rawFormats['format_name_nsda_policy'],
             'format_name_nsda_ld' => $rawFormats['format_name_nsda_ld'],
-            'format_name_npda_parliamentary' => $rawFormats['format_name_npda_parliamentary'],
+            // 'format_name_npda_parliamentary' => $rawFormats['format_name_npda_parliamentary'],
         ];
 
         $jpFormats = [
