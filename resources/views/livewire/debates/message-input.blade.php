@@ -262,7 +262,7 @@
                 saveInputVisibility(state.isVisible);
             }
         }
-        
+
         // 音声認識機能
         // SpeechRecognition または webkitSpeechRecognition が利用可能かチェック
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -340,8 +340,6 @@
             recognition.onend = function() {
                 if (state.isVoiceRecognizing) {
                     // 自動的に終了した場合は再開
-                    // Note: Some browsers might stop automatically after a short pause.
-                    // This restart logic keeps it listening continuously until manually stopped.
                     recognition.start();
                 } else {
                     // 手動で停止した場合
@@ -414,7 +412,7 @@
             // 音声認識非対応環境では音声入力ボタンを無効化
             voiceInputToggle.disabled = true;
             voiceInputToggle.title = "{{ __('messages.browser_does_not_support_voice_input') }}";
-            voiceInputToggle.classList.add('opacity-50', 'cursor-not-allowed'); // カーソルスタイルも追加
+            voiceInputToggle.classList.add('opacity-50', 'cursor-not-allowed');
         }
     });
     </script>
