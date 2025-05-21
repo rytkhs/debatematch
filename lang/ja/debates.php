@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'format_name_npda_parliamentary' => 'NPDAパーラメンタリーディベート',
+    // 'format_name_npda_parliamentary' => 'NPDAパーラメンタリーディベート',
     'format_name_nsda_policy' => 'NSDAポリシーディベート',
     'format_name_nsda_ld' => 'NSDAリンカーン・ダグラスディベート',
     'format_name_nada_high' => 'ディベート甲子園(高校)(NADA)',
