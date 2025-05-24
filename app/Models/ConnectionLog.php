@@ -33,7 +33,7 @@ class ConnectionLog extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     /**
@@ -82,17 +82,18 @@ class ConnectionLog extends Model
      */
     public static function getConnectedUserIds($contextType, $contextId)
     {
-        return self::select('user_id')
-            ->where('context_type', $contextType)
-            ->where('context_id', $contextId)
-            ->where('status', ConnectionManager::STATUS_CONNECTED)
+        return DB::table('connection_logs as cl1')
+            ->select('cl1.user_id')
+            ->where('cl1.context_type', $contextType)
+            ->where('cl1.context_id', $contextId)
+            ->where('cl1.status', ConnectionManager::STATUS_CONNECTED)
             ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
-                    ->from('connection_logs as newer')
-                    ->whereRaw('connection_logs.user_id = newer.user_id')
-                    ->whereRaw('connection_logs.context_type = newer.context_type')
-                    ->whereRaw('connection_logs.context_id = newer.context_id')
-                    ->whereRaw('connection_logs.id < newer.id');
+                    ->from('connection_logs as cl2')
+                    ->whereColumn('cl1.user_id', 'cl2.user_id')
+                    ->whereColumn('cl1.context_type', 'cl2.context_type')
+                    ->whereColumn('cl1.context_id', 'cl2.context_id')
+                    ->whereColumn('cl1.created_at', '<', 'cl2.created_at');
             })
             ->pluck('user_id')
             ->toArray();
@@ -266,11 +267,9 @@ class ConnectionLog extends Model
      */
     public static function getFrequentDisconnectionUsers(Carbon $start, Carbon $end)
     {
-        // metadata->frequent_disconnections が true のログを検索
-        // DBによってはJSONカラムのクエリ方法が異なる場合がある
+        // LaravelのJSONクエリメソッドを使用してデータベース非依存にする
         return self::select('user_id', DB::raw('COUNT(*) as frequent_count'))
-            ->where('metadata->frequent_disconnections', true) // JSONパス式 (MySQL 5.7+, PostgreSQL)
-            // ->whereJsonContains('metadata', ['frequent_disconnections' => true]) // Laravel 9+
+            ->whereJsonContains('metadata', ['frequent_disconnections' => true])
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('user_id')
             ->orderByDesc('frequent_count')

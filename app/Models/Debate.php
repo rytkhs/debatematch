@@ -23,12 +23,12 @@ class Debate extends Model
 
     public function affirmativeUser()
     {
-        return $this->belongsTo(User::class, 'affirmative_user_id');
+        return $this->belongsTo(User::class, 'affirmative_user_id')->withTrashed();
     }
 
     public function negativeUser()
     {
-        return $this->belongsTo(User::class, 'negative_user_id');
+        return $this->belongsTo(User::class, 'negative_user_id')->withTrashed();
     }
 
     public function messages()
