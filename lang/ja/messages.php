@@ -524,4 +524,6 @@ return [
     'voice_input' => '音声入力',
     'browser_does_not_support_voice_input' => 'お使いのブラウザは音声入力に対応していません',
     'voice_input_failed' => '音声入力に失敗しました',
+
+    'unknown_user' => 'unknown',
 ];
