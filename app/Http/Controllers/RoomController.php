@@ -91,6 +91,8 @@ class RoomController extends Controller
             'language' => 'required|in:japanese,english',
             'format_type' => 'required|string',
             'evidence_allowed' => 'required|boolean',
+        ], [
+            'format_type.required' => __('messages.validation.format_type.required'),
         ]);
 
         $customFormatSettings = null;

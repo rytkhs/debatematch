@@ -191,11 +191,13 @@
                                         <select name="format_type" id="format_type"
                                             class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md"
                                             onchange="toggleCustomFormat(this.value === 'custom'); updateFormatPreview(this.value);">
+                                            <option value="" {{ old('format_type') == '' ? 'selected' : '' }}>{{ __('messages.please_select') }}</option>
                                             @foreach ($translatedFormats as $translatedName => $turns)
                                             <option value="{{ array_search($turns, $translatedFormats, true) }}" {{ old('format_type') == array_search($turns, $translatedFormats, true) ? 'selected' : '' }}>{{ $turns['name'] }}</option>
                                             @endforeach
                                             <option value="custom" {{ old('format_type') == 'custom' ? 'selected' : '' }}>{{ __('messages.custom_format') }}</option>
                                         </select>
+                                        <x-input-error :messages="$errors->get('format_type')" class="mt-2" />
                                     </div>
                                     <p class="mt-1 text-xs text-gray-500">{{ __('messages.format_selection_guide') }}
                                     </p>

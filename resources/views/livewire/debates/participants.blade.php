@@ -88,8 +88,8 @@
     </div>
 
     <!-- ターン終了ボタン -->
-    @if($isMyTurn)
     <div class="mt-auto">
+        @if($isMyTurn)
         <button wire:click="advanceTurnManually"
             wire:confirm="{{ __('messages.confirm_end_turn', ['currentTurnName' => $currentTurnName, 'nextTurnName' => $nextTurnName]) }}"
             wire:loading.attr="disabled"
@@ -102,6 +102,7 @@
                 <span>{{ $isProcessing ? __('messages.processing') : __('messages.end_turn') }}</span>
             </span>
         </button>
+        @endif
 
         <!-- ターン情報 -->
         <div class="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
@@ -109,12 +110,11 @@
             <div class="flex items-center justify-between text-sm">
                 <span class="font-medium">{{$currentTurnName}}</span>
                 <span class="bg-primary-light text-primary px-2 py-0.5 rounded-full text-xs">
-                    {{ __('messages.remaining_time_label') }} <span id="time-left-small"></span>
+                    {{ __('messages.remaining_time_label') }} <span wire:ignore id="time-left-small"></span>
                 </span>
             </div>
         </div>
     </div>
-    @endif
 
     @script
     <script>
