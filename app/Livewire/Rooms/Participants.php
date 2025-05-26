@@ -15,8 +15,11 @@ class Participants extends Component
     public function mount(Room $room)
     {
         $this->room = $room;
-        $this->affirmativeDebater = $room->users->firstWhere('pivot.side', 'affirmative')->name ?? null;
-        $this->negativeDebater = $room->users->firstWhere('pivot.side', 'negative')->name ?? null;
+        $affirmativeUser = $room->users->firstWhere('pivot.side', 'affirmative');
+        $negativeUser = $room->users->firstWhere('pivot.side', 'negative');
+
+        $this->affirmativeDebater = $affirmativeUser ? $affirmativeUser->name : null;
+        $this->negativeDebater = $negativeUser ? $negativeUser->name : null;
     }
 
 
@@ -25,8 +28,11 @@ class Participants extends Component
     public function updateParticipants()
     {
         $this->room->load('users');
-        $this->affirmativeDebater = $this->room->users->firstWhere('pivot.side', 'affirmative')->name ?? null;
-        $this->negativeDebater = $this->room->users->firstWhere('pivot.side', 'negative')->name ?? null;
+        $affirmativeUser = $this->room->users->firstWhere('pivot.side', 'affirmative');
+        $negativeUser = $this->room->users->firstWhere('pivot.side', 'negative');
+
+        $this->affirmativeDebater = $affirmativeUser ? $affirmativeUser->name : null;
+        $this->negativeDebater = $negativeUser ? $negativeUser->name : null;
     }
 
 

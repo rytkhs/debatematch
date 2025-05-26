@@ -485,4 +485,6 @@ return [
     'voice_input' => 'Voice Input',
     'browser_does_not_support_voice_input' => 'Your browser does not support voice input.',
     'voice_input_failed' => 'Voice input failed.',
+
+    'unknown_user' => 'unknown',
 ];

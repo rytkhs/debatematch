@@ -30,7 +30,6 @@
         <!-- フィルターとソート -->
         <div class="mb-5 sm:mb-6">
             <div class="flex items-center justify-between mb-3 sm:mb-4">
-                {{-- <h2 class="text-lg font-semibold text-gray-900">{{ __('messages.filter_and_search') }}</h2> --}}
             </div>
 
             <form id="filterForm" action="{{ route('records.index') }}" method="GET" class="mb-5 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
@@ -118,7 +117,7 @@
 
                             $side = $isAffirmative ? __('messages.affirmative_side') : __('messages.negative_side');
                             $sideClass = $isAffirmative ? 'text-success' : 'text-danger';
-                            $opponent = $isAffirmative ? $debate->negativeUser->name ?? '不明' : $debate->affirmativeUser->name ?? '不明';
+                            $opponent = $isAffirmative ? ($debate->negativeUser ? $debate->negativeUser->name : 'unknown') : ($debate->affirmativeUser ? $debate->affirmativeUser->name : 'unknown');
                         @endphp
 
                         <!-- 状態と日付 -->
@@ -204,7 +203,7 @@
 
                             $side = $isAffirmative ? __('messages.affirmative_side') : __('messages.negative_side');
                             $sideClass = $isAffirmative ? 'text-success' : 'text-danger';
-                            $opponent = $isAffirmative ? $debate->negativeUser->name ?? '不明' : $debate->affirmativeUser->name ?? '不明';
+                            $opponent = $isAffirmative ? ($debate->negativeUser ? $debate->negativeUser->name : 'unknown') : ($debate->affirmativeUser ? $debate->affirmativeUser->name : 'unknown');
                         @endphp
 
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -244,7 +243,7 @@
                             </div>
                             <div>
                                 <p class="mb-1">Room: <span class="font-medium">{{ $debate->room->name }}</span></p>
-                                <p>Host: <span class="font-medium">{{ $debate->room->creator->name }}</span></p>
+                                <p>Host: <span class="font-medium">{{ $debate->room->creator->name ?? 'unknown' }}</span></p>
                             </div>
                             @if($debate->evaluations)
                                 <div>

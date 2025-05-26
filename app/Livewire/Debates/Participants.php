@@ -74,8 +74,8 @@ class Participants extends Component
 
     private function checkIfUsersTurn(int $userId): bool
     {
-        return ($this->currentSpeaker === 'affirmative' && $this->debate->affirmativeUser->id === $userId)
-            || ($this->currentSpeaker === 'negative' && $this->debate->negativeUser->id === $userId);
+        return ($this->currentSpeaker === 'affirmative' && $this->debate->affirmativeUser && $this->debate->affirmativeUser->id === $userId)
+            || ($this->currentSpeaker === 'negative' && $this->debate->negativeUser && $this->debate->negativeUser->id === $userId);
     }
 
     public function isUserOnline($userId): bool

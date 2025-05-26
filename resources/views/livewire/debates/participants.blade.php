@@ -26,13 +26,13 @@
                 @if($isAffirmativeAI)
                     <span class="material-icons-outlined text-xl">smart_toy</span>
                 @else
-                    {{ mb_substr($debate->affirmativeUser->name, 0, 2) }}
+                    {{ $debate->affirmativeUser ? mb_substr($debate->affirmativeUser->name, 0, 2) : '??' }}
                 @endif
             </div>
             <div>
                 {{-- 名前 --}}
                 <div class="font-medium flex items-center">
-                    {{ $debate->affirmativeUser->name }}
+                    {{ $debate->affirmativeUser ? $debate->affirmativeUser->name : __('messages.unknown_user') }}
                     @if($isAffirmativeAI)
                         <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
                     @endif
@@ -65,13 +65,13 @@
                 @if($isNegativeAI)
                     <span class="material-icons-outlined text-xl">smart_toy</span>
                 @else
-                    {{ mb_substr($debate->negativeUser->name, 0, 2) }}
+                    {{ $debate->negativeUser ? mb_substr($debate->negativeUser->name, 0, 2) : '??' }}
                 @endif
             </div>
             <div>
                  {{-- 名前 --}}
                 <div class="font-medium flex items-center">
-                    {{ $debate->negativeUser->name }}
+                    {{ $debate->negativeUser ? $debate->negativeUser->name : __('messages.unknown_user') }}
                      @if($isNegativeAI)
                         <span class="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
                     @endif

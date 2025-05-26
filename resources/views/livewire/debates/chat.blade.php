@@ -50,7 +50,7 @@
                         @if($isAIMessage)
                             <span class="material-icons-outlined text-lg">smart_toy</span>
                         @else
-                            {{ mb_substr($message->user->name, 0, 1) }}
+                            {{ $message->user ? mb_substr($message->user->name, 0, 1) : '?' }}
                         @endif
                     </div>
                 </div>
@@ -73,7 +73,7 @@
 
                     <!-- 送信者名と時間 -->
                     <div class="flex mt-1 text-xs text-gray-500 {{ $message->user_id === Auth::id() ? 'justify-end' : 'justify-start' }}">
-                        <span>{{ $message->user->name }}</span>
+                        <span>{{ $message->user ? $message->user->name : __('messages.unknown_user') }}</span>
                         {{-- AIラベル --}}
                         @if($isAIMessage)
                             <span class="ml-1.5 px-1 py-0 bg-blue-100 text-blue-800 text-[9px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>

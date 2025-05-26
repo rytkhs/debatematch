@@ -45,4 +45,13 @@ return [
     // AIDebateController
     'ai_debate.exit.success' => 'Successfully exited the AI debate.',
     'ai_debate.exit.error' => 'Failed to exit the AI debate.',
+
+    // ValidateDebateAccess.php
+    'auth.login_required' => 'Login is required.',
+    'debate.not_found' => 'Debate not found.',
+    'debate.access_denied' => 'You do not have access to this debate.',
+    'debate.deleted' => 'Debate deleted.',
+    'debate.terminated' => 'Debate terminated.',
+    'room.not_found' => 'Room not found.',
+    'debate.invalid_state' => 'Debate state is invalid.',
 ];

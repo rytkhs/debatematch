@@ -22,6 +22,8 @@ services:
       - "DB_PASSWORD=${DB_PASSWORD}"
       - "REDIS_HOST=redis"
       - "REDIS_PORT=6379"
+      - "REDIS_CLIENT=${REDIS_CLIENT}"
+      - "REDIS_PASSWORD=${REDIS_PASSWORD}"
       - "PUSHER_APP_ID=${PUSHER_APP_ID}"
       - "PUSHER_APP_KEY=${PUSHER_APP_KEY}"
       - "PUSHER_APP_SECRET=${PUSHER_APP_SECRET}"
@@ -93,6 +95,8 @@ services:
       - "DB_PASSWORD=${DB_PASSWORD}"
       - "REDIS_HOST=redis"
       - "REDIS_PORT=6379"
+      - "REDIS_CLIENT=${REDIS_CLIENT}"
+      - "REDIS_PASSWORD=${REDIS_PASSWORD}"
       - "PUSHER_APP_ID=${PUSHER_APP_ID}"
       - "QUEUE_CONNECTION=redis"
       - "PUSHER_APP_KEY=${PUSHER_APP_KEY}"
@@ -129,12 +133,16 @@ services:
     image: redis:7-alpine
     container_name: debate_match_redis
     restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
+      - ./docker/stg/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - sail
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3

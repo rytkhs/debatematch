@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Config;
 
 class SlackNotifier
 {
-    protected string $webhookUrl;
+    protected ?string $webhookUrl;
 
     public function __construct()
     {
-        $this->webhookUrl = Config::get('services.slack.webhook_url', env('SLACK_WEBHOOK_URL'));
+        $this->webhookUrl = Config::get('services.slack.webhook_url') ?: env('SLACK_WEBHOOK_URL');
 
         if (empty($this->webhookUrl)) {
             Log::warning('Slack Webhook URLが設定されていません。(SLACK_WEBHOOK_URL)');
