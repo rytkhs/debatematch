@@ -230,7 +230,6 @@ class DebateService
                                     'debate_id' => $debate->id,
                                     'turn' => $nextTurn
                                 ]);
-
                             } else {
                                 // 次がユーザーターンならターン終了時の進行ジョブをスケジュール
                                 AdvanceDebateTurnJob::dispatch($debate->id, $nextTurn)->delay($debate->turn_end_time);
@@ -247,21 +246,21 @@ class DebateService
                                 'next_turn' => $nextTurn,
                                 'error' => $e->getMessage()
                             ]);
-                        // エラー発生時はディベートを強制終了
-                        try {
-                            if ($debate->room && $debate->room->status === Room::STATUS_DEBATING) {
-                                $this->terminateDebate($debate);
-                                Log::warning('Debate forcibly terminated due to error in advanceToNextTurn afterCommit', [
+                            // エラー発生時はディベートを強制終了
+                            try {
+                                if ($debate->room && $debate->room->status === Room::STATUS_DEBATING) {
+                                    $this->terminateDebate($debate);
+                                    Log::warning('Debate forcibly terminated due to error in advanceToNextTurn afterCommit', [
+                                        'debate_id' => $debate->id,
+                                        'error' => $e->getMessage()
+                                    ]);
+                                }
+                            } catch (\Exception $termException) {
+                                Log::critical('Failed to forcibly terminate debate after error in advanceToNextTurn afterCommit', [
                                     'debate_id' => $debate->id,
-                                    'error' => $e->getMessage()
+                                    'error' => $termException->getMessage()
                                 ]);
                             }
-                        } catch (\Exception $termException) {
-                            Log::critical('Failed to forcibly terminate debate after error in advanceToNextTurn afterCommit', [
-                                'debate_id' => $debate->id,
-                                'error' => $termException->getMessage()
-                            ]);
-                        }
                         }
                     });
                 } else {
@@ -270,7 +269,6 @@ class DebateService
                     Log::info('Finishing debate as next turn is null', ['debate_id' => $debate->id]);
                 }
             });
-
         } catch (\Exception $e) {
             Log::error('Unexpected error during turn advancement', [
                 'debate_id' => $debate->id,

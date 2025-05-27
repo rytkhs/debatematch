@@ -83,6 +83,7 @@ return [
     'select_format' => 'Select Format',
     'custom_format' => 'Custom Format',
     'format_selection_guide' => 'Select the format for the debate. Choose "Custom Format" to configure it freely.',
+    'please_select' => 'Please select',
     'format_preview' => 'Format Preview',
     'configure_custom_format' => 'Configure Custom Format',
     'custom_format_guide' => 'Set the "Side", "Speech Name", and "Duration" for each part. You can include "Prep Time" or "Cross Examination". At least one part is required.',
@@ -413,6 +414,7 @@ return [
     'validation.required' => 'The :attribute field is required.',
     'validation.string' => 'The :attribute must be a string.',
     'validation.max.string' => 'The :attribute may not be greater than :max characters.',
+    'validation.format_type.required' => 'Please select a debate format.',
 
 
     'already_have_account' => 'Already have an account?',
@@ -420,6 +422,11 @@ return [
 
     'google_login' => 'Login with Google',
     'twitter_login' => 'Login with Twitter',
+    'guest_login' => 'Continue as Guest',
+    'guest_user' => 'Guest User',
+    'guest_login_notice' => 'Guest access expires after 24 hours',
+    'demo_mode_notice' => 'Viewing in Guest Mode',
+    'demo_mode_description' => 'Topics starting with "Demo:" are sample debate records. Guest users can also participate in actual debates.',
 
     'debate_information_tab' => 'Debate Information',
     'timeline_tab' => 'Timeline',

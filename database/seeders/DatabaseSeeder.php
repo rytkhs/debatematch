@@ -16,6 +16,12 @@ class DatabaseSeeder extends Seeder
         // AIユーザーシーダーを呼び出す
         $this->call(AIUserSeeder::class);
 
+        // $this->call(DemoDebateSeeder::class);
+
+        $this->call(DeathPenaltyDebateSeeder::class);
+
+        $this->call(SETIDebateSeeder::class);
+
         // User::factory(10)->create();
 
         // User::factory()->create([

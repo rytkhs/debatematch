@@ -13,7 +13,10 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->isAdmin()) {
+        $user = $request->user();
+
+        // ユーザーが存在しない、管理者でない、またはゲストユーザーの場合はアクセス拒否
+        if (!$user || !$user->isAdmin() || $user->isGuest()) {
             return redirect()->route('welcome');
         }
 

@@ -76,6 +76,8 @@ class AIDebateController extends Controller
             'side'  => 'required|in:affirmative,negative',
             'language' => 'required|in:japanese,english',
             'format_type' => 'required|string',
+        ], [
+            'format_type.required' => __('messages.validation.format_type.required'),
         ]);
 
         $customFormatSettings = null;

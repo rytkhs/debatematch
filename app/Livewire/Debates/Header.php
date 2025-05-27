@@ -59,9 +59,9 @@ class Header extends Component
             $this->debate->turn_end_time = null;
         }
 
-        $this->dispatch('turn-advanced', [
-            'turnEndTime' => $this->turnEndTime
-        ]);
+        // $this->dispatch('turn-advanced', [
+        //     'turnEndTime' => $this->turnEndTime
+        // ]);
 
         if ($this->isMyTurn) {
             $this->dispatch('showFlashMessage', __('flash.header.turn.my_turn'), 'info');
