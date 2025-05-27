@@ -66,8 +66,13 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="flex items-center text-sm font-medium text-gray-600 hover:text-primary hover:border-gray-300 focus:outline-none focus:text-primary transition duration-150 ease-in-out">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" class="h-8 w-8 rounded-full mr-2" alt="{{ Auth::user()->name }}">
-                                <span>{{ Auth::user()->name }}</span>
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF&length=1" class="h-8 w-8 rounded-full mr-2" alt="{{ Auth::user()->name }}">
+                                <div class="flex flex-col items-start">
+                                    <span>{{ Auth::user()->name }}</span>
+                                    @if(Auth::user()->isGuest())
+                                        <span class="text-xs text-orange-600 font-medium">{{ __('messages.guest_user') }}</span>
+                                    @endif
+                                </div>
                                 <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
@@ -152,10 +157,13 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
             {{-- ユーザー情報 --}}
             <div class="flex items-center px-4">
                 <div class="flex-shrink-0">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" class="h-10 w-10 rounded-full" alt="{{ Auth::user()->name }}">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF&length=1" class="h-10 w-10 rounded-full" alt="{{ Auth::user()->name }}">
                 </div>
                 <div class="ml-3">
                     <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                    @if(Auth::user()->isGuest())
+                        <div class="text-sm text-orange-600 font-medium">{{ __('messages.guest_user') }}</div>
+                    @endif
                 </div>
             </div>
             {{-- ユーザーメニューリンク --}}
