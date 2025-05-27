@@ -24,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'google_id',
         'email_verified_at',
+        'is_guest',
+        'guest_expires_at',
     ];
 
     /**
@@ -47,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'deleted_at' => 'datetime',
+            'guest_expires_at' => 'datetime',
         ];
     }
 
@@ -118,5 +121,33 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin()
     {
         return $this->is_admin;
+    }
+
+    /**
+     * ゲストユーザーかどうかを判定
+     */
+    public function isGuest()
+    {
+        return $this->is_guest;
+    }
+
+    /**
+     * ゲストユーザーの期限が切れているかどうかを判定
+     */
+    public function isGuestExpired()
+    {
+        if (!$this->is_guest) {
+            return false;
+        }
+
+        return $this->guest_expires_at && $this->guest_expires_at->isPast();
+    }
+
+    /**
+     * ゲストユーザーが有効かどうかを判定
+     */
+    public function isGuestValid()
+    {
+        return $this->is_guest && !$this->isGuestExpired();
     }
 }
