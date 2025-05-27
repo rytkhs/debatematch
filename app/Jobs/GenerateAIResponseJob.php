@@ -26,6 +26,7 @@ class GenerateAIResponseJob implements ShouldQueue
 
     public $tries = 3;
     public $backoff = 10;
+    public $timeout = 240;
 
     /**
      * Create a new job instance.

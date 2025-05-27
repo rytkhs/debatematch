@@ -45,6 +45,7 @@ return [
     'openrouter' => [
         'api_key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_CHAT_MODEL', 'google/gemini-pro'),
+        'evaluation_model' => env('OPENROUTER_EVALUATION_MODEL', 'google/gemini-pro'),
         'referer' => config('app.url'),
         'title' => config('app.name'),
     ],
