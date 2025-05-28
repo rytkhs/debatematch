@@ -1,6 +1,6 @@
 <?php
 
-namespace DatabaseSeeders;
+namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -53,7 +53,7 @@ class SETIDebateSeeder extends Seeder
 
         // ルーム作成
         $room = Room::create([
-            'name' => 'Should the United States Government Significantly Increase Space Exploration?',
+            'name' => 'Demo 2',
             'topic' => 'Demo: Should the United States Government Significantly Increase Exploration and/or Development of Space Beyond the Earth\'s Mesosphere?',
             'remarks' => 'Demo Debate',
             'status' => Room::STATUS_FINISHED,

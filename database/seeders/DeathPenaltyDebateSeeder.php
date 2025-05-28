@@ -57,7 +57,7 @@ class DeathPenaltyDebateSeeder extends Seeder
 
         // ルーム作成
         $room = Room::create([
-            'name' => '日本国は死刑を廃止すべきか？',
+            'name' => 'Demo 1',
             'topic' => 'デモ: 日本国は死刑を廃止すべきか？',
             'remarks' => 'デモディベート',
             'status' => Room::STATUS_FINISHED,
