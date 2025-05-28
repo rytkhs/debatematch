@@ -22,6 +22,7 @@ class EvaluateDebateJob implements ShouldQueue
     private int $debateId;
     public $tries = 3;
     public $backoff = 10;
+    public $timeout = 300;
 
     public function __construct(int $debateId)
     {

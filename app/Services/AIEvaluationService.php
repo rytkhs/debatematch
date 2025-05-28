@@ -76,16 +76,23 @@ class AIEvaluationService
         // 言語に応じたJSONスキーマのEnum値を設定
         $winnerEnum = ($language === 'english') ? ['Affirmative', 'Negative'] : ['肯定側', '否定側'];
 
+        // APIキーの確認
+        $apiKey = Config::get('services.openrouter.api_key');
+        if (empty($apiKey)) {
+            Log::error('OpenRouter API key is not configured for evaluation.', ['debate_id' => $debate->id]);
+            return $this->getDefaultResponse("AI評価サービスが正しく設定されていません", $language);
+        }
+
         // 3. OpenRouter APIを呼び出す
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+            'Authorization' => 'Bearer ' . $apiKey,
             'HTTP-Referer' => config('app.url'),
             'X-Title' => 'Debate Evaluation System',
             'Content-Type' => 'application/json',
         ])
-            ->timeout(240)
+            ->timeout(300)
             ->post('https://openrouter.ai/api/v1/chat/completions', [
-                'model' => env('OPENROUTER_EVALUATION_MODEL'),
+                'model' => Config::get('services.openrouter.evaluation_model'),
                 'messages' => [
                     [
                         'role' => 'user',
@@ -93,7 +100,7 @@ class AIEvaluationService
                     ]
                 ],
                 'temperature' => 0.2,
-                'max_tokens' => 8000,
+                'max_tokens' => 15000,
                 'response_format' => [
                     'type' => 'json_schema',
                     'json_schema' => [

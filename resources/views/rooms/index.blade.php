@@ -46,10 +46,17 @@
                                 <div>
                                     <p class="text-xs sm:text-sm text-gray-600">{{ __('messages.host') }}：</p>
                                 </div>
-                                <div class="bg-gray-100 rounded-full w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-gray-500 mr-1.5 sm:mr-2 text-xs sm:text-sm">
-                                    {{ mb_substr($room->creator->name, 0, 1) }}
-                                </div>
-                                <span class="font-medium text-xs sm:text-sm">{{ $room->creator->name }}</span>
+                                @if($room->creator)
+                                    <div class="bg-gray-100 rounded-full w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-gray-500 mr-1.5 sm:mr-2 text-xs sm:text-sm">
+                                        {{ mb_substr($room->creator->name, 0, 1) }}
+                                    </div>
+                                    <span class="font-medium text-xs sm:text-sm">{{ $room->creator->name }}</span>
+                                @else
+                                    <div class="bg-gray-100 rounded-full w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-gray-500 mr-1.5 sm:mr-2 text-xs sm:text-sm">
+                                        ?
+                                    </div>
+                                    <span class="font-medium text-xs sm:text-sm text-gray-500">{{ __('messages.unknown_user') }}</span>
+                                @endif
                             </div>
                         </div>
 

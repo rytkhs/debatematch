@@ -67,6 +67,17 @@ class PusherWebhookController extends Controller
         $userId = $event['user_id'];
         $context = $this->extractContextFromChannel($channel);
 
+        // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+        $user = \App\Models\User::withTrashed()->find($userId);
+        if (!$user) {
+            Log::warning('存在しないユーザーIDによるmember_removedイベントをスキップしました', [
+                'userId' => $userId,
+                'channel' => $channel,
+                'context' => $context
+            ]);
+            return;
+        }
+
         if ($context) {
             // 以下の場合は切断処理をスキップ:
             // 1. ルームからディベートへの移動の場合
@@ -116,6 +127,17 @@ class PusherWebhookController extends Controller
         $channel = $event['channel'];
         $userId = $event['user_id'];
         $context = $this->extractContextFromChannel($channel);
+
+        // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+        $user = \App\Models\User::withTrashed()->find($userId);
+        if (!$user) {
+            Log::warning('存在しないユーザーIDによるmember_addedイベントをスキップしました', [
+                'userId' => $userId,
+                'channel' => $channel,
+                'context' => $context
+            ]);
+            return;
+        }
 
         if ($context) {
             $this->connectionManager->handleReconnection($userId, $context);

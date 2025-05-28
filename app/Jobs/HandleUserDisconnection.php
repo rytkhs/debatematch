@@ -48,6 +48,16 @@ class HandleUserDisconnection implements ShouldQueue
         DebateConnectionService $debateService
     ): void {
         try {
+            // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+            $user = \App\Models\User::withTrashed()->find($this->userId);
+            if (!$user) {
+                Log::warning('存在しないユーザーIDによる切断タイムアウト処理をスキップしました', [
+                    'userId' => $this->userId,
+                    'context' => $this->context
+                ]);
+                return;
+            }
+
             Log::info('切断タイムアウト処理を開始', [
                 'userId' => $this->userId,
                 'context' => $this->context

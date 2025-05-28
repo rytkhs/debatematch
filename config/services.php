@@ -33,6 +33,7 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+        'webhook_url' => env('SLACK_WEBHOOK_URL'),
     ],
 
     'google' => [
@@ -44,6 +45,7 @@ return [
     'openrouter' => [
         'api_key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_CHAT_MODEL', 'google/gemini-pro'),
+        'evaluation_model' => env('OPENROUTER_EVALUATION_MODEL', 'google/gemini-pro'),
         'referer' => config('app.url'),
         'title' => config('app.name'),
     ],

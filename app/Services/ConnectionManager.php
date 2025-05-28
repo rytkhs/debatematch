@@ -33,6 +33,16 @@ class ConnectionManager
     public function recordInitialConnection($userId, $context)
     {
         try {
+            // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+            $user = \App\Models\User::withTrashed()->find($userId);
+            if (!$user) {
+                Log::warning('存在しないユーザーIDによる初回接続記録をスキップしました', [
+                    'userId' => $userId,
+                    'context' => $context
+                ]);
+                return null;
+            }
+
             return ConnectionLog::recordInitialConnection(
                 $userId,
                 $context['type'],
@@ -59,6 +69,16 @@ class ConnectionManager
     public function handleDisconnection($userId, $context)
     {
         try {
+            // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+            $user = \App\Models\User::withTrashed()->find($userId);
+            if (!$user) {
+                Log::warning('存在しないユーザーIDによる切断処理をスキップしました', [
+                    'userId' => $userId,
+                    'context' => $context
+                ]);
+                return null;
+            }
+
             // 現在のユーザーの接続状態を確認
             $currentLog = ConnectionLog::getLatestLog($userId, $context['type'], $context['id']);
 
@@ -147,6 +167,16 @@ class ConnectionManager
     public function handleReconnection($userId, $context)
     {
         try {
+            // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+            $user = \App\Models\User::withTrashed()->find($userId);
+            if (!$user) {
+                Log::warning('存在しないユーザーIDによる再接続処理をスキップしました', [
+                    'userId' => $userId,
+                    'context' => $context
+                ]);
+                return false;
+            }
+
             // 最新の接続状態を確認
             $currentLog = ConnectionLog::getLatestLog($userId, $context['type'], $context['id']);
 
@@ -269,6 +299,16 @@ class ConnectionManager
     public function updateLastSeen($userId, $context)
     {
         try {
+            // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+            $user = \App\Models\User::withTrashed()->find($userId);
+            if (!$user) {
+                Log::warning('存在しないユーザーIDによるハートビート処理をスキップしました', [
+                    'userId' => $userId,
+                    'context' => $context
+                ]);
+                return;
+            }
+
             // 最新の接続ログを取得
             $log = ConnectionLog::getLatestLog($userId, $context['type'], $context['id']);
 

@@ -8,6 +8,7 @@ use App\Events\UserLeftRoom;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Events\CreatorLeftRoom;
+
 class RoomConnectionService
 {
     protected $connectionManager;
@@ -71,7 +72,7 @@ class RoomConnectionService
         try {
 
             $room = Room::find($roomId);
-            $user = User::find($userId);
+            $user = User::withTrashed()->find($userId);
 
             if (!$room || !$user) {
                 Log::warning('タイムアウト処理のためのルームまたはユーザーが見つかりません', [

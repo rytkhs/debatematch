@@ -45,4 +45,13 @@ return [
     // AIDebateController
     'ai_debate.exit.success' => 'AIディベートを退出しました。',
     'ai_debate.exit.error' => 'AIディベートの退出に失敗しました。',
+
+    // ValidateDebateAccess.php
+    'auth.login_required' => 'ログインが必要です。',
+    'debate.not_found' => 'ディベートが見つかりません。',
+    'debate.access_denied' => 'ディベートにアクセスできません。',
+    'debate.deleted' => 'ディベートが削除されました。',
+    'debate.terminated' => 'ディベートが終了しました。',
+    'room.not_found' => 'ルームが見つかりません。',
+    'debate.invalid_state' => 'ディベートの状態が不正です。',
 ];

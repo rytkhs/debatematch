@@ -24,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'google_id',
         'email_verified_at',
+        'is_guest',
+        'guest_expires_at',
     ];
 
     /**
@@ -46,6 +48,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'deleted_at' => 'datetime',
+            'guest_expires_at' => 'datetime',
         ];
     }
 
@@ -55,16 +59,35 @@ class User extends Authenticatable implements MustVerifyEmail
     public function rooms()
     {
         return $this->belongsToMany(Room::class, 'room_users')
-            ->withPivot('side');
+            ->withPivot('side')
+            ->withTimestamps();
     }
 
     /**
-     * ユーザーが参加しているディベートのリレーション
+     * ユーザーが肯定側として参加したディベート
      */
-    public function debates()
+    public function affirmativeDebates()
     {
-        return $this->hasMany(Debate::class, 'affirmative_user_id')
-            ->orWhere('negative_user_id', $this->id);
+        return $this->hasMany(Debate::class, 'affirmative_user_id');
+    }
+
+    /**
+     * ユーザーが否定側として参加したディベート
+     */
+    public function negativeDebates()
+    {
+        return $this->hasMany(Debate::class, 'negative_user_id');
+    }
+
+    /**
+     * ユーザーが参加しているすべてのディベート
+     */
+    public function getAllDebatesAttribute()
+    {
+        return Debate::where('affirmative_user_id', $this->id)
+            ->orWhere('negative_user_id', $this->id)
+            ->with(['room', 'evaluations'])
+            ->get();
     }
 
     /**
@@ -72,7 +95,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getDebatesCountAttribute()
     {
-        return $this->debates()->count();
+        return Debate::where('affirmative_user_id', $this->id)
+            ->orWhere('negative_user_id', $this->id)
+            ->count();
     }
 
     /**
@@ -83,9 +108,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return Debate::whereHas('evaluations', function ($query) {
             $query->where(function ($q) {
                 $q->where('winner', 'affirmative')
+                    ->whereColumn('affirmative_user_id', 'debates.affirmative_user_id')
                     ->where('affirmative_user_id', $this->id);
             })->orWhere(function ($q) {
                 $q->where('winner', 'negative')
+                    ->whereColumn('negative_user_id', 'debates.negative_user_id')
                     ->where('negative_user_id', $this->id);
             });
         })->count();
@@ -94,5 +121,33 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin()
     {
         return $this->is_admin;
+    }
+
+    /**
+     * ゲストユーザーかどうかを判定
+     */
+    public function isGuest()
+    {
+        return $this->is_guest;
+    }
+
+    /**
+     * ゲストユーザーの期限が切れているかどうかを判定
+     */
+    public function isGuestExpired()
+    {
+        if (!$this->is_guest) {
+            return false;
+        }
+
+        return $this->guest_expires_at && $this->guest_expires_at->isPast();
+    }
+
+    /**
+     * ゲストユーザーが有効かどうかを判定
+     */
+    public function isGuestValid()
+    {
+        return $this->is_guest && !$this->isGuestExpired();
     }
 }

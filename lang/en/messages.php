@@ -83,6 +83,7 @@ return [
     'select_format' => 'Select Format',
     'custom_format' => 'Custom Format',
     'format_selection_guide' => 'Select the format for the debate. Choose "Custom Format" to configure it freely.',
+    'please_select' => 'Please select',
     'format_preview' => 'Format Preview',
     'configure_custom_format' => 'Configure Custom Format',
     'custom_format_guide' => 'Set the "Side", "Speech Name", and "Duration" for each part. You can include "Prep Time" or "Cross Examination". At least one part is required.',
@@ -413,6 +414,7 @@ return [
     'validation.required' => 'The :attribute field is required.',
     'validation.string' => 'The :attribute must be a string.',
     'validation.max.string' => 'The :attribute may not be greater than :max characters.',
+    'validation.format_type.required' => 'Please select a debate format.',
 
 
     'already_have_account' => 'Already have an account?',
@@ -420,6 +422,11 @@ return [
 
     'google_login' => 'Login with Google',
     'twitter_login' => 'Login with Twitter',
+    'guest_login' => 'Continue as Guest',
+    'guest_user' => 'Guest User',
+    'guest_login_notice' => 'Guest access expires after 24 hours',
+    'demo_mode_notice' => 'Viewing in Guest Mode',
+    'demo_mode_description' => 'Topics starting with "Demo:" are sample debate records. Guest users can also participate in actual debates.',
 
     'debate_information_tab' => 'Debate Information',
     'timeline_tab' => 'Timeline',
@@ -485,4 +492,22 @@ return [
     'voice_input' => 'Voice Input',
     'browser_does_not_support_voice_input' => 'Your browser does not support voice input.',
     'voice_input_failed' => 'Voice input failed.',
+
+    'unknown_user' => 'unknown',
+
+    // Records Index Page
+    'debate_history_description' => 'You can review your past debate records',
+    'filters' => 'Filters',
+    'sort_order' => 'Sort Order',
+    'keyword_search' => 'Keyword Search',
+    'searching_for' => 'Searching for ":keyword"',
+    'side_filter' => 'Side: :side',
+    'result_filter' => 'Result: :result',
+    'grid_view' => 'Grid',
+    'list_view' => 'List',
+    'your_position' => 'Your Position',
+    'ai_evaluation' => 'AI Evaluation',
+    'you' => 'You',
+    'no_debate_records_description' => 'You don\'t have any debate records yet. Join a new debate and improve your argumentation skills!',
+    'searching' => 'Searching',
 ];

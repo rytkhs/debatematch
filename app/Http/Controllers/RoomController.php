@@ -91,6 +91,8 @@ class RoomController extends Controller
             'language' => 'required|in:japanese,english',
             'format_type' => 'required|string',
             'evidence_allowed' => 'required|boolean',
+        ], [
+            'format_type.required' => __('messages.validation.format_type.required'),
         ]);
 
         $customFormatSettings = null;
@@ -208,29 +210,35 @@ class RoomController extends Controller
 
     public function join(Request $request, Room $room)
     {
-        if (!Auth::check()) {
-            return redirect()->route('welcome');
+        $user = Auth::user();
+
+        // 参加可能かどうかの事前チェック
+        if ($room->users->count() >= 2) {
+            return redirect()->route('rooms.index')->with('error', __('flash.room.join.full'));
         }
 
-        $user = Auth::user();
-        $side = $request->input('side'); //肯定側 or 否定側
-
-        if ($room->users->contains($user)) {
-            // すでに参加しているか確認
+        if ($room->users->contains($user->id)) {
             return redirect()->route('rooms.show', $room)->with('error', __('flash.room.join.already_joined'));
         }
 
-        // 既に参加者がいるか確認
-        if ($room->users()->where('user_id', '!=', $room->created_by)->exists()) {
-            return redirect()->back()->with('error', __('flash.room.join.full'));
-        }
-
-        // ルームが待機中でない場合はエラー
         if ($room->status !== Room::STATUS_WAITING) {
-            return redirect()->route('rooms.index')->with('error', __('flash.room.join.not_waiting'));
+            return redirect()->route('rooms.index')->with('error', __('flash.room.join.not_available'));
         }
 
-        return DB::transaction(function () use ($room, $user, $side) {
+        $validatedData = $request->validate([
+            'side' => 'required|in:affirmative,negative',
+        ]);
+
+        $side = $validatedData['side'];
+
+        // 選択された側が既に取られているかチェック
+        $existingSide = $room->users()->wherePivot('side', $side)->first();
+        if ($existingSide) {
+            return redirect()->route('rooms.show', $room)->with('error', __('flash.room.join.side_taken'));
+        }
+
+        // データベース操作のみをトランザクション内で実行
+        $result = DB::transaction(function () use ($room, $user, $side) {
             // 参加者として登録
             $room->users()->attach($user->id, [
                 'side' => $side,
@@ -239,31 +247,36 @@ class RoomController extends Controller
             $room->updateStatus(Room::STATUS_READY);
             $room->refresh();
 
-            DB::afterCommit(function () use ($room, $user) {
-                // ホストに参加者が参加したことを通知
-                broadcast(new UserJoinedRoom($room, $user))->toOthers();
-            });
+            return $room;
+        });
+
+        // トランザクション外でブロードキャストと通知を実行
+        try {
+            // ホストに参加者が参加したことを通知
+            broadcast(new UserJoinedRoom($result, $user))->toOthers();
 
             // ルーム作成者の情報を取得
-            $creator = $room->creator;
+            $creator = $result->creator;
             $message = "ユーザーがルームに参加しました。\n"
-                . "ルーム名: {$room->name}\n"
+                . "ルーム名: {$result->name}\n"
                 . "参加者: {$user->name}\n"
                 . "ホスト: {$creator->name}\n"
                 . "マッチングが成立し、ディベートを開始できる状態になりました。";
 
-            // メール通知のみ送信
-            // $this->snsController->sendNotification(
-            //     $message,
-            //     "【DebateMatch】ルーム参加・マッチング成立"
-            // );
-            $result = $this->slackNotifier->send($message);
-            if (!$result) {
-                Log::warning("Slack通知の送信に失敗しました(ユーザー参加)。 Room ID: {$room->id}, User ID: {$user->id}");
+            $slackResult = $this->slackNotifier->send($message);
+            if (!$slackResult) {
+                Log::warning("Slack通知の送信に失敗しました(ユーザー参加)。 Room ID: {$result->id}, User ID: {$user->id}");
             }
+        } catch (\Exception $e) {
+            // ブロードキャスト/通知エラーはログに記録するが、ユーザー操作は成功として扱う
+            Log::error('Room join: ブロードキャストまたは通知処理でエラーが発生しました', [
+                'room_id' => $result->id,
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+        }
 
-            return redirect()->route('rooms.show', $room)->with('success', __('flash.room.join.success'));
-        });
+        return redirect()->route('rooms.show', $result)->with('success', __('flash.room.join.success'));
     }
 
     public function exit(Room $room)
@@ -287,8 +300,11 @@ class RoomController extends Controller
             // 既に終了または削除されたルームからの退出
             return redirect()->route('rooms.index')->with('info', __('flash.room.exit.already_closed'));
         } elseif ($room->status === Room::STATUS_WAITING || $room->status === Room::STATUS_READY) {
-            // 待機中または準備完了状態のルームからの退出処理
-            return DB::transaction(function () use ($room, $user) {
+            // 作成者退出フラグを事前に計算
+            $isCreator = ($user->id === $room->created_by);
+
+            // データベース操作のみをトランザクション内で実行
+            $result = DB::transaction(function () use ($room, $user, $isCreator) {
                 // ユーザーをルームから退出させる
                 $room->users()->detach($user->id);
 
@@ -297,32 +313,40 @@ class RoomController extends Controller
                     $room->updateStatus(Room::STATUS_WAITING);
                 }
 
-                // 作成者退出フラグ
-                $isCreator = ($user->id === $room->created_by);
-
                 // ルーム作成者が退出した場合
                 if ($isCreator) {
                     // ルームを削除状態に更新
                     $room->updateStatus(Room::STATUS_DELETED);
                 }
 
-                // トランザクション成功後にブロードキャスト
-                DB::afterCommit(function () use ($room, $user, $isCreator) {
-                    if ($isCreator) {
-                        // 他の参加者に作成者が退出したことを通知
-                        broadcast(new CreatorLeftRoom($room, $user))->toOthers();
-                    } else {
-                        // 参加者が退出した場合の通知
-                        broadcast(new UserLeftRoom($room, $user))->toOthers();
-                    }
-                });
-
-                if ($isCreator) {
-                    return redirect()->route('welcome')->with('success', __('flash.room.exit.creator_success'));
-                } else {
-                    return redirect()->route('rooms.index')->with('success', __('flash.room.exit.participant_success'));
-                }
+                $room->refresh();
+                return $room;
             });
+
+            // トランザクション外でブロードキャスト実行
+            try {
+                if ($isCreator) {
+                    // 他の参加者に作成者が退出したことを通知
+                    broadcast(new CreatorLeftRoom($result, $user))->toOthers();
+                } else {
+                    // 参加者が退出した場合の通知
+                    broadcast(new UserLeftRoom($result, $user))->toOthers();
+                }
+            } catch (\Exception $e) {
+                // ブロードキャストエラーはログに記録するが、ユーザー操作は成功として扱う
+                Log::error('Room exit: ブロードキャスト処理でエラーが発生しました', [
+                    'room_id' => $result->id,
+                    'user_id' => $user->id,
+                    'is_creator' => $isCreator,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            if ($isCreator) {
+                return redirect()->route('welcome')->with('success', __('flash.room.exit.creator_success'));
+            } else {
+                return redirect()->route('rooms.index')->with('success', __('flash.room.exit.participant_success'));
+            }
         }
 
         return redirect()->route('rooms.index');

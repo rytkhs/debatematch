@@ -94,6 +94,7 @@ return [
     'select_format' => 'フォーマットを選択',
     'custom_format' => 'カスタムフォーマット', // フォーマット選択肢用
     'format_selection_guide' => 'ディベートの進行形式を選択してください。「カスタムフォーマット」を選ぶと自由に設定できます。',
+    'please_select' => '選択してください',
     'format_preview' => 'フォーマットプレビュー',
     'configure_custom_format' => 'カスタムフォーマットの設定',
     'custom_format_guide' => '各パートの「サイド」「パート名」「時間」を設定してください。「準備時間」や「質疑応答」を含めることも可能です。最低1パートは必要です。',
@@ -129,6 +130,7 @@ return [
     'validation.required' => ':attribute は必須です。',
     'validation.string' => ':attribute は文字列である必要があります。',
     'validation.max.string' => ':attribute は :max 文字以内で入力してください。',
+    'validation.format_type.required' => 'フォーマットを選択してください。',
 
 
     // Welcome Page
@@ -467,6 +469,11 @@ return [
 
     'google_login' => 'Googleアカウントでログイン',
     'twitter_login' => 'Twitterアカウントでログイン',
+    'guest_login' => 'ゲストとして続行',
+    'guest_user' => 'ゲストユーザー',
+    'guest_login_notice' => 'ゲストアクセスは24時間で期限切れになります',
+    'demo_mode_notice' => 'ゲストモードで閲覧中',
+    'demo_mode_description' => 'デモ:で始まる論題はサンプルのディベート履歴です。ゲストユーザーでも実際のディベートに参加できます。',
 
     'debate_information_tab' => 'ディベート情報',
     'timeline_tab' => 'タイムライン',
@@ -524,4 +531,22 @@ return [
     'voice_input' => '音声入力',
     'browser_does_not_support_voice_input' => 'お使いのブラウザは音声入力に対応していません',
     'voice_input_failed' => '音声入力に失敗しました',
+
+    'unknown_user' => 'unknown',
+
+    // Records Index Page
+    'debate_history_description' => 'あなたの過去のディベート記録を確認できます',
+    'filters' => 'フィルター',
+    'sort_order' => '並び順',
+    'keyword_search' => 'キーワード検索',
+    'searching_for' => '":keyword" で検索中',
+    'side_filter' => '立場: :side',
+    'result_filter' => '結果: :result',
+    'grid_view' => 'グリッド',
+    'list_view' => 'リスト',
+    'your_position' => 'あなたの立場',
+    'ai_evaluation' => 'AI評価',
+    'you' => 'あなた',
+    'no_debate_records_description' => 'まだディベートの履歴がありません。新しいディベートに参加して、あなたの議論スキルを磨いてみましょう！',
+    'searching' => '検索中',
 ];
