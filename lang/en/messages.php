@@ -494,4 +494,20 @@ return [
     'voice_input_failed' => 'Voice input failed.',
 
     'unknown_user' => 'unknown',
+
+    // Records Index Page
+    'debate_history_description' => 'You can review your past debate records',
+    'filters' => 'Filters',
+    'sort_order' => 'Sort Order',
+    'keyword_search' => 'Keyword Search',
+    'searching_for' => 'Searching for ":keyword"',
+    'side_filter' => 'Side: :side',
+    'result_filter' => 'Result: :result',
+    'grid_view' => 'Grid',
+    'list_view' => 'List',
+    'your_position' => 'Your Position',
+    'ai_evaluation' => 'AI Evaluation',
+    'you' => 'You',
+    'no_debate_records_description' => 'You don\'t have any debate records yet. Join a new debate and improve your argumentation skills!',
+    'searching' => 'Searching',
 ];

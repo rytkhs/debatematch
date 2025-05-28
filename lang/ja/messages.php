@@ -533,4 +533,20 @@ return [
     'voice_input_failed' => '音声入力に失敗しました',
 
     'unknown_user' => 'unknown',
+
+    // Records Index Page
+    'debate_history_description' => 'あなたの過去のディベート記録を確認できます',
+    'filters' => 'フィルター',
+    'sort_order' => '並び順',
+    'keyword_search' => 'キーワード検索',
+    'searching_for' => '":keyword" で検索中',
+    'side_filter' => '立場: :side',
+    'result_filter' => '結果: :result',
+    'grid_view' => 'グリッド',
+    'list_view' => 'リスト',
+    'your_position' => 'あなたの立場',
+    'ai_evaluation' => 'AI評価',
+    'you' => 'あなた',
+    'no_debate_records_description' => 'まだディベートの履歴がありません。新しいディベートに参加して、あなたの議論スキルを磨いてみましょう！',
+    'searching' => '検索中',
 ];

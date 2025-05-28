@@ -31,7 +31,7 @@
 
     $side = $isAffirmative ? __('messages.affirmative_side') : __('messages.negative_side');
     $sideClass = $isAffirmative ? 'text-success' : 'text-danger';
-    $opponent = $isAffirmative ? ($debate->negativeUser ? $debate->negativeUser->name : 'unknown') : ($debate->affirmativeUser ? $debate->affirmativeUser->name : 'unknown');
+    $opponent = $isAffirmative ? ($debate->negativeUser ? $debate->negativeUser->name : __('messages.unknown_user')) : ($debate->affirmativeUser ? $debate->affirmativeUser->name : __('messages.unknown_user'));
 @endphp
 
 @if($viewType === 'grid')

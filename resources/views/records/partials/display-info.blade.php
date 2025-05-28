@@ -1,24 +1,43 @@
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-    <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-0">
-        {{ __('messages.records_count', ['first' => $debates->firstItem() ?? 0, 'last' => $debates->lastItem() ?? 0, 'total' => $debates->total()]) }}
-        @if($keyword || $side != 'all' || $result != 'all')
-            <span class="font-semibold">{{ __('messages.filter_applied_indicator') }}</span>
-        @endif
-    </p>
-    <div class="hidden md:flex items-center">
-        <span class="mr-2 text-xs sm:text-sm text-gray-600">{{ __('messages.view_format_label') }}</span>
-        <button id="viewGrid" class="p-1.5 sm:p-2 text-gray-600 hover:text-primary focus:outline-none view-button active">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-        </button>
-        <button id="viewList" class="p-1.5 sm:p-2 text-gray-600 hover:text-primary focus:outline-none view-button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
+    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center sm:gap-4">
+        <!-- 表示件数情報 -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div class="flex items-center text-sm text-gray-600">
+                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {{ __('messages.records_count', ['first' => $debates->firstItem() ?? 0, 'last' => $debates->lastItem() ?? 0, 'total' => $debates->total()]) }}
+            </div>
+
+            @if($keyword)
+                <div class="flex items-center text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span class="text-xs sm:text-sm">{{ __('messages.searching_for', ['keyword' => $keyword]) }}</span>
+                </div>
+            @endif
+        </div>
+
+        <!-- フィルター状態表示 -->
+        <div class="flex flex-wrap items-center gap-1 sm:gap-2">
+            @if($side !== 'all')
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    {{ __('messages.side_filter', ['side' => $side === 'affirmative' ? __('messages.affirmative_side') : __('messages.negative_side')]) }}
+                </span>
+            @endif
+
+            @if($result !== 'all')
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $result === 'win' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                    {{ __('messages.result_filter', ['result' => $result === 'win' ? __('messages.win') : __('messages.loss')]) }}
+                </span>
+            @endif
+
+            @if($sort !== 'newest')
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {{ $sort === 'oldest' ? __('messages.oldest_first') : __('messages.newest_first') }}
+                </span>
+            @endif
+        </div>
     </div>
 </div>
