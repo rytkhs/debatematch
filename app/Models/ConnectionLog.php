@@ -161,6 +161,17 @@ class ConnectionLog extends Model
      */
     public static function recordInitialConnection($userId, $contextType, $contextId)
     {
+        // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
+        $user = \App\Models\User::withTrashed()->find($userId);
+        if (!$user) {
+            \Illuminate\Support\Facades\Log::warning('存在しないユーザーIDによる初回接続記録をスキップしました', [
+                'userId' => $userId,
+                'contextType' => $contextType,
+                'contextId' => $contextId
+            ]);
+            return null;
+        }
+
         // すでにログが存在するか確認
         $existingLog = self::getLatestLog($userId, $contextType, $contextId);
         if ($existingLog && $existingLog->isConnected()) {
