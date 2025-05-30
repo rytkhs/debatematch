@@ -5,6 +5,8 @@ use App\Http\Controllers\DebateController;
 use App\Http\Controllers\DebateRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PusherWebhookController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
@@ -35,6 +37,9 @@ Route::middleware([CheckUserActiveStatus::class])->group(function () {
     Route::get('/guide', function () {
         return view('guide');
     })->name('guide');
+
+    // お問い合わせページ
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 });
 
 Route::get('/dashboard', function () {
@@ -131,6 +136,14 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
     Route::prefix('connection')->name('connection.')->group(function () {
         Route::get('/analytics', [ConnectionAnalyticsController::class, 'index'])->name('analytics');
         Route::get('/user/{user}', [ConnectionAnalyticsController::class, 'userDetail'])->name('user-detail');
+    });
+
+    // お問い合わせ管理
+    Route::prefix('contacts')->name('contacts.')->group(function () {
+        Route::get('/', [AdminContactController::class, 'index'])->name('index');
+        Route::get('/{contact}', [AdminContactController::class, 'show'])->name('show');
+        Route::patch('/{contact}/status', [AdminContactController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{contact}', [AdminContactController::class, 'destroy'])->name('destroy');
     });
 });
 
