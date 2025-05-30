@@ -13,8 +13,8 @@
 
             <!-- ナビゲーションリンク -->
             <div class="flex flex-wrap justify-center gap-4 mb-4 md:mb-0">
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeojaEKvwrH1Ewi49qqN8S6i3HqF9yoeMSCvKpGk58soFLuqA/viewform?usp=dialog" class="text-sm text-gray-600 hover:text-primary transition-colors">
-                    {{ __('messages.contact_us') }}
+                <a href="{{ route('contact.index') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
+                    {{ __('Contact Us') }}
                 </a>
                 <a href="{{ route('terms') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
                     {{ __('messages.terms_of_service') }}
