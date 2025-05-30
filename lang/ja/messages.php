@@ -49,7 +49,7 @@ return [
     // ディベート関連
     'debate' => 'ディベート',
     'topic' => '論題',
-    'language' => '言語設定', // ルーム作成時の言語設定ラベル
+    'language_setting' => '言語設定', // ルーム作成時の言語設定ラベル
     'language_used' => '使用言語', // 詳細表示用
     'remarks' => '備考',
     'host' => 'ホスト',
@@ -514,7 +514,6 @@ return [
 
     'ai_label' => 'AI',
     'ai_thinking' => 'AIが応答を生成中...',
-    'ai_turn' => 'AIのターン',
     'cannot_send_message_now' => '今はメッセージを送信できません',
 
     'confirm_exit_ai_debate' => 'AIディベートを退出しますか? ディベートは削除されます。',

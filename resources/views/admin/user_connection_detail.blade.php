@@ -156,6 +156,5 @@
             </div>
         </div>
     </div>
-    <!-- Alpine.js が必要 -->
     <script src="//unpkg.com/alpinejs" defer></script>
 </x-app-layout>
