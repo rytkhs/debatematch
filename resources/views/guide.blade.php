@@ -336,7 +336,7 @@
                     class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-gray-50 shadow-sm">
                     <span class="material-icons-outlined mr-2">shield</span> {{ __('messages.privacy_policy') }}
                 </a>
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeojaEKvwrH1Ewi49qqN8S6i3HqF9yoeMSCvKpGk58soFLuqA/viewform?usp=dialog"
+                <a href="{{ route('contact.index') }}"
                     class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark shadow-sm">
                     <span class="material-icons-outlined mr-2">email</span> {{ __('messages.contact_us') }}
                 </a>

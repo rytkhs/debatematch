@@ -10,12 +10,7 @@
                     <option value="24h" @selected($period == '24h')>過去24時間</option>
                     <option value="7d" @selected($period == '7d')>過去7日間</option>
                     <option value="30d" @selected($period == '30d')>過去30日間</option>
-                    {{-- <option value="custom" @selected($period == 'custom')>カスタム</option> --}}
                 </select>
-                {{-- カスタム期間用入力 (必要ならJSで表示制御) --}}
-                {{-- <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" class="..."> --}}
-                {{-- <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') }}" class="..."> --}}
-                {{-- <button type="submit" class="...">適用</button> --}}
             </form>
         </div>
         <p class="text-sm text-gray-500 mt-1">分析期間: {{ $startDate->format('Y/m/d H:i') }} 〜 {{ $endDate->format('Y/m/d H:i') }}</p>
@@ -61,18 +56,18 @@
             {{-- 低再接続率ユーザーのアラートも同様に追加 --}}
 
 
-            {{-- 直近24時間の切断統計 (既存) --}}
+            {{-- 直近24時間の切断統計 --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">直近24時間の切断統計</h3>
                     <div class="h-64">
-                        <canvas id="disconnectionChart24h"></canvas> {{-- ID変更 --}}
+                        <canvas id="disconnectionChart24h"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {{-- ユーザー別の切断頻度ランキング (既存、期間表示追加) --}}
+                {{-- ユーザー別の切断頻度ランキング --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">ユーザー別切断頻度ランキング ({{ $startDate->diffForHumans($endDate, true) }})</h3>
@@ -111,7 +106,7 @@
                     </div>
                 </div>
 
-                {{-- 再接続率 (既存、期間表示追加) --}}
+                {{-- 再接続率 --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">平均再接続率 ({{ $startDate->diffForHumans($endDate, true) }})</h3>
@@ -144,7 +139,6 @@
                             <h4 class="text-md font-medium text-gray-700 mb-2">切断タイプ別割合</h4>
                             <div class="h-64"><canvas id="disconnectTypeChart"></canvas></div>
                         </div>
-                        {{-- IP地域別などもここに追加 --}}
                     </div>
                 </div>
             </div>
@@ -156,7 +150,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- 直近24時間グラフ (既存のロジックを流用) ---
+            // --- 直近24時間グラフ ---
             const disconnectionData24h = @json($disconnectionStats24h);
             const labels24h = Array.from({length: 24}, (_, i) => `${String(i).padStart(2, '0')}:00`);
             const counts24h = Array(24).fill(0);
@@ -200,7 +194,7 @@
             const clientCounts = Object.values(disconnectionTrends.by_client);
             const ctxClient = document.getElementById('clientTrendChart').getContext('2d');
             new Chart(ctxClient, {
-                type: 'pie', // または 'doughnut'
+                type: 'pie',
                 data: {
                     labels: clientLabels,
                     datasets: [{
