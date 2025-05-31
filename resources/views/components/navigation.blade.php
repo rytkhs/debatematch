@@ -22,11 +22,11 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <!-- メインナビリンク -->
                 <div class="flex space-x-4">
-                    <x-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')">
-                        <i class="fa-solid fa-door-open mr-1"></i>{{ __('messages.search_room') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('rooms.create')" :active="request()->routeIs('rooms.create')">
                         <i class="fa-solid fa-plus mr-1"></i>{{ __('messages.create_room') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')">
+                        <i class="fa-solid fa-door-open mr-1"></i>{{ __('messages.search_room') }}
                     </x-nav-link>
                     <x-nav-link :href="route('guide')" :active="request()->routeIs('guide')">
                         <i class="fa-solid fa-book mr-1"></i>{{ __('messages.how_to_use') }}
@@ -135,11 +135,11 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <!-- メインナビリンク（モバイル） -->
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')" class="flex items-center">
-                <i class="fa-solid fa-door-open mr-2"></i>{{ __('messages.search_room') }}
-            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('rooms.create')" :active="request()->routeIs('rooms.create')" class="flex items-center">
                 <i class="fa-solid fa-plus mr-2"></i>{{ __('messages.create_room') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')" class="flex items-center">
+                <i class="fa-solid fa-door-open mr-2"></i>{{ __('messages.search_room') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('guide')" :active="request()->routeIs('guide')" class="flex items-center">
                 <i class="fa-solid fa-book mr-2"></i>{{ __('messages.how_to_use') }}
