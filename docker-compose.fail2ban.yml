@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    container_name: fail2ban
+    restart: unless-stopped
+
+    # Host network required for iptables manipulation
+    network_mode: "host"
+
+    # Required capabilities for iptables
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+    # Privileged mode for full system access
+    privileged: true
+
+    volumes:
+      # Configuration files
+      - ./fail2ban/conf/jail.local:/etc/fail2ban/jail.local:ro
+      - ./fail2ban/conf/filter.d:/etc/fail2ban/filter.d:ro
+      - ./fail2ban/conf/action.d:/etc/fail2ban/action.d:ro
+
+      # Data persistence
+      - ./fail2ban/data:/data
+
+      # Nginx logs access (shared volume)
+      - nginx-logs:/var/log/nginx:ro
+
+      # System logs (if needed)
+      - /var/log:/var/log:ro
+
+    environment:
+      # Timezone
+      - TZ=Asia/Tokyo
+
+      # Fail2ban configuration
+      - F2B_LOG_LEVEL=INFO
+      - F2B_DB_PURGE_AGE=7d
+
+    # Resource limits for small-scale deployment
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.1'
+        reservations:
+          memory: 32M
+          cpus: '0.05'
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "fail2ban-client", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Reference to existing volume
+volumes:
+  nginx-logs:
+    external: true
+    name: app_nginx-logs

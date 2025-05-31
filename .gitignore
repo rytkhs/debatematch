@@ -25,3 +25,6 @@ yarn-error.log
 directorystructure.md
 technologystack.md
 docs/
+
+/fail2ban/data/
+/fail2ban/logs/
