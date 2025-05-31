@@ -88,6 +88,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /home/ec2-user/app/data/certbot/www:/var/www/certbot
       - public-data:/var/www/html/public:ro
+      - nginx-logs:/var/log/nginx
     networks:
       - sail
     depends_on:
@@ -184,4 +185,6 @@ volumes:
   redis-data:
     driver: local
   public-data:
+    driver: local
+  nginx-logs:
     driver: local
