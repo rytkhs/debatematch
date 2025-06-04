@@ -82,20 +82,8 @@
         <!-- 接続状態アラート -->
         <livewire:connection-status :room="$debate->room" />
 
-        <!-- ヘルプモーダル -->
-        {{-- <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-lg p-6 max-w-lg w-full shadow-xl m-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-gray-900">{{ __('messages.debate_help_modal_title') }}</h3>
-                    <button id="close-help" class="text-gray-500 hover:text-gray-700">
-                        <span class="material-icons">close</span>
-                    </button>
-                </div>
-                <div class="space-y-4">
-                    <!-- ヘルプコンテンツ -->
-                </div>
-            </div>
-        </div> --}}
+        <!-- フラッシュメッセージ -->
+        <livewire:flash-message />
 
         <!-- メッセージ通知音 -->
         <audio id="messageNotification" preload="auto">
