@@ -561,11 +561,13 @@ return [
     'early_termination_agree' => '同意する',
     'early_termination_decline' => '拒否する',
     'early_termination_agreed' => '早期終了に合意しました。ディベートを終了します。',
-    'early_termination_declined' => '早期終了を拒否しました。ディベートを継続します。',
+    'early_termination_declined' => '早期終了が拒否されました。ディベートを継続します。',
     'early_termination_response_failed' => '早期終了への応答に失敗しました',
     'early_termination_proposal' => ':name さんが早期終了を提案しています',
     'early_termination_waiting_response' => '相手の応答を待っています...',
     'early_termination_proposal_expired' => '早期終了の提案が期限切れになりました',
+    'early_termination_timeout_message' => '早期終了の提案は1分で期限切れになりました。ディベートを継続します。',
+    'early_termination_expired_notification' => '早期終了提案がタイムアウトしました',
     'special_format' => '特別フォーマット',
     'free_format_short_description' => '構成やルールに縛られることなく、自由に意見を交わせる最もカジュアルな形式',
     'free_format_description' => 'ターン制を維持しながら、立論・反駁などの決まった構造に縛られない自由で気軽なディベート形式です。
@@ -574,6 +576,12 @@ return [
     の上、いつでも議論を終了できます。',
     'early_termination_completed' => 'ディベートを早期終了しました。',
 
+    // 新しい早期終了通知メッセージ
+    'early_termination_proposal_sent' => '早期終了を提案しました',
+    'early_termination_response_sent_agree' => '早期終了への同意を送信しました',
+    'early_termination_response_sent_decline' => '早期終了への拒否を送信しました',
+    'early_termination_agreed_result' => '早期終了に合意しました。ディベートを終了します。',
+    'early_termination_declined_result' => '早期終了が拒否されました。ディベートを継続します。',
 
     // 新しく追加されたメッセージキー
     'view_guide' => 'ガイドを見る',
