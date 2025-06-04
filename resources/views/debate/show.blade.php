@@ -132,6 +132,9 @@
         reconnecting_message: "{{ __('messages.reconnecting_message') }}",
         reconnecting_failed_message: "{{ __('messages.reconnecting_failed_message') }}",
         redirecting_after_termination: "{{ __('messages.redirecting_after_termination') }}",
+        early_termination_agreed: "{{ __('messages.early_termination_agreed') }}",
+        early_termination_declined: "{{ __('messages.early_termination_declined') }}",
+        early_termination_proposal: "{{ __('messages.early_termination_proposal', ['name' => ':name']) }}",
     };
     window.translations = translations;
 
