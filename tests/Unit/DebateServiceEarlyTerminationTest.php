@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Event;
 use App\Events\EarlyTerminationRequested;
 use App\Events\EarlyTerminationAgreed;
 use App\Events\EarlyTerminationDeclined;
+use Illuminate\Support\Facades\Queue;
 
 class DebateServiceEarlyTerminationTest extends TestCase
 {
@@ -86,6 +87,9 @@ class DebateServiceEarlyTerminationTest extends TestCase
     public function test_requestEarlyTermination_success()
     {
         Event::fake();
+        Queue::fake();
+
+        // キャッシュが存在しない状態をモック
         Cache::shouldReceive('has')->once()->andReturn(false);
         Cache::shouldReceive('put')->once()->andReturn(true);
 
@@ -93,6 +97,7 @@ class DebateServiceEarlyTerminationTest extends TestCase
 
         $this->assertTrue($result);
         Event::assertDispatched(EarlyTerminationRequested::class);
+        Queue::assertPushed(\App\Jobs\EarlyTerminationTimeoutJob::class);
     }
 
     public function test_requestEarlyTermination_fails_for_non_participant()
@@ -207,12 +212,24 @@ class DebateServiceEarlyTerminationTest extends TestCase
 
     public function test_getCacheKey_returns_correct_format()
     {
-        $reflection = new \ReflectionClass($this->debateService);
-        $method = $reflection->getMethod('getCacheKey');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->debateService, $this->debate->id);
+        $result = $this->debateService->getCacheKey($this->debate->id);
 
         $this->assertEquals("early_termination_request_{$this->debate->id}", $result);
+    }
+
+    public function test_request_early_termination_schedules_timeout_job()
+    {
+        Event::fake();
+        Queue::fake();
+
+        // キャッシュが存在しない状態をモック
+        Cache::shouldReceive('has')->once()->andReturn(false);
+        Cache::shouldReceive('put')->once()->andReturn(true);
+
+        $result = $this->debateService->requestEarlyTermination($this->debate, $this->affirmativeUser->id);
+
+        $this->assertTrue($result);
+        Queue::assertPushed(\App\Jobs\EarlyTerminationTimeoutJob::class);
+        Event::assertDispatched(EarlyTerminationRequested::class);
     }
 }
