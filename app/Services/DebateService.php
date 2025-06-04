@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Events\TurnAdvanced;
 use App\Events\DebateFinished;
 use App\Events\DebateTerminated;
+use App\Events\EarlyTerminationRequested;
+use App\Events\EarlyTerminationAgreed;
+use App\Events\EarlyTerminationDeclined;
 use App\Jobs\EvaluateDebateJob;
 use App\Jobs\AdvanceDebateTurnJob;
 use App\Jobs\GenerateAIResponseJob;
@@ -347,5 +350,185 @@ class DebateService
             // 'turn_name' => $turnInfo['name'] ?? null,
             'is_prep_time' => $turnInfo['is_prep_time'] ?? false,
         ];
+    }
+
+    /**
+     * 早期終了を提案する
+     */
+    public function requestEarlyTermination(Debate $debate, int $userId): bool
+    {
+        try {
+            // フリーフォーマットかつディベート中でないと早期終了できない
+            if (!$this->isFreeFormat($debate) || $debate->room->status !== Room::STATUS_DEBATING) {
+                Log::warning('Early termination request denied: not free format or not debating', [
+                    'debate_id' => $debate->id,
+                    'user_id' => $userId,
+                    'is_free_format' => $this->isFreeFormat($debate),
+                    'room_status' => $debate->room->status
+                ]);
+                return false;
+            }
+
+            // 参加者チェック
+            if (!$this->canRequestEarlyTermination($debate, $userId)) {
+                Log::warning('Early termination request denied: user cannot request', [
+                    'debate_id' => $debate->id,
+                    'user_id' => $userId
+                ]);
+                return false;
+            }
+
+            // 既に提案中でないかチェック
+            $cacheKey = $this->getCacheKey($debate->id);
+            if (Cache::has($cacheKey)) {
+                Log::warning('Early termination request denied: already requested', [
+                    'debate_id' => $debate->id,
+                    'user_id' => $userId
+                ]);
+                return false;
+            }
+
+            // キャッシュに状態を保存（5分間）
+            $requestData = [
+                'requested_by' => $userId,
+                'status' => 'requested',
+                'timestamp' => now()->toISOString()
+            ];
+
+            Cache::put($cacheKey, $requestData, 300);
+
+            // イベントをブロードキャスト
+            broadcast(new EarlyTerminationRequested($debate->id, $userId));
+
+            Log::info('Early termination requested', [
+                'debate_id' => $debate->id,
+                'requested_by' => $userId
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error requesting early termination', [
+                'debate_id' => $debate->id,
+                'user_id' => $userId,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * 早期終了提案に応答する
+     */
+    public function respondToEarlyTermination(Debate $debate, int $userId, bool $agree): bool
+    {
+        try {
+            $cacheKey = $this->getCacheKey($debate->id);
+            $requestData = Cache::get($cacheKey);
+
+            if (!$requestData) {
+                Log::warning('Early termination response denied: no active request', [
+                    'debate_id' => $debate->id,
+                    'user_id' => $userId
+                ]);
+                return false;
+            }
+
+            // 応答権限チェック
+            if (!$this->canRespondToEarlyTermination($debate, $userId, $requestData['requested_by'])) {
+                Log::warning('Early termination response denied: user cannot respond', [
+                    'debate_id' => $debate->id,
+                    'user_id' => $userId
+                ]);
+                return false;
+            }
+
+            // キャッシュから削除
+            Cache::forget($cacheKey);
+
+            if ($agree) {
+                // 合意の場合、ディベートを終了
+                $this->finishDebate($debate);
+                broadcast(new EarlyTerminationAgreed($debate->id));
+
+                Log::info('Early termination agreed', [
+                    'debate_id' => $debate->id,
+                    'responded_by' => $userId
+                ]);
+            } else {
+                // 拒否の場合、ディベート継続
+                broadcast(new EarlyTerminationDeclined($debate->id));
+
+                Log::info('Early termination declined', [
+                    'debate_id' => $debate->id,
+                    'responded_by' => $userId
+                ]);
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error responding to early termination', [
+                'debate_id' => $debate->id,
+                'user_id' => $userId,
+                'agree' => $agree,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * 早期終了の状態を取得する
+     */
+    public function getEarlyTerminationStatus(Debate $debate): array
+    {
+        $cacheKey = $this->getCacheKey($debate->id);
+        $requestData = Cache::get($cacheKey);
+
+        if (!$requestData) {
+            return ['status' => 'none'];
+        }
+
+        return [
+            'status' => $requestData['status'],
+            'requested_by' => $requestData['requested_by'],
+            'timestamp' => $requestData['timestamp']
+        ];
+    }
+
+    /**
+     * フリーフォーマットかどうかを判定する
+     */
+    public function isFreeFormat(Debate $debate): bool
+    {
+        return $debate->room->isFreeFormat();
+    }
+
+    /**
+     * 早期終了を提案できるかチェック
+     */
+    private function canRequestEarlyTermination(Debate $debate, int $userId): bool
+    {
+        return $userId === $debate->affirmative_user_id || $userId === $debate->negative_user_id;
+    }
+
+    /**
+     * 早期終了提案に応答できるかチェック
+     */
+    private function canRespondToEarlyTermination(Debate $debate, int $userId, int $requestedBy): bool
+    {
+        // 提案者でない参加者のみ応答可能
+        if ($userId === $requestedBy) {
+            return false;
+        }
+
+        return $userId === $debate->affirmative_user_id || $userId === $debate->negative_user_id;
+    }
+
+    /**
+     * 早期終了用のキャッシュキーを生成
+     */
+    private function getCacheKey(int $debateId): string
+    {
+        return "early_termination_request_{$debateId}";
     }
 }
