@@ -11,6 +11,7 @@ use App\Events\EarlyTerminationDeclined;
 use App\Jobs\EvaluateDebateJob;
 use App\Jobs\AdvanceDebateTurnJob;
 use App\Jobs\GenerateAIResponseJob;
+use App\Jobs\EarlyTerminationTimeoutJob;
 use App\Models\Debate;
 use App\Models\Room;
 use Carbon\Carbon;
@@ -388,21 +389,27 @@ class DebateService
                 return false;
             }
 
-            // キャッシュに状態を保存（5分間）
+            // キャッシュに状態を保存（1分間）
+            $timestamp = now()->toISOString();
             $requestData = [
                 'requested_by' => $userId,
                 'status' => 'requested',
-                'timestamp' => now()->toISOString()
+                'timestamp' => $timestamp
             ];
 
-            Cache::put($cacheKey, $requestData, 300);
+            Cache::put($cacheKey, $requestData, 90);
+
+            // 1分後にタイムアウト処理を実行するジョブをスケジュール
+            EarlyTerminationTimeoutJob::dispatch($debate->id, $userId, $timestamp)
+                ->delay(now()->addMinutes(1));
 
             // イベントをブロードキャスト
             broadcast(new EarlyTerminationRequested($debate->id, $userId));
 
             Log::info('Early termination requested', [
                 'debate_id' => $debate->id,
-                'requested_by' => $userId
+                'requested_by' => $userId,
+                'timeout_scheduled' => true
             ]);
 
             return true;
@@ -527,7 +534,7 @@ class DebateService
     /**
      * 早期終了用のキャッシュキーを生成
      */
-    private function getCacheKey(int $debateId): string
+    public function getCacheKey(int $debateId): string
     {
         return "early_termination_request_{$debateId}";
     }
