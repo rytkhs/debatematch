@@ -21,6 +21,17 @@ class FlashMessage extends Component
         $this->dispatch('start-flash-message-timeout');
     }
 
+    #[On('showDelayedFlashMessage')]
+    public function showDelayedFlashMessage($message, $type = 'success', $delay = 1000)
+    {
+        // JavaScriptに遅延表示を依頼
+        $this->dispatch('start-delayed-flash-message', [
+            'message' => $message,
+            'type' => $type,
+            'delay' => $delay
+        ]);
+    }
+
     public function hideFlashMessage()
     {
         $this->show = false;

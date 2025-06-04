@@ -40,4 +40,20 @@ class Debate extends Model
     {
         return $this->hasOne(DebateEvaluation::class);
     }
+
+    /**
+     * 指定されたユーザーが早期終了を提案できるかチェック
+     */
+    public function canRequestEarlyTermination(int $userId): bool
+    {
+        return $userId === $this->affirmative_user_id || $userId === $this->negative_user_id;
+    }
+
+    /**
+     * 指定されたユーザーが早期終了提案に応答できるかチェック
+     */
+    public function canRespondToEarlyTermination(int $userId): bool
+    {
+        return $userId === $this->affirmative_user_id || $userId === $this->negative_user_id;
+    }
 }

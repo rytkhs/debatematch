@@ -125,6 +125,17 @@ class RoomController extends Controller
                     'is_questions' => $isQuestions,
                 ];
             }
+        } elseif ($validatedData['format_type'] === 'free') {
+            $request->validate([
+                'turn_duration' => 'required|integer|min:1|max:10',
+                'max_turns' => 'required|integer|min:2|max:100',
+            ]);
+
+            // フリーフォーマット設定を動的生成
+            $customFormatSettings = $this->generateFreeFormatSettings(
+                $request->input('turn_duration'),
+                $request->input('max_turns')
+            );
         }
 
         return DB::transaction(function () use ($validatedData, $customFormatSettings) {
@@ -164,6 +175,28 @@ class RoomController extends Controller
 
             return redirect()->route('rooms.show', compact('room'))->with('success', __('flash.room.store.success'));
         });
+    }
+
+    /**
+     * フリーフォーマット設定を動的生成
+     */
+    private function generateFreeFormatSettings(int $turnDuration, int $maxTurns): array
+    {
+        $settings = [];
+        $durationInSeconds = $turnDuration * 60;
+
+        for ($i = 1; $i <= $maxTurns; $i++) {
+            $speaker = ($i % 2 === 1) ? 'affirmative' : 'negative';
+            $settings[$i] = [
+                'name' => 'suggestion_free_speech',
+                'duration' => $durationInSeconds,
+                'speaker' => $speaker,
+                'is_prep_time' => false,
+                'is_questions' => false,
+            ];
+        }
+
+        return $settings;
     }
 
     public function preview(Room $room)

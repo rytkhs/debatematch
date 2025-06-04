@@ -28,3 +28,9 @@ docs/
 
 /fail2ban/data/
 /fail2ban/logs/
+
+# Testing
+/coverage/
+/.nyc_output
+/tests/js/coverage/
+node_modules/.cache/

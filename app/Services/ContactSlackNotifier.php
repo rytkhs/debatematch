@@ -9,10 +9,16 @@ use Illuminate\Support\Facades\Log;
 class ContactSlackNotifier
 {
     protected $webhookUrl;
+    protected bool $enabled;
 
     public function __construct()
     {
         $this->webhookUrl = config('services.slack.webhook_url', env('SLACK_WEBHOOK_URL'));
+        $this->enabled = env('SLACK_NOTIFICATIONS_ENABLED', true);
+
+        if (!$this->enabled) {
+            Log::info('Contact Slack通知は無効になっています。(SLACK_NOTIFICATIONS_ENABLED=false)');
+        }
     }
 
     /**
@@ -20,6 +26,12 @@ class ContactSlackNotifier
      */
     public function notifyNewContact(Contact $contact): bool
     {
+        // Slack通知が無効の場合はログのみ出力して終了
+        if (!$this->enabled) {
+            Log::info("Contact Slack通知（無効）: 新しいお問い合わせ #{$contact->id} - {$contact->subject}");
+            return true; // 無効時も成功として扱う
+        }
+
         if (!$this->webhookUrl) {
             Log::warning('Slack webhook URL not configured');
             return false;

@@ -2,6 +2,8 @@ import Logger from '../logger';
 
 /**
  * ディベート評価通知用モジュール
+ *
+ * このモジュールは主にWebSocketイベント（ディベート終了、評価完了など）の通知を担当します。
  */
 class EventListener {
     constructor(debateId) {
@@ -31,6 +33,10 @@ class EventListener {
             .listen('DebateTerminated', (e) => {
                 this.logger.log('DebateTerminated イベントを受信:', e);
                 this.handleDebateTerminated(e);
+            })
+            .listen('EarlyTerminationExpired', (e) => {
+                this.logger.log('EarlyTerminationExpired イベントを受信:', e);
+                this.handleEarlyTerminationExpired(e);
             });
     }
 
@@ -72,13 +78,25 @@ class EventListener {
         }, 2000);
     }
 
-    /**c
+    /**
      * ディベート強制終了イベントの処理
      */
     handleDebateTerminated(event) {
         // 終了通知を表示
         alert(window.translations?.host_left_terminated || '相手との接続が切断されたため、ディベートを終了します');
         window.location.href = '/';
+    }
+
+    /**
+     * 早期終了提案タイムアウトイベントの処理
+     */
+    handleEarlyTerminationExpired(event) {
+        this.showNotification({
+            title: window.translations?.early_termination_expired_notification || '早期終了提案がタイムアウトしました',
+            message: window.translations?.early_termination_timeout_message || '早期終了の提案は5分で期限切れになりました。ディベートを継続します。',
+            type: 'warning',
+            duration: 8000
+        });
     }
 
     /**
@@ -93,47 +111,87 @@ class EventListener {
 
         // シンプルな通知表示（フォールバック）
         const notificationElement = document.createElement('div');
-        notificationElement.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50
-            ${options.type === 'success' ? 'bg-green-50 border-green-500' :
-            options.type === 'error' ? 'bg-red-50 border-red-500' :
-            'bg-blue-50 border-blue-500'} border-l-4`;
+        // TailwindCSSクラスとアニメーション用のスタイルを設定
+        notificationElement.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 border-l-4`;
+
+        // タイプに応じた背景色とテキスト色を設定
+        let bgColorClass, borderColorClass, textColorClass, iconColorClass, iconName;
+        switch (options.type) {
+            case 'success':
+                bgColorClass = 'bg-green-50';
+                borderColorClass = 'border-green-500';
+                textColorClass = 'text-green-800';
+                iconColorClass = 'text-green-600';
+                iconName = 'check_circle';
+                break;
+            case 'error':
+                bgColorClass = 'bg-red-50';
+                borderColorClass = 'border-red-500';
+                textColorClass = 'text-red-800';
+                iconColorClass = 'text-red-600';
+                iconName = 'error';
+                break;
+            case 'warning':
+                bgColorClass = 'bg-yellow-50';
+                borderColorClass = 'border-yellow-500';
+                textColorClass = 'text-yellow-800';
+                iconColorClass = 'text-yellow-600';
+                iconName = 'warning';
+                break;
+            default: // info
+                bgColorClass = 'bg-blue-50';
+                borderColorClass = 'border-blue-500';
+                textColorClass = 'text-blue-800';
+                iconColorClass = 'text-blue-600';
+                iconName = 'info';
+                break;
+        }
+
+        notificationElement.classList.add(bgColorClass, borderColorClass);
 
         notificationElement.innerHTML = `
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <span class="material-icons ${
-                        options.type === 'success' ? 'text-green-600' :
-                        options.type === 'error' ? 'text-red-600' :
-                        'text-blue-600'
-                    }">
-                        ${
-                            options.type === 'success' ? 'check_circle' :
-                            options.type === 'error' ? 'error' :
-                            'info'
-                        }
+                    <span class="material-icons ${iconColorClass}">
+                        ${iconName}
                     </span>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium ${
-                        options.type === 'success' ? 'text-green-800' :
-                        options.type === 'error' ? 'text-red-800' :
-                        'text-blue-800'
-                    }">${options.title}</h3>
-                    <div class="mt-1 text-sm ${
-                        options.type === 'success' ? 'text-green-700' :
-                        options.type === 'error' ? 'text-red-700' :
-                        'text-blue-700'
-                    }">${options.message}</div>
+                    <h3 class="text-sm font-medium ${textColorClass}">${options.title}</h3>
+                    <div class="mt-1 text-sm ${textColorClass.replace('-800', '-700')}">${options.message}</div>
                 </div>
             </div>
         `;
 
+        // アニメーションの初期状態を設定
+        notificationElement.style.transition = 'all 0.5s ease-in-out';
+        notificationElement.style.transform = 'translateX(100%)';
+        notificationElement.style.opacity = '0';
+
         document.body.appendChild(notificationElement);
 
-        // options.duration後に通知を消す
+        // 強制的にレイアウト計算を行う
+        notificationElement.getBoundingClientRect();
+
+        // アニメーションを開始
         setTimeout(() => {
-            notificationElement.remove();
-        }, options.duration || 5000);
+            notificationElement.style.transform = 'translateX(0)';
+            notificationElement.style.opacity = '1';
+        }, 10);
+
+        const displayDuration = options.duration || 5000;
+        const transitionDuration = 500;
+
+        setTimeout(() => {
+            notificationElement.style.transform = 'translateX(100%)';
+            notificationElement.style.opacity = '0';
+
+            // アニメーション終了後に要素を削除
+            setTimeout(() => {
+                notificationElement.remove();
+            }, transitionDuration);
+
+        }, displayDuration);
     }
 
     /**
@@ -191,6 +249,8 @@ class EventListener {
         if (this.channel) {
             this.channel.stopListening('DebateFinished');
             this.channel.stopListening('DebateEvaluated');
+            this.channel.stopListening('DebateTerminated');
+            this.channel.stopListening('EarlyTerminationExpired');
         }
     }
 }
