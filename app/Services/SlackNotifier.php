@@ -9,13 +9,19 @@ use Illuminate\Support\Facades\Config;
 class SlackNotifier
 {
     protected ?string $webhookUrl;
+    protected bool $enabled;
 
     public function __construct()
     {
         $this->webhookUrl = Config::get('services.slack.webhook_url') ?: env('SLACK_WEBHOOK_URL');
+        $this->enabled = env('SLACK_NOTIFICATIONS_ENABLED', true);
 
         if (empty($this->webhookUrl)) {
             Log::warning('Slack Webhook URLが設定されていません。(SLACK_WEBHOOK_URL)');
+        }
+
+        if (!$this->enabled) {
+            Log::info('Slack通知は無効になっています。(SLACK_NOTIFICATIONS_ENABLED=false)');
         }
     }
 
@@ -30,6 +36,12 @@ class SlackNotifier
      */
     public function send(string $message, ?string $channel = null, ?string $username = 'DebateMatch Bot', ?string $iconEmoji = ':robot_face:'): bool
     {
+        // Slack通知が無効の場合はログのみ出力して終了
+        if (!$this->enabled) {
+            Log::info("Slack通知（無効）: {$message}");
+            return true; // 無効時も成功として扱う
+        }
+
         if (empty($this->webhookUrl)) {
             Log::error('Slack通知送信失敗: Webhook URLが未設定です。');
             return false;
