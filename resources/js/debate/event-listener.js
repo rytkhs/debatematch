@@ -72,7 +72,7 @@ class EventListener {
         }, 2000);
     }
 
-    /**c
+    /**
      * ディベート強制終了イベントの処理
      */
     handleDebateTerminated(event) {
