@@ -88,9 +88,24 @@ class Room extends Model
 
     public function getDebateFormat()
     {
-        // カスタムフォーマットの場合はカスタム設定を返す
-        if ($this->format_type === 'custom' && !empty($this->custom_format_settings)) {
-            return $this->custom_format_settings;
+        // カスタムフォーマットまたはフリーフォーマットの場合はカスタム設定を返す
+        if (($this->format_type === 'custom' || $this->format_type === 'free') && !empty($this->custom_format_settings)) {
+            // カスタムフォーマットでも翻訳処理を行う
+            $translatedFormat = [];
+            foreach ($this->custom_format_settings as $index => $turn) {
+                $translatedTurn = $turn;
+
+                // ターン名が翻訳キーの場合は翻訳する
+                if (isset($turn['name']) && str_starts_with($turn['name'], 'suggestion_')) {
+                    $translatedTurn['name'] = __('debates.' . $turn['name']);
+                } elseif (isset($turn['name'])) {
+                    // 通常のターン名の場合はそのまま使用
+                    $translatedTurn['name'] = $turn['name'];
+                }
+
+                $translatedFormat[$index] = $translatedTurn;
+            }
+            return $translatedFormat;
         }
 
         // 標準フォーマットの場合はconfig設定を取得
@@ -120,7 +135,19 @@ class Room extends Model
         if ($this->format_type === 'custom') {
             return __('debates.custom');
         }
+        // フリーフォーマットの場合は'フリー'を返す
+        if ($this->format_type === 'free') {
+            return __('debates.format_name_free');
+        }
 
         return '';
+    }
+
+    /**
+     * フリーフォーマットかどうかを判定
+     */
+    public function isFreeFormat(): bool
+    {
+        return $this->format_type === 'free';
     }
 }
