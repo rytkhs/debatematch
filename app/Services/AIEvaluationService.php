@@ -52,7 +52,14 @@ class AIEvaluationService
 
         // 言語と証拠利用可否に基づいてプロンプトキーを選択
         $basePromptKey = ($language === 'english') ? 'ai_prompts.debate_evaluation_en' : 'ai_prompts.debate_evaluation_ja';
-        $promptKey = $evidenceAllowed ? $basePromptKey : $basePromptKey . '_no_evidence';
+
+        // フリーフォーマットの場合は専用プロンプトを使用
+        if ($room->isFreeFormat()) {
+            $promptKey = ($language === 'english') ? 'ai_prompts.debate_evaluation_free_en' : 'ai_prompts.debate_evaluation_free_ja';
+        } else {
+            $promptKey = $evidenceAllowed ? $basePromptKey : $basePromptKey . '_no_evidence';
+        }
+
         Log::debug($promptKey);
         // 設定ファイルからプロンプトテンプレートを取得
         $promptTemplate = Config::get($promptKey);
