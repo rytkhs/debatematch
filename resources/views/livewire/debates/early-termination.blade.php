@@ -2,13 +2,6 @@
     @if($isFreeFormat && $debate->room->status === 'debating')
         <div class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-3">
 
-            {{-- <div class="flex items-center mb-2">
-                <span class="material-icons text-gray-400 text-sm mr-1">schedule</span>
-                <h3 class="text-xs font-medium text-gray-700">
-                    {{ __('messages.early_termination_request') }}
-                </h3>
-            </div> --}}
-
             @if($earlyTerminationStatus['status'] === 'none')
                 <!-- 早期終了提案ボタン -->
                 @if($canRequest)
