@@ -21,6 +21,7 @@ return [
     // AuthenticatedSessionController
     'auth.login.success' => 'ログインしました',
     'auth.logout.success' => 'ログアウトしました',
+    'auth.guest_login.success' => 'ゲストログインしました',
 
     // Livewire/Debates/Chat.php
     'chat.message.received' => 'メッセージを受信しました',
