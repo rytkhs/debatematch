@@ -91,10 +91,11 @@ return [
     'disagree_with_topic' => '論題に反対',
     'format' => 'フォーマット',
     'format_suffix' => 'フォーマット', // 例: 'NAFA 形式'
-    'select_format' => 'フォーマットを選択',
+    'select_format' => 'フォーマット選択',
     'custom_format' => 'カスタムフォーマット', // フォーマット選択肢用
     'format_selection_guide' => 'ディベートの進行形式を選択してください。「カスタムフォーマット」を選ぶと自由に設定できます。',
     'please_select' => '選択してください',
+    'standard_format' => '標準フォーマット',
     'format_preview' => 'フォーマットプレビュー',
     'configure_custom_format' => 'カスタムフォーマットの設定',
     'custom_format_guide' => '各パートの「サイド」「パート名」「時間」を設定してください。「準備時間」や「質疑応答」を含めることも可能です。最低1パートは必要です。',
@@ -151,6 +152,7 @@ return [
     'step2_description' => 'ディベーターが揃ったら、システムの進行に従いディベートを行います',
     'step3_title' => 'AI講評',
     'step3_description' => 'AIジャッジからディベートの講評とフィードバックを受け取ります',
+    'detailed_guide' => '詳細ガイドを見る',
     'faq_title' => 'よくある質問',
     'faq1_question' => 'ディベート初心者でも参加できますか？',
     'faq1_answer' => 'はい、大歓迎です！ DebateMatchは、ディベート経験がない方でも気軽に参加できます。AIによるフィードバック機能も、スキルアップの助けになります。まずは<a href=":url" class="text-primary hover:underline">使い方ガイド</a>をご覧にな
@@ -231,8 +233,6 @@ return [
     'debate_formats_description' => 'DebateMatchでは、主要なディベート大会の公式ルールに基づいたフォーマットを複数用意しています。ルーム作成時
     に、希望のフォーマットを選択してください。',
     'available_formats' => '現在利用可能なフォーマット',
-    'custom_format_description' => '上記の既存フォーマット以外に、自分でパート構成（話者、名称、時間など）を自由に設定できる「カスタム」フォーマ
-    ットも利用可能です。ルーム作成時に「カスタム」を選択し、詳細を設定してください。',
     'faq_guide1_q' => 'ディベート経験がなくても参加できますか？',
     'faq_guide1_a' => 'はい、大歓迎です！ DebateMatchは、ディベート経験がない方でも気軽に参加し、楽しみながら学べます。AIによ
     るフィードバック機能も、スキルアップの助けになります。まずは、簡単なルームから参加してみることをお勧めします',
@@ -296,7 +296,6 @@ return [
     'total_time' => '合計時間',
     'time_minutes' => '時間(分)',
     'save_format' => 'フォーマットを保存',
-    'standard_format' => '標準フォーマット',
     'custom' => 'カスタム',
     'join_as_affirmative' => '肯定側で参加',
     'join_as_negative' => '否定側で参加',
@@ -407,7 +406,7 @@ return [
     'host_left_room_closed' => 'ホストが退出したため、ルームは閉鎖されました。',
     'debate_starting_message' => 'ディベートを開始します。ページ移動の準備をしています...',
     'redirecting_in_seconds' => ':seconds 秒後にディベートページへ移動します...',
-    'format_info_missing' => 'フォーマット情報が見つかりません。', // JS用
+    'format_info_missing' => 'フォーマットを選択してください。', // JS用
     'minute_suffix' => '分', // JS用 (プレビュー表示)
 
     // ダッシュボード
@@ -548,4 +547,61 @@ return [
     'you' => 'あなた',
     'no_debate_records_description' => 'まだディベートの履歴がありません。新しいディベートに参加して、あなたの議論スキルを磨いてみましょう！',
     'searching' => '検索中',
+
+    // フリーフォーマット設定
+    'free_format_settings' => 'フリーフォーマット設定',
+    'turn_duration' => '1ターンの時間',
+    'max_turns' => '最大ターン数',
+    'turn_unit' => 'ターン',
+
+    // 早期終了関連
+    'early_termination_request' => '早期終了を提案',
+    'early_termination_requested' => '早期終了を提案しました',
+    'early_termination_request_failed' => '早期終了の提案に失敗しました',
+    'early_termination_agree' => '同意する',
+    'early_termination_decline' => '拒否する',
+    'early_termination_agreed' => '早期終了に合意しました。ディベートを終了します。',
+    'early_termination_declined' => '早期終了を拒否しました。ディベートを継続します。',
+    'early_termination_response_failed' => '早期終了への応答に失敗しました',
+    'early_termination_proposal' => ':name さんが早期終了を提案しています',
+    'early_termination_waiting_response' => '相手の応答を待っています...',
+    'early_termination_proposal_expired' => '早期終了の提案が期限切れになりました',
+    'special_format' => '特別フォーマット',
+    'free_format_short_description' => '構成やルールに縛られることなく、自由に意見を交わせる最もカジュアルな形式',
+    'free_format_description' => 'ターン制を維持しながら、立論・反駁などの決まった構造に縛られない自由で気軽なディベート形式です。
+    両者合意の上、いつでも議論を終了できます。',
+    'free_format_help' => 'ターン制と時間制限を維持しながら、立論・反駁などの決まった構造に縛られない自由で気軽な形式です。両者合意
+    の上、いつでも議論を終了できます。',
+    'early_termination_completed' => 'ディベートを早期終了しました。',
+
+
+    // 新しく追加されたメッセージキー
+    'view_guide' => 'ガイドを見る',
+    'required_fields_note' => 'マークの項目は必須入力です',
+    'required' => '必須',
+    'next_step' => '次のステップ',
+    'previous_step' => '前のステップ',
+    'format_selection_help' => 'フォーマット選択について',
+    'standard_format_help' => '標準フォーマット：よく使われる形式から選択',
+    'custom_format_help' => '独自の進行形式を自由に作成できます',
+    'view_detailed_guide' => '詳細なガイドを見る',
+    'recommended' => '推奨',
+    'advanced' => '上級者向け',
+    'standard_format_description' => '一般的なディベート形式から選択できます',
+    'custom_format_guide_title' => 'カスタムフォーマット作成のコツ',
+    'custom_format_tip1' => '肯定側と否定側のバランスを取りましょう',
+    'custom_format_tip2' => '準備時間や質疑応答時間も考慮しましょう',
+    'custom_format_tip3' => '全体の時間が長すぎないよう注意しましょう',
+    'free_format_benefits' => 'フリーフォーマットの利点',
+    'competition_format' => '大会フォーマット',
+    'competition_format_help' => '競技ディベート大会で一般的に使用される形式です。選択すると進行形式のプレビューを確認できます。',
+    'competition_format_description' => 'ディベート大会で使用される標準的な形式',
+    'custom_format_description' => '独自のフォーマットを自由に設定できます',
+
+    // フォーム検証メッセージ
+    'topic_required' => '論題を入力してください',
+    'language_required' => '言語を選択してください',
+    'room_name_required' => 'ルーム名を入力してください',
+    'field_required' => '必須項目です',
+    'even_numbers_only' => '偶数のみ指定可能です',
 ];
