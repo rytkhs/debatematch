@@ -247,6 +247,33 @@ return [
     'faq_guide5_q' => '途中で接続が切れてしまった場合はどうなりますか？',
     'faq_guide5_a' => 'ネットワーク接続が不安定になると、一時的に相手との接続が切断された旨の通知が表示されることがあります。一定時間内に再接続でき
     ない場合、ディベートは強制的に中断・終了となる場合があります。安定したネットワーク環境でのご利用を推奨します。',
+    'faq_guide6_q' => 'フリーフォーマットとは何ですか？',
+    'faq_guide6_a' => 'フリーフォーマットは、立論・反駁などの決まった構造に縛られない自由で気軽なディベート形式です。ターン制と時間制限を維持しながら、両者の合意があればいつでも早期終了が可能です。初心者や短時間でのカジュアルな議論に最適です。',
+
+    // フリーフォーマット詳細セクション用の翻訳
+    'free_format_title' => 'フォーマット',
+    'early_termination_feature' => '早期終了機能',
+    'early_termination_feature_desc' => '議論が十分に進んだと感じた場合、どちらの参加者からでも早期終了を提案できます。',
+    'early_termination_feature_list1' => '相手が同意すれば、予定時間より早く終了',
+    'early_termination_feature_list2' => '相手が拒否すれば、議論を継続',
+    'early_termination_feature_list3' => '提案から60秒以内に応答が必要',
+    'flexible_settings' => '柔軟な設定',
+    'flexible_settings_desc' => 'ディベートの長さを自由に設定できます。',
+    'flexible_settings_list1' => '1ターンの時間を自由に設定（1～10分）',
+    'flexible_settings_list2' => '最大ターン数を設定（4～100ターン）',
+    'flexible_settings_list3' => '短時間でも長時間でも対応可能',
+    'recommended_situations' => 'こんな場面におすすめ',
+    'beginner_practice' => 'ディベート初心者の練習',
+    'casual_discussion' => 'カジュアルな議論',
+    'short_time_exchange' => '短時間での意見交換',
+
+    // フリーフォーマットの利点
+    'free_format_benefit1' => '構造に縛られない自由な議論が可能',
+    'free_format_benefit2' => 'カジュアルで気軽にディベートを楽しめる',
+    'free_format_benefit3' => '初心者でも参加しやすい形式',
+    'free_format_benefit4' => '両者合意で早期終了が可能',
+    'free_format_benefit5' => 'ターン制でスムーズな議論進行',
+    'free_format_benefit6' => '時間制限でメリハリのある議論',
     'when_in_trouble' => '困ったときは',
     'trouble_description' => '不明な点や問題が発生した場合は、以下のリンクをご確認いただくか、お問い合わせください。',
     'terms_of_service' => '利用規約',

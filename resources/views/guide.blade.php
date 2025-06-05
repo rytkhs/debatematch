@@ -203,7 +203,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-8 sm:mb-12">{{
                 __('messages.debate_formats') }}</h2>
-            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
                 <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">{{ __('messages.debate_formats_description') }}
                 </p>
                 <h4 class="text-base sm:text-lg font-medium mb-2 sm:mb-3">{{ __('messages.available_formats') }}</h4>
@@ -215,6 +215,111 @@
                 </ul>
                 <h4 class="text-base sm:text-lg font-medium mb-2 sm:mb-3">{{ __('messages.custom_format') }}</h4>
                 <p class="text-xs sm:text-sm text-gray-600">{{ __('messages.custom_format_description') }}</p>
+            </div>
+        </div>
+    </section>
+
+    {{-- フリーフォーマット詳細セクション --}}
+    <section class="py-12 sm:py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-8 sm:mb-12">{{
+                __('messages.special_format') }}</h2>
+
+            {{-- フリーフォーマットの説明 --}}
+            <div class="bg-purple-50 p-4 sm:p-6 rounded-lg border border-purple-200 mb-8 sm:mb-12">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3 sm:mr-4">
+                        <span class="material-icons text-purple-600 text-xl sm:text-2xl">all_inclusive</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-purple-900">{{ __('debates.format_name_free') }}{{ __('messages.free_format_title') }}</h3>
+                </div>
+                <p class="text-sm sm:text-base text-purple-800 mb-4 sm:mb-6">{{ __('messages.free_format_description') }}</p>
+
+                <h4 class="text-base sm:text-lg font-medium text-purple-900 mb-3 sm:mb-4">{{ __('messages.free_format_benefits') }}</h4>
+                <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="space-y-2 sm:space-y-3">
+                        <div class="flex items-start">
+                            <span class="material-icons text-purple-600 mr-2 text-lg">check_circle</span>
+                            <p class="text-xs sm:text-sm text-purple-700">{{ __('messages.free_format_benefit1') }}</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="material-icons text-purple-600 mr-2 text-lg">check_circle</span>
+                            <p class="text-xs sm:text-sm text-purple-700">{{ __('messages.free_format_benefit2') }}</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="material-icons text-purple-600 mr-2 text-lg">check_circle</span>
+                            <p class="text-xs sm:text-sm text-purple-700">{{ __('messages.free_format_benefit3') }}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 sm:space-y-3">
+                        <div class="flex items-start">
+                            <span class="material-icons text-purple-600 mr-2 text-lg">check_circle</span>
+                            <p class="text-xs sm:text-sm text-purple-700">{{ __('messages.free_format_benefit4') }}</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="material-icons text-purple-600 mr-2 text-lg">check_circle</span>
+                            <p class="text-xs sm:text-sm text-purple-700">{{ __('messages.free_format_benefit5') }}</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="material-icons text-purple-600 mr-2 text-lg">check_circle</span>
+                            <p class="text-xs sm:text-sm text-purple-700">{{ __('messages.free_format_benefit6') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- フリーフォーマット特有の機能説明 --}}
+            <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
+                {{-- 早期終了機能 --}}
+                <div class="bg-blue-50 p-4 sm:p-6 rounded-lg border border-blue-200">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <span class="material-icons text-blue-600 mr-2 text-xl sm:text-2xl">timer_off</span>
+                        <h4 class="text-base sm:text-lg font-medium text-blue-900">{{ __('messages.early_termination_feature') }}</h4>
+                    </div>
+                    <p class="text-xs sm:text-sm text-blue-800 mb-3">
+                        {{ __('messages.early_termination_feature_desc') }}
+                    </p>
+                    <ul class="list-disc list-inside text-xs sm:text-sm text-blue-700 space-y-1">
+                        <li>{{ __('messages.early_termination_feature_list1') }}</li>
+                        <li>{{ __('messages.early_termination_feature_list2') }}</li>
+                        <li>{{ __('messages.early_termination_feature_list3') }}</li>
+                    </ul>
+                </div>
+
+                {{-- 設定のカスタマイズ --}}
+                <div class="bg-green-50 p-4 sm:p-6 rounded-lg border border-green-200">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <span class="material-icons text-green-600 mr-2 text-xl sm:text-2xl">tune</span>
+                        <h4 class="text-base sm:text-lg font-medium text-green-900">{{ __('messages.flexible_settings') }}</h4>
+                    </div>
+                    <p class="text-xs sm:text-sm text-green-800 mb-3">
+                        {{ __('messages.flexible_settings_desc') }}
+                    </p>
+                    <ul class="list-disc list-inside text-xs sm:text-sm text-green-700 space-y-1">
+                        <li>{{ __('messages.flexible_settings_list1') }}</li>
+                        <li>{{ __('messages.flexible_settings_list2') }}</li>
+                        <li>{{ __('messages.flexible_settings_list3') }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            {{-- フリーフォーマットの使用場面 --}}
+            <div class="mt-8 sm:mt-12 bg-gray-50 p-4 sm:p-6 rounded-lg border border-gray-200">
+                <h4 class="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4 text-center">{{ __('messages.recommended_situations') }}</h4>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <span class="material-icons text-gray-600 mb-2 text-2xl block">school</span>
+                        <p class="text-xs sm:text-sm text-gray-700 font-medium">{{ __('messages.beginner_practice') }}</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-icons text-gray-600 mb-2 text-2xl block">chat</span>
+                        <p class="text-xs sm:text-sm text-gray-700 font-medium">{{ __('messages.casual_discussion') }}</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-icons text-gray-600 mb-2 text-2xl block">speed</span>
+                        <p class="text-xs sm:text-sm text-gray-700 font-medium">{{ __('messages.short_time_exchange') }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -313,6 +418,24 @@
                     <div x-show="open" x-transition.duration.300ms
                         class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 bg-gray-50">
                         {{ __('messages.faq_guide5_a') }}
+                    </div>
+                </div>
+                {{-- FAQ項目6: フリーフォーマット --}}
+                <div x-data="{ open: false }" class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button @click="open = !open"
+                        class="flex justify-between items-center w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-medium text-left text-gray-900 bg-white hover:bg-gray-50 focus:outline-none">
+                        <span>{{ __('messages.faq_guide6_q') }}</span>
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-primary transition-transform duration-200"
+                            :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition.duration.300ms
+                        class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 bg-gray-50">
+                        {{ __('messages.faq_guide6_a') }}
                     </div>
                 </div>
             </div>

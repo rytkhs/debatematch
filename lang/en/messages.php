@@ -393,6 +393,8 @@ return [
     'faq_guide4_a' => 'Yes, when creating a room, you can choose the "Custom" format and set up the parts freely.',
     'faq_guide5_q' => 'How is the winner determined by the AI?',
     'faq_guide5_a' => 'The AI evaluates the relevance, logical consistency, evidence, and persuasiveness of the arguments presented by both sides.',
+    'faq_guide6_q' => 'What is Free Format?',
+    'faq_guide6_a' => 'Free Format is a casual and flexible debate format that is not bound by predetermined structures like constructive speeches and rebuttals. It maintains turn-based and time-limited systems while allowing early termination with mutual agreement. It\'s ideal for beginners and short casual discussions.',
     'when_in_trouble' => 'When in Trouble',
     'trouble_description' => 'If you encounter any problems or have questions, please check the Terms of Service and Privacy Policy, or contact us through the inquiry form.',
 
@@ -537,6 +539,31 @@ return [
     'free_format_short_description' => 'The most casual format where you can freely exchange opinions without being constrained by structure or rules',
     'free_format_description' => 'A free and casual debate format that maintains a turn-based system while not being bound by predetermined structures like constructive speeches and rebuttals. Debates can be ended at any time with mutual agreement.',
     'free_format_help' => 'A free and casual format that maintains turn-based and time-limited systems while not being bound by predetermined structures like constructive speeches and rebuttals. Debates can be ended at any time with mutual agreement.',
+
+    // Free Format Detail Section Translations
+    'free_format_title' => ' Format',
+    'early_termination_feature' => 'Early Termination Feature',
+    'early_termination_feature_desc' => 'When you feel the discussion has progressed sufficiently, either participant can propose early termination.',
+    'early_termination_feature_list1' => 'If the opponent agrees, the debate ends earlier than scheduled',
+    'early_termination_feature_list2' => 'If the opponent refuses, the debate continues',
+    'early_termination_feature_list3' => 'Response required within 60 seconds of proposal',
+    'flexible_settings' => 'Flexible Settings',
+    'flexible_settings_desc' => 'You can freely set the length of the debate.',
+    'flexible_settings_list1' => 'Freely set turn duration (1-10 minutes)',
+    'flexible_settings_list2' => 'Set maximum number of turns (4-100 turns)',
+    'flexible_settings_list3' => 'Supports both short and long debates',
+    'recommended_situations' => 'Recommended Situations',
+    'beginner_practice' => 'Practice for debate beginners',
+    'casual_discussion' => 'Casual discussion',
+    'short_time_exchange' => 'Short-time opinion exchange',
+
+    // Free Format Benefits
+    'free_format_benefit1' => 'Free discussion without structural constraints',
+    'free_format_benefit2' => 'Casual and enjoyable debate experience',
+    'free_format_benefit3' => 'Beginner-friendly format',
+    'free_format_benefit4' => 'Early termination possible with mutual agreement',
+    'free_format_benefit5' => 'Smooth debate progression with turn-based system',
+    'free_format_benefit6' => 'Well-paced discussion with time limits',
 
     // Form validation messages added for AI debate internationalization
     'topic_required' => 'Please enter a topic',
