@@ -149,4 +149,72 @@ class RoomTest extends BaseModelTest
     {
         $this->assertSoftDeletes();
     }
+
+    /**
+     * TODO-012: Room ステータス管理テスト
+     */
+
+    /** @test */
+    public function test_update_status()
+    {
+        $room = Room::factory()->create(['status' => Room::STATUS_WAITING]);
+
+        $room->updateStatus(Room::STATUS_READY);
+
+        $this->assertEquals(Room::STATUS_READY, $room->fresh()->status);
+        $this->assertDatabaseHas('rooms', [
+            'id' => $room->id,
+            'status' => Room::STATUS_READY
+        ]);
+    }
+
+    /** @test */
+    public function test_update_status_valid_transitions()
+    {
+        // Test waiting to ready
+        $room = Room::factory()->waiting()->create();
+        $room->updateStatus(Room::STATUS_READY);
+        $this->assertEquals(Room::STATUS_READY, $room->fresh()->status);
+
+        // Test ready to debating
+        $room = Room::factory()->ready()->create();
+        $room->updateStatus(Room::STATUS_DEBATING);
+        $this->assertEquals(Room::STATUS_DEBATING, $room->fresh()->status);
+
+        // Test debating to finished
+        $room = Room::factory()->debating()->create();
+        $room->updateStatus(Room::STATUS_FINISHED);
+        $this->assertEquals(Room::STATUS_FINISHED, $room->fresh()->status);
+
+        // Test to terminated from any status
+        $room = Room::factory()->waiting()->create();
+        $room->updateStatus(Room::STATUS_TERMINATED);
+        $this->assertEquals(Room::STATUS_TERMINATED, $room->fresh()->status);
+    }
+
+    /** @test */
+    public function test_update_status_with_all_available_statuses()
+    {
+        foreach (Room::AVAILABLE_STATUSES as $status) {
+            $room = Room::factory()->create();
+            $room->updateStatus($status);
+            $this->assertEquals($status, $room->fresh()->status);
+        }
+    }
+
+    /** @test */
+    public function test_status_constants_in_database()
+    {
+        $room = Room::factory()->waiting()->create();
+        $this->assertEquals(Room::STATUS_WAITING, $room->status);
+
+        $room = Room::factory()->ready()->create();
+        $this->assertEquals(Room::STATUS_READY, $room->status);
+
+        $room = Room::factory()->debating()->create();
+        $this->assertEquals(Room::STATUS_DEBATING, $room->status);
+
+        $room = Room::factory()->finished()->create();
+        $this->assertEquals(Room::STATUS_FINISHED, $room->status);
+    }
 }
