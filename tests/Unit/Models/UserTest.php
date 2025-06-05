@@ -118,4 +118,195 @@ class UserTest extends BaseModelTest
     {
         $this->assertSoftDeletes();
     }
+
+    // ============================================
+    // TODO-007: User リレーションシップテスト
+    // ============================================
+
+    /**
+     * @test
+     */
+    public function testRoomsRelation()
+    {
+        $this->assertBelongsToMany('rooms', Room::class);
+
+        // Test actual relationship with data
+        $user = User::factory()->create();
+        $room = Room::factory()->create();
+
+        // Attach user to room with pivot data
+        $user->rooms()->attach($room->id, ['side' => 'affirmative']);
+
+        $this->assertEquals(1, $user->rooms()->count());
+        $this->assertEquals($room->id, $user->rooms->first()->id);
+        $this->assertEquals('affirmative', $user->rooms->first()->pivot->side);
+    }
+
+    /**
+     * @test
+     */
+    public function testAffirmativeDebatesRelation()
+    {
+        $this->assertHasMany('affirmativeDebates', Debate::class);
+
+        // Test actual relationship with data
+        $user = User::factory()->create();
+        $opponent = User::factory()->create();
+        $room = Room::factory()->create();
+
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $user->id,
+            'negative_user_id' => $opponent->id,
+        ]);
+
+        $this->assertEquals(1, $user->affirmativeDebates()->count());
+        $this->assertEquals($debate->id, $user->affirmativeDebates->first()->id);
+        $this->assertEquals(0, $opponent->affirmativeDebates()->count());
+    }
+
+    /**
+     * @test
+     */
+    public function testNegativeDebatesRelation()
+    {
+        $this->assertHasMany('negativeDebates', Debate::class);
+
+        // Test actual relationship with data
+        $user = User::factory()->create();
+        $opponent = User::factory()->create();
+        $room = Room::factory()->create();
+
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $opponent->id,
+            'negative_user_id' => $user->id,
+        ]);
+
+        $this->assertEquals(1, $user->negativeDebates()->count());
+        $this->assertEquals($debate->id, $user->negativeDebates->first()->id);
+        $this->assertEquals(0, $opponent->negativeDebates()->count());
+    }
+
+    /**
+     * @test
+     */
+    public function testRelationshipCounts()
+    {
+        $user = User::factory()->create();
+        $opponent = User::factory()->create();
+
+        // Create rooms and debates
+        $room1 = Room::factory()->create();
+        $room2 = Room::factory()->create();
+
+        // User participates in 2 rooms
+        $user->rooms()->attach($room1->id, ['side' => 'affirmative']);
+        $user->rooms()->attach($room2->id, ['side' => 'negative']);
+
+        // User has 1 affirmative debate and 1 negative debate
+        Debate::factory()->create([
+            'room_id' => $room1->id,
+            'affirmative_user_id' => $user->id,
+            'negative_user_id' => $opponent->id,
+        ]);
+
+        Debate::factory()->create([
+            'room_id' => $room2->id,
+            'affirmative_user_id' => $opponent->id,
+            'negative_user_id' => $user->id,
+        ]);
+
+        $this->assertEquals(2, $user->rooms()->count());
+        $this->assertEquals(1, $user->affirmativeDebates()->count());
+        $this->assertEquals(1, $user->negativeDebates()->count());
+    }
+
+    /**
+     * @test
+     */
+    public function testEagerLoading()
+    {
+        $user = User::factory()->create();
+        $room = Room::factory()->create();
+        $opponent = User::factory()->create();
+
+        // Attach user to room
+        $user->rooms()->attach($room->id, ['side' => 'affirmative']);
+
+        // Create debate
+        Debate::factory()->create([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $user->id,
+            'negative_user_id' => $opponent->id,
+        ]);
+
+        // Test eager loading
+        $userWithRelations = User::with(['rooms', 'affirmativeDebates', 'negativeDebates'])
+            ->find($user->id);
+
+        $this->assertTrue($userWithRelations->relationLoaded('rooms'));
+        $this->assertTrue($userWithRelations->relationLoaded('affirmativeDebates'));
+        $this->assertTrue($userWithRelations->relationLoaded('negativeDebates'));
+
+        $this->assertEquals(1, $userWithRelations->rooms->count());
+        $this->assertEquals(1, $userWithRelations->affirmativeDebates->count());
+        $this->assertEquals(0, $userWithRelations->negativeDebates->count());
+    }
+
+    /**
+     * @test
+     */
+    public function testRelationshipPivotData()
+    {
+        $user = User::factory()->create();
+        $room1 = Room::factory()->create();
+        $room2 = Room::factory()->create();
+
+        // Attach with different sides
+        $user->rooms()->attach($room1->id, ['side' => 'affirmative']);
+        $user->rooms()->attach($room2->id, ['side' => 'negative']);
+
+        $affirmativeRoom = $user->rooms()->wherePivot('side', 'affirmative')->first();
+        $negativeRoom = $user->rooms()->wherePivot('side', 'negative')->first();
+
+        $this->assertEquals($room1->id, $affirmativeRoom->id);
+        $this->assertEquals('affirmative', $affirmativeRoom->pivot->side);
+
+        $this->assertEquals($room2->id, $negativeRoom->id);
+        $this->assertEquals('negative', $negativeRoom->pivot->side);
+    }
+
+    /**
+     * @test
+     */
+    public function testRelationshipWithTrashedModels()
+    {
+        $user = User::factory()->create();
+        $room = Room::factory()->create();
+        $opponent = User::factory()->create();
+
+        // Create debate
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $user->id,
+            'negative_user_id' => $opponent->id,
+        ]);
+
+        // Soft delete the opponent
+        $opponent->delete();
+
+        // User should still have access to affirmative debates
+        $this->assertEquals(1, $user->affirmativeDebates()->count());
+
+        // Test with trashed opponent
+        $debateWithTrashedUser = $user->affirmativeDebates()
+            ->with(['negativeUser' => function ($query) {
+                $query->withTrashed();
+            }])
+            ->first();
+
+        $this->assertNotNull($debateWithTrashedUser->negativeUser);
+        $this->assertTrue($debateWithTrashedUser->negativeUser->trashed());
+    }
 }
