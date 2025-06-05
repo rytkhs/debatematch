@@ -29,6 +29,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'is_admin' => false,
+            'is_guest' => false,
         ];
     }
 
@@ -49,6 +51,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'is_admin' => true,
+            'is_guest' => false,
             'email_verified_at' => now(),
         ]);
     }
@@ -59,6 +62,7 @@ class UserFactory extends Factory
     public function guest(): static
     {
         return $this->state(fn(array $attributes) => [
+            'is_admin' => false,
             'is_guest' => true,
             'guest_expires_at' => now()->addDays(7),
             'email_verified_at' => null,
@@ -82,6 +86,7 @@ class UserFactory extends Factory
     public function expiredGuest(): static
     {
         return $this->state(fn(array $attributes) => [
+            'is_admin' => false,
             'is_guest' => true,
             'guest_expires_at' => now()->subDays(1),
             'email_verified_at' => null,
