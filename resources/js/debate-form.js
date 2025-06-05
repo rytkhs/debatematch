@@ -104,6 +104,7 @@ class StepManager {
     init() {
         this.setupEventListeners();
         this.updateStepDisplay();
+        this.handleFormatElementsVisibility();
         // 初期状態での検証は実行するが、エラー表示はしない
         this.validateCurrentStep(false);
     }
@@ -155,8 +156,46 @@ class StepManager {
 
         this.currentStep = step;
         this.updateStepDisplay();
+        this.handleFormatElementsVisibility();
         this.validateCurrentStep();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    handleFormatElementsVisibility() {
+        const formatPreview = document.getElementById('format-preview');
+        const customFormatSettings = document.getElementById('custom-format-settings');
+        const freeFormatSettings = document.getElementById('free-format-settings');
+
+        if (this.currentStep === 1) {
+            // ステップ1では全てのフォーマット関連要素を非表示
+            formatPreview?.classList.add('hidden');
+            customFormatSettings?.classList.add('hidden');
+            freeFormatSettings?.classList.add('hidden');
+        } else if (this.currentStep === 2) {
+            // ステップ2では選択されたフォーマットに応じて表示を制御
+            const formatTypeHidden = document.getElementById('free_format_hidden');
+            const formatType = formatTypeHidden?.value || '';
+
+            if (formatType === 'custom') {
+                formatPreview?.classList.add('hidden');
+                customFormatSettings?.classList.remove('hidden');
+                freeFormatSettings?.classList.add('hidden');
+            } else if (formatType === 'free') {
+                formatPreview?.classList.add('hidden');
+                customFormatSettings?.classList.add('hidden');
+                freeFormatSettings?.classList.remove('hidden');
+            } else if (formatType && formatType !== '') {
+                // 標準フォーマットが選択されている場合
+                formatPreview?.classList.remove('hidden');
+                customFormatSettings?.classList.add('hidden');
+                freeFormatSettings?.classList.add('hidden');
+            } else {
+                // フォーマットが選択されていない場合、全て非表示
+                formatPreview?.classList.add('hidden');
+                customFormatSettings?.classList.add('hidden');
+                freeFormatSettings?.classList.add('hidden');
+            }
+        }
     }
 
     updateStepDisplay() {
@@ -668,6 +707,7 @@ function handleFormatSelectionChange(selectionType) {
     // 検証を実行
     if (window.stepManager) {
         window.stepManager.hasUserInteracted = true;
+        window.stepManager.handleFormatElementsVisibility();
         window.stepManager.validateCurrentStep();
     }
 }
