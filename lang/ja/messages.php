@@ -259,7 +259,7 @@ return [
     'early_termination_feature_list3' => '提案から60秒以内に応答が必要',
     'flexible_settings' => '柔軟な設定',
     'flexible_settings_desc' => 'ディベートの長さを自由に設定できます。',
-    'flexible_settings_list1' => '1ターンの時間を自由に設定（1～10分）',
+    'flexible_settings_list1' => '1ターンの時間を自由に設定（1～15分）',
     'flexible_settings_list2' => '最大ターン数を設定（4～100ターン）',
     'flexible_settings_list3' => '短時間でも長時間でも対応可能',
     'recommended_situations' => 'こんな場面におすすめ',

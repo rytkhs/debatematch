@@ -29,7 +29,7 @@
             </label>
             <div class="relative">
                 <input type="number" name="turn_duration" id="turn_duration"
-                    value="{{ old('turn_duration', 3) }}" min="1" max="10"
+                    value="{{ old('turn_duration', 3) }}" min="1" max="15"
                     class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md transition-colors duration-200 pr-12">
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <span class="text-gray-500 text-xs sm:text-sm">{{ __('messages.minute_unit') }}</span>

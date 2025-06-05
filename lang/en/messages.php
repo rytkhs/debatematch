@@ -549,7 +549,7 @@ return [
     'early_termination_feature_list3' => 'Response required within 60 seconds of proposal',
     'flexible_settings' => 'Flexible Settings',
     'flexible_settings_desc' => 'You can freely set the length of the debate.',
-    'flexible_settings_list1' => 'Freely set turn duration (1-10 minutes)',
+    'flexible_settings_list1' => 'Freely set turn duration (1-15 minutes)',
     'flexible_settings_list2' => 'Set maximum number of turns (4-100 turns)',
     'flexible_settings_list3' => 'Supports both short and long debates',
     'recommended_situations' => 'Recommended Situations',
