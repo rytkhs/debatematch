@@ -1,111 +1,52 @@
+# Fail2Ban jail configuration for DebateMatch
+# Small-scale project optimized settings
+
 [DEFAULT]
-# デフォルト設定
-bantime = 3600
+# Ban time: 30 minutes (1800 seconds)
+bantime = 1800
+
+# Find time: 10 minutes window (600 seconds)
 findtime = 600
+
+# Max retry: 5 attempts before ban
 maxretry = 5
-backend = auto
-usedns = warn
-logencoding = auto
+
+# Ignore these IPs (localhost and trusted sources)
+ignoreip = 127.0.0.1/8 ::1
+
+# Backend for log processing
+backend = polling
+
+# Enable/disable jail by default
 enabled = false
-mode = normal
-filter = %(__name__)s[mode=%(mode)s]
 
-# メール通知設定（オプション）
-destemail = admin@example.com
-sendername = Fail2Ban
-mta = sendmail
-action = %(action_)s
+# Action to take when ban occurs
+action = iptables[name=%(__name__)s, port="80,443", protocol=tcp]
 
-# ホワイトリスト（信頼できるIPアドレス）
-ignoreip = 127.0.0.1/8 ::1 192.168.0.0/16 10.0.0.0/8 172.16.0.0/12
+# Log level
+loglevel = INFO
 
-[sshd]
-# SSH攻撃対策
+# Log target
+logtarget = STDOUT
+
+[nginx-sensitive]
+# Jail for sensitive file access attempts (error log)
 enabled = true
-port = ssh
-filter = sshd
-logpath = /var/log/auth.log
+filter = nginx-sensitive
+# Nginx error log path (shared volume)
+logpath = /var/log/nginx/error.log
+# More strict for sensitive files: 3 attempts = 1 hour ban
 maxretry = 3
 bantime = 3600
+findtime = 600
 
-[apache-auth]
-# Apache認証失敗対策
+[nginx-404]
+# Jail for 404/403 errors on sensitive files (access log)
 enabled = true
-port = http,https
-filter = apache-auth
-logpath = /var/log/apache2/*error.log
-maxretry = 6
-
-[apache-badbots]
-# 悪意のあるボット対策
-enabled = true
-port = http,https
-filter = apache-badbots
-logpath = /var/log/apache2/*access.log
-bantime = 86400
-maxretry = 1
-
-[apache-noscript]
-# スクリプト攻撃対策
-enabled = true
-port = http,https
-filter = apache-noscript
-logpath = /var/log/apache2/*access.log
-maxretry = 6
-
-[apache-overflows]
-# バッファオーバーフロー攻撃対策
-enabled = true
-port = http,https
-filter = apache-overflows
-logpath = /var/log/apache2/*access.log
-maxretry = 2
-
-[nginx-http-auth]
-# Nginx認証失敗対策
-enabled = true
-port = http,https
-filter = nginx-http-auth
-logpath = /var/log/nginx/error.log
-
-[nginx-noscript]
-# Nginxスクリプト攻撃対策
-enabled = true
-port = http,https
-filter = nginx-noscript
+filter = nginx-404
+# Nginx access log path (shared volume)
 logpath = /var/log/nginx/access.log
-maxretry = 6
-
-[nginx-badbots]
-# Nginx悪意のあるボット対策
-enabled = true
-port = http,https
-filter = nginx-badbots
-logpath = /var/log/nginx/access.log
-bantime = 86400
-maxretry = 1
-
-[nginx-botsearch]
-# Nginxボット検索攻撃対策
-enabled = true
-port = http,https
-filter = nginx-botsearch
-logpath = /var/log/nginx/access.log
-maxretry = 2
-
-[php-url-fopen]
-# PHP URL fopen攻撃対策
-enabled = true
-port = http,https
-filter = php-url-fopen
-logpath = /var/log/nginx/access.log
-
-[laravel-auth]
-# Laravel認証失敗対策（カスタムフィルター）
-enabled = true
-port = http,https
-filter = laravel-auth
-logpath = /var/log/nginx/access.log
+# Detect 404/403 attempts on sensitive files: 5 attempts in 10 minutes = 30 minutes ban
 maxretry = 5
-findtime = 300
 bantime = 1800
+findtime = 600

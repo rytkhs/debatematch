@@ -89,6 +89,9 @@
 
     <!-- ターン終了ボタン -->
     <div class="mt-auto">
+        <!-- 早期終了コンポーネント -->
+        {{-- <livewire:debates.early-termination :debate="$debate" /> --}}
+
         @if($isMyTurn)
         <button wire:click="advanceTurnManually"
             wire:confirm="{{ __('messages.confirm_end_turn', ['currentTurnName' => $currentTurnName, 'nextTurnName' => $nextTurnName]) }}"
@@ -105,7 +108,7 @@
         @endif
 
         <!-- ターン情報 -->
-        <div class="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
+        <div class="my-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
             <p class="text-xs text-gray-600 mb-2">{{ __('messages.current_turn_info') }}</p>
             <div class="flex items-center justify-between text-sm">
                 <span class="font-medium">{{$currentTurnName}}</span>
@@ -114,6 +117,8 @@
                 </span>
             </div>
         </div>
+        <!-- 早期終了コンポーネント -->
+        <livewire:debates.early-termination :debate="$debate" />
     </div>
 
     @script

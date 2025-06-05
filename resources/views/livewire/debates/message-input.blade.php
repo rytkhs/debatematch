@@ -3,19 +3,19 @@
         <!-- ツールバー -->
         <div class="flex items-center mb-2 px-2">
             <!-- サイズ調整ハンドル -->
-            <div id="resize-handle" class="mr-2 cursor-ns-resize text-gray-400 hover:text-gray-600">
+            <div id="resize-handle" class="mr-2 cursor-ns-resize text-gray-400 hover:text-gray-600" title="{{ __('messages.resize_input_area') }}">
                 <span class="material-icons">drag_handle</span>
             </div>
 
             <!-- 入力エリア操作ボタン -->
             <div class="flex items-center space-x-1 mr-2">
-                <button type="button" id="expand-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                <button type="button" id="expand-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('messages.expand_input_area') }} (Ctrl+Alt+↑)">
                     <span class="material-icons text-sm">unfold_more</span>
                 </button>
-                <button type="button" id="shrink-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                <button type="button" id="shrink-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('messages.shrink_input_area') }} (Ctrl+Alt+↓)">
                     <span class="material-icons text-sm">unfold_less</span>
                 </button>
-                <button type="button" id="toggle-input-visibility" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                <button type="button" id="toggle-input-visibility" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('messages.toggle_input_visibility') }} (Ctrl+Alt+H)">
                     <span class="material-icons text-sm">visibility</span>
                 </button>
             </div>
@@ -49,7 +49,7 @@
             </div>
 
             <!-- 音声入力ボタン -->
-            <button wire:ignore type="button" id="voice-input-toggle" class="hidden md:block ml-auto p-1.5 rounded-full transition-all duration-200 hover:bg-gray-200 text-gray-500 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" title="{{ __('messages.voice_input') }}">
+            <button wire:ignore type="button" id="voice-input-toggle" class="hidden md:block ml-auto p-1.5 rounded-full transition-all duration-200 hover:bg-gray-200 text-gray-500 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" title="{{ __('messages.voice_input') }} (Ctrl+Alt+V)">
                 <span class="material-icons text-base">mic</span>
             </button>
 
@@ -73,12 +73,19 @@
             <button
                 type="submit"
                 {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? '' : 'disabled' }}
-                class="ml-2 w-10 h-10 rounded-full flex items-center justify-center self-end transition-colors duration-200
+                title="{{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? __('messages.send_message') : __('messages.cannot_send_message_now') }}"
+                class="ml-2 w-10 h-10 rounded-full flex items-center justify-center self-end transition-colors duration-200 relative group
                        {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime
                           ? 'bg-primary hover:bg-primary-dark text-white'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}"
             >
                 <span class="material-icons">send</span>
+                <!-- ホバー時のキーボードショートカット表示 -->
+                @if(($isMyTurn || $isQuestioningTurn) && !$isPrepTime)
+                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                    Ctrl+Enter
+                </div>
+                @endif
             </button>
         </div>
     </form>
@@ -405,6 +412,55 @@
                 // 音声認識中の場合、現在の保存値も更新
                 if (state.isVoiceRecognizing) {
                     currentMessageValue = messageInput.value;
+                }
+            });
+
+            // キーボードショートカット機能
+            messageInput.addEventListener('keydown', function(e) {
+                // Ctrl+Enterキーで送信機能
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+
+                    // 音声認識中は送信しない
+                    if (state.isVoiceRecognizing) {
+                        return;
+                    }
+
+                    // 送信可能な状態かチェック
+                    const submitButton = document.querySelector('button[type="submit"]');
+                    if (submitButton && !submitButton.disabled && messageInput.value.trim()) {
+                        try {
+                            @this.call('sendMessage');
+                        } catch (error) {
+                            console.error('メッセージ送信エラー:', error);
+                        }
+                    }
+                }
+            });
+
+            // グローバルキーボードショートカット
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey && e.altKey) || (e.metaKey && e.altKey)) {
+                    switch(e.key) {
+                        case 'ArrowUp': // 拡大
+                            e.preventDefault();
+                            if (expandInput) expandInput.click();
+                            break;
+                        case 'ArrowDown': // 縮小
+                            e.preventDefault();
+                            if (shrinkInput) shrinkInput.click();
+                            break;
+                        case 'h':
+                        case 'H': // 表示/非表示
+                            e.preventDefault();
+                            if (toggleInputVisibility) toggleInputVisibility.click();
+                            break;
+                        case 'v':
+                        case 'V': // 音声入力
+                            e.preventDefault();
+                            if (voiceInputToggle && !voiceInputToggle.disabled) voiceInputToggle.click();
+                            break;
+                    }
                 }
             });
 

@@ -21,6 +21,7 @@ return [
     // AuthenticatedSessionController
     'auth.login.success' => 'Logged in successfully.',
     'auth.logout.success' => 'Logged out successfully.',
+    'auth.guest_login.success' => 'Guest logged in successfully.',
 
     // Livewire/Debates/Chat.php
     'chat.message.received' => 'Received a message.',

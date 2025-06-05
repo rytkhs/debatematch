@@ -7,6 +7,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/welcome.js',
+                'resources/js/debate-form.js',
                 'resources/js/debate/countdown.js',
                 'resources/js/debate/event-listener.js',
                 'resources/js/debate/presence.js',

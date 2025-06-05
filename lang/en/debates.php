@@ -8,6 +8,7 @@ return [
     'format_name_henda' => 'Japan High School English Debate Association Tournament (HEnDA)',
     'format_name_coda' => 'All Japan University Debate Championship (CoDA)',
     'format_name_jda' => 'Japan Debate Association Tournament (JDA)',
+    'format_name_free' => 'Free',
 
     'suggestion_constructive' => 'Constructive Speech',
     'suggestion_rebuttal' => 'Rebuttal',
@@ -20,6 +21,7 @@ return [
     'suggestion_summary' => 'Summary',
     'suggestion_1st_constructive' => '1st Constructive',
     'suggestion_2nd_constructive' => '2nd Constructive',
+    'suggestion_free_speech' => 'Free Speech',
 
     'custom' => 'Custom',
 

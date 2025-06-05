@@ -8,6 +8,7 @@ return [
     'format_name_henda' => '全国高校生英語ディベート協会大会 (HEnDA)',
     'format_name_coda' => '全日本大学ディベート選手権大会 (CoDA)',
     'format_name_jda' => 'JDAディベート大会(JDA)',
+    'format_name_free' => 'フリー',
 
     'suggestion_constructive' => '立論',
     'suggestion_rebuttal' => '反駁',
@@ -20,6 +21,7 @@ return [
     'suggestion_summary' => '総括',
     'suggestion_1st_constructive' => '第一立論',
     'suggestion_2nd_constructive' => '第二立論',
+    'suggestion_free_speech' => 'フリー',
 
     'custom' => 'カスタム',
 

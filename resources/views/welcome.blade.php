@@ -8,7 +8,10 @@
         <div class="bg-white">
             <!-- ヒーローセクション -->
             <div class="overflow-hidden bg-primary-light/40">
-
+            <!-- パーティクル背景 -->
+                <div id="particles-container" class="absolute inset-0 overflow-hidden">
+                    <canvas id="particles-canvas" class="absolute inset-0"></canvas>
+                </div>
                 <!-- メイン -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-28">
                     <div class="text-center">
@@ -141,6 +144,14 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- ガイドページへのリンク -->
+                    <div class="text-center mt-10 md:mt-12">
+                        <a href="{{ route('guide') }}" class="inline-flex items-center px-6 py-3 bg-white text-primary border-2 border-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-200 font-medium text-sm md:text-base shadow-sm">
+                            <i class="fa-solid fa-book-open mr-2"></i>
+                            {{ __('messages.detailed_guide') }}
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -228,4 +239,5 @@
         <x-slot name="footer">
             <x-footer></x-footer>
         </x-slot>
+    @vite(['resources/js/welcome.js'])
 </x-app-layout>

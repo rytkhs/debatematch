@@ -116,29 +116,39 @@ class AIService
 
         $aiRawSide = ($debate->affirmative_user_id === $this->aiUserId) ? 'affirmative' : 'negative';
 
-        // ディベートフォーマットと現在のターン情報を取得
-        $format = $this->debateService->getFormat($debate);
-        $currentTurnNumber = $debate->current_turn;
-        $currentTurnInfo = $format[$currentTurnNumber] ?? null;
+        // ディベートフォーマットと現在のターン情報を取得（フリーフォーマット以外）
+        $currentTurnName = '';
+        $timeLimitMinutes = 180; // デフォルト値
 
-        if (!$currentTurnInfo) {
-            Log::error("Could not get current turn info for debate {$debate->id}, turn {$currentTurnNumber}");
-            throw new \Exception("Could not get current turn info for debate {$debate->id}, turn {$currentTurnNumber}");
+        if (!$room->isFreeFormat()) {
+            $format = $this->debateService->getFormat($debate);
+            $currentTurnNumber = $debate->current_turn;
+            $currentTurnInfo = $format[$currentTurnNumber] ?? null;
+
+            if (!$currentTurnInfo) {
+                Log::error("Could not get current turn info for debate {$debate->id}, turn {$currentTurnNumber}");
+                throw new \Exception("Could not get current turn info for debate {$debate->id}, turn {$currentTurnNumber}");
+            }
+
+            $currentTurnName = $currentTurnInfo['name'];
+            $timeLimitMinutes = $currentTurnInfo['duration'] / 60 ?? 180;
+        } else {
+            // フリーフォーマットの場合は、ルームの設定から時間制限を取得
+            $format = $room->getDebateFormat();
+            if (!empty($format) && isset($format[0]['duration'])) {
+                $timeLimitMinutes = $format[0]['duration'] / 60;
+            }
         }
 
-        $currentTurnName = $currentTurnInfo['name'];
-        $timeLimitMinutes = $currentTurnInfo['duration'] / 60 ?? 180;
-
         // 言語に応じた文字数/単語数制限の計算
-        $characterLimit = $this->calculateCharacterLimit($timeLimitMinutes, $language);
+        $characterLimit = $this->calculateCharacterLimit($timeLimitMinutes, $language, $room->isFreeFormat());
 
         // ディベート履歴を整形
         $history = $debate->messages()
             ->with('user')
             ->orderBy('created_at')
             ->get()
-            ->map(function ($msg) use ($debate, $language, $format) {
-                $turnName = $format[$msg->turn]['name'] ?? 'unknown speech';
+            ->map(function ($msg) use ($debate, $language, $room) {
                 $speakerSide = ($msg->user_id === $debate->affirmative_user_id) ? 'affirmative' : 'negative';
                 $speakerLabel = '';
 
@@ -147,14 +157,28 @@ class AIService
                 } else {
                     $speakerLabel = ($speakerSide === 'affirmative' ? 'Affirmative Side' : 'Negative Side');
                 }
-                // 履歴として整形
-                $messageContent = nl2br(e($msg->message)); // HTMLエスケープと改行の保持
-                return "[{$turnName}] {$speakerLabel}:\n{$messageContent}"; // メッセージ内容を改行後に表示
+
+                // フリーフォーマットの場合はシンプルな履歴形式
+                if ($room->isFreeFormat()) {
+                    $messageContent = nl2br(e($msg->message));
+                    return "{$speakerLabel}:\n{$messageContent}";
+                } else {
+                    // 通常フォーマットの場合は詳細な履歴形式
+                    $format = $this->debateService->getFormat($debate);
+                    $turnName = $format[$msg->turn]['name'] ?? 'unknown speech';
+                    $messageContent = nl2br(e($msg->message));
+                    return "[{$turnName}] {$speakerLabel}:\n{$messageContent}";
+                }
             })
             ->implode("\n\n");
 
         // 言語に応じたプロンプトテンプレートを取得
-        $promptTemplateKey = ($language === 'japanese') ? 'ai_prompts.debate_ai_opponent_ja' : 'ai_prompts.debate_ai_opponent_en';
+        // フリーフォーマットの場合は専用のプロンプトを使用
+        if ($room->isFreeFormat()) {
+            $promptTemplateKey = ($language === 'japanese') ? 'ai_prompts.debate_ai_opponent_free_ja' : 'ai_prompts.debate_ai_opponent_free_en';
+        } else {
+            $promptTemplateKey = ($language === 'japanese') ? 'ai_prompts.debate_ai_opponent_ja' : 'ai_prompts.debate_ai_opponent_en';
+        }
         $promptTemplate = Config::get($promptTemplateKey);
 
         if (!$promptTemplate) {
@@ -166,18 +190,31 @@ class AIService
             ? (($aiRawSide === 'affirmative') ? '肯定側' : '否定側')
             : (($aiRawSide === 'affirmative') ? 'Affirmative' : 'Negative');
 
-        // フォーマットの説明
-        $debateFormatDescription = $this->buildFormatDescription($debate);
+        // パラメータ置換の設定（フリーフォーマットと通常フォーマットで異なる）
+        if ($room->isFreeFormat()) {
+            // フリーフォーマット用のパラメータ置換
+            $replacements = [
+                '{resolution}' => $topic,
+                '{ai_side}' => $aiSideName,
+                '{time_limit_minutes}' => $timeLimitMinutes,
+                '{debate_history}' => $history ?: (($language === 'japanese') ? 'まだ発言はありません。' : 'No speeches yet.'),
+                '{character_limit}' => $characterLimit, // 文字数/単語数制限
+            ];
+        } else {
+            // 通常フォーマット用のパラメータ置換
+            // フォーマットの説明
+            $debateFormatDescription = $this->buildFormatDescription($debate);
 
-        $replacements = [
-            '{resolution}' => $topic,
-            '{ai_side}' => $aiSideName,
-            '{debate_format_description}' => $debateFormatDescription,
-            '{current_part_name}' => $currentTurnName,
-            '{time_limit_minutes}' => $timeLimitMinutes,
-            '{debate_history}' => $history ?: (($language === 'japanese') ? 'まだ発言はありません。' : 'No speeches yet.'),
-            '{character_limit}' => $characterLimit, // 文字数/単語数制限
-        ];
+            $replacements = [
+                '{resolution}' => $topic,
+                '{ai_side}' => $aiSideName,
+                '{debate_format_description}' => $debateFormatDescription,
+                '{current_part_name}' => $currentTurnName,
+                '{time_limit_minutes}' => $timeLimitMinutes,
+                '{debate_history}' => $history ?: (($language === 'japanese') ? 'まだ発言はありません。' : 'No speeches yet.'),
+                '{character_limit}' => $characterLimit, // 文字数/単語数制限
+            ];
+        }
 
         $prompt = str_replace(array_keys($replacements), array_values($replacements), $promptTemplate);
 
@@ -197,17 +234,26 @@ class AIService
      *
      * @param float $timeLimitMinutes
      * @param string $language
+     * @param bool $isFreeFormat フリーフォーマットかどうか
      * @return string
      */
-    protected function calculateCharacterLimit(float $timeLimitMinutes, string $language): string
+    protected function calculateCharacterLimit(float $timeLimitMinutes, string $language, bool $isFreeFormat = false): string
     {
         if ($language === 'japanese') {
             // 日本語の場合は文字数制限
             $totalChars = (int)($timeLimitMinutes * self::JAPANESE_CHARS_PER_MINUTE);
+            // フリーフォーマットの場合は半分にして対話的にする
+            if ($isFreeFormat) {
+                $totalChars = (int)($totalChars / 2);
+            }
             return "{$totalChars}文字程度";
         } else {
             // 英語の場合は単語数制限
             $totalWords = (int)($timeLimitMinutes * self::ENGLISH_WORDS_PER_MINUTE);
+            // フリーフォーマットの場合は半分にして対話的にする
+            if ($isFreeFormat) {
+                $totalWords = (int)($totalWords / 2);
+            }
             return "approximately {$totalWords} words";
         }
     }

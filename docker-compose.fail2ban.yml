@@ -29,9 +29,6 @@ services:
       # Nginx logs access (shared volume)
       - nginx-logs:/var/log/nginx:ro
 
-      # System logs (if needed)
-      - /var/log:/var/log:ro
-
     environment:
       # Timezone
       - TZ=Asia/Tokyo

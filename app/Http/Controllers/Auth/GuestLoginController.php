@@ -49,6 +49,6 @@ class GuestLoginController extends Controller
             Log::warning("ゲストログイン通知の送信に失敗しました。 User ID: {$guestUser->id}");
         }
 
-        return redirect()->intended(route('welcome'));
+        return redirect()->intended(route('welcome'))->with('success', __('flash.auth.guest_login.success'));
     }
 }
