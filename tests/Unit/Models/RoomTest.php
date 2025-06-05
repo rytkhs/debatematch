@@ -6,6 +6,7 @@ use App\Models\Room;
 use App\Models\User;
 use App\Models\Debate;
 use App\Models\RoomUser;
+use App\Models\DebateMessage;
 use Tests\Traits\CreatesRooms;
 use Tests\Traits\CreatesUsers;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -615,5 +616,147 @@ class RoomTest extends BaseModelTest
         $this->assertNotNull($roomUser->fresh()->user);
         $this->assertEquals($user->id, $roomUser->fresh()->user->id);
         $this->assertNotNull($roomUser->fresh()->user->deleted_at);
+    }
+
+    /** @test */
+    public function test_room_user_eager_loading()
+    {
+        $room = Room::factory()->create();
+        $users = User::factory()->count(3)->create();
+
+        // Attach users with different sides
+        $room->users()->attach($users[0]->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
+        $room->users()->attach($users[1]->id, ['side' => RoomUser::SIDE_NEGATIVE]);
+        $room->users()->attach($users[2]->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
+
+        // Test eager loading
+        $roomWithUsers = Room::with('users')->find($room->id);
+        $this->assertTrue($roomWithUsers->relationLoaded('users'));
+        $this->assertEquals(3, $roomWithUsers->users->count());
+
+        // Test pivot data is loaded
+        foreach ($roomWithUsers->users as $user) {
+            $this->assertNotNull($user->pivot);
+            $this->assertContains($user->pivot->side, [RoomUser::SIDE_AFFIRMATIVE, RoomUser::SIDE_NEGATIVE]);
+        }
+    }
+
+    /** @test */
+    public function test_room_relationship_counts()
+    {
+        $creator = User::factory()->create();
+        $room = Room::factory()->create(['created_by' => $creator->id]);
+        $users = User::factory()->count(2)->create();
+
+        // Attach users
+        $room->users()->attach($users[0]->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
+        $room->users()->attach($users[1]->id, ['side' => RoomUser::SIDE_NEGATIVE]);
+
+        // Create debate
+        $debate = Debate::factory()->create(['room_id' => $room->id]);
+
+        $this->assertEquals(2, $room->users()->count());
+        $this->assertInstanceOf(User::class, $room->creator);
+        $this->assertEquals($creator->id, $room->creator->id);
+        $this->assertInstanceOf(Debate::class, $room->debate);
+        $this->assertEquals($debate->id, $room->debate->id);
+    }
+
+    /** @test */
+    public function test_room_with_multiple_sides()
+    {
+        $room = Room::factory()->create();
+        $affirmativeUsers = User::factory()->count(2)->create();
+        $negativeUsers = User::factory()->count(2)->create();
+
+        // Attach affirmative users
+        foreach ($affirmativeUsers as $user) {
+            $room->users()->attach($user->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
+        }
+
+        // Attach negative users
+        foreach ($negativeUsers as $user) {
+            $room->users()->attach($user->id, ['side' => RoomUser::SIDE_NEGATIVE]);
+        }
+
+        // Test filtering by side
+        $affirmativeInRoom = $room->users()->wherePivot('side', RoomUser::SIDE_AFFIRMATIVE)->get();
+        $negativeInRoom = $room->users()->wherePivot('side', RoomUser::SIDE_NEGATIVE)->get();
+
+        $this->assertEquals(2, $affirmativeInRoom->count());
+        $this->assertEquals(2, $negativeInRoom->count());
+
+        // Verify side assignment
+        foreach ($affirmativeInRoom as $user) {
+            $this->assertEquals(RoomUser::SIDE_AFFIRMATIVE, $user->pivot->side);
+        }
+
+        foreach ($negativeInRoom as $user) {
+            $this->assertEquals(RoomUser::SIDE_NEGATIVE, $user->pivot->side);
+        }
+    }
+
+    /** @test */
+    public function test_room_debate_one_to_one_constraint()
+    {
+        $room = Room::factory()->create();
+
+        // Create first debate
+        $debate1 = Debate::factory()->create(['room_id' => $room->id]);
+
+        // Attempting to create second debate should work at model level
+        // (unique constraint is at DB level)
+        $debate2 = Debate::factory()->make(['room_id' => $room->id]);
+
+        // But only one should be accessible through relationship
+        $this->assertEquals($debate1->id, $room->debate->id);
+    }
+
+    /** @test */
+    public function test_room_creator_belongs_to_relationship()
+    {
+        $creator = User::factory()->create();
+        $room = Room::factory()->create(['created_by' => $creator->id]);
+
+        // Test the relationship exists and works
+        $this->assertInstanceOf(User::class, $room->creator);
+        $this->assertEquals($creator->id, $room->creator->id);
+        $this->assertEquals($creator->name, $room->creator->name);
+
+        // Test the reverse - creator can have multiple rooms
+        $room2 = Room::factory()->create(['created_by' => $creator->id]);
+
+        // Creator should have 2 rooms
+        $this->assertEquals(2, $creator->rooms()->where('created_by', $creator->id)->count());
+    }
+
+    /** @test */
+    public function test_room_relationship_cascading()
+    {
+        $room = Room::factory()->create();
+        $user = User::factory()->create();
+
+        // Attach user and create debate
+        $room->users()->attach($user->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
+        $debate = Debate::factory()->create(['room_id' => $room->id]);
+        $message = DebateMessage::factory()->create(['debate_id' => $debate->id]);
+
+        $roomId = $room->id;
+        $debateId = $debate->id;
+        $messageId = $message->id;
+
+        // Delete room (soft delete)
+        $room->delete();
+
+        // Verify cascade behavior
+        $this->assertNotNull(Room::withTrashed()->find($roomId));
+        $this->assertNotNull(Debate::withTrashed()->find($debateId));
+        $this->assertNotNull(DebateMessage::withTrashed()->find($messageId));
+
+        // Verify room_user pivot entries still exist
+        $this->assertDatabaseHas('room_user', [
+            'room_id' => $roomId,
+            'user_id' => $user->id,
+        ]);
     }
 }
