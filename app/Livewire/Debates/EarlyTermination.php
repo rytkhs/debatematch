@@ -139,7 +139,7 @@ class EarlyTermination extends Component
         }
     }
 
-    #[On('echo-private:debate.{debate.id},early-termination-agreed')]
+    #[On('echo-private:debate.{debate.id},EarlyTerminationAgreed')]
     public function handleEarlyTerminationAgreed($event)
     {
         $this->refreshStatus();
