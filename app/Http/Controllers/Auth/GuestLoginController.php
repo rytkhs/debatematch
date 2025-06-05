@@ -31,7 +31,7 @@ class GuestLoginController extends Controller
             'email' => null,
             'password' => null,
             'is_guest' => true,
-            'guest_expires_at' => Carbon::now()->addHours(24), // 24時間後に期限切れ
+            'guest_expires_at' => Carbon::now()->addMinutes(120), // セッション期限と同じ120分（2時間）
             'email_verified_at' => now(),
         ]);
 

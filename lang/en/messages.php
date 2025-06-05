@@ -426,7 +426,7 @@ return [
     'twitter_login' => 'Login with Twitter',
     'guest_login' => 'Continue as Guest',
     'guest_user' => 'Guest User',
-    'guest_login_notice' => 'Guest access expires after 24 hours',
+    'guest_login_notice' => 'Guest access expires after 2 hours',
     'demo_mode_notice' => 'Viewing in Guest Mode',
     'demo_mode_description' => 'Topics starting with "Demo:" are sample debate records. Guest users can also participate in actual debates.',
 
