@@ -25,20 +25,35 @@ class GuestLoginController extends Controller
      */
     public function login(Request $request)
     {
+        // セキュリティ情報の収集
+        $ipAddress = $request->ip();
+        $userAgent = $request->userAgent();
+
         // ゲストユーザーを作成
         $guestUser = User::create([
             'name' => 'Guest_' . random_int(10000000, 99999999),
             'email' => null,
             'password' => null,
             'is_guest' => true,
-            'guest_expires_at' => Carbon::now()->addHours(24), // 24時間後に期限切れ
+            'guest_expires_at' => Carbon::now()->addMinutes(120), // セッション期限と同じ120分（2時間）
             'email_verified_at' => now(),
         ]);
 
         Auth::login($guestUser);
 
+        // セキュリティログの記録
+        Log::info('Guest login successful', [
+            'user_id' => $guestUser->id,
+            'user_name' => $guestUser->name,
+            'ip_address' => $ipAddress,
+            'user_agent' => $userAgent,
+            'expires_at' => $guestUser->guest_expires_at,
+            'timestamp' => now()
+        ]);
+
         $message = "ゲストユーザーがログインしました。\n"
             . "ユーザー名: {$guestUser->name}\n"
+            . "IP: {$ipAddress}\n"
             . "有効期限: {$guestUser->guest_expires_at->format('Y-m-d H:i:s')}";
 
         $result = $this->slackNotifier->send($message);

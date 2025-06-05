@@ -497,7 +497,7 @@ return [
     'twitter_login' => 'Twitterアカウントでログイン',
     'guest_login' => 'ゲストとして続行',
     'guest_user' => 'ゲストユーザー',
-    'guest_login_notice' => 'ゲストアクセスは24時間で期限切れになります',
+    'guest_login_notice' => 'ゲストアクセスは2時間で期限切れになります',
     'demo_mode_notice' => 'ゲストモードで閲覧中',
     'demo_mode_description' => 'デモ:で始まる論題はサンプルのディベート履歴です。ゲストユーザーでも実際のディベートに参加できます。',
 
