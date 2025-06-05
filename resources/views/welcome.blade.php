@@ -144,6 +144,14 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- ガイドページへのリンク -->
+                    <div class="text-center mt-10 md:mt-12">
+                        <a href="{{ route('guide') }}" class="inline-flex items-center px-6 py-3 bg-white text-primary border-2 border-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-200 font-medium text-sm md:text-base shadow-sm">
+                            <i class="fa-solid fa-book-open mr-2"></i>
+                            {{ __('messages.detailed_guide') }}
+                        </a>
+                    </div>
                 </div>
             </div>
 
