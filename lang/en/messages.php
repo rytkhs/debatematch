@@ -574,4 +574,11 @@ return [
     'early_termination_response_sent_decline' => 'Decline to early end sent',
     'early_termination_agreed_result' => 'Early end agreed. Ending debate.',
     'early_termination_declined_result' => 'Early end declined. Continuing debate.',
+
+    // Message input area related
+    'send_message' => 'Send Message',
+    'resize_input_area' => 'Resize Handle',
+    'expand_input_area' => 'Maximize',
+    'shrink_input_area' => 'Minimize',
+    'toggle_input_visibility' => 'Show/Hide',
 ];

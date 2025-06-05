@@ -612,4 +612,11 @@ return [
     'room_name_required' => 'ルーム名を入力してください',
     'field_required' => '必須項目です',
     'even_numbers_only' => '偶数のみ指定可能です',
+
+    // メッセージ入力エリア関連
+    'send_message' => 'メッセージを送信',
+    'resize_input_area' => 'リサイズハンドル',
+    'expand_input_area' => '最小化',
+    'shrink_input_area' => '最小化',
+    'toggle_input_visibility' => '表示/非表示',
 ];
