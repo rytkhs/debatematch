@@ -93,7 +93,7 @@ class EventListener {
     handleEarlyTerminationExpired(event) {
         this.showNotification({
             title: window.translations?.early_termination_expired_notification || '早期終了提案がタイムアウトしました',
-            message: window.translations?.early_termination_timeout_message || '早期終了の提案は5分で期限切れになりました。ディベートを継続します。',
+            message: window.translations?.early_termination_timeout_message || '早期終了の提案は1分で期限切れになりました。ディベートを継続します。',
             type: 'warning',
             duration: 8000
         });
