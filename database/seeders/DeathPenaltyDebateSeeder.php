@@ -15,7 +15,6 @@ class DeathPenaltyDebateSeeder extends Seeder
 {
     /**
      * 死刑廃止ディベートのデモデータを作成
-     * 実際のディベート大会の音声起こしテキストを基に完全なディベート体験を提供
      */
     public function run(): void
     {

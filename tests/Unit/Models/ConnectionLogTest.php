@@ -227,11 +227,9 @@ class ConnectionLogTest extends TestCase
 
         $duration = $connectionLog->getConnectionDuration();
 
-        // 実装では now()->diffInSeconds($this->connected_at) で、
-        // 現在時刻から過去の時刻を引くので正の値になるはず
-        // しかし実際は負の値が返されているので、絶対値でテスト
-        $this->assertGreaterThanOrEqual(1790, abs($duration));
-        $this->assertLessThanOrEqual(1810, abs($duration));
+        // 30分前から現在までの接続時間（約1800秒）
+        $this->assertGreaterThanOrEqual(1790, $duration);
+        $this->assertLessThanOrEqual(1810, $duration);
     }
 
     #[Test]
@@ -249,9 +247,7 @@ class ConnectionLogTest extends TestCase
         $duration = $connectionLog->getConnectionDuration();
 
         // 1時間（3600秒）の接続時間
-        // 実装では $this->disconnected_at->diffInSeconds($this->connected_at)
-        // 実際は負の値が返されているので、絶対値でテスト
-        $this->assertEquals(3600, abs($duration));
+        $this->assertEquals(3600, $duration);
     }
 
     #[Test]
@@ -288,9 +284,6 @@ class ConnectionLogTest extends TestCase
         ]);
 
         $analysis = ConnectionLog::analyzeConnectionIssues($user->id, 24);
-
-        // デバッグ用：実際の値を確認
-        // dump($analysis);
 
         $this->assertEquals(3, $analysis['total_disconnections']);
         // 実際の実装では、reconnected_atがnullでないログの数をカウントしている
