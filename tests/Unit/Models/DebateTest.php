@@ -382,4 +382,265 @@ class DebateTest extends TestCase
         $this->assertEquals(2, $debate->messages()->count());
         $this->assertEquals(DebateEvaluation::WINNER_AFFIRMATIVE, $debate->evaluations->winner);
     }
+
+    /**
+     * Early termination functionality tests
+     */
+
+    /**
+     * @test
+     */
+    public function test_can_request_early_termination_affirmative_user()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $this->assertTrue($debate->canRequestEarlyTermination($affirmativeUser->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_can_request_early_termination_negative_user()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $this->assertTrue($debate->canRequestEarlyTermination($negativeUser->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_can_request_early_termination_non_participant()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $nonParticipant = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $this->assertFalse($debate->canRequestEarlyTermination($nonParticipant->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_can_respond_to_early_termination_affirmative_user()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $this->assertTrue($debate->canRespondToEarlyTermination($affirmativeUser->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_can_respond_to_early_termination_negative_user()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $this->assertTrue($debate->canRespondToEarlyTermination($negativeUser->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_can_respond_to_early_termination_non_participant()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $nonParticipant = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $this->assertFalse($debate->canRespondToEarlyTermination($nonParticipant->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_early_termination_with_invalid_user_ids()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // Test with null user ID (nonexistent user)
+        $this->assertFalse($debate->canRequestEarlyTermination(99999));
+        $this->assertFalse($debate->canRespondToEarlyTermination(99999));
+
+        // Test with zero user ID
+        $this->assertFalse($debate->canRequestEarlyTermination(0));
+        $this->assertFalse($debate->canRespondToEarlyTermination(0));
+
+        // Test with negative user ID
+        $this->assertFalse($debate->canRequestEarlyTermination(-1));
+        $this->assertFalse($debate->canRespondToEarlyTermination(-1));
+    }
+
+    /**
+     * @test
+     */
+    public function test_early_termination_with_null_debate_users()
+    {
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => null,
+            'negative_user_id' => null,
+        ]);
+
+        $user = User::factory()->create();
+
+        $this->assertFalse($debate->canRequestEarlyTermination($user->id));
+        $this->assertFalse($debate->canRespondToEarlyTermination($user->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_early_termination_with_partially_null_users()
+    {
+        $affirmativeUser = User::factory()->create();
+
+        // Debate with only affirmative user
+        $debate1 = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => null,
+        ]);
+
+        $this->assertTrue($debate1->canRequestEarlyTermination($affirmativeUser->id));
+        $this->assertTrue($debate1->canRespondToEarlyTermination($affirmativeUser->id));
+
+        // Debate with only negative user
+        $negativeUser = User::factory()->create();
+        $debate2 = Debate::factory()->create([
+            'affirmative_user_id' => null,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        $this->assertTrue($debate2->canRequestEarlyTermination($negativeUser->id));
+        $this->assertTrue($debate2->canRespondToEarlyTermination($negativeUser->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_early_termination_with_soft_deleted_users()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // Soft delete affirmative user
+        $affirmativeUser->delete();
+
+        // Should still work with deleted user ID
+        $this->assertTrue($debate->canRequestEarlyTermination($affirmativeUser->id));
+        $this->assertTrue($debate->canRespondToEarlyTermination($affirmativeUser->id));
+
+        // Negative user should still work normally
+        $this->assertTrue($debate->canRequestEarlyTermination($negativeUser->id));
+        $this->assertTrue($debate->canRespondToEarlyTermination($negativeUser->id));
+    }
+
+    /**
+     * @test
+     */
+    public function test_early_termination_boundary_conditions()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $user3 = User::factory()->create();
+
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $user1->id,
+            'negative_user_id' => $user2->id,
+        ]);
+
+        // Test with same user IDs
+        $this->assertTrue($debate->canRequestEarlyTermination($user1->id));
+        $this->assertTrue($debate->canRequestEarlyTermination($user2->id));
+
+        // Test with different user ID
+        $this->assertFalse($debate->canRequestEarlyTermination($user3->id));
+
+        // Test both methods return same result for same inputs
+        $this->assertEquals(
+            $debate->canRequestEarlyTermination($user1->id),
+            $debate->canRespondToEarlyTermination($user1->id)
+        );
+
+        $this->assertEquals(
+            $debate->canRequestEarlyTermination($user2->id),
+            $debate->canRespondToEarlyTermination($user2->id)
+        );
+
+        $this->assertEquals(
+            $debate->canRequestEarlyTermination($user3->id),
+            $debate->canRespondToEarlyTermination($user3->id)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function test_early_termination_permissions_consistency()
+    {
+        $affirmativeUser = User::factory()->create();
+        $negativeUser = User::factory()->create();
+        $debate = Debate::factory()->create([
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // Both methods should return identical results for the same user
+        $this->assertEquals(
+            $debate->canRequestEarlyTermination($affirmativeUser->id),
+            $debate->canRespondToEarlyTermination($affirmativeUser->id)
+        );
+
+        $this->assertEquals(
+            $debate->canRequestEarlyTermination($negativeUser->id),
+            $debate->canRespondToEarlyTermination($negativeUser->id)
+        );
+
+        // Both participants should have equal permissions
+        $this->assertEquals(
+            $debate->canRequestEarlyTermination($affirmativeUser->id),
+            $debate->canRequestEarlyTermination($negativeUser->id)
+        );
+
+        $this->assertEquals(
+            $debate->canRespondToEarlyTermination($affirmativeUser->id),
+            $debate->canRespondToEarlyTermination($negativeUser->id)
+        );
+    }
 }
