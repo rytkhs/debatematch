@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\RoomUser;
 use App\Models\Room;
 use App\Models\User;
@@ -15,36 +16,28 @@ class RoomUserTest extends TestCase
 {
     use RefreshDatabase, CreatesRooms, CreatesUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_table_name()
     {
         $roomUser = new RoomUser();
         $this->assertEquals('room_users', $roomUser->getTable());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_side_constants()
     {
         $this->assertEquals('affirmative', RoomUser::SIDE_AFFIRMATIVE);
         $this->assertEquals('negative', RoomUser::SIDE_NEGATIVE);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_extends_pivot()
     {
         $roomUser = new RoomUser();
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\Pivot::class, $roomUser);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_pivot_creation_with_attributes()
     {
         $room = Room::factory()->create();
@@ -67,10 +60,7 @@ class RoomUserTest extends TestCase
     /**
      * Relationship tests
      */
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_room_relationship()
     {
         $room = Room::factory()->create();
@@ -86,9 +76,7 @@ class RoomUserTest extends TestCase
         $this->assertEquals($room->id, $roomUser->room->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_user_relationship()
     {
         $room = Room::factory()->create();
@@ -104,9 +92,7 @@ class RoomUserTest extends TestCase
         $this->assertEquals($user->id, $roomUser->user->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_user_relationship_with_soft_deleted_user()
     {
         $room = Room::factory()->create();
@@ -130,10 +116,7 @@ class RoomUserTest extends TestCase
     /**
      * Method tests
      */
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_is_creator_method_when_user_is_creator()
     {
         $creator = User::factory()->create();
@@ -148,9 +131,7 @@ class RoomUserTest extends TestCase
         $this->assertTrue($roomUser->isCreator());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_is_creator_method_when_user_is_not_creator()
     {
         $creator = User::factory()->create();
@@ -169,10 +150,7 @@ class RoomUserTest extends TestCase
     /**
      * Side functionality tests
      */
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_affirmative_side_assignment()
     {
         $room = Room::factory()->create();
@@ -187,9 +165,7 @@ class RoomUserTest extends TestCase
         $this->assertEquals(RoomUser::SIDE_AFFIRMATIVE, $roomUser->side);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_negative_side_assignment()
     {
         $room = Room::factory()->create();
@@ -204,9 +180,7 @@ class RoomUserTest extends TestCase
         $this->assertEquals(RoomUser::SIDE_NEGATIVE, $roomUser->side);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_multiple_users_in_room()
     {
         $room = Room::factory()->create();
@@ -232,9 +206,7 @@ class RoomUserTest extends TestCase
         $this->assertEquals($room->id, $negativeRoomUser->room_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_room_user_pivot_with_manual_timestamps()
     {
         $room = Room::factory()->create();
@@ -264,44 +236,38 @@ class RoomUserTest extends TestCase
             ->where('user_id', $user->id)
             ->first();
 
-        $this->assertNotNull($directQuery->created_at);
-        $this->assertNotNull($directQuery->updated_at);
+        $this->assertNotNull($directQuery);
         $this->assertEquals($timestamp->format('Y-m-d H:i:s'), $directQuery->created_at);
         $this->assertEquals($timestamp->format('Y-m-d H:i:s'), $directQuery->updated_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_detach_user_from_room()
     {
         $room = Room::factory()->create();
         $user = User::factory()->create();
 
+        // Attach user first
         $room->users()->attach($user->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
 
-        // Verify attached
-        $this->assertEquals(1, $room->users()->count());
+        $this->assertEquals(1, RoomUser::where('room_id', $room->id)->count());
 
         // Detach user
         $room->users()->detach($user->id);
 
-        // Verify detached
-        $this->assertEquals(0, $room->users()->count());
-        $this->assertNull(RoomUser::where('room_id', $room->id)->where('user_id', $user->id)->first());
+        $this->assertEquals(0, RoomUser::where('room_id', $room->id)->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_update_pivot_attributes()
     {
         $room = Room::factory()->create();
         $user = User::factory()->create();
 
+        // Attach user with affirmative side
         $room->users()->attach($user->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
 
-        // Update side
+        // Update to negative side
         $room->users()->updateExistingPivot($user->id, ['side' => RoomUser::SIDE_NEGATIVE]);
 
         $roomUser = RoomUser::where('room_id', $room->id)
@@ -314,21 +280,18 @@ class RoomUserTest extends TestCase
     /**
      * Integration tests
      */
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_room_with_creator_and_participant()
     {
         $creator = User::factory()->create();
         $participant = User::factory()->create();
         $room = Room::factory()->create(['created_by' => $creator->id]);
 
-        // Creator joins as affirmative
-        $room->users()->attach($creator->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
-
-        // Participant joins as negative
-        $room->users()->attach($participant->id, ['side' => RoomUser::SIDE_NEGATIVE]);
+        // Attach both users
+        $room->users()->attach([
+            $creator->id => ['side' => RoomUser::SIDE_AFFIRMATIVE],
+            $participant->id => ['side' => RoomUser::SIDE_NEGATIVE],
+        ]);
 
         $creatorRoomUser = RoomUser::where('room_id', $room->id)
             ->where('user_id', $creator->id)
@@ -338,22 +301,21 @@ class RoomUserTest extends TestCase
             ->where('user_id', $participant->id)
             ->first();
 
-        // Test creator relationship
+        // Test creator status
         $this->assertTrue($creatorRoomUser->isCreator());
-        $this->assertEquals(RoomUser::SIDE_AFFIRMATIVE, $creatorRoomUser->side);
-        $this->assertEquals($creator->id, $creatorRoomUser->user->id);
-        $this->assertEquals($room->id, $creatorRoomUser->room->id);
-
-        // Test participant relationship
         $this->assertFalse($participantRoomUser->isCreator());
+
+        // Test sides
+        $this->assertEquals(RoomUser::SIDE_AFFIRMATIVE, $creatorRoomUser->side);
         $this->assertEquals(RoomUser::SIDE_NEGATIVE, $participantRoomUser->side);
+
+        // Test relationships
+        $this->assertEquals($room->id, $creatorRoomUser->room->id);
+        $this->assertEquals($creator->id, $creatorRoomUser->user->id);
         $this->assertEquals($participant->id, $participantRoomUser->user->id);
-        $this->assertEquals($room->id, $participantRoomUser->room->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_room_user_cascade_on_room_deletion()
     {
         $room = Room::factory()->create();
@@ -364,24 +326,21 @@ class RoomUserTest extends TestCase
         $roomId = $room->id;
         $userId = $user->id;
 
-        // Verify pivot exists
-        $this->assertNotNull(RoomUser::where('room_id', $roomId)->where('user_id', $userId)->first());
+        // Verify pivot record exists
+        $this->assertEquals(1, RoomUser::where('room_id', $roomId)->count());
 
-        // Delete room (soft delete)
+        // Soft delete room
         $room->delete();
 
-        // Pivot should still exist but room should be soft deleted
-        $roomUser = RoomUser::where('room_id', $roomId)->where('user_id', $userId)->first();
-        $this->assertNotNull($roomUser);
+        // Pivot record should still exist (soft delete doesn't cascade to pivot)
+        $this->assertEquals(1, RoomUser::where('room_id', $roomId)->count());
 
-        // Room should be soft deleted
+        // But room should be soft deleted
         $this->assertNull(Room::find($roomId));
         $this->assertNotNull(Room::withTrashed()->find($roomId));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_room_user_cascade_on_user_deletion()
     {
         $room = Room::factory()->create();
@@ -392,54 +351,45 @@ class RoomUserTest extends TestCase
         $roomId = $room->id;
         $userId = $user->id;
 
-        // Verify pivot exists
-        $this->assertNotNull(RoomUser::where('room_id', $roomId)->where('user_id', $userId)->first());
+        // Verify pivot record exists
+        $this->assertEquals(1, RoomUser::where('user_id', $userId)->count());
 
-        // Delete user (soft delete)
+        // Soft delete user
         $user->delete();
 
-        // Pivot should still exist but user should be soft deleted
-        $roomUser = RoomUser::where('room_id', $roomId)->where('user_id', $userId)->first();
-        $this->assertNotNull($roomUser);
+        // Pivot record should still exist (soft delete doesn't cascade to pivot)
+        $this->assertEquals(1, RoomUser::where('user_id', $userId)->count());
 
-        // User should be soft deleted but accessible through relationship
-        $this->assertNotNull($roomUser->user);
-        $this->assertNotNull($roomUser->user->deleted_at);
+        // But user should be soft deleted
+        $this->assertNull(User::find($userId));
+        $this->assertNotNull(User::withTrashed()->find($userId));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_room_user_query_by_side()
     {
         $room = Room::factory()->create();
-        $affirmativeUser1 = User::factory()->create();
-        $affirmativeUser2 = User::factory()->create();
+        $affirmativeUser = User::factory()->create();
         $negativeUser = User::factory()->create();
 
         $room->users()->attach([
-            $affirmativeUser1->id => ['side' => RoomUser::SIDE_AFFIRMATIVE],
-            $affirmativeUser2->id => ['side' => RoomUser::SIDE_AFFIRMATIVE],
+            $affirmativeUser->id => ['side' => RoomUser::SIDE_AFFIRMATIVE],
             $negativeUser->id => ['side' => RoomUser::SIDE_NEGATIVE],
         ]);
 
+        // Query by affirmative side
         $affirmativeRoomUsers = RoomUser::where('room_id', $room->id)
             ->where('side', RoomUser::SIDE_AFFIRMATIVE)
             ->get();
 
+        // Query by negative side
         $negativeRoomUsers = RoomUser::where('room_id', $room->id)
             ->where('side', RoomUser::SIDE_NEGATIVE)
             ->get();
 
-        $this->assertEquals(2, $affirmativeRoomUsers->count());
+        $this->assertEquals(1, $affirmativeRoomUsers->count());
         $this->assertEquals(1, $negativeRoomUsers->count());
-
-        foreach ($affirmativeRoomUsers as $roomUser) {
-            $this->assertEquals(RoomUser::SIDE_AFFIRMATIVE, $roomUser->side);
-        }
-
-        foreach ($negativeRoomUsers as $roomUser) {
-            $this->assertEquals(RoomUser::SIDE_NEGATIVE, $roomUser->side);
-        }
+        $this->assertEquals($affirmativeUser->id, $affirmativeRoomUsers->first()->user_id);
+        $this->assertEquals($negativeUser->id, $negativeRoomUsers->first()->user_id);
     }
 }

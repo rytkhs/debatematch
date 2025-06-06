@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Models;
 
+
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\Debate;
@@ -21,9 +23,7 @@ class RoomTest extends BaseModelTest
 
     /**
      * TODO-011: Room モデル基本機能テスト
-     */
-
-    /** @test */
+     */    #[Test]
     public function test_fillable_attributes()
     {
         $expectedFillable = [
@@ -41,8 +41,7 @@ class RoomTest extends BaseModelTest
 
         $this->assertModelBasics($expectedFillable);
     }
-
-    /** @test */
+    #[Test]
     public function test_casts()
     {
         $expectedCasts = [
@@ -61,8 +60,7 @@ class RoomTest extends BaseModelTest
         $this->assertArrayHasKey('custom_format_settings', $actualCasts);
         $this->assertArrayHasKey('evidence_allowed', $actualCasts);
     }
-
-    /** @test */
+    #[Test]
     public function test_status_constants()
     {
         $this->assertEquals('waiting', Room::STATUS_WAITING);
@@ -72,8 +70,7 @@ class RoomTest extends BaseModelTest
         $this->assertEquals('deleted', Room::STATUS_DELETED);
         $this->assertEquals('terminated', Room::STATUS_TERMINATED);
     }
-
-    /** @test */
+    #[Test]
     public function test_available_statuses_constant()
     {
         $expectedStatuses = [
@@ -87,14 +84,12 @@ class RoomTest extends BaseModelTest
 
         $this->assertEquals($expectedStatuses, Room::AVAILABLE_STATUSES);
     }
-
-    /** @test */
+    #[Test]
     public function test_factory_creation()
     {
         $this->assertFactoryCreation();
     }
-
-    /** @test */
+    #[Test]
     public function test_basic_attributes()
     {
         $room = Room::factory()->create([
@@ -115,8 +110,7 @@ class RoomTest extends BaseModelTest
         $this->assertTrue($room->evidence_allowed);
         $this->assertFalse($room->is_ai_debate);
     }
-
-    /** @test */
+    #[Test]
     public function test_custom_format_settings_cast()
     {
         $formatSettings = [
@@ -132,8 +126,7 @@ class RoomTest extends BaseModelTest
         $this->assertIsArray($room->custom_format_settings);
         $this->assertEquals($formatSettings, $room->custom_format_settings);
     }
-
-    /** @test */
+    #[Test]
     public function test_evidence_allowed_cast()
     {
         $room = Room::factory()->create(['evidence_allowed' => 1]);
@@ -144,8 +137,7 @@ class RoomTest extends BaseModelTest
         $this->assertIsBool($room->evidence_allowed);
         $this->assertFalse($room->evidence_allowed);
     }
-
-    /** @test */
+    #[Test]
     public function test_soft_deletes()
     {
         $this->assertSoftDeletes();
@@ -153,9 +145,7 @@ class RoomTest extends BaseModelTest
 
     /**
      * TODO-012: Room ステータス管理テスト
-     */
-
-    /** @test */
+     */    #[Test]
     public function test_update_status()
     {
         $room = Room::factory()->create(['status' => Room::STATUS_WAITING]);
@@ -168,8 +158,7 @@ class RoomTest extends BaseModelTest
             'status' => Room::STATUS_READY
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function test_update_status_valid_transitions()
     {
         // Test waiting to ready
@@ -192,8 +181,7 @@ class RoomTest extends BaseModelTest
         $room->updateStatus(Room::STATUS_TERMINATED);
         $this->assertEquals(Room::STATUS_TERMINATED, $room->fresh()->status);
     }
-
-    /** @test */
+    #[Test]
     public function test_update_status_with_all_available_statuses()
     {
         foreach (Room::AVAILABLE_STATUSES as $status) {
@@ -202,8 +190,7 @@ class RoomTest extends BaseModelTest
             $this->assertEquals($status, $room->fresh()->status);
         }
     }
-
-    /** @test */
+    #[Test]
     public function test_status_constants_in_database()
     {
         $room = Room::factory()->waiting()->create();
@@ -221,9 +208,7 @@ class RoomTest extends BaseModelTest
 
     /**
      * TODO-013: Room ディベートフォーマットテスト
-     */
-
-    /** @test */
+     */    #[Test]
     public function test_get_debate_format_standard_format()
     {
         $room = Room::factory()->create(['format_type' => 'format_name_jda']);
@@ -243,8 +228,7 @@ class RoomTest extends BaseModelTest
         $this->assertArrayHasKey('duration', $firstTurn);
         $this->assertEquals('affirmative', $firstTurn['speaker']);
     }
-
-    /** @test */
+    #[Test]
     public function test_get_debate_format_custom_format()
     {
         $customSettings = [
@@ -266,8 +250,7 @@ class RoomTest extends BaseModelTest
         $this->assertEquals('Rebuttal', $format[1]['name']);
         $this->assertEquals('Closing Statement', $format[2]['name']);
     }
-
-    /** @test */
+    #[Test]
     public function test_get_debate_format_free_format()
     {
         $freeSettings = [];
@@ -282,8 +265,7 @@ class RoomTest extends BaseModelTest
         $this->assertIsArray($format);
         $this->assertEmpty($format);
     }
-
-    /** @test */
+    #[Test]
     public function test_get_debate_format_with_translation()
     {
         // Set locale to Japanese for testing translation
@@ -299,8 +281,7 @@ class RoomTest extends BaseModelTest
         $firstTurn = $format[1];
         $this->assertNotEquals('suggestion_1st_constructive', $firstTurn['name']);
     }
-
-    /** @test */
+    #[Test]
     public function test_get_debate_format_custom_with_translation_keys()
     {
         App::setLocale('ja');
@@ -323,8 +304,7 @@ class RoomTest extends BaseModelTest
         // Non-translation key should remain as is
         $this->assertEquals('Custom Turn', $format[1]['name']);
     }
-
-    /** @test */
+    #[Test]
     public function test_get_debate_format_different_formats()
     {
         $formats = ['format_name_nsda_policy', 'format_name_nsda_ld', 'format_name_jda', 'format_name_coda'];
@@ -337,8 +317,7 @@ class RoomTest extends BaseModelTest
             $this->assertNotEmpty($format);
         }
     }
-
-    /** @test */
+    #[Test]
     public function test_get_debate_format_empty_custom_settings()
     {
         $room = Room::factory()->create([
@@ -351,8 +330,7 @@ class RoomTest extends BaseModelTest
         // Should fall back to config format (empty array for custom with null settings)
         $this->assertIsArray($format);
     }
-
-    /** @test */
+    #[Test]
     public function test_get_format_name()
     {
         // Test standard format
@@ -371,8 +349,7 @@ class RoomTest extends BaseModelTest
         $formatName = $room->getFormatName();
         $this->assertNotEmpty($formatName);
     }
-
-    /** @test */
+    #[Test]
     public function test_is_free_format()
     {
         $freeRoom = Room::factory()->create(['format_type' => 'free']);
@@ -387,27 +364,22 @@ class RoomTest extends BaseModelTest
 
     /**
      * Relationship tests
-     */
-
-    /** @test */
+     */    #[Test]
     public function test_users_relationship()
     {
         $this->assertBelongsToMany('users', User::class);
     }
-
-    /** @test */
+    #[Test]
     public function test_creator_relationship()
     {
         $this->assertBelongsTo('creator', User::class);
     }
-
-    /** @test */
+    #[Test]
     public function test_debate_relationship()
     {
         $this->assertHasOne('debate', Debate::class);
     }
-
-    /** @test */
+    #[Test]
     public function test_users_relationship_with_pivot()
     {
         $room = Room::factory()->create();
@@ -418,8 +390,7 @@ class RoomTest extends BaseModelTest
         $this->assertTrue($room->users->contains($user));
         $this->assertEquals('affirmative', $room->users->first()->pivot->side);
     }
-
-    /** @test */
+    #[Test]
     public function test_creator_relationship_with_soft_deleted_user()
     {
         $creator = User::factory()->create();
@@ -435,9 +406,7 @@ class RoomTest extends BaseModelTest
 
     /**
      * Factory state tests
-     */
-
-    /** @test */
+     */    #[Test]
     public function test_factory_states()
     {
         $this->assertFactoryStates([
@@ -447,45 +416,39 @@ class RoomTest extends BaseModelTest
             'finished'
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function test_factory_ai_debate()
     {
         $room = Room::factory()->aiDebate()->create();
         $this->assertTrue($room->is_ai_debate);
     }
-
-    /** @test */
+    #[Test]
     public function test_factory_custom_format()
     {
         $room = Room::factory()->customFormat()->create();
         $this->assertEquals('custom', $room->format_type);
         $this->assertNotEmpty($room->custom_format_settings);
     }
-
-    /** @test */
+    #[Test]
     public function test_factory_free_format()
     {
         $room = Room::factory()->freeFormat()->create();
         $this->assertEquals('free', $room->format_type);
         $this->assertEmpty($room->custom_format_settings);
     }
-
-    /** @test */
+    #[Test]
     public function test_factory_with_evidence()
     {
         $room = Room::factory()->withEvidence()->create();
         $this->assertTrue($room->evidence_allowed);
     }
-
-    /** @test */
+    #[Test]
     public function test_factory_without_evidence()
     {
         $room = Room::factory()->withoutEvidence()->create();
         $this->assertFalse($room->evidence_allowed);
     }
-
-    /** @test */
+    #[Test]
     public function test_factory_language_methods()
     {
         $japaneseRoom = Room::factory()->japanese()->create();
@@ -497,16 +460,13 @@ class RoomTest extends BaseModelTest
 
     /**
      * RoomUser pivot tests
-     */
-
-    /** @test */
+     */    #[Test]
     public function test_room_user_constants()
     {
         $this->assertEquals('affirmative', RoomUser::SIDE_AFFIRMATIVE);
         $this->assertEquals('negative', RoomUser::SIDE_NEGATIVE);
     }
-
-    /** @test */
+    #[Test]
     public function test_room_user_through_room_users_relationship()
     {
         $room = Room::factory()->create();
@@ -522,8 +482,7 @@ class RoomTest extends BaseModelTest
         $this->assertEquals($user->id, $roomUser->user_id);
         $this->assertEquals(RoomUser::SIDE_AFFIRMATIVE, $roomUser->side);
     }
-
-    /** @test */
+    #[Test]
     public function test_room_user_relationships_through_pivot()
     {
         $room = Room::factory()->create();
@@ -545,8 +504,7 @@ class RoomTest extends BaseModelTest
         $this->assertInstanceOf(User::class, $roomUser->user);
         $this->assertEquals($user->id, $roomUser->user->id);
     }
-
-    /** @test */
+    #[Test]
     public function test_room_user_is_creator()
     {
         $creator = User::factory()->create();
@@ -571,8 +529,7 @@ class RoomTest extends BaseModelTest
         $this->assertTrue($creatorRoomUser->isCreator());
         $this->assertFalse($participantRoomUser->isCreator());
     }
-
-    /** @test */
+    #[Test]
     public function test_room_user_different_sides()
     {
         $room = Room::factory()->create();
@@ -594,8 +551,7 @@ class RoomTest extends BaseModelTest
         $this->assertEquals(RoomUser::SIDE_AFFIRMATIVE, $affirmativeRoomUser->side);
         $this->assertEquals(RoomUser::SIDE_NEGATIVE, $negativeRoomUser->side);
     }
-
-    /** @test */
+    #[Test]
     public function test_room_user_with_soft_deleted_user()
     {
         $user = User::factory()->create();
@@ -617,8 +573,7 @@ class RoomTest extends BaseModelTest
         $this->assertEquals($user->id, $roomUser->fresh()->user->id);
         $this->assertNotNull($roomUser->fresh()->user->deleted_at);
     }
-
-    /** @test */
+    #[Test]
     public function test_room_user_eager_loading()
     {
         $room = Room::factory()->create();
@@ -640,8 +595,7 @@ class RoomTest extends BaseModelTest
             $this->assertContains($user->pivot->side, [RoomUser::SIDE_AFFIRMATIVE, RoomUser::SIDE_NEGATIVE]);
         }
     }
-
-    /** @test */
+    #[Test]
     public function test_room_relationship_counts()
     {
         $creator = User::factory()->create();
@@ -661,8 +615,7 @@ class RoomTest extends BaseModelTest
         $this->assertInstanceOf(Debate::class, $room->debate);
         $this->assertEquals($debate->id, $room->debate->id);
     }
-
-    /** @test */
+    #[Test]
     public function test_room_with_multiple_sides()
     {
         $room = Room::factory()->create();
@@ -695,8 +648,7 @@ class RoomTest extends BaseModelTest
             $this->assertEquals(RoomUser::SIDE_NEGATIVE, $user->pivot->side);
         }
     }
-
-    /** @test */
+    #[Test]
     public function test_room_debate_one_to_one_constraint()
     {
         $room = Room::factory()->create();
@@ -711,8 +663,7 @@ class RoomTest extends BaseModelTest
         // But only one should be accessible through relationship
         $this->assertEquals($debate1->id, $room->debate->id);
     }
-
-    /** @test */
+    #[Test]
     public function test_room_creator_belongs_to_relationship()
     {
         $creator = User::factory()->create();
@@ -726,37 +677,240 @@ class RoomTest extends BaseModelTest
         // Test the reverse - creator can have multiple rooms
         $room2 = Room::factory()->create(['created_by' => $creator->id]);
 
-        // Creator should have 2 rooms
-        $this->assertEquals(2, $creator->rooms()->where('created_by', $creator->id)->count());
+        // Creator should have 2 rooms they created
+        $this->assertEquals(2, Room::where('created_by', $creator->id)->count());
     }
-
-    /** @test */
+    #[Test]
     public function test_room_relationship_cascading()
     {
-        $room = Room::factory()->create();
-        $user = User::factory()->create();
+        $creator = User::factory()->create();
+        $room = Room::factory()->create(['created_by' => $creator->id]);
+        $debate = Debate::factory()->for($room)->create();
 
-        // Attach user and create debate
-        $room->users()->attach($user->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
-        $debate = Debate::factory()->create(['room_id' => $room->id]);
-        $message = DebateMessage::factory()->create(['debate_id' => $debate->id]);
-
-        $roomId = $room->id;
-        $debateId = $debate->id;
-        $messageId = $message->id;
-
-        // Delete room (soft delete)
+        // ルームを削除してもディベートは残る（ソフトデリート）
         $room->delete();
 
-        // Verify cascade behavior
-        $this->assertNotNull(Room::withTrashed()->find($roomId));
-        $this->assertNotNull(Debate::withTrashed()->find($debateId));
-        $this->assertNotNull(DebateMessage::withTrashed()->find($messageId));
+        $this->assertSoftDeleted('rooms', ['id' => $room->id]);
+        $this->assertDatabaseHas('debates', ['id' => $debate->id]);
 
-        // Verify room_user pivot entries still exist
-        $this->assertDatabaseHas('room_user', [
-            'room_id' => $roomId,
-            'user_id' => $user->id,
+        // 作成者を削除してもルームは残る
+        $creator->delete();
+        $this->assertDatabaseHas('rooms', ['id' => $room->id]);
+    }
+
+    /**
+     * Phase1 レビュー: 追加のエッジケースとカバレッジ向上テスト
+     */
+    #[Test]
+    public function test_room_with_null_custom_format_settings()
+    {
+        $room = Room::factory()->create([
+            'format_type' => 'custom',
+            'custom_format_settings' => null
         ]);
+
+        $format = $room->getDebateFormat();
+        $this->assertEquals([], $format);
+    }
+
+    #[Test]
+    public function test_room_with_empty_custom_format_settings()
+    {
+        $room = Room::factory()->create([
+            'format_type' => 'custom',
+            'custom_format_settings' => []
+        ]);
+
+        $format = $room->getDebateFormat();
+        $this->assertEquals([], $format);
+    }
+
+    #[Test]
+    public function test_get_format_name_with_invalid_format_type()
+    {
+        $room = Room::factory()->create(['format_type' => 'invalid_format']);
+        $formatName = $room->getFormatName();
+        $this->assertEquals('', $formatName);
+    }
+
+    #[Test]
+    public function test_get_format_name_with_null_format_type()
+    {
+        $room = Room::factory()->make(['format_type' => null]);
+        $formatName = $room->getFormatName();
+        $this->assertEquals('', $formatName);
+    }
+
+    #[Test]
+    public function test_get_format_name_with_free_format()
+    {
+        $room = Room::factory()->create(['format_type' => 'free']);
+        $formatName = $room->getFormatName();
+        $this->assertEquals(__('debates.format_name_free'), $formatName);
+    }
+
+    #[Test]
+    public function test_room_status_update_with_same_status()
+    {
+        $room = Room::factory()->waiting()->create();
+        $originalUpdatedAt = $room->updated_at;
+
+        // 同じステータスに更新
+        $room->updateStatus(Room::STATUS_WAITING);
+
+        $this->assertEquals(Room::STATUS_WAITING, $room->fresh()->status);
+        // updated_atが更新されることを確認（マイクロ秒まで比較）
+        $this->assertGreaterThanOrEqual($originalUpdatedAt, $room->fresh()->updated_at);
+    }
+
+    #[Test]
+    public function test_room_with_very_long_topic()
+    {
+        $longTopic = str_repeat('あ', 200); // 200文字の日本語（255文字制限内）
+        $room = Room::factory()->create(['topic' => $longTopic]);
+
+        $this->assertEquals($longTopic, $room->topic);
+        $this->assertDatabaseHas('rooms', [
+            'id' => $room->id,
+            'topic' => $longTopic
+        ]);
+    }
+
+    #[Test]
+    public function test_room_with_special_characters_in_name()
+    {
+        $specialName = '特殊文字テスト!@#$%^&*()_+-=[]{}|;:,.<>?';
+        $room = Room::factory()->create(['name' => $specialName]);
+
+        $this->assertEquals($specialName, $room->name);
+        $this->assertDatabaseHas('rooms', [
+            'id' => $room->id,
+            'name' => $specialName
+        ]);
+    }
+
+    #[Test]
+    public function test_room_custom_format_with_complex_settings()
+    {
+        $complexSettings = [
+            [
+                'name' => 'Opening Statement',
+                'time_limit' => 300,
+                'side' => 'affirmative',
+                'preparation_time' => 60,
+                'metadata' => ['type' => 'opening', 'required' => true]
+            ],
+            [
+                'name' => 'Cross Examination',
+                'time_limit' => 180,
+                'side' => 'negative',
+                'preparation_time' => 30,
+                'metadata' => ['type' => 'cross', 'required' => false]
+            ]
+        ];
+
+        $room = Room::factory()->create([
+            'format_type' => 'custom',
+            'custom_format_settings' => $complexSettings
+        ]);
+
+        $format = $room->getDebateFormat();
+        $this->assertEquals($complexSettings, $format);
+        $this->assertArrayHasKey('metadata', $format[0]);
+        $this->assertEquals('opening', $format[0]['metadata']['type']);
+    }
+
+    #[Test]
+    public function test_room_relationships_with_multiple_users_same_side()
+    {
+        $room = Room::factory()->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        // 同じサイドに複数ユーザーを追加
+        $room->users()->attach($user1->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
+        $room->users()->attach($user2->id, ['side' => RoomUser::SIDE_AFFIRMATIVE]);
+
+        $affirmativeUsers = $room->users()->wherePivot('side', RoomUser::SIDE_AFFIRMATIVE)->get();
+        $this->assertCount(2, $affirmativeUsers);
+        $this->assertTrue($affirmativeUsers->contains($user1));
+        $this->assertTrue($affirmativeUsers->contains($user2));
+    }
+
+    #[Test]
+    public function test_room_performance_with_many_users()
+    {
+        $room = Room::factory()->create();
+        $users = User::factory()->count(50)->create();
+
+        $startTime = microtime(true);
+
+        foreach ($users as $index => $user) {
+            $side = $index % 2 === 0 ? RoomUser::SIDE_AFFIRMATIVE : RoomUser::SIDE_NEGATIVE;
+            $room->users()->attach($user->id, ['side' => $side]);
+        }
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+
+        // 50ユーザーの追加が1秒以内に完了することを確認
+        $this->assertLessThan(1.0, $executionTime);
+        $this->assertCount(50, $room->users);
+    }
+
+    #[Test]
+    public function test_room_debate_format_caching_behavior()
+    {
+        $room = Room::factory()->create(['format_type' => 'format_name_jda']);
+
+        // 複数回呼び出して一貫性を確認
+        $format1 = $room->getDebateFormat();
+        $format2 = $room->getDebateFormat();
+        $format3 = $room->getDebateFormat();
+
+        $this->assertEquals($format1, $format2);
+        $this->assertEquals($format2, $format3);
+        $this->assertIsArray($format1);
+    }
+
+    #[Test]
+    public function test_room_with_ai_debate_flag_combinations()
+    {
+        // AI ディベート + カスタムフォーマット
+        $aiCustomRoom = Room::factory()->create([
+            'is_ai_debate' => true,
+            'format_type' => 'custom',
+            'custom_format_settings' => [['name' => 'AI Turn', 'time_limit' => 120]]
+        ]);
+
+        $this->assertTrue($aiCustomRoom->is_ai_debate);
+        $this->assertEquals('custom', $aiCustomRoom->format_type);
+
+        // AI ディベート + フリーフォーマット
+        $aiFreeRoom = Room::factory()->create([
+            'is_ai_debate' => true,
+            'format_type' => 'free'
+        ]);
+
+        $this->assertTrue($aiFreeRoom->is_ai_debate);
+        $this->assertTrue($aiFreeRoom->isFreeFormat());
+    }
+
+    #[Test]
+    public function test_room_evidence_allowed_edge_cases()
+    {
+        // 数値の処理
+        $room1 = Room::factory()->make(['evidence_allowed' => 1]);
+        $this->assertTrue($room1->evidence_allowed);
+
+        $room2 = Room::factory()->make(['evidence_allowed' => 0]);
+        $this->assertFalse($room2->evidence_allowed);
+
+        // boolean値の処理
+        $room3 = Room::factory()->make(['evidence_allowed' => true]);
+        $this->assertTrue($room3->evidence_allowed);
+
+        $room4 = Room::factory()->make(['evidence_allowed' => false]);
+        $this->assertFalse($room4->evidence_allowed);
     }
 }

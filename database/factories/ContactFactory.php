@@ -61,11 +61,21 @@ class ContactFactory extends Factory
      */
     public function bugReport(): static
     {
-        return $this->state(fn(array $attributes) => [
-            'type' => Contact::TYPE_BUG_REPORT,
-            'subject' => 'Bug Report: ' . fake()->sentence(),
-            'message' => 'I encountered a bug when ' . fake()->paragraph(),
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Contact::TYPE_BUG_REPORT,
+            ];
+        })->afterMaking(function ($model) {
+            $language = $model->language ?? 'ja';
+
+            if ($language === 'ja') {
+                $model->subject = 'バグレポート：' . fake()->realText(30);
+                $model->message = 'バグを発見しました。' . fake()->realText(200);
+            } else {
+                $model->subject = 'Bug Report: ' . fake()->sentence();
+                $model->message = 'I encountered a bug when ' . fake()->paragraph();
+            }
+        });
     }
 
     /**
@@ -73,11 +83,21 @@ class ContactFactory extends Factory
      */
     public function featureRequest(): static
     {
-        return $this->state(fn(array $attributes) => [
-            'type' => Contact::TYPE_FEATURE_REQUEST,
-            'subject' => 'Feature Request: ' . fake()->sentence(),
-            'message' => 'I would like to request a new feature: ' . fake()->paragraph(),
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Contact::TYPE_FEATURE_REQUEST,
+            ];
+        })->afterMaking(function ($model) {
+            $language = $model->language ?? 'ja';
+
+            if ($language === 'ja') {
+                $model->subject = '機能リクエスト：' . fake()->realText(30);
+                $model->message = '新しい機能の追加をご検討いただけないでしょうか。' . fake()->realText(200);
+            } else {
+                $model->subject = 'Feature Request: ' . fake()->sentence();
+                $model->message = 'I would like to request a new feature: ' . fake()->paragraph();
+            }
+        });
     }
 
     /**

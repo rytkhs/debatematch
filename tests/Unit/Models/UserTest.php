@@ -2,8 +2,10 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\Room;
+use App\Models\RoomUser;
 use App\Models\Debate;
 use App\Models\DebateEvaluation;
 use Tests\Traits\CreatesUsers;
@@ -28,9 +30,7 @@ class UserTest extends BaseModelTest
     // TODO-006: User モデル基本機能テスト
     // ============================================
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testFillableAttributes()
     {
         $expectedFillable = [
@@ -47,9 +47,7 @@ class UserTest extends BaseModelTest
         $this->assertModelBasics($expectedFillable);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testHiddenAttributes()
     {
         $expectedHidden = [
@@ -60,9 +58,7 @@ class UserTest extends BaseModelTest
         $this->assertModelBasics(null, $expectedHidden);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testCasts()
     {
         $expectedCasts = [
@@ -76,9 +72,7 @@ class UserTest extends BaseModelTest
         $this->assertModelBasics(null, null, $expectedCasts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testEmailValidation()
     {
         // Valid email
@@ -91,9 +85,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals('invalid-email', $user->email);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testPasswordHashing()
     {
         $plainPassword = 'test-password';
@@ -104,17 +96,13 @@ class UserTest extends BaseModelTest
         $this->assertTrue(Hash::check($plainPassword, $user->password));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testFactoryCreation()
     {
         $this->assertFactoryCreation();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testSoftDeletes()
     {
         $this->assertSoftDeletes();
@@ -124,9 +112,7 @@ class UserTest extends BaseModelTest
     // TODO-007: User リレーションシップテスト
     // ============================================
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testRoomsRelation()
     {
         $this->assertBelongsToMany('rooms', Room::class);
@@ -143,9 +129,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals('affirmative', $user->rooms->first()->pivot->side);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testAffirmativeDebatesRelation()
     {
         $this->assertHasMany('affirmativeDebates', Debate::class);
@@ -166,9 +150,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals(0, $opponent->affirmativeDebates()->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testNegativeDebatesRelation()
     {
         $this->assertHasMany('negativeDebates', Debate::class);
@@ -189,9 +171,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals(0, $opponent->negativeDebates()->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testRelationshipCounts()
     {
         $user = User::factory()->create();
@@ -223,9 +203,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals(1, $user->negativeDebates()->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testEagerLoading()
     {
         $user = User::factory()->create();
@@ -255,9 +233,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals(0, $userWithRelations->negativeDebates->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testRelationshipPivotData()
     {
         $user = User::factory()->create();
@@ -278,9 +254,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals('negative', $negativeRoom->pivot->side);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testRelationshipWithTrashedModels()
     {
         $user = User::factory()->create();
@@ -315,9 +289,7 @@ class UserTest extends BaseModelTest
     // TODO-008: User 統計機能テスト
     // ============================================
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testGetDebatesCountAttribute()
     {
         $user = User::factory()->create();
@@ -351,9 +323,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals(2, $opponent->debates_count);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testGetWinsCountAttribute()
     {
         $user = User::factory()->create();
@@ -406,9 +376,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals(2, $user->wins_count); // Won as affirmative and negative
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testComplexStatisticsCalculation()
     {
         $user = User::factory()->create();
@@ -454,9 +422,7 @@ class UserTest extends BaseModelTest
         $this->assertEquals($expectedWinRate, $actualWinRate);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testStatisticsPerformance()
     {
         $user = User::factory()->create();
@@ -494,9 +460,7 @@ class UserTest extends BaseModelTest
         $this->assertLessThan(1.0, $executionTime);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testStatisticsWithoutEvaluations()
     {
         $user = User::factory()->create();
@@ -526,9 +490,7 @@ class UserTest extends BaseModelTest
     // TODO-009: User ゲスト機能テスト
     // ============================================
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testIsGuest()
     {
         // Regular user should not be guest
@@ -540,9 +502,7 @@ class UserTest extends BaseModelTest
         $this->assertTrue($guestUser->isGuest());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testIsGuestExpired()
     {
         // Regular user should not be expired
@@ -566,9 +526,7 @@ class UserTest extends BaseModelTest
         $this->assertFalse($guestWithoutExpiration->isGuestExpired());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testIsGuestValid()
     {
         // Regular user should not be valid guest
@@ -592,9 +550,7 @@ class UserTest extends BaseModelTest
         $this->assertTrue($guestWithoutExpiration->isGuestValid());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testGuestExpirationEdgeCases()
     {
         // Guest expiring exactly now
@@ -617,9 +573,7 @@ class UserTest extends BaseModelTest
         $this->assertTrue($guestExpiredEarlier->isGuestExpired());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testGuestAuthenticationRelated()
     {
         // Guest users should not have passwords
@@ -634,9 +588,7 @@ class UserTest extends BaseModelTest
         $this->assertTrue($guestUser->isGuestValid());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testGuestToRegularUserConversion()
     {
         // Start with a guest user
@@ -661,9 +613,7 @@ class UserTest extends BaseModelTest
     // TODO-010: User 管理者機能テスト
     // ============================================
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testIsAdmin()
     {
         // Regular user should not be admin
@@ -675,9 +625,7 @@ class UserTest extends BaseModelTest
         $this->assertTrue($adminUser->isAdmin());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testAdminScope()
     {
         // Create regular users and admin users
@@ -701,9 +649,7 @@ class UserTest extends BaseModelTest
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testAdminSoftDeletes()
     {
         $adminUser = User::factory()->admin()->create();
@@ -725,9 +671,7 @@ class UserTest extends BaseModelTest
         $this->assertTrue($trashedAdmin->isAdmin());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testFactoryStates()
     {
         // Test admin factory state
@@ -752,9 +696,7 @@ class UserTest extends BaseModelTest
         $this->assertNotNull($verifiedUser->email_verified_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testAdminAndGuestCombination()
     {
         // Admin cannot be guest (this would be a business logic constraint)
@@ -768,9 +710,7 @@ class UserTest extends BaseModelTest
         $this->assertFalse($guestUser->isAdmin());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testUserFactoryWithDebatesIntegration()
     {
         // Test that admin users can participate in debates
@@ -791,5 +731,254 @@ class UserTest extends BaseModelTest
 
         $this->assertTrue($guestUser->isGuest());
         $this->assertEquals(1, $guestUser->fresh()->debates_count);
+    }
+
+    #[Test]
+    public function user_factory_with_debates_integration()
+    {
+        $user = User::factory()->withDebates()->create();
+
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertGreaterThan(0, $user->debates_count);
+    }
+
+    /**
+     * Phase1 レビュー: 追加のエッジケースとカバレッジ向上テスト
+     */
+    #[Test]
+    public function get_all_debates_attribute_with_no_debates()
+    {
+        $user = User::factory()->create();
+        $allDebates = $user->getAllDebatesAttribute();
+
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $allDebates);
+        $this->assertCount(0, $allDebates);
+    }
+
+    #[Test]
+    public function get_all_debates_attribute_with_mixed_sides()
+    {
+        $user = User::factory()->create();
+        $room1 = Room::factory()->create();
+        $room2 = Room::factory()->create();
+
+        // 肯定側として参加
+        $debate1 = Debate::factory()->create([
+            'room_id' => $room1->id,
+            'affirmative_user_id' => $user->id,
+            'negative_user_id' => User::factory()->create()->id
+        ]);
+
+        // 否定側として参加
+        $debate2 = Debate::factory()->create([
+            'room_id' => $room2->id,
+            'affirmative_user_id' => User::factory()->create()->id,
+            'negative_user_id' => $user->id
+        ]);
+
+        $allDebates = $user->getAllDebatesAttribute();
+
+        $this->assertCount(2, $allDebates);
+        $this->assertTrue($allDebates->contains($debate1));
+        $this->assertTrue($allDebates->contains($debate2));
+    }
+
+    #[Test]
+    public function user_with_very_long_name()
+    {
+        $longName = str_repeat('あ', 255); // 255文字の日本語
+        $user = User::factory()->create(['name' => $longName]);
+
+        $this->assertEquals($longName, $user->name);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => $longName
+        ]);
+    }
+
+    #[Test]
+    public function user_with_special_characters_in_name()
+    {
+        $specialName = '特殊文字テスト!@#$%^&*()_+-=[]{}|;:,.<>?';
+        $user = User::factory()->create(['name' => $specialName]);
+
+        $this->assertEquals($specialName, $user->name);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => $specialName
+        ]);
+    }
+
+    #[Test]
+    public function user_email_case_sensitivity()
+    {
+        $email = 'Test.User@Example.COM';
+        $user = User::factory()->create(['email' => $email]);
+
+        $this->assertEquals($email, $user->email);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'email' => $email
+        ]);
+    }
+
+    #[Test]
+    public function guest_user_with_null_expires_at()
+    {
+        $user = User::factory()->create([
+            'is_guest' => true,
+            'guest_expires_at' => null
+        ]);
+
+        $this->assertTrue($user->isGuest());
+        $this->assertFalse($user->isGuestExpired());
+        $this->assertTrue($user->isGuestValid());
+    }
+
+    #[Test]
+    public function guest_user_with_future_expiration()
+    {
+        $user = User::factory()->create([
+            'is_guest' => true,
+            'guest_expires_at' => now()->addHour()
+        ]);
+
+        $this->assertTrue($user->isGuest());
+        $this->assertFalse($user->isGuestExpired());
+        $this->assertTrue($user->isGuestValid());
+    }
+
+    #[Test]
+    public function guest_user_with_past_expiration()
+    {
+        $user = User::factory()->create([
+            'is_guest' => true,
+            'guest_expires_at' => now()->subHour()
+        ]);
+
+        $this->assertTrue($user->isGuest());
+        $this->assertTrue($user->isGuestExpired());
+        $this->assertFalse($user->isGuestValid());
+    }
+
+    #[Test]
+    public function regular_user_guest_methods()
+    {
+        $user = User::factory()->create([
+            'is_guest' => false,
+            'guest_expires_at' => now()->subHour()
+        ]);
+
+        $this->assertFalse($user->isGuest());
+        $this->assertFalse($user->isGuestExpired());
+        $this->assertFalse($user->isGuestValid());
+    }
+
+    #[Test]
+    public function admin_user_with_guest_flag()
+    {
+        $user = User::factory()->create([
+            'is_admin' => true,
+            'is_guest' => true,
+            'guest_expires_at' => now()->addHour()
+        ]);
+
+        $this->assertTrue($user->isAdmin());
+        $this->assertTrue($user->isGuest());
+        $this->assertTrue($user->isGuestValid());
+    }
+
+    #[Test]
+    public function user_casts_verification()
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => '2023-01-01 12:00:00',
+            'guest_expires_at' => '2023-12-31 23:59:59'
+        ]);
+
+        $this->assertInstanceOf(\Carbon\Carbon::class, $user->email_verified_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $user->guest_expires_at);
+        $this->assertEquals('2023-01-01 12:00:00', $user->email_verified_at->format('Y-m-d H:i:s'));
+        $this->assertEquals('2023-12-31 23:59:59', $user->guest_expires_at->format('Y-m-d H:i:s'));
+    }
+
+    #[Test]
+    public function user_password_hashing_verification()
+    {
+        $plainPassword = 'test-password-123';
+        $user = User::factory()->create(['password' => $plainPassword]);
+
+        $this->assertNotEquals($plainPassword, $user->password);
+        $this->assertTrue(Hash::check($plainPassword, $user->password));
+    }
+
+    #[Test]
+    public function user_hidden_attributes_in_array()
+    {
+        $user = User::factory()->create();
+        $userArray = $user->toArray();
+
+        $this->assertArrayNotHasKey('password', $userArray);
+        $this->assertArrayNotHasKey('remember_token', $userArray);
+        $this->assertArrayHasKey('name', $userArray);
+        $this->assertArrayHasKey('email', $userArray);
+    }
+
+    #[Test]
+    public function user_statistics_with_complex_scenarios()
+    {
+        $user = User::factory()->create();
+        $opponent1 = User::factory()->create();
+        $opponent2 = User::factory()->create();
+
+        // 勝利ディベート（肯定側）
+        $room1 = Room::factory()->create();
+        $debate1 = Debate::factory()->create([
+            'room_id' => $room1->id,
+            'affirmative_user_id' => $user->id,
+            'negative_user_id' => $opponent1->id
+        ]);
+        DebateEvaluation::factory()->affirmativeWins()->create(['debate_id' => $debate1->id]);
+
+        // 敗北ディベート（否定側）
+        $room2 = Room::factory()->create();
+        $debate2 = Debate::factory()->create([
+            'room_id' => $room2->id,
+            'affirmative_user_id' => $opponent2->id,
+            'negative_user_id' => $user->id
+        ]);
+        DebateEvaluation::factory()->affirmativeWins()->create(['debate_id' => $debate2->id]);
+
+        // 評価なしディベート
+        $room3 = Room::factory()->create();
+        $debate3 = Debate::factory()->create([
+            'room_id' => $room3->id,
+            'affirmative_user_id' => $user->id,
+            'negative_user_id' => $opponent1->id
+        ]);
+
+        $this->assertEquals(3, $user->debates_count);
+        $this->assertEquals(1, $user->wins_count);
+    }
+
+    #[Test]
+    public function user_performance_with_many_relationships()
+    {
+        $user = User::factory()->create();
+        $rooms = Room::factory()->count(20)->create();
+
+        $startTime = microtime(true);
+
+        foreach ($rooms as $index => $room) {
+            $side = $index % 2 === 0 ? RoomUser::SIDE_AFFIRMATIVE : RoomUser::SIDE_NEGATIVE;
+            $user->rooms()->attach($room->id, ['side' => $side]);
+        }
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+
+        // 20ルームの追加が0.5秒以内に完了することを確認
+        $this->assertLessThan(0.5, $executionTime);
+        $this->assertCount(20, $user->rooms);
     }
 }

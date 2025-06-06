@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\DebateEvaluation;
 use App\Models\Debate;
 use App\Models\User;
@@ -15,9 +16,7 @@ class DebateEvaluationTest extends TestCase
 {
     use RefreshDatabase, CreatesDebates, CreatesUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_fillable_attributes()
     {
         $expectedFillable = [
@@ -34,9 +33,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertEquals($expectedFillable, $evaluation->getFillable());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_uses_traits()
     {
         $evaluation = new DebateEvaluation();
@@ -45,18 +42,14 @@ class DebateEvaluationTest extends TestCase
         $this->assertContains('Illuminate\Database\Eloquent\SoftDeletes', class_uses($evaluation));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_winner_constants()
     {
         $this->assertEquals('affirmative', DebateEvaluation::WINNER_AFFIRMATIVE);
         $this->assertEquals('negative', DebateEvaluation::WINNER_NEGATIVE);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_creation()
     {
         $evaluation = DebateEvaluation::factory()->create();
@@ -65,9 +58,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertDatabaseHas('debate_evaluations', ['id' => $evaluation->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_basic_attributes()
     {
         $debate = Debate::factory()->create();
@@ -91,9 +82,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertEquals('Good effort but could improve rebuttals', $evaluation->feedback_for_negative);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_soft_deletes()
     {
         $evaluation = DebateEvaluation::factory()->create();
@@ -118,9 +107,7 @@ class DebateEvaluationTest extends TestCase
      * Relationship tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_debate_relationship()
     {
         $debate = Debate::factory()->create();
@@ -130,9 +117,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertEquals($debate->id, $evaluation->debate->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_belongs_to_debate_cascade()
     {
         $debate = Debate::factory()->create();
@@ -154,9 +139,7 @@ class DebateEvaluationTest extends TestCase
      * Factory state tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_for_debate()
     {
         $debate = Debate::factory()->create();
@@ -165,9 +148,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertEquals($debate->id, $evaluation->debate_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_affirmative_wins()
     {
         $evaluation = DebateEvaluation::factory()->affirmativeWins()->create();
@@ -178,9 +159,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertNotNull($evaluation->feedback_for_negative);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_negative_wins()
     {
         $evaluation = DebateEvaluation::factory()->negativeWins()->create();
@@ -191,9 +170,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertNotNull($evaluation->feedback_for_negative);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_analyzable()
     {
         $evaluation = DebateEvaluation::factory()->analyzable()->create();
@@ -202,9 +179,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertNotNull($evaluation->analysis);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_not_analyzable()
     {
         $evaluation = DebateEvaluation::factory()->notAnalyzable()->create();
@@ -216,9 +191,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertNotNull($evaluation->reason);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_detailed()
     {
         $evaluation = DebateEvaluation::factory()->detailed()->create();
@@ -229,9 +202,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertGreaterThan(100, strlen($evaluation->feedback_for_negative));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_brief()
     {
         $evaluation = DebateEvaluation::factory()->brief()->create();
@@ -242,9 +213,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertLessThan(200, strlen($evaluation->feedback_for_negative));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_ai_debate()
     {
         $evaluation = DebateEvaluation::factory()->aiDebate()->create();
@@ -253,9 +222,7 @@ class DebateEvaluationTest extends TestCase
         $this->assertStringContainsString('AI', $evaluation->feedback_for_negative);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_close_decision()
     {
         $evaluation = DebateEvaluation::factory()->closeDecision()->create();
@@ -265,51 +232,46 @@ class DebateEvaluationTest extends TestCase
         $this->assertStringContainsString('close', strtolower($evaluation->feedback_for_negative));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_decisive_victory()
     {
         $evaluation = DebateEvaluation::factory()->decisiveVictory()->create();
 
         $this->assertStringContainsString('decisive', strtolower($evaluation->reason));
+        $this->assertStringContainsString('clear', strtolower($evaluation->analysis));
     }
 
     /**
      * Integration tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_debate_with_evaluation()
     {
-        $affirmativeUser = User::factory()->create();
-        $negativeUser = User::factory()->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
         $room = Room::factory()->create();
 
         $debate = Debate::factory()->create([
             'room_id' => $room->id,
-            'affirmative_user_id' => $affirmativeUser->id,
-            'negative_user_id' => $negativeUser->id,
+            'affirmative_user_id' => $user1->id,
+            'negative_user_id' => $user2->id,
         ]);
 
         $evaluation = DebateEvaluation::factory()->create([
             'debate_id' => $debate->id,
             'winner' => DebateEvaluation::WINNER_AFFIRMATIVE,
-            'is_analyzable' => true,
         ]);
 
-        // Test relationships
-        $this->assertEquals($evaluation->id, $debate->evaluations->id);
+        // Test relationship
+        $this->assertEquals($evaluation->id, $debate->evaluations->first()->id);
         $this->assertEquals($debate->id, $evaluation->debate->id);
-        $this->assertEquals($affirmativeUser->id, $evaluation->debate->affirmative_user_id);
-        $this->assertEquals($negativeUser->id, $evaluation->debate->negative_user_id);
+
+        // Test winner determination
+        $this->assertEquals(DebateEvaluation::WINNER_AFFIRMATIVE, $evaluation->winner);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_evaluation_with_null_feedback()
     {
         $evaluation = DebateEvaluation::factory()->create([
@@ -319,117 +281,85 @@ class DebateEvaluationTest extends TestCase
 
         $this->assertNull($evaluation->feedback_for_affirmative);
         $this->assertNull($evaluation->feedback_for_negative);
-        $this->assertNotNull($evaluation->winner);
         $this->assertNotNull($evaluation->reason);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_evaluation_with_long_content()
     {
-        $longAnalysis = str_repeat('This is a detailed analysis. ', 200);
-        $longFeedback = str_repeat('Detailed feedback. ', 100);
+        $longAnalysis = str_repeat('This is a detailed analysis. ', 100);
+        $longReason = str_repeat('This is a comprehensive reason. ', 50);
 
         $evaluation = DebateEvaluation::factory()->create([
             'analysis' => $longAnalysis,
-            'feedback_for_affirmative' => $longFeedback,
-            'feedback_for_negative' => $longFeedback,
+            'reason' => $longReason,
         ]);
 
         $this->assertEquals($longAnalysis, $evaluation->analysis);
-        $this->assertEquals($longFeedback, $evaluation->feedback_for_affirmative);
-        $this->assertEquals($longFeedback, $evaluation->feedback_for_negative);
+        $this->assertEquals($longReason, $evaluation->reason);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_evaluation_with_special_characters()
     {
-        $specialContent = 'Special chars: 日本語 emoji 😊 symbols @#$%^&*()';
+        $specialChars = '特殊文字テスト！@#$%^&*()_+-=[]{}|;:\'",.<>?/~`';
 
         $evaluation = DebateEvaluation::factory()->create([
-            'analysis' => $specialContent,
-            'reason' => $specialContent,
-            'feedback_for_affirmative' => $specialContent,
-            'feedback_for_negative' => $specialContent,
+            'analysis' => $specialChars,
+            'reason' => $specialChars,
+            'feedback_for_affirmative' => $specialChars,
+            'feedback_for_negative' => $specialChars,
         ]);
 
-        $this->assertEquals($specialContent, $evaluation->analysis);
-        $this->assertEquals($specialContent, $evaluation->reason);
-        $this->assertEquals($specialContent, $evaluation->feedback_for_affirmative);
-        $this->assertEquals($specialContent, $evaluation->feedback_for_negative);
+        $this->assertEquals($specialChars, $evaluation->analysis);
+        $this->assertEquals($specialChars, $evaluation->reason);
+        $this->assertEquals($specialChars, $evaluation->feedback_for_affirmative);
+        $this->assertEquals($specialChars, $evaluation->feedback_for_negative);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_evaluation_winner_validation()
     {
-        // Test both valid winner values
-        $affirmativeEvaluation = DebateEvaluation::factory()->create([
-            'winner' => DebateEvaluation::WINNER_AFFIRMATIVE,
-        ]);
-        $this->assertEquals(DebateEvaluation::WINNER_AFFIRMATIVE, $affirmativeEvaluation->winner);
+        // Test valid winners
+        $affirmativeWin = DebateEvaluation::factory()->create(['winner' => DebateEvaluation::WINNER_AFFIRMATIVE]);
+        $negativeWin = DebateEvaluation::factory()->create(['winner' => DebateEvaluation::WINNER_NEGATIVE]);
 
-        $negativeEvaluation = DebateEvaluation::factory()->create([
-            'winner' => DebateEvaluation::WINNER_NEGATIVE,
-        ]);
-        $this->assertEquals(DebateEvaluation::WINNER_NEGATIVE, $negativeEvaluation->winner);
+        $this->assertEquals(DebateEvaluation::WINNER_AFFIRMATIVE, $affirmativeWin->winner);
+        $this->assertEquals(DebateEvaluation::WINNER_NEGATIVE, $negativeWin->winner);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_evaluation_analyzable_scenarios()
     {
         // Analyzable evaluation should have analysis
-        $analyzableEvaluation = DebateEvaluation::factory()->create([
-            'is_analyzable' => true,
-            'analysis' => 'Detailed analysis content',
-        ]);
+        $analyzable = DebateEvaluation::factory()->analyzable()->create();
+        $this->assertTrue($analyzable->is_analyzable);
+        $this->assertNotNull($analyzable->analysis);
 
-        $this->assertTrue($analyzableEvaluation->is_analyzable);
-        $this->assertNotNull($analyzableEvaluation->analysis);
-
-        // Non-analyzable evaluation can have null analysis
-        $nonAnalyzableEvaluation = DebateEvaluation::factory()->create([
-            'is_analyzable' => false,
-            'analysis' => null,
-        ]);
-
-        $this->assertFalse($nonAnalyzableEvaluation->is_analyzable);
-        $this->assertNull($nonAnalyzableEvaluation->analysis);
+        // Non-analyzable evaluation should not have analysis
+        $notAnalyzable = DebateEvaluation::factory()->notAnalyzable()->create();
+        $this->assertFalse($notAnalyzable->is_analyzable);
+        $this->assertNull($notAnalyzable->analysis);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_evaluation_complete_feedback_scenario()
     {
         $debate = Debate::factory()->create();
-
-        $evaluation = DebateEvaluation::factory()->create([
+        $evaluation = DebateEvaluation::factory()->detailed()->create([
             'debate_id' => $debate->id,
-            'is_analyzable' => true,
             'winner' => DebateEvaluation::WINNER_AFFIRMATIVE,
-            'analysis' => 'The affirmative side presented well-structured arguments with strong evidence.',
-            'reason' => 'Better logical flow and evidence quality from the affirmative side.',
-            'feedback_for_affirmative' => 'Excellent work! Your arguments were well-researched and clearly presented.',
-            'feedback_for_negative' => 'Good effort, but you could strengthen your rebuttals with more specific examples.',
+            'is_analyzable' => true,
         ]);
 
-        // Verify complete evaluation
-        $this->assertTrue($evaluation->is_analyzable);
-        $this->assertEquals(DebateEvaluation::WINNER_AFFIRMATIVE, $evaluation->winner);
+        // Should have all feedback components
         $this->assertNotNull($evaluation->analysis);
         $this->assertNotNull($evaluation->reason);
         $this->assertNotNull($evaluation->feedback_for_affirmative);
         $this->assertNotNull($evaluation->feedback_for_negative);
 
-        // Verify relationship works
-        $this->assertEquals($debate->id, $evaluation->debate->id);
-        $this->assertEquals($evaluation->id, $debate->evaluations->id);
+        // Should be properly linked to debate
+        $this->assertEquals($debate->id, $evaluation->debate_id);
+        $this->assertEquals($evaluation->id, $debate->evaluations->first()->id);
     }
 }

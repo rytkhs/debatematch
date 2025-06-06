@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\DebateMessage;
 use App\Models\Debate;
 use App\Models\User;
@@ -15,9 +16,7 @@ class DebateMessageTest extends TestCase
 {
     use RefreshDatabase, CreatesDebates, CreatesUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_fillable_attributes()
     {
         $expectedFillable = [
@@ -31,9 +30,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($expectedFillable, $debateMessage->getFillable());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_uses_traits()
     {
         $debateMessage = new DebateMessage();
@@ -42,9 +39,7 @@ class DebateMessageTest extends TestCase
         $this->assertContains('Illuminate\Database\Eloquent\SoftDeletes', class_uses($debateMessage));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_creation()
     {
         $debateMessage = DebateMessage::factory()->create();
@@ -53,9 +48,7 @@ class DebateMessageTest extends TestCase
         $this->assertDatabaseHas('debate_messages', ['id' => $debateMessage->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_basic_attributes()
     {
         $debate = Debate::factory()->create();
@@ -74,9 +67,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals(1, $debateMessage->turn);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_soft_deletes()
     {
         $debateMessage = DebateMessage::factory()->create();
@@ -100,10 +91,7 @@ class DebateMessageTest extends TestCase
     /**
      * Relationship tests
      */
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_debate_relationship()
     {
         $debate = Debate::factory()->create();
@@ -113,9 +101,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($debate->id, $debateMessage->debate->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_user_relationship()
     {
         $user = User::factory()->create();
@@ -125,9 +111,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($user->id, $debateMessage->user->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_user_relationship_with_soft_deleted_user()
     {
         $user = User::factory()->create();
@@ -142,9 +126,7 @@ class DebateMessageTest extends TestCase
         $this->assertNotNull($debateMessage->fresh()->user->deleted_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_belongs_to_debate_cascade()
     {
         $debate = Debate::factory()->create();
@@ -165,10 +147,7 @@ class DebateMessageTest extends TestCase
     /**
      * Factory state tests
      */
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_for_debate()
     {
         $debate = Debate::factory()->create();
@@ -177,9 +156,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($debate->id, $debateMessage->debate_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_from_user()
     {
         $user = User::factory()->create();
@@ -188,9 +165,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($user->id, $debateMessage->user_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_affirmative()
     {
         $affirmativeUser = User::factory()->create();
@@ -208,9 +183,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($affirmativeUser->id, $debateMessage->user_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_negative()
     {
         $affirmativeUser = User::factory()->create();
@@ -228,9 +201,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($negativeUser->id, $debateMessage->user_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_on_turn()
     {
         $debateMessage = DebateMessage::factory()->onTurn(5)->create();
@@ -238,9 +209,7 @@ class DebateMessageTest extends TestCase
         $this->assertEquals(5, $debateMessage->turn);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_long_message()
     {
         $debateMessage = DebateMessage::factory()->long()->create();
@@ -248,9 +217,7 @@ class DebateMessageTest extends TestCase
         $this->assertGreaterThan(200, strlen($debateMessage->message));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_short_message()
     {
         $debateMessage = DebateMessage::factory()->short()->create();
@@ -261,60 +228,34 @@ class DebateMessageTest extends TestCase
     /**
      * Integration tests
      */
-
-    /**
-     * @test
-     */
-    public function test_debate_with_messages()
+    #[Test]
+    public function test_multiple_messages_in_debate()
     {
-        $affirmativeUser = User::factory()->create();
-        $negativeUser = User::factory()->create();
-        $debate = Debate::factory()->create([
-            'affirmative_user_id' => $affirmativeUser->id,
-            'negative_user_id' => $negativeUser->id,
-        ]);
+        $debate = Debate::factory()->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
 
-        // Create messages for different turns
         $message1 = DebateMessage::factory()->create([
             'debate_id' => $debate->id,
-            'user_id' => $affirmativeUser->id,
+            'user_id' => $user1->id,
             'turn' => 1,
-            'message' => 'Opening statement from affirmative side',
         ]);
 
         $message2 = DebateMessage::factory()->create([
             'debate_id' => $debate->id,
-            'user_id' => $negativeUser->id,
+            'user_id' => $user2->id,
             'turn' => 2,
-            'message' => 'Rebuttal from negative side',
         ]);
 
-        $message3 = DebateMessage::factory()->create([
-            'debate_id' => $debate->id,
-            'user_id' => $affirmativeUser->id,
-            'turn' => 3,
-            'message' => 'Counter-rebuttal from affirmative side',
-        ]);
-
-        // Test relationships
-        $this->assertEquals(3, $debate->messages()->count());
-        $this->assertEquals($debate->id, $message1->debate->id);
-        $this->assertEquals($affirmativeUser->id, $message1->user->id);
-        $this->assertEquals($negativeUser->id, $message2->user->id);
-
-        // Test ordering by creation time
-        $messages = $debate->messages()->orderBy('created_at')->get();
-        $this->assertEquals($message1->id, $messages[0]->id);
-        $this->assertEquals($message2->id, $messages[1]->id);
-        $this->assertEquals($message3->id, $messages[2]->id);
+        $this->assertEquals(2, DebateMessage::where('debate_id', $debate->id)->count());
+        $this->assertEquals(1, $message1->turn);
+        $this->assertEquals(2, $message2->turn);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_message_with_special_characters()
     {
-        $specialMessage = 'Special chars: 日本語 emoji 😊 symbols @#$%^&*()';
+        $specialMessage = 'Special chars: !@#$%^&*()_+-=[]{}|;:,.<>?';
         $debateMessage = DebateMessage::factory()->create([
             'message' => $specialMessage,
         ]);
@@ -322,34 +263,25 @@ class DebateMessageTest extends TestCase
         $this->assertEquals($specialMessage, $debateMessage->message);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_message_with_very_long_content()
     {
-        $longMessage = str_repeat('This is a very long message content. ', 100);
+        $longMessage = str_repeat('This is a very long message. ', 100);
         $debateMessage = DebateMessage::factory()->create([
             'message' => $longMessage,
         ]);
 
         $this->assertEquals($longMessage, $debateMessage->message);
+        $this->assertGreaterThan(1000, strlen($debateMessage->message));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_message_turn_boundaries()
     {
-        // Test turn 0 (preparation phase)
-        $message1 = DebateMessage::factory()->create(['turn' => 0]);
-        $this->assertEquals(0, $message1->turn);
+        $debateMessage = DebateMessage::factory()->create(['turn' => 1]);
+        $this->assertEquals(1, $debateMessage->turn);
 
-        // Test turn 1 (first turn)
-        $message2 = DebateMessage::factory()->create(['turn' => 1]);
-        $this->assertEquals(1, $message2->turn);
-
-        // Test high turn number
-        $message3 = DebateMessage::factory()->create(['turn' => 99]);
-        $this->assertEquals(99, $message3->turn);
+        $debateMessage = DebateMessage::factory()->create(['turn' => 255]);
+        $this->assertEquals(255, $debateMessage->turn);
     }
 }

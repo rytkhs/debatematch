@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\Contact;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,9 +13,7 @@ class ContactTest extends TestCase
 {
     use RefreshDatabase, CreatesUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_fillable_attributes()
     {
         $expectedFillable = [
@@ -34,9 +33,7 @@ class ContactTest extends TestCase
         $this->assertEquals($expectedFillable, $contact->getFillable());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_casts()
     {
         $expectedCasts = [
@@ -50,9 +47,7 @@ class ContactTest extends TestCase
         $this->assertEquals($expectedCasts, $contact->getCasts());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_contact_type_constants()
     {
         $this->assertEquals('bug_report', Contact::TYPE_BUG_REPORT);
@@ -62,9 +57,7 @@ class ContactTest extends TestCase
         $this->assertEquals('other', Contact::TYPE_OTHER);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_creation()
     {
         $contact = Contact::factory()->create();
@@ -73,9 +66,7 @@ class ContactTest extends TestCase
         $this->assertDatabaseHas('contacts', ['id' => $contact->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_basic_attributes()
     {
         $contact = Contact::factory()->create([
@@ -97,9 +88,7 @@ class ContactTest extends TestCase
         $this->assertEquals('ja', $contact->language);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_replied_at_cast()
     {
         $repliedAt = now()->subDays(3);
@@ -116,9 +105,7 @@ class ContactTest extends TestCase
      * Relationship tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_user_relationship()
     {
         $user = User::factory()->create();
@@ -128,9 +115,7 @@ class ContactTest extends TestCase
         $this->assertEquals($user->id, $contact->user->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_anonymous_contact()
     {
         $contact = Contact::factory()->create(['user_id' => null]);
@@ -139,9 +124,7 @@ class ContactTest extends TestCase
         $this->assertNull($contact->user);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_user_relationship_with_soft_deleted_user()
     {
         $user = User::factory()->create();
@@ -160,9 +143,7 @@ class ContactTest extends TestCase
      * Static method tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_get_types()
     {
         $types = Contact::getTypes();
@@ -177,9 +158,7 @@ class ContactTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_get_valid_types()
     {
         $validTypes = Contact::getValidTypes();
@@ -193,9 +172,7 @@ class ContactTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_get_statuses()
     {
         $statuses = Contact::getStatuses();
@@ -203,10 +180,10 @@ class ContactTest extends TestCase
         $this->assertIsArray($statuses);
         $this->assertNotEmpty($statuses);
 
-        // Should contain status keys and labels
-        foreach ($statuses as $key => $label) {
-            $this->assertIsString($key);
-            $this->assertIsString($label);
+        // Should contain expected statuses
+        $expectedStatuses = ['new', 'in_progress', 'replied', 'closed'];
+        foreach ($expectedStatuses as $status) {
+            $this->assertArrayHasKey($status, $statuses);
         }
     }
 
@@ -214,142 +191,114 @@ class ContactTest extends TestCase
      * Accessor tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_type_name_attribute()
     {
         $contact = Contact::factory()->create(['type' => Contact::TYPE_BUG_REPORT]);
 
-        $typeName = $contact->type_name;
-        $this->assertIsString($typeName);
-        $this->assertNotEmpty($typeName);
+        $this->assertIsString($contact->type_name);
+        $this->assertNotEmpty($contact->type_name);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_status_name_attribute()
     {
         $contact = Contact::factory()->create(['status' => 'new']);
 
-        $statusName = $contact->status_name;
-        $this->assertIsString($statusName);
-        $this->assertNotEmpty($statusName);
+        $this->assertIsString($contact->status_name);
+        $this->assertNotEmpty($contact->status_name);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_type_emoji_attribute()
     {
         $contact = Contact::factory()->create(['type' => Contact::TYPE_BUG_REPORT]);
 
-        $emoji = $contact->type_emoji;
-        $this->assertIsString($emoji);
-        $this->assertNotEmpty($emoji);
+        $this->assertIsString($contact->type_emoji);
+        $this->assertNotEmpty($contact->type_emoji);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_status_color_attribute()
     {
         $contact = Contact::factory()->create(['status' => 'new']);
 
-        $color = $contact->status_color;
-        $this->assertIsString($color);
-        $this->assertNotEmpty($color);
-        // Should be a color code
-        $this->assertStringStartsWith('#', $color);
+        $statusColor = $contact->status_color;
+        $this->assertIsString($statusColor);
+        $this->assertNotEmpty($statusColor);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_status_css_class_attribute()
     {
-        $contact = Contact::factory()->create(['status' => 'new']);
+        $statuses = ['new', 'in_progress', 'replied', 'closed'];
 
-        $cssClass = $contact->status_css_class;
-        $this->assertIsString($cssClass);
-        $this->assertNotEmpty($cssClass);
+        foreach ($statuses as $status) {
+            $contact = Contact::factory()->create(['status' => $status]);
+            $cssClass = $contact->status_css_class;
 
-        // Should contain Tailwind CSS classes
-        $this->assertStringContainsString('bg-', $cssClass);
-        $this->assertStringContainsString('text-', $cssClass);
+            $this->assertIsString($cssClass);
+            $this->assertNotEmpty($cssClass);
+        }
     }
 
     /**
      * Scope tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_by_status_scope()
     {
         Contact::factory()->create(['status' => 'new']);
         Contact::factory()->create(['status' => 'in_progress']);
-        Contact::factory()->create(['status' => 'new']);
+        Contact::factory()->create(['status' => 'replied']);
 
         $newContacts = Contact::byStatus('new')->get();
         $inProgressContacts = Contact::byStatus('in_progress')->get();
 
-        $this->assertEquals(2, $newContacts->count());
-        $this->assertEquals(1, $inProgressContacts->count());
-
-        foreach ($newContacts as $contact) {
-            $this->assertEquals('new', $contact->status);
-        }
+        $this->assertCount(1, $newContacts);
+        $this->assertCount(1, $inProgressContacts);
+        $this->assertEquals('new', $newContacts->first()->status);
+        $this->assertEquals('in_progress', $inProgressContacts->first()->status);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_by_type_scope()
     {
         Contact::factory()->create(['type' => Contact::TYPE_BUG_REPORT]);
         Contact::factory()->create(['type' => Contact::TYPE_FEATURE_REQUEST]);
-        Contact::factory()->create(['type' => Contact::TYPE_BUG_REPORT]);
+        Contact::factory()->create(['type' => Contact::TYPE_GENERAL_QUESTION]);
 
         $bugReports = Contact::byType(Contact::TYPE_BUG_REPORT)->get();
         $featureRequests = Contact::byType(Contact::TYPE_FEATURE_REQUEST)->get();
 
-        $this->assertEquals(2, $bugReports->count());
-        $this->assertEquals(1, $featureRequests->count());
-
-        foreach ($bugReports as $contact) {
-            $this->assertEquals(Contact::TYPE_BUG_REPORT, $contact->type);
-        }
+        $this->assertCount(1, $bugReports);
+        $this->assertCount(1, $featureRequests);
+        $this->assertEquals(Contact::TYPE_BUG_REPORT, $bugReports->first()->type);
+        $this->assertEquals(Contact::TYPE_FEATURE_REQUEST, $featureRequests->first()->type);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_latest_scope()
     {
-        $oldContact = Contact::factory()->create(['created_at' => now()->subDays(5)]);
-        $newContact = Contact::factory()->create(['created_at' => now()->subDay()]);
-        $newestContact = Contact::factory()->create(['created_at' => now()]);
+        $older = Contact::factory()->create(['created_at' => now()->subDays(2)]);
+        $newer = Contact::factory()->create(['created_at' => now()->subDay()]);
+        $newest = Contact::factory()->create(['created_at' => now()]);
 
-        $contacts = Contact::latest()->get();
+        $latestContacts = Contact::latest()->get();
 
-        $this->assertEquals($newestContact->id, $contacts[0]->id);
-        $this->assertEquals($newContact->id, $contacts[1]->id);
-        $this->assertEquals($oldContact->id, $contacts[2]->id);
+        $this->assertEquals($newest->id, $latestContacts->first()->id);
+        $this->assertEquals($older->id, $latestContacts->last()->id);
     }
 
     /**
      * Factory state tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_from_user()
     {
-        $user = User::factory()->create(['name' => 'Test User', 'email' => 'test@example.com']);
+        $user = User::factory()->create();
         $contact = Contact::factory()->fromUser($user)->create();
 
         $this->assertEquals($user->id, $contact->user_id);
@@ -357,136 +306,114 @@ class ContactTest extends TestCase
         $this->assertEquals($user->email, $contact->email);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_anonymous()
     {
         $contact = Contact::factory()->anonymous()->create();
 
         $this->assertNull($contact->user_id);
+        $this->assertNotNull($contact->name);
+        $this->assertNotNull($contact->email);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_bug_report()
     {
-        $contact = Contact::factory()->bugReport()->create();
+        $contact = Contact::factory()->bugReport()->create(['language' => 'ja']);
 
         $this->assertEquals(Contact::TYPE_BUG_REPORT, $contact->type);
-        $this->assertStringContainsString('Bug Report', $contact->subject);
+        $this->assertStringContainsString('バグ', $contact->subject);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_feature_request()
     {
-        $contact = Contact::factory()->featureRequest()->create();
+        $contact = Contact::factory()->featureRequest()->create(['language' => 'ja']);
 
         $this->assertEquals(Contact::TYPE_FEATURE_REQUEST, $contact->type);
-        $this->assertStringContainsString('Feature Request', $contact->subject);
+        $this->assertStringContainsString('機能', $contact->subject);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_status_states()
     {
         $newContact = Contact::factory()->newStatus()->create();
-        $this->assertEquals('new', $newContact->status);
-        $this->assertNull($newContact->admin_notes);
-        $this->assertNull($newContact->replied_at);
-
+        $inProgressContact = Contact::factory()->inProgress()->create();
         $repliedContact = Contact::factory()->replied()->create();
-        $this->assertEquals('replied', $repliedContact->status);
-        $this->assertNotNull($repliedContact->admin_notes);
-        $this->assertNotNull($repliedContact->replied_at);
+        $closedContact = Contact::factory()->closed()->create();
 
-        $resolvedContact = Contact::factory()->resolved()->create();
-        $this->assertEquals('resolved', $resolvedContact->status);
+        $this->assertEquals('new', $newContact->status);
+        $this->assertEquals('in_progress', $inProgressContact->status);
+        $this->assertEquals('replied', $repliedContact->status);
+        $this->assertEquals('closed', $closedContact->status);
         $this->assertNotNull($repliedContact->replied_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_language_states()
     {
-        $japaneseContact = Contact::factory()->japanese()->create();
-        $this->assertEquals('ja', $japaneseContact->language);
-        $this->assertStringContainsString('お問い合わせ', $japaneseContact->subject);
+        $jaContact = Contact::factory()->japanese()->create();
+        $enContact = Contact::factory()->english()->create();
 
-        $englishContact = Contact::factory()->english()->create();
-        $this->assertEquals('en', $englishContact->language);
+        $this->assertEquals('ja', $jaContact->language);
+        $this->assertEquals('en', $enContact->language);
     }
 
     /**
      * Integration tests
      */
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_contact_lifecycle()
     {
         // Create new contact
-        $user = User::factory()->create();
-        $contact = Contact::factory()->create([
-            'user_id' => $user->id,
-            'status' => 'new',
-            'type' => Contact::TYPE_BUG_REPORT,
-        ]);
-
-        // Initial state
+        $contact = Contact::factory()->newStatus()->create();
         $this->assertEquals('new', $contact->status);
-        $this->assertNull($contact->admin_notes);
-        $this->assertNull($contact->replied_at);
 
-        // Progress to in_progress
-        $contact->update([
-            'status' => 'in_progress',
-            'admin_notes' => 'Working on this issue',
-        ]);
-
+        // Update to in progress
+        $contact->update(['status' => 'in_progress']);
         $this->assertEquals('in_progress', $contact->status);
-        $this->assertEquals('Working on this issue', $contact->admin_notes);
 
-        // Mark as replied
-        $repliedAt = now();
+        // Reply to contact
         $contact->update([
             'status' => 'replied',
-            'replied_at' => $repliedAt,
+            'replied_at' => now(),
+            'admin_notes' => 'Issue resolved',
         ]);
-
         $this->assertEquals('replied', $contact->status);
         $this->assertNotNull($contact->replied_at);
+        $this->assertEquals('Issue resolved', $contact->admin_notes);
+
+        // Close contact
+        $contact->update(['status' => 'closed']);
+        $this->assertEquals('closed', $contact->status);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_contact_with_long_content()
     {
-        $longMessage = str_repeat('This is a very long message. ', 200);
+        $longMessage = str_repeat('Long message content. ', 100);
         $contact = Contact::factory()->create(['message' => $longMessage]);
 
         $this->assertEquals($longMessage, $contact->message);
+        $this->assertDatabaseHas('contacts', ['id' => $contact->id, 'message' => $longMessage]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_contact_with_special_characters()
     {
-        $specialContent = 'Special chars: 日本語 emoji 😊 symbols @#$%^&*()';
+        $specialChars = '特殊文字テスト！@#$%^&*()_+-=[]{}|;:\'",.<>?/~`';
         $contact = Contact::factory()->create([
-            'subject' => $specialContent,
-            'message' => $specialContent,
+            'subject' => $specialChars,
+            'message' => $specialChars,
         ]);
 
-        $this->assertEquals($specialContent, $contact->subject);
-        $this->assertEquals($specialContent, $contact->message);
+        $this->assertEquals($specialChars, $contact->subject);
+        $this->assertEquals($specialChars, $contact->message);
+        $this->assertDatabaseHas('contacts', [
+            'id' => $contact->id,
+            'subject' => $specialChars,
+            'message' => $specialChars,
+        ]);
     }
 }

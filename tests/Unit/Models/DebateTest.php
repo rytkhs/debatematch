@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Models;
 
+
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\Debate;
 use App\Models\DebateMessage;
 use App\Models\DebateEvaluation;
@@ -16,10 +18,7 @@ use Tests\Traits\CreatesRooms;
 class DebateTest extends TestCase
 {
     use RefreshDatabase, CreatesDebates, CreatesUsers, CreatesRooms;
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_fillable_attributes()
     {
         $expectedFillable = [
@@ -33,10 +32,7 @@ class DebateTest extends TestCase
         $debate = new Debate();
         $this->assertEquals($expectedFillable, $debate->getFillable());
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_casts()
     {
         $expectedCasts = [
@@ -48,10 +44,7 @@ class DebateTest extends TestCase
         $debate = new Debate();
         $this->assertEquals($expectedCasts, $debate->getCasts());
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_creation()
     {
         $debate = Debate::factory()->create();
@@ -59,10 +52,7 @@ class DebateTest extends TestCase
         $this->assertInstanceOf(Debate::class, $debate);
         $this->assertDatabaseHas('debates', ['id' => $debate->id]);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_basic_attributes()
     {
         $room = Room::factory()->create();
@@ -83,10 +73,7 @@ class DebateTest extends TestCase
         $this->assertEquals(1, $debate->current_turn);
         $this->assertInstanceOf(\Carbon\Carbon::class, $debate->turn_end_time);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_turn_end_time_cast()
     {
         $turnEndTime = now()->addMinutes(10);
@@ -98,10 +85,7 @@ class DebateTest extends TestCase
         $this->assertInstanceOf(\Carbon\Carbon::class, $debate->turn_end_time);
         $this->assertEquals($turnEndTime->format('Y-m-d H:i:s'), $debate->turn_end_time->format('Y-m-d H:i:s'));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_soft_deletes()
     {
         $debate = Debate::factory()->create();
@@ -124,11 +108,7 @@ class DebateTest extends TestCase
 
     /**
      * Relationship tests
-     */
-
-    /**
-     * @test
-     */
+     */    #[Test]
     public function test_room_relationship()
     {
         $room = Room::factory()->create();
@@ -137,10 +117,7 @@ class DebateTest extends TestCase
         $this->assertInstanceOf(Room::class, $debate->room);
         $this->assertEquals($room->id, $debate->room->id);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_affirmative_user_relationship()
     {
         $user = User::factory()->create();
@@ -149,10 +126,7 @@ class DebateTest extends TestCase
         $this->assertInstanceOf(User::class, $debate->affirmativeUser);
         $this->assertEquals($user->id, $debate->affirmativeUser->id);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_negative_user_relationship()
     {
         $user = User::factory()->create();
@@ -161,10 +135,7 @@ class DebateTest extends TestCase
         $this->assertInstanceOf(User::class, $debate->negativeUser);
         $this->assertEquals($user->id, $debate->negativeUser->id);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_affirmative_user_relationship_with_soft_deleted_user()
     {
         $user = User::factory()->create();
@@ -178,10 +149,7 @@ class DebateTest extends TestCase
         $this->assertEquals($user->id, $debate->fresh()->affirmativeUser->id);
         $this->assertNotNull($debate->fresh()->affirmativeUser->deleted_at);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_negative_user_relationship_with_soft_deleted_user()
     {
         $user = User::factory()->create();
@@ -195,10 +163,7 @@ class DebateTest extends TestCase
         $this->assertEquals($user->id, $debate->fresh()->negativeUser->id);
         $this->assertNotNull($debate->fresh()->negativeUser->deleted_at);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_messages_relationship()
     {
         $debate = Debate::factory()->create();
@@ -209,10 +174,7 @@ class DebateTest extends TestCase
         $this->assertTrue($debate->messages->contains($message1));
         $this->assertTrue($debate->messages->contains($message2));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_evaluations_relationship()
     {
         $debate = Debate::factory()->create();
@@ -221,10 +183,7 @@ class DebateTest extends TestCase
         $this->assertInstanceOf(DebateEvaluation::class, $debate->evaluations);
         $this->assertEquals($evaluation->id, $debate->evaluations->id);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_relationship_constraints()
     {
         $room = Room::factory()->create();
@@ -242,10 +201,7 @@ class DebateTest extends TestCase
         $this->assertEquals($affirmativeUser->id, $debate->affirmative_user_id);
         $this->assertEquals($negativeUser->id, $debate->negative_user_id);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_debate_with_null_users()
     {
         $room = Room::factory()->create();
@@ -263,11 +219,7 @@ class DebateTest extends TestCase
 
     /**
      * Factory state tests
-     */
-
-    /**
-     * @test
-     */
+     */    #[Test]
     public function test_factory_for_room()
     {
         $room = Room::factory()->create();
@@ -275,10 +227,7 @@ class DebateTest extends TestCase
 
         $this->assertEquals($room->id, $debate->room_id);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_with_users()
     {
         $affirmativeUser = User::factory()->create();
@@ -291,10 +240,7 @@ class DebateTest extends TestCase
         $this->assertEquals($affirmativeUser->id, $debate->affirmative_user_id);
         $this->assertEquals($negativeUser->id, $debate->negative_user_id);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_with_current_turn()
     {
         $debate = Debate::factory()->withCurrentTurn(3)->create();
@@ -302,10 +248,7 @@ class DebateTest extends TestCase
         $this->assertEquals(3, $debate->current_turn);
         $this->assertNotNull($debate->turn_end_time);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_finished()
     {
         $debate = Debate::factory()->finished()->create();
@@ -313,20 +256,14 @@ class DebateTest extends TestCase
         $this->assertEquals(-1, $debate->current_turn);
         $this->assertNull($debate->turn_end_time);
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_with_messages()
     {
         $debate = Debate::factory()->withMessages(3)->create();
 
         $this->assertEquals(3, $debate->messages()->count());
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_factory_with_evaluation()
     {
         $debate = Debate::factory()->withEvaluation()->create();
@@ -336,11 +273,7 @@ class DebateTest extends TestCase
 
     /**
      * Integration tests
-     */
-
-    /**
-     * @test
-     */
+     */    #[Test]
     public function test_complete_debate_scenario()
     {
         $room = Room::factory()->create();
@@ -385,11 +318,7 @@ class DebateTest extends TestCase
 
     /**
      * Early termination functionality tests
-     */
-
-    /**
-     * @test
-     */
+     */    #[Test]
     public function test_can_request_early_termination_affirmative_user()
     {
         $affirmativeUser = User::factory()->create();
@@ -401,10 +330,7 @@ class DebateTest extends TestCase
 
         $this->assertTrue($debate->canRequestEarlyTermination($affirmativeUser->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_can_request_early_termination_negative_user()
     {
         $affirmativeUser = User::factory()->create();
@@ -416,10 +342,7 @@ class DebateTest extends TestCase
 
         $this->assertTrue($debate->canRequestEarlyTermination($negativeUser->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_can_request_early_termination_non_participant()
     {
         $affirmativeUser = User::factory()->create();
@@ -432,10 +355,7 @@ class DebateTest extends TestCase
 
         $this->assertFalse($debate->canRequestEarlyTermination($nonParticipant->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_can_respond_to_early_termination_affirmative_user()
     {
         $affirmativeUser = User::factory()->create();
@@ -447,10 +367,7 @@ class DebateTest extends TestCase
 
         $this->assertTrue($debate->canRespondToEarlyTermination($affirmativeUser->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_can_respond_to_early_termination_negative_user()
     {
         $affirmativeUser = User::factory()->create();
@@ -462,10 +379,7 @@ class DebateTest extends TestCase
 
         $this->assertTrue($debate->canRespondToEarlyTermination($negativeUser->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_can_respond_to_early_termination_non_participant()
     {
         $affirmativeUser = User::factory()->create();
@@ -478,10 +392,7 @@ class DebateTest extends TestCase
 
         $this->assertFalse($debate->canRespondToEarlyTermination($nonParticipant->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_early_termination_with_invalid_user_ids()
     {
         $affirmativeUser = User::factory()->create();
@@ -503,10 +414,7 @@ class DebateTest extends TestCase
         $this->assertFalse($debate->canRequestEarlyTermination(-1));
         $this->assertFalse($debate->canRespondToEarlyTermination(-1));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_early_termination_with_null_debate_users()
     {
         $debate = Debate::factory()->create([
@@ -519,10 +427,7 @@ class DebateTest extends TestCase
         $this->assertFalse($debate->canRequestEarlyTermination($user->id));
         $this->assertFalse($debate->canRespondToEarlyTermination($user->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_early_termination_with_partially_null_users()
     {
         $affirmativeUser = User::factory()->create();
@@ -546,10 +451,7 @@ class DebateTest extends TestCase
         $this->assertTrue($debate2->canRequestEarlyTermination($negativeUser->id));
         $this->assertTrue($debate2->canRespondToEarlyTermination($negativeUser->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_early_termination_with_soft_deleted_users()
     {
         $affirmativeUser = User::factory()->create();
@@ -570,10 +472,7 @@ class DebateTest extends TestCase
         $this->assertTrue($debate->canRequestEarlyTermination($negativeUser->id));
         $this->assertTrue($debate->canRespondToEarlyTermination($negativeUser->id));
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_early_termination_boundary_conditions()
     {
         $user1 = User::factory()->create();
@@ -608,10 +507,7 @@ class DebateTest extends TestCase
             $debate->canRespondToEarlyTermination($user3->id)
         );
     }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_early_termination_permissions_consistency()
     {
         $affirmativeUser = User::factory()->create();

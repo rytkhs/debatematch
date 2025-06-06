@@ -5,6 +5,7 @@ namespace Tests\Unit\View\Components;
 use Tests\TestCase;
 use Illuminate\View\Component;
 use Illuminate\Support\MessageBag;
+use PHPUnit\Framework\Attributes\Test;
 
 class DebateFormComponentTest extends TestCase
 {
@@ -16,7 +17,7 @@ class DebateFormComponentTest extends TestCase
         $this->app['view']->addLocation(resource_path('views'));
     }
 
-    /** @test */
+    #[Test]
     public function step_indicator_renders_correctly()
     {
         $html = $this->renderComponentToString('debate-form.step-indicator', [
@@ -33,7 +34,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('bg-gray-300', $html); // 未完了のステップ
     }
 
-    /** @test */
+    #[Test]
     public function basic_info_step_shows_room_name_for_room_type()
     {
         $html = $this->renderComponentToString('debate-form.basic-info-step', [
@@ -47,7 +48,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('required', $html);
     }
 
-    /** @test */
+    #[Test]
     public function basic_info_step_hides_room_name_for_ai_type()
     {
         $html = $this->renderComponentToString('debate-form.basic-info-step', [
@@ -60,7 +61,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringNotContainsString('name="name"', $html);
     }
 
-    /** @test */
+    #[Test]
     public function basic_info_step_renders_language_options()
     {
         $languageOrder = ['ja', 'en'];
@@ -75,7 +76,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('value="en"', $html);
     }
 
-    /** @test */
+    #[Test]
     public function debate_settings_step_enables_evidence_for_room_type()
     {
         $html = $this->renderComponentToString('debate-form.debate-settings-step', [
@@ -89,7 +90,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringNotContainsString('cursor-not-allowed opacity-60', $html);
     }
 
-    /** @test */
+    #[Test]
     public function debate_settings_step_disables_evidence_for_ai_type()
     {
         $html = $this->renderComponentToString('debate-form.debate-settings-step', [
@@ -103,7 +104,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('opacity-60', $html);
     }
 
-    /** @test */
+    #[Test]
     public function debate_settings_step_renders_format_options()
     {
         $translatedFormats = [
@@ -122,7 +123,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('name="format_type"', $html);
     }
 
-    /** @test */
+    #[Test]
     public function debate_settings_step_shows_custom_submit_button()
     {
         $html = $this->renderComponentToString('debate-form.debate-settings-step', [
@@ -135,7 +136,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('custom_icon', $html);
     }
 
-    /** @test */
+    #[Test]
     public function format_preview_renders_empty_structure()
     {
         $html = $this->renderComponentToString('debate-form.format-preview', []);
@@ -147,7 +148,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('hidden', $html); // 初期状態では非表示
     }
 
-    /** @test */
+    #[Test]
     public function custom_format_settings_sets_correct_max_duration_for_room()
     {
         $html = $this->renderComponentToString('debate-form.custom-format-settings', [
@@ -159,7 +160,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('turns[0][speaker]', $html);
     }
 
-    /** @test */
+    #[Test]
     public function custom_format_settings_sets_correct_max_duration_for_ai()
     {
         $html = $this->renderComponentToString('debate-form.custom-format-settings', [
@@ -169,7 +170,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('max="14"', $html);
     }
 
-    /** @test */
+    #[Test]
     public function free_format_settings_renders_duration_and_turns_inputs()
     {
         $html = $this->renderComponentToString('debate-form.free-format-settings', []);
@@ -182,7 +183,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('value="20"', $html); // デフォルトの最大ターン数
     }
 
-    /** @test */
+    #[Test]
     public function components_are_responsive_and_accessible()
     {
         $html = $this->renderComponentToString('debate-form.basic-info-step', [
@@ -199,7 +200,7 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('focus:ring-', $html);
     }
 
-    /** @test */
+    #[Test]
     public function step_indicator_handles_different_step_counts()
     {
         $html = $this->renderComponentToString('debate-form.step-indicator', [

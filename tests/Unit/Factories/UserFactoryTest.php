@@ -8,10 +8,11 @@ use App\Models\Room;
 use App\Models\Debate;
 use App\Models\DebateEvaluation;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class UserFactoryTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_creates_basic_user()
     {
         $user = User::factory()->create();
@@ -25,7 +26,7 @@ class UserFactoryTest extends TestCase
         $this->assertFalse($user->is_guest);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_unverified_user()
     {
         $user = User::factory()->unverified()->create();
@@ -33,7 +34,7 @@ class UserFactoryTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_admin_user()
     {
         $user = User::factory()->admin()->create();
@@ -42,7 +43,7 @@ class UserFactoryTest extends TestCase
         $this->assertNotNull($user->email_verified_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_guest_user()
     {
         $user = User::factory()->guest()->create();
@@ -54,7 +55,7 @@ class UserFactoryTest extends TestCase
         $this->assertTrue($user->guest_expires_at->greaterThan(now()));
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_verified_user()
     {
         $user = User::factory()->verified()->create();
@@ -62,7 +63,7 @@ class UserFactoryTest extends TestCase
         $this->assertNotNull($user->email_verified_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_expired_guest_user()
     {
         $user = User::factory()->expiredGuest()->create();
@@ -73,7 +74,7 @@ class UserFactoryTest extends TestCase
         $this->assertTrue($user->isGuestExpired());
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_user_with_debates()
     {
         $user = User::factory()->withDebates(2)->create();
@@ -87,7 +88,7 @@ class UserFactoryTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_user_with_specific_debate_count_and_wins()
     {
         $user = User::factory()->withDebateCount(3, 5)->create();
@@ -114,7 +115,7 @@ class UserFactoryTest extends TestCase
         $this->assertEquals(2, $losses);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_combine_states()
     {
         $user = User::factory()->admin()->verified()->create();
@@ -123,7 +124,7 @@ class UserFactoryTest extends TestCase
         $this->assertNotNull($user->email_verified_at);
     }
 
-    /** @test */
+    #[Test]
     public function guest_user_validation_methods_work()
     {
         $validGuest = User::factory()->guest()->create();
@@ -138,7 +139,7 @@ class UserFactoryTest extends TestCase
         $this->assertFalse($expiredGuest->isGuestValid());
     }
 
-    /** @test */
+    #[Test]
     public function admin_user_has_admin_privileges()
     {
         $admin = User::factory()->admin()->create();
@@ -148,7 +149,7 @@ class UserFactoryTest extends TestCase
         $this->assertFalse($regular->isAdmin());
     }
 
-    /** @test */
+    #[Test]
     public function factory_handles_custom_attributes()
     {
         $customName = 'Custom Test User';
@@ -163,7 +164,7 @@ class UserFactoryTest extends TestCase
         $this->assertEquals($customEmail, $user->email);
     }
 
-    /** @test */
+    #[Test]
     public function factory_creates_unique_emails()
     {
         $users = User::factory()->count(5)->create();

@@ -28,9 +28,16 @@ abstract class TestCase extends BaseTestCase
      */
     protected function tearDown(): void
     {
-        // キャッシュをクリア
+        // キャッシュをクリア（モックされていない場合のみ）
         if (app()->bound('cache')) {
-            cache()->flush();
+            try {
+                $cache = cache();
+                if (method_exists($cache, 'flush') && !$cache instanceof \Mockery\MockInterface) {
+                    $cache->flush();
+                }
+            } catch (\Exception $e) {
+                // モックされたキャッシュの場合は無視
+            }
         }
 
         parent::tearDown();
