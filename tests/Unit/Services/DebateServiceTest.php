@@ -1579,4 +1579,347 @@ class DebateServiceTest extends BaseServiceTest
         // 実際の実装では、ログファイルまたはLogファサードのMockを確認
         // ここでは簡略化のため、常にtrueを返す
     }
+
+    // =========================================================================
+    // TODO-026: DebateService統合テスト
+    // =========================================================================
+
+    public function test_CompleteDebateFlow_StartToFinish_Integration()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $user1 = $this->createUser();
+        $user2 = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_READY]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $user1->id,
+            'negative_user_id' => $user2->id,
+        ]);
+
+        // 3ターンのフォーマットを設定
+        Cache::shouldReceive('remember')
+            ->andReturn([
+                1 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'First Turn'],
+                2 => ['duration' => 90, 'speaker' => 'negative', 'name' => 'Second Turn'],
+                3 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'Final Turn'],
+            ]);
+
+        // Act & Assert - ディベート開始
+        $this->debateService->startDebate($debate);
+        $room->updateStatus(Room::STATUS_DEBATING); // ディベート状態に更新
+
+        $debate->refresh();
+        $this->assertEquals(1, $debate->current_turn);
+        $this->assertNotNull($debate->turn_end_time);
+        Event::assertDispatched(TurnAdvanced::class);
+        Queue::assertPushed(AdvanceDebateTurnJob::class);
+
+        // Act & Assert - ターン2への進行
+        $room->updateStatus(Room::STATUS_DEBATING); // ディベート状態に設定
+        $this->debateService->advanceToNextTurn($debate, 1);
+
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn);
+        Event::assertDispatchedTimes(TurnAdvanced::class, 2);
+
+        // Act & Assert - ターン3への進行
+        $this->debateService->advanceToNextTurn($debate, 2);
+
+        $debate->refresh();
+        $this->assertEquals(3, $debate->current_turn);
+        Event::assertDispatchedTimes(TurnAdvanced::class, 3);
+
+        // Act & Assert - 最終ターン後の自動終了
+        $room->updateStatus(Room::STATUS_DEBATING);
+        $this->debateService->advanceToNextTurn($debate, 3);
+
+        $room->refresh();
+        $debate->refresh();
+        $this->assertEquals(Room::STATUS_FINISHED, $room->status);
+        $this->assertNull($debate->turn_end_time);
+        Event::assertDispatched(DebateFinished::class);
+        Queue::assertPushed(EvaluateDebateJob::class);
+    }
+
+    public function test_EarlyTerminationFlow_RequestToApproval_Integration()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $user1 = $this->createUser();
+        $user2 = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'format_type' => 'free'
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $user1->id,
+            'negative_user_id' => $user2->id,
+        ]);
+
+        // 参加者として設定
+        $room->users()->attach([
+            $user1->id => ['side' => 'affirmative'],
+            $user2->id => ['side' => 'negative'],
+        ]);
+
+        // Act & Assert - 早期終了提案
+        $result = $this->debateService->requestEarlyTermination($debate, $user1->id);
+
+        $this->assertTrue($result);
+        $status = $this->debateService->getEarlyTerminationStatus($debate);
+        $this->assertEquals('requested', $status['status']);
+        $this->assertEquals($user1->id, $status['requested_by']);
+
+        // Act & Assert - 早期終了承認
+        $result = $this->debateService->respondToEarlyTermination($debate, $user2->id, true);
+
+        $this->assertTrue($result);
+        $room->refresh();
+        $this->assertEquals(Room::STATUS_FINISHED, $room->status);
+        Event::assertDispatched(DebateFinished::class);
+    }
+
+    public function test_AIDebateFlow_AITurnHandling_Integration()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_READY,
+            'is_ai_debate' => true
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $aiUser->id, // AIが先攻
+            'negative_user_id' => $humanUser->id,
+        ]);
+
+        Cache::shouldReceive('remember')
+            ->andReturn([
+                1 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'AI First Turn'],
+                2 => ['duration' => 60, 'speaker' => 'negative', 'name' => 'Human Turn'],
+            ]);
+
+        // DebateServiceを再作成してAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // Act & Assert - AI先攻ディベート開始
+        $this->debateService->startDebate($debate);
+        $room->updateStatus(Room::STATUS_DEBATING); // ディベート状態に更新
+
+        $debate->refresh();
+        $this->assertEquals(1, $debate->current_turn);
+        Queue::assertPushed(GenerateAIResponseJob::class);
+        Queue::assertPushed(AdvanceDebateTurnJob::class);
+
+        // Act & Assert - 人間のターンへ進行
+        $this->debateService->advanceToNextTurn($debate, 1);
+
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn);
+        // 人間のターンではAI応答ジョブは不要
+        Queue::assertPushed(GenerateAIResponseJob::class, 1);
+    }
+
+    public function test_ConcurrentDebateAccess_HandlesSafely_Integration()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 1,
+        ]);
+
+        Cache::shouldReceive('remember')
+            ->andReturn([
+                1 => ['duration' => 60, 'speaker' => 'affirmative'],
+                2 => ['duration' => 60, 'speaker' => 'negative'],
+            ]);
+
+        // Act - 同じターンから複数回進行を試行
+        $this->debateService->advanceToNextTurn($debate, 1);
+        $this->debateService->advanceToNextTurn($debate, 1); // 期待しないターン
+
+        // Assert - 最初の進行のみ有効
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn);
+        Event::assertDispatchedTimes(TurnAdvanced::class, 1);
+    }
+
+    public function test_PerformanceTest_MultipleOperations_CompletesInTime()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $startTime = microtime(true);
+        $operations = 50; // 50回の操作
+
+        for ($i = 0; $i < $operations; $i++) {
+            $room = $this->createRoom(['status' => Room::STATUS_READY]);
+            $debate = $this->createDebate(['room_id' => $room->id]);
+
+            Cache::shouldReceive('remember')
+                ->andReturn([1 => ['duration' => 60, 'speaker' => 'affirmative']]);
+
+            // Act
+            $this->debateService->startDebate($debate);
+            $format = $this->debateService->getFormat($debate);
+
+            // Assert
+            $this->assertNotEmpty($format);
+        }
+
+        $executionTime = microtime(true) - $startTime;
+
+        // Assert - 50回の操作が2秒以内に完了
+        $this->assertLessThan(
+            2.0,
+            $executionTime,
+            "Performance test failed: {$operations} operations took {$executionTime} seconds"
+        );
+    }
+
+    public function test_ErrorRecoveryFlow_CriticalErrorToRecovery_Integration()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 1,
+        ]);
+
+        // 最初のadvanceToNextTurnでエラーが発生
+        Cache::shouldReceive('remember')
+            ->once()
+            ->andThrow(new \Exception('Temporary service error'));
+
+        // Act - エラー発生
+        $this->debateService->advanceToNextTurn($debate, 1);
+
+        // Assert - ディベートが強制終了
+        $room->refresh();
+        $this->assertEquals(Room::STATUS_TERMINATED, $room->status);
+
+        // Arrange - 新しいディベートでリカバリテスト
+        $newRoom = $this->createRoom(['status' => Room::STATUS_READY]);
+        $newDebate = $this->createDebate(['room_id' => $newRoom->id]);
+
+        Cache::shouldReceive('remember')
+            ->andReturn([1 => ['duration' => 60, 'speaker' => 'affirmative']]);
+
+        // Act - 正常な操作で回復
+        $this->debateService->startDebate($newDebate);
+
+        // Assert - 正常に動作
+        $newDebate->refresh();
+        $this->assertEquals(1, $newDebate->current_turn);
+        $this->assertNotNull($newDebate->turn_end_time);
+    }
+
+    public function test_ComplexScenario_MultipleUsersAndStates_Integration()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $users = User::factory()->count(4)->create();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $users[0]->id,
+            'negative_user_id' => $users[1]->id,
+            'current_turn' => 1,
+        ]);
+
+        // 複雑なフォーマット設定
+        Cache::shouldReceive('remember')
+            ->andReturn([
+                1 => ['duration' => 30, 'speaker' => 'affirmative', 'name' => 'Opening'],
+                2 => ['duration' => 30, 'speaker' => 'negative', 'name' => 'Response'],
+                3 => ['duration' => 45, 'speaker' => 'affirmative', 'name' => 'Rebuttal', 'is_questions' => true],
+                4 => ['duration' => 45, 'speaker' => 'negative', 'name' => 'Counter-Rebuttal'],
+            ]);
+
+        // Act & Assert - 質疑ターンの確認
+        $this->assertTrue($this->debateService->isQuestioningTurn($debate, 3));
+        $this->assertFalse($this->debateService->isQuestioningTurn($debate, 1));
+        $this->assertFalse($this->debateService->isQuestioningTurn($debate, 2));
+        $this->assertFalse($this->debateService->isQuestioningTurn($debate, 4));
+
+        // Act & Assert - ターン進行テスト
+        $this->debateService->advanceToNextTurn($debate, 1); // 1→2
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn);
+
+        $this->debateService->advanceToNextTurn($debate, 2); // 2→3
+        $debate->refresh();
+        $this->assertEquals(3, $debate->current_turn);
+
+        $this->debateService->advanceToNextTurn($debate, 3); // 3→4
+        $debate->refresh();
+        $this->assertEquals(4, $debate->current_turn);
+
+        // Act & Assert - 最終完了 (ターン4の後は自動終了)
+        $this->debateService->advanceToNextTurn($debate, 4);
+
+        $room->refresh();
+        $this->assertEquals(Room::STATUS_FINISHED, $room->status);
+        Event::assertDispatched(DebateFinished::class);
+        Queue::assertPushed(EvaluateDebateJob::class);
+    }
+
+    public function test_RealTimeEventFlow_EventSequenceConsistency_Integration()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_READY]);
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        Cache::shouldReceive('remember')
+            ->andReturn([
+                1 => ['duration' => 60, 'speaker' => 'affirmative'],
+                2 => ['duration' => 60, 'speaker' => 'negative'],
+            ]);
+
+        // Act - ディベート開始からターン進行、終了まで
+        $this->debateService->startDebate($debate);
+        $room->updateStatus(Room::STATUS_DEBATING); // ディベート状態に更新
+
+        $debate->refresh();
+        $this->assertEquals(1, $debate->current_turn);
+
+        $this->debateService->advanceToNextTurn($debate, 1);
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn);
+
+        $this->debateService->advanceToNextTurn($debate, 2);
+        $room->refresh();
+        $this->assertEquals(Room::STATUS_FINISHED, $room->status);
+
+        // Assert - イベントとジョブの確認
+        Event::assertDispatched(TurnAdvanced::class);
+        Event::assertDispatched(DebateFinished::class);
+        Queue::assertPushed(AdvanceDebateTurnJob::class);
+        Queue::assertPushed(EvaluateDebateJob::class);
+    }
 }
