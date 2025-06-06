@@ -51,10 +51,9 @@ abstract class BaseServiceTest extends TestCase
         MockHelpers::mockAIConfigs();
         MockHelpers::mockDebateConfigs();
 
-        // 個別のMock設定
+        // 個別のMock設定 (Cacheは除く - 各テストで個別設定)
         $this->setupEventMocks();
         $this->setupQueueMocks();
-        $this->setupCacheMocks();
         $this->setupHttpMocks();
         $this->setupLogMocks();
     }
