@@ -398,4 +398,276 @@ class DebateServiceTest extends BaseServiceTest
                 $event->additionalData['speaker'] === 'affirmative';
         });
     }
+
+    // =========================================================================
+    // TODO-022: ターン管理テスト
+    // =========================================================================
+
+    public function test_advanceToNextTurn_UpdatesCurrentTurnAndTime()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 1,
+        ]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'First Turn'],
+            2 => ['duration' => 90, 'speaker' => 'negative', 'name' => 'Second Turn'],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        $startTime = Carbon::parse('2024-01-01 00:00:00');
+        Carbon::setTestNow($startTime);
+
+        // Act
+        $this->debateService->advanceToNextTurn($debate, 1);
+
+        // Assert
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn);
+        $expectedTime = $startTime->copy()->addSeconds(92); // 90 + 2 buffer
+        $this->assertEquals($expectedTime->timestamp, $debate->turn_end_time->timestamp);
+
+        Event::assertDispatched(TurnAdvanced::class);
+        Queue::assertPushed(AdvanceDebateTurnJob::class);
+    }
+
+    public function test_advanceToNextTurn_WithExpectedTurnMismatch_SkipsAdvancement()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 2,
+        ]);
+
+        // Act
+        $this->debateService->advanceToNextTurn($debate, 1); // expectedTurn が current_turn と一致しない
+
+        // Assert
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn); // 変更されない
+
+        Event::assertNotDispatched(TurnAdvanced::class);
+        Queue::assertNotPushed(AdvanceDebateTurnJob::class);
+    }
+
+    public function test_advanceToNextTurn_WithNonDebatingRoom_SkipsAdvancement()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_FINISHED]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 1,
+        ]);
+
+        // Act
+        $this->debateService->advanceToNextTurn($debate, 1);
+
+        // Assert
+        $debate->refresh();
+        $this->assertEquals(1, $debate->current_turn); // 変更されない
+
+        Event::assertNotDispatched(TurnAdvanced::class);
+        Queue::assertNotPushed(AdvanceDebateTurnJob::class);
+    }
+
+    public function test_advanceToNextTurn_WithNoNextTurn_FinishesDebate()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 2,
+        ]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'First Turn'],
+            2 => ['duration' => 60, 'speaker' => 'negative', 'name' => 'Second Turn'],
+            // 3番目のターンは存在しない
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // Act
+        $this->debateService->advanceToNextTurn($debate, 2);
+
+        // Assert
+        $room->refresh();
+        $debate->refresh();
+
+        $this->assertEquals(Room::STATUS_FINISHED, $room->status);
+        $this->assertNull($debate->turn_end_time);
+
+        Event::assertDispatched(DebateFinished::class);
+        Queue::assertPushed(EvaluateDebateJob::class);
+    }
+
+    public function test_advanceToNextTurn_WithAITurn_DispatchesGenerateAIResponseJob()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING, 'is_ai_debate' => true]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 1,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $aiUser->id, // 2番目のターンはAI
+        ]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'First Turn'],
+            2 => ['duration' => 60, 'speaker' => 'negative', 'name' => 'Second Turn'], // AI turn
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // DebateServiceを再作成して新しいAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // Act
+        $this->debateService->advanceToNextTurn($debate, 1);
+
+        // Assert
+        Queue::assertPushed(GenerateAIResponseJob::class, function ($job) use ($debate) {
+            return $job->debateId === $debate->id && $job->currentTurn === 2;
+        });
+        Queue::assertPushed(AdvanceDebateTurnJob::class);
+    }
+
+    public function test_getNextTurn_ReturnsCorrectNextTurn()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id, 'current_turn' => 1]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative'],
+            2 => ['duration' => 60, 'speaker' => 'negative'],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // Act
+        $nextTurn = $this->debateService->getNextTurn($debate);
+
+        // Assert
+        $this->assertEquals(2, $nextTurn);
+    }
+
+    public function test_getNextTurn_ReturnsNullWhenNoNextTurn()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id, 'current_turn' => 2]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative'],
+            2 => ['duration' => 60, 'speaker' => 'negative'],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // Act
+        $nextTurn = $this->debateService->getNextTurn($debate);
+
+        // Assert
+        $this->assertNull($nextTurn);
+    }
+
+    public function test_updateTurn_UpdatesCurrentTurnAndEndTime()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id, 'current_turn' => 1]);
+
+        $format = [
+            2 => ['duration' => 120, 'speaker' => 'negative'],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        $startTime = Carbon::parse('2024-01-01 00:00:00');
+        Carbon::setTestNow($startTime);
+
+        // Act
+        $this->debateService->updateTurn($debate, 2);
+
+        // Assert
+        $debate->refresh();
+        $this->assertEquals(2, $debate->current_turn);
+        $expectedTime = $startTime->copy()->addSeconds(122); // 120 + 2 buffer
+        $this->assertEquals($expectedTime->timestamp, $debate->turn_end_time->timestamp);
+    }
+
+    public function test_updateTurn_WithInvalidTurn_ThrowsException()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id, 'current_turn' => 1]);
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn([]);
+
+        // Act & Assert
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Debate format is invalid or turn number is out of bounds.');
+
+        $this->debateService->updateTurn($debate, 99);
+    }
+
+    public function test_isQuestioningTurn_ReturnsCorrectValue()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative'],
+            2 => ['duration' => 60, 'speaker' => 'negative', 'is_questions' => true],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // Act & Assert
+        $this->assertFalse($this->debateService->isQuestioningTurn($debate, 1));
+        $this->assertTrue($this->debateService->isQuestioningTurn($debate, 2));
+        $this->assertFalse($this->debateService->isQuestioningTurn($debate, 99)); // 存在しないターン
+    }
 }
