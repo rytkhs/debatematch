@@ -670,4 +670,369 @@ class DebateServiceTest extends BaseServiceTest
         $this->assertTrue($this->debateService->isQuestioningTurn($debate, 2));
         $this->assertFalse($this->debateService->isQuestioningTurn($debate, 99)); // 存在しないターン
     }
+
+    // =========================================================================
+    // TODO-023: 早期終了テスト
+    // =========================================================================
+
+    public function test_requestEarlyTermination_SuccessfulRequest()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'format_type' => 'free',
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $this->createUser()->id,
+        ]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(true);
+        $debate->setRelation('room', $roomMock);
+
+        // Act
+        $result = $this->debateService->requestEarlyTermination($debate, $humanUser->id);
+
+        // Assert
+        $this->assertTrue($result);
+
+        // キャッシュに状態が保存されているか確認
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        $requestData = Cache::get($cacheKey);
+        $this->assertNotNull($requestData);
+        $this->assertEquals($humanUser->id, $requestData['requested_by']);
+        $this->assertEquals('requested', $requestData['status']);
+
+        Event::assertDispatched(\App\Events\EarlyTerminationRequested::class);
+        Queue::assertPushed(\App\Jobs\EarlyTerminationTimeoutJob::class);
+    }
+
+    public function test_requestEarlyTermination_WithNonFreeFormat_ReturnsFalse()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'format_type' => 'academic',
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $this->createUser()->id,
+        ]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(false);
+        $debate->setRelation('room', $roomMock);
+
+        // Act
+        $result = $this->debateService->requestEarlyTermination($debate, $humanUser->id);
+
+        // Assert
+        $this->assertFalse($result);
+
+        Event::assertNotDispatched(\App\Events\EarlyTerminationRequested::class);
+        Queue::assertNotPushed(\App\Jobs\EarlyTerminationTimeoutJob::class);
+    }
+
+    public function test_requestEarlyTermination_WithNonDebatingRoom_ReturnsFalse()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_FINISHED,
+            'format_type' => 'free',
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $this->createUser()->id,
+        ]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(true);
+        $debate->setRelation('room', $roomMock);
+
+        // Act
+        $result = $this->debateService->requestEarlyTermination($debate, $humanUser->id);
+
+        // Assert
+        $this->assertFalse($result);
+
+        Event::assertNotDispatched(\App\Events\EarlyTerminationRequested::class);
+        Queue::assertNotPushed(\App\Jobs\EarlyTerminationTimeoutJob::class);
+    }
+
+    public function test_requestEarlyTermination_WithNonParticipant_ReturnsFalse()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $nonParticipant = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'format_type' => 'free',
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $this->createUser()->id,
+            'negative_user_id' => $this->createUser()->id,
+        ]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(true);
+        $debate->setRelation('room', $roomMock);
+
+        // Act
+        $result = $this->debateService->requestEarlyTermination($debate, $nonParticipant->id);
+
+        // Assert
+        $this->assertFalse($result);
+
+        Event::assertNotDispatched(\App\Events\EarlyTerminationRequested::class);
+        Queue::assertNotPushed(\App\Jobs\EarlyTerminationTimeoutJob::class);
+    }
+
+    public function test_requestEarlyTermination_WithExistingRequest_ReturnsFalse()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'format_type' => 'free',
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $this->createUser()->id,
+        ]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(true);
+        $debate->setRelation('room', $roomMock);
+
+        // 既存のリクエストをキャッシュに設定
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        Cache::put($cacheKey, ['status' => 'requested'], 60);
+
+        // Act
+        $result = $this->debateService->requestEarlyTermination($debate, $humanUser->id);
+
+        // Assert
+        $this->assertFalse($result);
+
+        Event::assertNotDispatched(\App\Events\EarlyTerminationRequested::class);
+        Queue::assertNotPushed(\App\Jobs\EarlyTerminationTimeoutJob::class);
+    }
+
+    public function test_respondToEarlyTermination_WithAgree_FinishesDebate()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $affirmativeUser = $this->createUser();
+        $negativeUser = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // 既存のリクエストをキャッシュに設定
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        Cache::put($cacheKey, ['requested_by' => $affirmativeUser->id, 'status' => 'requested'], 90);
+
+        // Act
+        $result = $this->debateService->respondToEarlyTermination($debate, $negativeUser->id, true);
+
+        // Assert
+        $this->assertTrue($result);
+
+        // キャッシュから削除されているか確認
+        $this->assertNull(Cache::get($cacheKey));
+
+        // ディベートが終了しているか確認
+        $room->refresh();
+        $debate->refresh();
+        $this->assertEquals(Room::STATUS_FINISHED, $room->status);
+        $this->assertNull($debate->turn_end_time);
+
+        Event::assertDispatched(\App\Events\EarlyTerminationAgreed::class);
+        Event::assertDispatched(DebateFinished::class);
+        Queue::assertPushed(EvaluateDebateJob::class);
+    }
+
+    public function test_respondToEarlyTermination_WithDecline_ContinuesDebate()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $affirmativeUser = $this->createUser();
+        $negativeUser = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // 既存のリクエストをキャッシュに設定
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        Cache::put($cacheKey, ['requested_by' => $affirmativeUser->id, 'status' => 'requested'], 90);
+
+        // Act
+        $result = $this->debateService->respondToEarlyTermination($debate, $negativeUser->id, false);
+
+        // Assert
+        $this->assertTrue($result);
+
+        // キャッシュから削除されているか確認
+        $this->assertNull(Cache::get($cacheKey));
+
+        // ディベートが継続しているか確認
+        $room->refresh();
+        $this->assertEquals(Room::STATUS_DEBATING, $room->status);
+
+        Event::assertDispatched(\App\Events\EarlyTerminationDeclined::class);
+        Event::assertNotDispatched(DebateFinished::class);
+        Queue::assertNotPushed(EvaluateDebateJob::class);
+    }
+
+    public function test_respondToEarlyTermination_WithNoActiveRequest_ReturnsFalse()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $affirmativeUser = $this->createUser();
+        $negativeUser = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // Act
+        $result = $this->debateService->respondToEarlyTermination($debate, $negativeUser->id, true);
+
+        // Assert
+        $this->assertFalse($result);
+
+        Event::assertNotDispatched(\App\Events\EarlyTerminationAgreed::class);
+        Event::assertNotDispatched(\App\Events\EarlyTerminationDeclined::class);
+    }
+
+    public function test_respondToEarlyTermination_WithSameUser_ReturnsFalse()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $affirmativeUser = $this->createUser();
+        $negativeUser = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // 既存のリクエストをキャッシュに設定
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        Cache::put($cacheKey, ['requested_by' => $affirmativeUser->id, 'status' => 'requested'], 90);
+
+        // Act - 提案者が自分で応答しようとする
+        $result = $this->debateService->respondToEarlyTermination($debate, $affirmativeUser->id, true);
+
+        // Assert
+        $this->assertFalse($result);
+
+        Event::assertNotDispatched(\App\Events\EarlyTerminationAgreed::class);
+        Event::assertNotDispatched(\App\Events\EarlyTerminationDeclined::class);
+    }
+
+    public function test_getEarlyTerminationStatus_ReturnsCorrectStatus()
+    {
+        // Arrange
+        Cache::flush();
+
+        $affirmativeUser = $this->createUser();
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        // Act & Assert - リクエストなしの場合
+        $status = $this->debateService->getEarlyTerminationStatus($debate);
+        $this->assertEquals(['status' => 'none'], $status);
+
+        // リクエストありの場合
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        $requestData = [
+            'requested_by' => $affirmativeUser->id,
+            'status' => 'requested',
+            'timestamp' => now()->toISOString(),
+        ];
+        Cache::put($cacheKey, $requestData, 90);
+
+        $status = $this->debateService->getEarlyTerminationStatus($debate);
+        $this->assertEquals([
+            'status' => 'requested',
+            'requested_by' => $affirmativeUser->id,
+            'timestamp' => $requestData['timestamp'],
+        ], $status);
+    }
+
+    public function test_isFreeFormat_ReturnsCorrectValue()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(true);
+        $debate->setRelation('room', $roomMock);
+
+        // Act & Assert
+        $this->assertTrue($this->debateService->isFreeFormat($debate));
+    }
+
+    public function test_getCacheKey_ReturnsCorrectKey()
+    {
+        // Act
+        $cacheKey = $this->debateService->getCacheKey(123);
+
+        // Assert
+        $this->assertEquals('early_termination_request_123', $cacheKey);
+    }
 }
