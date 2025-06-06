@@ -108,12 +108,12 @@ class ConnectionLog extends Model
     {
         // 接続中の場合は現在時刻までの時間を計算
         if ($this->status === ConnectionManager::STATUS_CONNECTED) {
-            return $this->connected_at ? now()->diffInSeconds($this->connected_at) : null;
+            return $this->connected_at ? $this->connected_at->diffInSeconds(now()) : null;
         }
 
         // 切断された場合は接続から切断までの時間を計算
         if ($this->disconnected_at && $this->connected_at) {
-            return $this->disconnected_at->diffInSeconds($this->connected_at);
+            return $this->connected_at->diffInSeconds($this->disconnected_at);
         }
 
         return null;

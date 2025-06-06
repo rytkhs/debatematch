@@ -120,7 +120,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isAdmin()
     {
-        return $this->is_admin;
+        return (bool) $this->is_admin;
     }
 
     /**
@@ -128,7 +128,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isGuest()
     {
-        return $this->is_guest;
+        return (bool) $this->is_guest;
     }
 
     /**
@@ -148,6 +148,6 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isGuestValid()
     {
-        return $this->is_guest && !$this->isGuestExpired();
+        return (bool) $this->is_guest && !$this->isGuestExpired();
     }
 }
