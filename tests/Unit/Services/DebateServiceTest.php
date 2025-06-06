@@ -1035,4 +1035,303 @@ class DebateServiceTest extends BaseServiceTest
         // Assert
         $this->assertEquals('early_termination_request_123', $cacheKey);
     }
+
+    // =========================================================================
+    // TODO-024: イベント・ジョブテスト
+    // =========================================================================
+
+    public function test_startDebate_DispatchesTurnAdvancedEvent()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_READY]);
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'First Turn'],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // Act
+        $this->debateService->startDebate($debate);
+
+        // Assert
+        Event::assertDispatched(TurnAdvanced::class, function ($event) use ($debate) {
+            return $event->debate->id === $debate->id &&
+                is_array($event->additionalData) &&
+                isset($event->additionalData['current_turn']) &&
+                $event->additionalData['current_turn'] === 1 &&
+                isset($event->additionalData['speaker']) &&
+                $event->additionalData['speaker'] === 'affirmative';
+        });
+    }
+
+    public function test_startDebate_DispatchesAdvanceDebateTurnJob()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_READY]);
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        $format = [
+            1 => ['duration' => 60, 'speaker' => 'affirmative', 'name' => 'First Turn'],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // Act
+        $this->debateService->startDebate($debate);
+
+        // Assert
+        Queue::assertPushed(AdvanceDebateTurnJob::class, function ($job) use ($debate) {
+            return $job->debateId === $debate->id && $job->expectedTurn === 1;
+        });
+    }
+
+    public function test_finishDebate_DispatchesDebateFinishedEvent()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        // Act
+        $this->debateService->finishDebate($debate);
+
+        // Assert
+        Event::assertDispatched(DebateFinished::class, function ($event) use ($debate) {
+            return $event->debateId === $debate->id;
+        });
+    }
+
+    public function test_finishDebate_DispatchesEvaluateDebateJob()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        // Act
+        $this->debateService->finishDebate($debate);
+
+        // Assert
+        Queue::assertPushed(EvaluateDebateJob::class);
+    }
+
+    public function test_requestEarlyTermination_DispatchesEarlyTerminationRequestedEvent()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'format_type' => 'free',
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $this->createUser()->id,
+        ]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(true);
+        $debate->setRelation('room', $roomMock);
+
+        // Act
+        $this->debateService->requestEarlyTermination($debate, $humanUser->id);
+
+        // Assert
+        Event::assertDispatched(\App\Events\EarlyTerminationRequested::class, function ($event) use ($debate, $humanUser) {
+            return $event->debateId === $debate->id && $event->requestedBy === $humanUser->id;
+        });
+    }
+
+    public function test_requestEarlyTermination_DispatchesEarlyTerminationTimeoutJob()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'format_type' => 'free',
+        ]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $this->createUser()->id,
+        ]);
+
+        // Room::isFreeFormat() をPartialMockで設定
+        $roomMock = \Mockery::mock($room)->makePartial();
+        $roomMock->shouldReceive('isFreeFormat')->andReturn(true);
+        $debate->setRelation('room', $roomMock);
+
+        // Act
+        $this->debateService->requestEarlyTermination($debate, $humanUser->id);
+
+        // Assert
+        Queue::assertPushed(\App\Jobs\EarlyTerminationTimeoutJob::class, function ($job) use ($debate, $humanUser) {
+            return $job->debateId === $debate->id && $job->requestedBy === $humanUser->id;
+        });
+    }
+
+    public function test_respondToEarlyTermination_WithAgree_DispatchesEarlyTerminationAgreedEvent()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $affirmativeUser = $this->createUser();
+        $negativeUser = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // 既存のリクエストをキャッシュに設定
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        Cache::put($cacheKey, ['requested_by' => $affirmativeUser->id, 'status' => 'requested'], 90);
+
+        // Act
+        $this->debateService->respondToEarlyTermination($debate, $negativeUser->id, true);
+
+        // Assert
+        Event::assertDispatched(\App\Events\EarlyTerminationAgreed::class, function ($event) use ($debate) {
+            return $event->debateId === $debate->id;
+        });
+    }
+
+    public function test_respondToEarlyTermination_WithDecline_DispatchesEarlyTerminationDeclinedEvent()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+        Cache::flush();
+
+        $affirmativeUser = $this->createUser();
+        $negativeUser = $this->createUser();
+        $room = $this->createRoom(['status' => Room::STATUS_DEBATING]);
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $affirmativeUser->id,
+            'negative_user_id' => $negativeUser->id,
+        ]);
+
+        // 既存のリクエストをキャッシュに設定
+        $cacheKey = $this->debateService->getCacheKey($debate->id);
+        Cache::put($cacheKey, ['requested_by' => $affirmativeUser->id, 'status' => 'requested'], 90);
+
+        // Act
+        $this->debateService->respondToEarlyTermination($debate, $negativeUser->id, false);
+
+        // Assert
+        Event::assertDispatched(\App\Events\EarlyTerminationDeclined::class, function ($event) use ($debate) {
+            return $event->debateId === $debate->id;
+        });
+    }
+
+    public function test_createEventData_ReturnsCorrectEventData()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        $format = [
+            1 => [
+                'duration' => 60,
+                'speaker' => 'affirmative',
+                'name' => 'Opening Statement',
+                'is_prep_time' => false,
+            ],
+            2 => [
+                'duration' => 30,
+                'speaker' => 'negative',
+                'name' => 'Prep Time',
+                'is_prep_time' => true,
+            ],
+        ];
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        $debate->turn_end_time = Carbon::parse('2024-01-01 12:00:00');
+
+        // Act
+        $reflection = new \ReflectionClass($this->debateService);
+        $method = $reflection->getMethod('createEventData');
+        $method->setAccessible(true);
+
+        $eventData1 = $method->invoke($this->debateService, $debate, 1);
+        $eventData2 = $method->invoke($this->debateService, $debate, 2);
+
+        // Assert
+        $this->assertEquals([
+            'turn_number' => 1,
+            'current_turn' => 1,
+            'turn_end_time' => $debate->turn_end_time->timestamp,
+            'speaker' => 'affirmative',
+            'is_prep_time' => false,
+        ], $eventData1);
+
+        $this->assertEquals([
+            'turn_number' => 2,
+            'current_turn' => 2,
+            'turn_end_time' => $debate->turn_end_time->timestamp,
+            'speaker' => 'negative',
+            'is_prep_time' => true,
+        ], $eventData2);
+    }
+
+    public function test_createEventData_WithInvalidTurn_ReturnsDefaultData()
+    {
+        // Arrange
+        $room = $this->createRoom();
+        $debate = $this->createDebate(['room_id' => $room->id]);
+
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn([]);
+
+        $debate->turn_end_time = Carbon::parse('2024-01-01 12:00:00');
+
+        // Act
+        $reflection = new \ReflectionClass($this->debateService);
+        $method = $reflection->getMethod('createEventData');
+        $method->setAccessible(true);
+
+        $eventData = $method->invoke($this->debateService, $debate, 99);
+
+        // Assert
+        $this->assertEquals([
+            'turn_number' => 99,
+            'current_turn' => 99,
+            'turn_end_time' => $debate->turn_end_time->timestamp,
+            'speaker' => null,
+            'is_prep_time' => false,
+        ], $eventData);
+    }
 }
