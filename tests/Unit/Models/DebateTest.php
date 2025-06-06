@@ -539,4 +539,27 @@ class DebateTest extends TestCase
             $debate->canRespondToEarlyTermination($negativeUser->id)
         );
     }
+
+    #[Test]
+    public function create_ai_debate_multiple_times_without_conflict()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        // 最初のAIディベートを作成
+        $aiDebate1 = $this->createAIDebate($user1);
+        $this->assertInstanceOf(Debate::class, $aiDebate1['debate']);
+        $this->assertInstanceOf(User::class, $aiDebate1['ai_user']);
+
+        // 同じAIユーザーで2回目のディベートを作成（主キー制約違反が起きないことを確認）
+        $aiDebate2 = $this->createAIDebate($user2);
+        $this->assertInstanceOf(Debate::class, $aiDebate2['debate']);
+        $this->assertInstanceOf(User::class, $aiDebate2['ai_user']);
+
+        // 同じAIユーザーが使われていることを確認
+        $this->assertEquals($aiDebate1['ai_user']->id, $aiDebate2['ai_user']->id);
+
+        // 異なるディベートであることを確認
+        $this->assertNotEquals($aiDebate1['debate']->id, $aiDebate2['debate']->id);
+    }
 }

@@ -112,11 +112,25 @@ trait CreatesDebates
 
     /**
      * Create AI debate
+     *
+     * This method safely creates or retrieves an AI user to avoid primary key conflicts.
+     * It checks if the AI user already exists before attempting to create it.
      */
     protected function createAIDebate(User $user, array $attributes = []): array
     {
         $aiUserId = config('app.ai_user_id', 1);
-        $aiUser = User::factory()->create(['id' => $aiUserId]);
+
+        // Check if AI user already exists, if not create it
+        $aiUser = User::find($aiUserId);
+        if (!$aiUser) {
+            $aiUser = User::factory()->create([
+                'id' => $aiUserId,
+                'name' => 'AI Assistant',
+                'email' => 'ai@debatematch.local',
+                'is_guest' => false,
+                'is_admin' => false,
+            ]);
+        }
 
         $room = Room::factory()->aiDebate()->create(['created_by' => $user->id]);
         $room->users()->attach($user->id, ['side' => 'affirmative']);
