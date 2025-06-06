@@ -301,24 +301,31 @@ class DebateService
     public function terminateDebate(Debate $debate): void
     {
         DB::transaction(function () use ($debate) {
+            $shouldBroadcast = false;
+
             // 終了/強制終了/削除済みでないか確認
             if ($debate->room && !in_array($debate->room->status, [Room::STATUS_FINISHED, Room::STATUS_TERMINATED, Room::STATUS_DELETED])) {
                 $debate->room->updateStatus(Room::STATUS_TERMINATED);
+                $shouldBroadcast = true;
             }
 
             if ($debate->turn_end_time !== null) {
                 $debate->update(['turn_end_time' => null]);
             }
 
-            DB::afterCommit(function () use ($debate) {
-                try {
-                    broadcast(new DebateTerminated($debate));
-                    Log::info('Broadcasted DebateTerminated', ['debate_id' => $debate->id]);
-                } catch (\Exception $e) {
-                    Log::error('Error broadcasting DebateTerminated', [
-                        'debate_id' => $debate->id,
-                        'error' => $e->getMessage()
-                    ]);
+            DB::afterCommit(function () use ($debate, $shouldBroadcast) {
+                if ($shouldBroadcast) {
+                    try {
+                        broadcast(new DebateTerminated($debate));
+                        Log::info('Broadcasted DebateTerminated', ['debate_id' => $debate->id]);
+                    } catch (\Exception $e) {
+                        Log::error('Error broadcasting DebateTerminated', [
+                            'debate_id' => $debate->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                } else {
+                    Log::debug('Skipping DebateTerminated broadcast: debate already terminated', ['debate_id' => $debate->id]);
                 }
             });
         });
