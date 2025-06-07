@@ -544,18 +544,184 @@ class AIServiceTest extends BaseServiceTest
     public function test_getFallbackResponse_ReturnsCorrectMessage()
     {
         $reflection = new \ReflectionClass($this->aiService);
-        $getFallbackMethod = $reflection->getMethod('getFallbackResponse');
-        $getFallbackMethod->setAccessible(true);
+        $method = $reflection->getMethod('getFallbackResponse');
+        $method->setAccessible(true);
 
-        // エラー情報なしの場合
-        $result = $getFallbackMethod->invoke($this->aiService, 'japanese');
-        $this->assertIsString($result);
-        $this->assertNotEmpty($result);
+        // 日本語メッセージ
+        $jaResponse = $method->invoke($this->aiService, 'japanese');
+        $this->assertIsString($jaResponse);
 
-        // エラー情報ありの場合
-        $result = $getFallbackMethod->invoke($this->aiService, 'japanese', 'Test error');
-        $this->assertIsString($result);
-        $this->assertNotEmpty($result);
+        // 英語メッセージ
+        $enResponse = $method->invoke($this->aiService, 'english');
+        $this->assertIsString($enResponse);
+
+        // エラー情報付きメッセージ
+        $errorResponse = $method->invoke($this->aiService, 'japanese', 'Test error');
+        $this->assertIsString($errorResponse);
+    }
+
+    // ================================
+    // TODO-030: AIService応答時間計算テスト
+    // ================================
+
+    public function test_calculateResponseTime_CalculatesJapaneseCorrectly()
+    {
+        // calculateCharacterLimitメソッドをテスト（日本語）
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // 日本語の場合
+        $result3min = $method->invoke($this->aiService, 3.0, 'japanese', false);
+        $expected3min = (int)(3.0 * AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals("{$expected3min}文字程度", $result3min);
+
+        $result5min = $method->invoke($this->aiService, 5.0, 'japanese', false);
+        $expected5min = (int)(5.0 * AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals("{$expected5min}文字程度", $result5min);
+
+        $result10min = $method->invoke($this->aiService, 10.0, 'japanese', false);
+        $expected10min = (int)(10.0 * AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals("{$expected10min}文字程度", $result10min);
+    }
+
+    public function test_calculateResponseTime_CalculatesEnglishCorrectly()
+    {
+        // calculateCharacterLimitメソッドをテスト（英語）
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // 英語の場合
+        $result3min = $method->invoke($this->aiService, 3.0, 'english', false);
+        $expected3min = (int)(3.0 * AIService::ENGLISH_WORDS_PER_MINUTE);
+        $this->assertEquals("approximately {$expected3min} words", $result3min);
+
+        $result5min = $method->invoke($this->aiService, 5.0, 'english', false);
+        $expected5min = (int)(5.0 * AIService::ENGLISH_WORDS_PER_MINUTE);
+        $this->assertEquals("approximately {$expected5min} words", $result5min);
+
+        $result10min = $method->invoke($this->aiService, 10.0, 'english', false);
+        $expected10min = (int)(10.0 * AIService::ENGLISH_WORDS_PER_MINUTE);
+        $this->assertEquals("approximately {$expected10min} words", $result10min);
+    }
+
+    public function test_calculateResponseTime_HandlesJapaneseFreeFormat()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // フリーフォーマットの場合は半分になる
+        $result6min = $method->invoke($this->aiService, 6.0, 'japanese', true);
+        $expected6min = (int)(6.0 * AIService::JAPANESE_CHARS_PER_MINUTE / 2);
+        $this->assertEquals("{$expected6min}文字程度", $result6min);
+
+        $result10min = $method->invoke($this->aiService, 10.0, 'japanese', true);
+        $expected10min = (int)(10.0 * AIService::JAPANESE_CHARS_PER_MINUTE / 2);
+        $this->assertEquals("{$expected10min}文字程度", $result10min);
+    }
+
+    public function test_calculateResponseTime_HandlesEnglishFreeFormat()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // フリーフォーマットの場合は半分になる
+        $result6min = $method->invoke($this->aiService, 6.0, 'english', true);
+        $expected6min = (int)(6.0 * AIService::ENGLISH_WORDS_PER_MINUTE / 2);
+        $this->assertEquals("approximately {$expected6min} words", $result6min);
+
+        $result10min = $method->invoke($this->aiService, 10.0, 'english', true);
+        $expected10min = (int)(10.0 * AIService::ENGLISH_WORDS_PER_MINUTE / 2);
+        $this->assertEquals("approximately {$expected10min} words", $result10min);
+    }
+
+    public function test_calculateResponseTime_HandlesZeroTime()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // 時間が0の場合
+        $jaResult = $method->invoke($this->aiService, 0.0, 'japanese', false);
+        $this->assertEquals("0文字程度", $jaResult);
+
+        $enResult = $method->invoke($this->aiService, 0.0, 'english', false);
+        $this->assertEquals("approximately 0 words", $enResult);
+    }
+
+    public function test_calculateResponseTime_HandlesDecimalMinutes()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // 小数分の場合
+        $jaResult = $method->invoke($this->aiService, 1.5, 'japanese', false);
+        $expected = (int)(1.5 * AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals("{$expected}文字程度", $jaResult);
+
+        $enResult = $method->invoke($this->aiService, 2.7, 'english', false);
+        $expected = (int)(2.7 * AIService::ENGLISH_WORDS_PER_MINUTE);
+        $this->assertEquals("approximately {$expected} words", $enResult);
+    }
+
+    public function test_calculateResponseTime_UsesCorrectConstants()
+    {
+        // 定数値が正しく定義されているかテスト
+        $this->assertEquals(320, AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals(160, AIService::ENGLISH_WORDS_PER_MINUTE);
+
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // 1分間の計算をテスト
+        $jaResult = $method->invoke($this->aiService, 1.0, 'japanese', false);
+        $this->assertEquals("320文字程度", $jaResult);
+
+        $enResult = $method->invoke($this->aiService, 1.0, 'english', false);
+        $this->assertEquals("approximately 160 words", $enResult);
+    }
+
+    public function test_calculateResponseTime_BoundaryValues()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // 非常に小さい値
+        $jaResult = $method->invoke($this->aiService, 0.1, 'japanese', false);
+        $expected = (int)(0.1 * AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals("{$expected}文字程度", $jaResult);
+
+        // 非常に大きい値
+        $jaResult = $method->invoke($this->aiService, 100.0, 'japanese', false);
+        $expected = (int)(100.0 * AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals("{$expected}文字程度", $jaResult);
+
+        // 負の値（現実的でないが境界値テスト）
+        $jaResult = $method->invoke($this->aiService, -1.0, 'japanese', false);
+        $expected = (int)(-1.0 * AIService::JAPANESE_CHARS_PER_MINUTE);
+        $this->assertEquals("{$expected}文字程度", $jaResult);
+    }
+
+    public function test_calculateResponseTime_InvalidLanguageUsesDefault()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $method = $reflection->getMethod('calculateCharacterLimit');
+        $method->setAccessible(true);
+
+        // 無効な言語の場合は英語として扱われる
+        $result = $method->invoke($this->aiService, 1.0, 'invalid_language', false);
+        $expected = (int)(1.0 * AIService::ENGLISH_WORDS_PER_MINUTE);
+        $this->assertEquals("approximately {$expected} words", $result);
+
+        $result = $method->invoke($this->aiService, 1.0, '', false);
+        $expected = (int)(1.0 * AIService::ENGLISH_WORDS_PER_MINUTE);
+        $this->assertEquals("approximately {$expected} words", $result);
     }
 
     // ================================
