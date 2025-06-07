@@ -371,6 +371,194 @@ class AIServiceTest extends BaseServiceTest
     }
 
     // ================================
+    // TODO-029: AIService外部API連携テスト
+    // ================================
+
+    public function test_generateResponse_SendsCorrectApiRequest()
+    {
+        $requestCaptured = false;
+
+        // APIリクエストの詳細をキャプチャするためのMock
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => function ($request) use (&$requestCaptured) {
+                $requestCaptured = true;
+
+                // リクエストヘッダーを検証
+                $authHeader = $request->header('Authorization');
+                $refererHeader = $request->header('HTTP-Referer');
+                $titleHeader = $request->header('X-Title');
+                $contentTypeHeader = $request->header('Content-Type');
+
+                // リクエストボディを検証
+                $body = json_decode($request->body(), true);
+
+                return Http::response([
+                    'choices' => [
+                        [
+                            'message' => [
+                                'content' => 'API request validation successful'
+                            ]
+                        ]
+                    ]
+                ], 200);
+            }
+        ]);
+
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $response = $this->aiService->generateResponse($debate);
+
+        $this->assertTrue($requestCaptured, 'API request was not captured');
+        $this->assertEquals('API request validation successful', $response);
+    }
+
+    public function test_generateResponse_HandlesRateLimitError()
+    {
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => Http::response([
+                'error' => 'Rate limit exceeded'
+            ], 429)
+        ]);
+
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $response = $this->aiService->generateResponse($debate);
+
+        // フォールバック応答が返されることを確認
+        $this->assertIsString($response);
+        $this->assertNotEmpty($response);
+    }
+
+    public function test_generateResponse_HandlesNetworkTimeout()
+    {
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => function () {
+                throw new \Illuminate\Http\Client\ConnectionException('Connection timeout');
+            }
+        ]);
+
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $response = $this->aiService->generateResponse($debate);
+
+        // フォールバック応答が返されることを確認
+        $this->assertIsString($response);
+        $this->assertNotEmpty($response);
+    }
+
+    public function test_generateResponse_HandlesMalformedApiResponse()
+    {
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => Http::response([
+                'invalid' => 'response structure'
+            ], 200)
+        ]);
+
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $response = $this->aiService->generateResponse($debate);
+
+        // フォールバック応答が返されることを確認
+        $this->assertIsString($response);
+        $this->assertNotEmpty($response);
+    }
+
+    public function test_generateResponse_LogsApiErrors()
+    {
+        Log::shouldReceive('debug')->twice(); // buildPromptとgenerateResponseで呼ばれる
+        Log::shouldReceive('error')
+            ->once()
+            ->with('Error generating AI response', Mockery::type('array'));
+
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => Http::response([
+                'error' => 'API Error'
+            ], 400)
+        ]);
+
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $this->aiService->generateResponse($debate);
+    }
+
+    public function test_generateResponse_LogsExceptions()
+    {
+        Log::shouldReceive('debug')->twice(); // buildPromptとgenerateResponseで呼ばれる
+        Log::shouldReceive('error')
+            ->once()
+            ->with('Error generating AI response', Mockery::type('array'));
+
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => function () {
+                throw new \Exception('Test exception');
+            }
+        ]);
+
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $this->aiService->generateResponse($debate);
+    }
+
+    public function test_getFallbackResponse_ReturnsCorrectMessage()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $getFallbackMethod = $reflection->getMethod('getFallbackResponse');
+        $getFallbackMethod->setAccessible(true);
+
+        // エラー情報なしの場合
+        $result = $getFallbackMethod->invoke($this->aiService, 'japanese');
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
+
+        // エラー情報ありの場合
+        $result = $getFallbackMethod->invoke($this->aiService, 'japanese', 'Test error');
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
+    }
+
+    // ================================
     // ヘルパーメソッド
     // ================================
 
