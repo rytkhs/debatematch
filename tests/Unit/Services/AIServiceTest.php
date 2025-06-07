@@ -221,7 +221,11 @@ class AIServiceTest extends BaseServiceTest
             ->shouldReceive('getFormat')
             ->andReturn($this->getTestDebateFormat());
 
-        $this->aiService->generateResponse($debate);
+        $response = $this->aiService->generateResponse($debate);
+
+        // レスポンスが正常に返されることを確認
+        $this->assertIsString($response);
+        $this->assertNotEmpty($response);
     }
 
     // ================================
@@ -300,8 +304,13 @@ class AIServiceTest extends BaseServiceTest
     {
         $this->mockAIConfiguration();
 
-        // プロンプトテンプレートを設定しない
-        Config::set('ai_prompts.debate_ai_opponent_ja', null);
+        // すべてのプロンプトテンプレートを明示的にクリア
+        Config::set([
+            'ai_prompts.debate_ai_opponent_ja' => null,
+            'ai_prompts.debate_ai_opponent_en' => null,
+            'ai_prompts.debate_ai_opponent_free_ja' => null,
+            'ai_prompts.debate_ai_opponent_free_en' => null,
+        ]);
 
         $debate = $this->createTestDebate();
 
@@ -513,7 +522,11 @@ class AIServiceTest extends BaseServiceTest
             ->shouldReceive('getFormat')
             ->andReturn($this->getTestDebateFormat());
 
-        $this->aiService->generateResponse($debate);
+        $response = $this->aiService->generateResponse($debate);
+
+        // エラー時でもフォールバック応答が返されることを確認
+        $this->assertIsString($response);
+        $this->assertNotEmpty($response);
     }
 
     public function test_generateResponse_LogsExceptions()
@@ -538,7 +551,11 @@ class AIServiceTest extends BaseServiceTest
             ->shouldReceive('getFormat')
             ->andReturn($this->getTestDebateFormat());
 
-        $this->aiService->generateResponse($debate);
+        $response = $this->aiService->generateResponse($debate);
+
+        // 例外時でもフォールバック応答が返されることを確認
+        $this->assertIsString($response);
+        $this->assertNotEmpty($response);
     }
 
     public function test_getFallbackResponse_ReturnsCorrectMessage()

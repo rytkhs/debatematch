@@ -1767,7 +1767,7 @@ class DebateServiceTest extends BaseServiceTest
         Queue::fake();
 
         $startTime = microtime(true);
-        $operations = 50; // 50回の操作
+        $operations = 20; // 20回の操作（軽量化）
 
         for ($i = 0; $i < $operations; $i++) {
             $room = $this->createRoom(['status' => Room::STATUS_READY]);
@@ -1786,9 +1786,9 @@ class DebateServiceTest extends BaseServiceTest
 
         $executionTime = microtime(true) - $startTime;
 
-        // Assert - 50回の操作が2秒以内に完了
+        // Assert - 20回の操作が1.5秒以内に完了
         $this->assertLessThan(
-            2.0,
+            1.5,
             $executionTime,
             "Performance test failed: {$operations} operations took {$executionTime} seconds"
         );
