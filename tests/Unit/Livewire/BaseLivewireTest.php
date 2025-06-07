@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Cache;
 use Tests\Helpers\MockHelpers;
 use Tests\Helpers\LivewireTestHelpers;
+use Tests\Helpers\LivewireEventTestHelpers;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Debate;
@@ -18,10 +19,11 @@ use Livewire\Features\SupportTesting\Testable;
  * Livewireコンポーネントテスト用のベースクラス
  *
  * 認証、イベント、セッション管理などの共通機能を提供
+ * イベントテスト戦略を統合
  */
 abstract class BaseLivewireTest extends TestCase
 {
-    use LivewireTestHelpers;
+    use LivewireTestHelpers, LivewireEventTestHelpers;
 
     /**
      * テスト実行前の共通設定
@@ -47,6 +49,9 @@ abstract class BaseLivewireTest extends TestCase
 
         // 基本的なサービスMock
         MockHelpers::mockCache();
+
+        // イベントテスト基盤の初期化
+        $this->setupEventTesting();
     }
 
     /**
@@ -325,5 +330,8 @@ abstract class BaseLivewireTest extends TestCase
         if (!app('events') instanceof \Illuminate\Support\Testing\Fakes\EventFake) {
             Event::flush();
         }
+
+        // イベントログクリア
+        $this->clearEventLogs();
     }
 }
