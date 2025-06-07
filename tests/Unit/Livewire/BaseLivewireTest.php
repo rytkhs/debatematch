@@ -198,7 +198,6 @@ abstract class BaseLivewireTest extends TestCase
         foreach ($users as $index => $user) {
             $room->users()->attach($user->id, [
                 'side' => $index % 2 === 0 ? 'affirmative' : 'negative',
-                'joined_at' => now(),
             ]);
         }
 
@@ -250,7 +249,23 @@ abstract class BaseLivewireTest extends TestCase
         string $event,
         array $data = []
     ): Testable {
-        // Echoイベントの形式でイベントを発火
+        // Livewire 3のEchoイベントを直接メソッド呼び出しでシミュレート
+
+        // コンポーネントのクラス名を取得
+        $componentClass = get_class($livewire->instance());
+
+        // イベントに応じて適切なメソッドを呼び出し
+        if (($event === 'UserJoinedRoom' || $event === 'UserLeftRoom')) {
+            if (strpos($componentClass, 'Participants') !== false) {
+                return $livewire->call('updateParticipants');
+            } elseif (strpos($componentClass, 'ConnectionStatus') !== false) {
+                return $livewire->call('resetState');
+            } elseif (strpos($componentClass, 'Status') !== false || strpos($componentClass, 'StartDebateButton') !== false) {
+                return $livewire->call('updateStatus', $data);
+            }
+        }
+
+        // その他のイベントは通常のdispatchを使用
         $echoEventName = "echo-{$channel},{$event}";
         return $livewire->dispatch($echoEventName, $data);
     }

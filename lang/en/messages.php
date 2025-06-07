@@ -178,6 +178,7 @@ return [
     'start_debate' => 'Start Debate',
     'waiting_status' => 'Waiting',
     'ready_status' => 'Ready',
+    'debate_in_progress' => 'Debating',
     'closed_status' => 'Closed',
     'unknown_status' => 'Unknown',
     'peer_connection_unstable' => 'Opponent connection unstable.',

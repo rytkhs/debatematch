@@ -385,6 +385,7 @@ return [
     'click_if_no_redirect' => 'リダイレクトされない場合はこちらをクリック',
     'waiting_status' => '待機中', // Specific for room status display
     'ready_status' => '準備完了',   // Specific for room status display
+    'debate_in_progress' => '進行中',  // Specific for room status display
     'closed_status' => '閉鎖済',
     'unknown_status' => '不明',
     'peer_connection_unstable' => '相手の接続が不安定です。',

@@ -19,7 +19,9 @@ class Status extends Component
     #[On('echo:rooms.{room.id},UserLeftRoom')]
     public function updateStatus($data)
     {
-        $this->room->status = $data['room']['status'];
+        if (isset($data['room']['status'])) {
+            $this->room->status = $data['room']['status'];
+        }
     }
 
     public function render()
