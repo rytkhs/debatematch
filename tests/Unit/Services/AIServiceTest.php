@@ -224,6 +224,151 @@ class AIServiceTest extends BaseServiceTest
         $this->aiService->generateResponse($debate);
     }
 
+    // ================================
+    // TODO-028: AIServiceプロンプト生成テスト
+    // ================================
+
+    public function test_buildPrompt_GeneratesCorrectPromptForJapanese()
+    {
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebateWithMessages();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        // buildPromptメソッドを直接テストするためリフレクションを使用
+        $reflection = new \ReflectionClass($this->aiService);
+        $buildPromptMethod = $reflection->getMethod('buildPrompt');
+        $buildPromptMethod->setAccessible(true);
+
+        $prompt = $buildPromptMethod->invoke($this->aiService, $debate);
+
+        $this->assertIsString($prompt);
+        $this->assertStringContainsString('テスト論題：AIの活用について', $prompt);
+        $this->assertStringContainsString('肯定側', $prompt);
+        $this->assertStringContainsString('否定側', $prompt);
+    }
+
+    public function test_buildPrompt_GeneratesCorrectPromptForEnglish()
+    {
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebateWithMessages('english');
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $reflection = new \ReflectionClass($this->aiService);
+        $buildPromptMethod = $reflection->getMethod('buildPrompt');
+        $buildPromptMethod->setAccessible(true);
+
+        $prompt = $buildPromptMethod->invoke($this->aiService, $debate);
+
+        $this->assertIsString($prompt);
+        $this->assertStringContainsString('Test Topic: AI Utilization', $prompt);
+        $this->assertStringContainsString('Affirmative', $prompt);
+        $this->assertStringContainsString('Negative', $prompt);
+    }
+
+    public function test_buildPrompt_HandlesFreeFormatDebate()
+    {
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestFreeFormatDebate();
+
+        // フリーフォーマットの場合はgetFormatを呼ばない
+        $this->debateServiceMock
+            ->shouldNotReceive('getFormat');
+
+        $reflection = new \ReflectionClass($this->aiService);
+        $buildPromptMethod = $reflection->getMethod('buildPrompt');
+        $buildPromptMethod->setAccessible(true);
+
+        $prompt = $buildPromptMethod->invoke($this->aiService, $debate);
+
+        $this->assertIsString($prompt);
+        $this->assertStringContainsString('フリーフォーマット', $prompt);
+    }
+
+    public function test_buildPrompt_ThrowsExceptionWhenTemplateNotFound()
+    {
+        $this->mockAIConfiguration();
+
+        // プロンプトテンプレートを設定しない
+        Config::set('ai_prompts.debate_ai_opponent_ja', null);
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        $reflection = new \ReflectionClass($this->aiService);
+        $buildPromptMethod = $reflection->getMethod('buildPrompt');
+        $buildPromptMethod->setAccessible(true);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('AI opponent prompt template not configured for language: japanese');
+
+        $buildPromptMethod->invoke($this->aiService, $debate);
+    }
+
+    public function test_calculateCharacterLimit_CalculatesJapaneseCorrectly()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $calculateMethod = $reflection->getMethod('calculateCharacterLimit');
+        $calculateMethod->setAccessible(true);
+
+        // 日本語、3分、通常フォーマット
+        $result = $calculateMethod->invoke($this->aiService, 3.0, 'japanese', false);
+        $expected = (int)(3 * AIService::JAPANESE_CHARS_PER_MINUTE) . '文字程度';
+        $this->assertEquals($expected, $result);
+
+        // 日本語、3分、フリーフォーマット（半分）
+        $result = $calculateMethod->invoke($this->aiService, 3.0, 'japanese', true);
+        $expected = (int)(3 * AIService::JAPANESE_CHARS_PER_MINUTE / 2) . '文字程度';
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_calculateCharacterLimit_CalculatesEnglishCorrectly()
+    {
+        $reflection = new \ReflectionClass($this->aiService);
+        $calculateMethod = $reflection->getMethod('calculateCharacterLimit');
+        $calculateMethod->setAccessible(true);
+
+        // 英語、3分、通常フォーマット
+        $result = $calculateMethod->invoke($this->aiService, 3.0, 'english', false);
+        $expected = 'approximately ' . (int)(3 * AIService::ENGLISH_WORDS_PER_MINUTE) . ' words';
+        $this->assertEquals($expected, $result);
+
+        // 英語、3分、フリーフォーマット（半分）
+        $result = $calculateMethod->invoke($this->aiService, 3.0, 'english', true);
+        $expected = 'approximately ' . (int)(3 * AIService::ENGLISH_WORDS_PER_MINUTE / 2) . ' words';
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_buildFormatDescription_GeneratesCorrectDescription()
+    {
+        $this->mockAIConfiguration();
+
+        $debate = $this->createTestDebateWithCustomFormat();
+
+        $reflection = new \ReflectionClass($this->aiService);
+        $buildFormatMethod = $reflection->getMethod('buildFormatDescription');
+        $buildFormatMethod->setAccessible(true);
+
+        $description = $buildFormatMethod->invoke($this->aiService, $debate);
+
+        $this->assertIsString($description);
+        $this->assertStringContainsString('1.', $description);
+        $this->assertStringContainsString('準備時間', $description);
+    }
 
     // ================================
     // ヘルパーメソッド
