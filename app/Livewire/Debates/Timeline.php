@@ -29,7 +29,9 @@ class Timeline extends Component
     #[On("echo-private:debate.{debate.id},TurnAdvanced")]
     public function handleTurnAdvanced(array $data): void
     {
-        $this->currentTurn = $data['current_turn'];
+        if (isset($data['current_turn'])) {
+            $this->currentTurn = $data['current_turn'];
+        }
     }
 
     private function getFilteredTurns(): array

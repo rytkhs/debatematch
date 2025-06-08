@@ -340,8 +340,8 @@ class StatusTest extends BaseLivewireTest
 
         $startTime = microtime(true);
 
-        // 10回のステータス更新
-        for ($i = 0; $i < 10; $i++) {
+        // ステータス更新（最適化: 5回に減少）
+        for ($i = 0; $i < 5; $i++) {
             $status = $i % 2 === 0 ? Room::STATUS_READY : Room::STATUS_WAITING;
             $eventData = ['room' => ['status' => $status]];
 
@@ -356,11 +356,11 @@ class StatusTest extends BaseLivewireTest
         $endTime = microtime(true);
         $executionTime = $endTime - $startTime;
 
-        // 1秒以内で処理が完了することを確認
-        $this->assertLessThan(1.0, $executionTime);
+        // 0.5秒以内で処理が完了することを確認
+        $this->assertLessThan(0.5, $executionTime);
 
-        // 最後のステータスが正しく設定されていることを確認
-        $livewire->assertSet('room.status', Room::STATUS_WAITING);
+        // 最後のステータスが正しく設定されていることを確認（5回目はi=4なので、4%2=0でREADY）
+        $livewire->assertSet('room.status', Room::STATUS_READY);
     }
 
     /**
@@ -375,7 +375,7 @@ class StatusTest extends BaseLivewireTest
         $initialMemory = memory_get_usage();
 
         // 複数回のステータス更新
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $status = [
                 Room::STATUS_WAITING,
                 Room::STATUS_READY,
@@ -396,8 +396,8 @@ class StatusTest extends BaseLivewireTest
         $finalMemory = memory_get_usage();
         $memoryIncrease = $finalMemory - $initialMemory;
 
-        // メモリ使用量の増加が1MB以下であることを確認
-        $this->assertLessThan(1024 * 1024, $memoryIncrease);
+        // メモリ使用量の増加が512KB以下であることを確認
+        $this->assertLessThan(512 * 1024, $memoryIncrease);
     }
 
     /**

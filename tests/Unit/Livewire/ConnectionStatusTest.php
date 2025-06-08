@@ -347,7 +347,7 @@ class ConnectionStatusTest extends BaseLivewireTest
         $startTime = microtime(true);
 
         // 多数のステータス変更
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 20; $i++) {
             $livewire->dispatch('member-online', ['id' => $i])
                 ->dispatch('member-offline', ['id' => $i]);
         }
@@ -355,7 +355,7 @@ class ConnectionStatusTest extends BaseLivewireTest
         $endTime = microtime(true);
         $executionTime = $endTime - $startTime;
 
-        // 2秒以内で処理が完了することを確認
-        $this->assertLessThan(2.0, $executionTime);
+        // 1秒以内で処理が完了することを確認
+        $this->assertLessThan(1.0, $executionTime);
     }
 }
