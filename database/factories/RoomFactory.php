@@ -26,7 +26,7 @@ class RoomFactory extends Factory
             'status' => Room::STATUS_WAITING,
             'created_by' => User::factory(),
             'language' => fake()->randomElement(['ja', 'en']),
-            'format_type' => fake()->randomElement(['parliamentary', 'academic', 'lincoln_douglas', 'custom', 'free']),
+            'format_type' => 'format_name_nada_high', // デフォルトで有効なフォーマットを使用
             'custom_format_settings' => null,
             'evidence_allowed' => fake()->boolean(),
             'is_ai_debate' => false,
