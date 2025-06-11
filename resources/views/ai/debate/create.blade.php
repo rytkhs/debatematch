@@ -60,13 +60,9 @@
         </div>
     </div>
 
-    <!-- JavaScriptの読み込み -->
-    @vite('resources/js/debate-form.js')
     <script>
-        // 設定とデータ
-        const debateFormConfig = {
-            formType: 'ai',
-            formSelector: '#ai-debate-create-form',
+        // 設定データをJavaScriptページエントリーポイントに渡す
+        window.aiDebateCreateConfig = {
             formats: @json($translatedFormats),
             requiredFields: [
                 { name: 'topic', message: "{{ __('messages.topic_required') }}" },
@@ -98,15 +94,6 @@
                 fieldRequired: "{{ __('messages.field_required') }}"
             }
         };
-
-        // ディベートフォームマネージャーの初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            const debateForm = new DebateFormManager(debateFormConfig);
-            debateForm.init();
-
-            // グローバル参照の設定（後方互換性のため）
-            window.stepManager = debateForm.stepManager;
-            window.formatManager = debateForm.formatManager;
-        });
     </script>
+    @vite(['resources/js/pages/ai-debate-create.js'])
 </x-app-layout>
