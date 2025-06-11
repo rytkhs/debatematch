@@ -1,7 +1,8 @@
 /**
- * ディベートカウントダウンを管理する単一のグローバルクラス
+ * ディベートカウントダウンの状態管理
+ * UIから分離された状態管理専用クラス
  */
-class DebateCountdown {
+class CountdownManager {
     constructor() {
         this.endTime = null;
         this.timer = null;
@@ -69,20 +70,45 @@ class DebateCountdown {
     notifyListeners(timeData) {
         this.listeners.forEach(listener => listener(timeData));
     }
+
+    /**
+     * 現在の状態を取得
+     */
+    getCurrentState() {
+        if (!this.endTime) {
+            return null;
+        }
+
+        const now = Date.now();
+        const distance = this.endTime - now;
+
+        return {
+            isRunning: distance > 0,
+            distance: Math.max(0, distance),
+            minutes: Math.floor((distance / 1000 / 60) % 60),
+            seconds: Math.floor((distance / 1000) % 60),
+            isWarning: distance <= 30000 // 残り30秒以下
+        };
+    }
+
+    /**
+     * Livewireイベントを初期化
+     */
+    initLivewireEvents() {
+        if (typeof window.Livewire === 'undefined') {
+            console.warn('Livewire not available for countdown manager');
+            return;
+        }
+
+        // Livewireコンポーネントからのイベントを受信
+        window.Livewire.on('turn-advanced', (data) => {
+            if (data.turnEndTime) {
+                this.start(data.turnEndTime);
+            } else {
+                this.stop();
+            }
+        });
+    }
 }
 
-// グローバルなカウントダウンインスタンスを作成
-window.debateCountdown = new DebateCountdown();
-
-document.addEventListener('livewire:initialized', () => {
-    // Livewireコンポーネントからのイベントを受信
-    window.Livewire.on('turn-advanced', (data) => {
-        if (data.turnEndTime) {
-            window.debateCountdown.start(data.turnEndTime);
-        } else {
-            window.debateCountdown.stop();
-        }
-    });
-});
-
-export default window.debateCountdown;
+export default CountdownManager;

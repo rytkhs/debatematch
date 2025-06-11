@@ -128,13 +128,6 @@
 
     </script>
     <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
-    @vite([
-        'resources/js/debate/ui.js',
-        'resources/js/debate/presence.js',
-        'resources/js/debate/countdown.js',
-        'resources/js/debate/event-listener.js',
-        'resources/js/debate/notification.js',
-        'resources/js/debate/scroll.js',
-    ])
+    @vite('resources/js/pages/debate-show.js')
 
 </x-show-layout>

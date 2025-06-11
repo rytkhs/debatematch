@@ -1,13 +1,12 @@
-import Logger from '../logger';
+import Logger from '../../services/logger.js';
 
 /**
- * ディベート評価通知用モジュール
- *
- * このモジュールは主にWebSocketイベント（ディベート終了、評価完了など）の通知を担当します。
+ * ディベートイベントハンドラー
+ * WebSocketイベント（ディベート終了、評価完了など）の処理を担当
  */
-class EventListener {
+class DebateEventHandler {
     constructor(debateId) {
-        this.logger = new Logger('EventListener');
+        this.logger = new Logger('DebateEventHandler');
         this.debateId = debateId;
         this.channel = null;
         this.initEchoListeners();
@@ -238,9 +237,7 @@ class EventListener {
                 resultLink.classList.remove('hidden');
             }
         }, 180000);
-
     }
-
 
     /**
      * リソースをクリーンアップ
@@ -251,24 +248,9 @@ class EventListener {
             this.channel.stopListening('DebateEvaluated');
             this.channel.stopListening('DebateTerminated');
             this.channel.stopListening('EarlyTerminationExpired');
+            this.channel = null;
         }
     }
 }
 
-// グローバルに公開
-window.EventListener = EventListener;
-
-// DOMコンテンツ読み込み完了時に初期化
-document.addEventListener('DOMContentLoaded', () => {
-    // debateDataがある場合のみ初期化
-    if (window.debateData && window.debateData.debateId) {
-        window.eventListener = new EventListener(window.debateData.debateId);
-    }
-});
-
-// ページ離脱時にクリーンアップ
-window.addEventListener('beforeunload', () => {
-    if (window.eventListener) {
-        window.eventListener.cleanup();
-    }
-});
+export default DebateEventHandler;

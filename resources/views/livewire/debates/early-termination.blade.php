@@ -1,4 +1,4 @@
-<div>
+<div data-ai-debate="{{ $isAiDebate ? 'true' : 'false' }}">
     @if($isFreeFormat && $debate->room->status === 'debating')
         <div class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-3">
 
@@ -104,16 +104,5 @@
         </div>
     @endif
 
-    <script>
-        function confirmEarlyTermination() {
-            const isAiDebate = @json($isAiDebate);
-            const message = isAiDebate
-                ? 'ディベートを早期終了しますか？'
-                : 'ディベートの早期終了を提案しますか？相手の同意が必要です。';
-
-            if (confirm(message)) {
-                @this.requestEarlyTermination();
-            }
-        }
-    </script>
+    {{-- JavaScript is now handled by pages/debate-show.js --}}
 </div>
