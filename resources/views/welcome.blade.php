@@ -239,5 +239,5 @@
         <x-slot name="footer">
             <x-footer></x-footer>
         </x-slot>
-    @vite(['resources/js/welcome.js'])
+    @vite(['resources/js/pages/welcome.js'])
 </x-app-layout>
