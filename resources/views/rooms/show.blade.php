@@ -205,7 +205,8 @@
     </div>
 
     <script>
-        const translations = {
+        // 翻訳文字列の設定
+        window.translations = {
             confirmExitCreator: "{{ __('messages.confirm_exit_creator') }}",
             confirmExitParticipant: "{{ __('messages.confirm_exit_participant') }}",
             user_joined_room: "{{ __('messages.user_joined_room', ['name' => ':name']) }}",
@@ -216,38 +217,7 @@
             connection_restored: "{{ __('messages.connection_restored') }}",
         };
 
-        window.translations = translations;
-
-        const confirmExit = (event, isCreator) => {
-            const message = isCreator
-                ? translations.confirmExitCreator
-                : translations.confirmExitParticipant;
-            if (!confirm(message)) {
-                event.preventDefault();
-                return false;
-            }
-            return true;
-        };
-
-        // フォーマットアコーディオンの開閉処理
-        function toggleFormat(contentId) {
-            const content = document.getElementById(contentId);
-            const icon = document.querySelector('.format-icon');
-
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                content.classList.add('opacity-100');
-                icon.textContent = 'expand_less';
-            } else {
-                content.classList.add('opacity-0');
-                setTimeout(() => {
-                    content.classList.add('hidden');
-                    icon.textContent = 'expand_more';
-                }, 200);
-                content.classList.remove('opacity-100');
-            }
-        }
-
+        // ルームデータの設定
         window.roomData = {
             roomId: {{ Js::from($room->id) }},
             isCreator: {{ Js::from($isCreator) }},
@@ -255,8 +225,7 @@
             pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
             pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }}
         };
-
     </script>
     <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
-    @vite('resources/js/rooms-show.js')
+    @vite('resources/js/pages/room-show.js')
 </x-show-layout>

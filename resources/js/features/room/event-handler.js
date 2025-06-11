@@ -1,39 +1,19 @@
-import HeartbeatService from './heartbeat-service';
-import Logger from './logger';
+import Logger from '../../services/logger.js';
 
-// ルームページの機能強化
-class RoomManager {
-    constructor(options) {
-        this.logger = new Logger('RoomManager');
-        this.roomId = options.roomId;
-        this.userId = options.authUserId;
-        this.pusherKey = options.pusherKey;
-        this.pusherCluster = options.pusherCluster;
+/**
+ * ルーム待機ページでのWebSocketイベントを処理するクラス
+ */
+export class RoomEventHandler {
+    constructor(roomId, userId, channel, presenceChannel) {
+        this.logger = new Logger('RoomEventHandler');
+        this.roomId = roomId;
+        this.userId = userId;
+        this.channel = channel;
+        this.presenceChannel = presenceChannel;
 
-        this.pusher = null;
-        this.channel = null;
-        this.presenceChannel = null;
+        this.offlineTimeout = null;
 
-        this.initialize();
-    }
-
-    initialize() {
-        // Pusherの初期化
-        this.pusher = new Pusher(this.pusherKey, {
-            cluster: this.pusherCluster,
-            authEndpoint: '/pusher/auth',
-            encrypted: true
-        });
-
-        // チャンネルの購読
-        this.channel = this.pusher.subscribe('rooms.' + this.roomId);
-        this.presenceChannel = this.pusher.subscribe('presence-room.' + this.roomId);
-
-        this.logger.log('チャンネル初期化:', this.channel);
-
-        // イベントハンドラの登録
         this.registerEventHandlers();
-
     }
 
     registerEventHandlers() {
@@ -59,8 +39,6 @@ class RoomManager {
         this.channel.bind('App\\Events\\CreatorLeftRoom', data => {
             if (data.creator.id === this.userId) return;
             alert(window.translations?.host_left_room_closed || "The host has left, so the room has been closed.");
-
-            // this.showNotification("ホストが退出したため、ルームは閉鎖されました", 'error');
             window.location.href = '/';
         });
 
@@ -73,34 +51,16 @@ class RoomManager {
             this.showLoadingCountdown();
 
             const debateUrl = `/debate/${data.debateId}`;
-
-            // カウントダウン設定
-            let countdown = 5;
-            const countdownElement = document.querySelector('#countdown-overlay .text-gray-500');
-
-            if (countdownElement) {
-                countdownElement.innerHTML = (window.translations?.redirecting_in_seconds || 'Redirecting to the debate page in :seconds seconds...').replace(':seconds', countdown);
-            }
-
-            // カウントダウンタイマーで確実にリダイレクト
-            const countdownTimer = setInterval(() => {
-                countdown--;
-
-                if (countdownElement) {
-                    countdownElement.innerHTML = (window.translations?.redirecting_in_seconds || 'Redirecting to the debate page in :seconds seconds...').replace(':seconds', countdown);
-                }
-
-                // カウントダウン終了時の処理
-                if (countdown <= 0) {
-                    clearInterval(countdownTimer);
-                    window.location.href = debateUrl;
-                }
-            }, 1000);
+            this.startCountdownRedirect(debateUrl);
         });
 
-        let offlineTimeout;
-            // オンラインメンバーの初期リスト
-            this.presenceChannel.bind('pusher:subscription_succeeded', function(members) {
+        // プレゼンスチャンネルのイベント処理
+        this.registerPresenceEvents();
+    }
+
+    registerPresenceEvents() {
+        // オンラインメンバーの初期リスト
+        this.presenceChannel.bind('pusher:subscription_succeeded', function(members) {
             members.each(function(member) {
                 Livewire.dispatch('member-online', { data: member });
             });
@@ -109,8 +69,8 @@ class RoomManager {
         // プレゼンスチャンネルのメンバー状態変更イベント
         this.presenceChannel.bind('pusher:member_removed', member => {
             this.logger.log(member.info.name + ' さんが切断されました');
-            clearTimeout(offlineTimeout);
-            offlineTimeout = setTimeout(() => {
+            clearTimeout(this.offlineTimeout);
+            this.offlineTimeout = setTimeout(() => {
                 // 遅延後にオフラインイベントをディスパッチ (リロード対策)
                 Livewire.dispatch('member-offline', { data: member });
             }, 5000);
@@ -118,24 +78,43 @@ class RoomManager {
 
         this.presenceChannel.bind('pusher:member_added', member => {
             this.logger.log(member.info.name + ' さんが再接続しました');
-            clearTimeout(offlineTimeout);
-
+            clearTimeout(this.offlineTimeout);
             Livewire.dispatch('member-online', { data: member });
-        });
-
-        // 接続状態の監視
-        this.pusher.connection.bind('state_change', states => {
-            if (states.current === 'disconnected' || states.current === 'failed') {
-                this.disconnectionHandler.handleSelfDisconnection();
-            } else if (states.current === 'connected' && states.previous === 'disconnected') {
-                this.disconnectionHandler.hideAlert();
-                this.disconnectionHandler.stopCountdown();
-                this.showNotification(window.translations?.connection_restored || 'Connection restored', 'success');
-            }
         });
     }
 
-    // 通知を表示する関数
+    startCountdownRedirect(debateUrl) {
+        // カウントダウン設定
+        let countdown = 5;
+        const countdownElement = document.querySelector('#countdown-overlay .text-gray-500');
+
+        if (countdownElement) {
+            countdownElement.innerHTML = (window.translations?.redirecting_in_seconds || 'Redirecting to the debate page in :seconds seconds...').replace(':seconds', countdown);
+        }
+
+        // カウントダウンタイマーで確実にリダイレクト
+        const countdownTimer = setInterval(() => {
+            countdown--;
+
+            if (countdownElement) {
+                countdownElement.innerHTML = (window.translations?.redirecting_in_seconds || 'Redirecting to the debate page in :seconds seconds...').replace(':seconds', countdown);
+            }
+
+            // カウントダウン終了時の処理
+            if (countdown <= 0) {
+                clearInterval(countdownTimer);
+                window.location.href = debateUrl;
+            }
+        }, 1000);
+    }
+
+    showLoadingCountdown() {
+        const overlay = document.getElementById('countdown-overlay');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+        }
+    }
+
     showNotification(message, type = 'info') {
         if (window.showNotification) {
             window.showNotification(message, type);
@@ -177,36 +156,8 @@ class RoomManager {
             notification.style.transform = 'translateX(100%)';
             notification.style.opacity = '0';
 
-        // トランジション終了後に要素を削除
-        setTimeout(() => notification.remove(), 500);
-    }, 3000);
-}
-
-    // カウントダウンオーバーレイの表示
-    showLoadingCountdown() {
-        const overlay = document.getElementById('countdown-overlay');
-        if (overlay) {
-            overlay.classList.remove('hidden');
-        }
+            // トランジション終了後に要素を削除
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
     }
 }
-
-// DOMロード時に初期化
-document.addEventListener('DOMContentLoaded', () => {
-
-    const roomManager = new RoomManager(window.roomData);
-
-    window.roomManager = roomManager;
-
-    // HeartbeatService の初期化と開始
-    if (window.roomData) {
-        window.heartbeatService = new HeartbeatService({
-            contextType: 'room',
-            contextId: window.roomData.roomId
-        });
-        // 30秒後にハートビートを開始
-        setTimeout(() => {
-            window.heartbeatService.start();
-        }, 30000);
-    }
-});
