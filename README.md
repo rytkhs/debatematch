@@ -6,34 +6,36 @@
 
 ### 主な機能
 
-*   **ルーム管理:** ディベートルームの作成、参加、管理。
-*   **ディベート進行:** 設定された形式に基づいた進行。
-*   **テキストチャット:** ディベート中のリアルタイムテキストチャット機能。
-*   **AIディベート:** AIを対戦相手としてディベート練習が可能。
-*   **AIによる評価とフィードバック:** ディベート終了後、AIが議論内容を分析し、評価とフィードバックを行う。
-*   **多言語サポート:** 英語と日本語に対応。
-*   **ディベート履歴:** 過去のディベートとその結果を記録。
-*   **ユーザー管理:** ユーザー登録、ログイン、Googleアカウントでのログイン、プロフィール編集。
+- **ルーム管理:** ディベートルームの作成、参加、管理。
+- **ディベート進行:** 設定された形式に基づいた進行。
+- **テキストチャット:** ディベート中のリアルタイムテキストチャット機能。
+- **AIディベート:** AIを対戦相手としてディベート練習が可能。
+- **AIによる評価とフィードバック:**
+  ディベート終了後、AIが議論内容を分析し、評価とフィードバックを行う。
+- **多言語サポート:** 英語と日本語に対応。
+- **ディベート履歴:** 過去のディベートとその結果を記録。
+- **ユーザー管理:**
+  ユーザー登録、ログイン、Googleアカウントでのログイン、プロフィール編集。
 
 ### 技術スタック
 
-*   **バックエンド:** Laravel 11, PHP 8.3
-*   **フロントエンド:** Livewire 3, Alpine.js, JavaScript, Tailwind CSS, Vite
-*   **データベース:** MySQL
-*   **キャッシング & キュー:** Redis, Laravel Horizon
-*   **リアルタイム通信:** Pusher, Laravel Echo
-*   **認証:** Laravel Breeze, Laravel Socialite
-*   **コンテナ:** Docker (Laravel Sail)
-*   **AI連携:** OpenRouter API
+- **バックエンド:** Laravel 11, PHP 8.3
+- **フロントエンド:** Livewire 3, Alpine.js, JavaScript, Tailwind CSS, Vite
+- **データベース:** MySQL
+- **キャッシング & キュー:** Redis, Laravel Horizon
+- **リアルタイム通信:** Pusher, Laravel Echo
+- **認証:** Laravel Breeze, Laravel Socialite
+- **コンテナ:** Docker (Laravel Sail)
+- **AI連携:** OpenRouter API
 
 ### インストール
 
 #### 前提条件
 
-*   PHP 8.2以上
-*   Composer
-*   Docker & Docker Compose (推奨)
-*   Node.js & npm
+- PHP 8.2以上
+- Composer
+- Docker & Docker Compose (推奨)
+- Node.js & npm
 
 #### Dockerでのセットアップ
 
@@ -87,19 +89,22 @@
 
 `.env`ファイルで以下を設定します:
 
-*   データベース設定
-*   リアルタイムコミュニケーションのためのPusherの認証情報
-*   AI機能のためのOpenRouter APIキー
-*   AWSサービスを使用する場合のAWS認証情報
-*   AIユーザーのID
+- データベース設定
+- リアルタイムコミュニケーションのためのPusherの認証情報
+- AI機能のためのOpenRouter APIキー
+- AWSサービスを使用する場合のAWS認証情報
+- AIユーザーのID
 
 Pusher設定:
-*   Pusher ダッシュボードでアプリを作成し、クレデンシャルを `.env` に設定します。
-*   Webhook を設定し、`member_added` および `member_removed` イベントを有効にします。Webhook URL は `/webhook/pusher` です。
+
+- Pusher ダッシュボードでアプリを作成し、クレデンシャルを `.env` に設定します。
+- Webhook を設定し、`member_added` および `member_removed`
+  イベントを有効にします。Webhook URL は `/webhook/pusher` です。
 
 ### 使い方
 
-1.  アプリケーションにアクセスします: `http://localhost` (または設定されたポート)
+1.  アプリケーションにアクセスします: `http://localhost`
+    (または設定されたポート)
 2.  アカウントを登録またはログインします
 3.  利用可能なディベートルームを閲覧するか、独自のルームを作成します。
 4.  ルームに参加し、ディベートの立場を選択します

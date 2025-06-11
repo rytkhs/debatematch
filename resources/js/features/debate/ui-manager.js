@@ -1,19 +1,32 @@
 /**
- * DebateMatch UI Core Module
- * ディベートインターフェイスのコア機能
+ * ディベートUI管理
+ * ディベートページのUI機能を管理
  */
-document.addEventListener('DOMContentLoaded', function() {
-    // UIモジュールの初期化
-    initTabsModule();
-    initSidebarModule();
-    initModalModule();
-    initFullscreenModule();
+class DebateUIManager {
+    constructor() {
+        this.isInitialized = false;
+    }
+
+    /**
+     * UI管理を初期化
+     */
+    initialize() {
+        if (this.isInitialized) return;
+
+        // UIモジュールの初期化
+        this.initTabsModule();
+        this.initSidebarModule();
+        this.initModalModule();
+        this.initFullscreenModule();
+
+        this.isInitialized = true;
+    }
 
     /**
      * タブ機能モジュール
      * デスクトップとモバイルのタブ切り替え
      */
-    function initTabsModule() {
+    initTabsModule() {
         // タブ要素の取得
         const elements = {
             // デスクトップ用タブ
@@ -32,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // デスクトップタブ切り替え
         if (elements.timelineTab && elements.participantsTab) {
             elements.timelineTab.addEventListener('click', () => {
-                switchTab(
+                this.switchTab(
                     elements.timelineTab,
                     elements.participantsTab,
                     elements.timelinePanel,
@@ -41,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             elements.participantsTab.addEventListener('click', () => {
-                switchTab(
+                this.switchTab(
                     elements.participantsTab,
                     elements.timelineTab,
                     elements.participantsPanel,
@@ -53,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // モバイルタブ切り替え
         if (elements.mobileTimelineTab && elements.mobileParticipantsTab) {
             elements.mobileTimelineTab.addEventListener('click', () => {
-                switchTab(
+                this.switchTab(
                     elements.mobileTimelineTab,
                     elements.mobileParticipantsTab,
                     elements.mobileTimelinePanel,
@@ -62,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             elements.mobileParticipantsTab.addEventListener('click', () => {
-                switchTab(
+                this.switchTab(
                     elements.mobileParticipantsTab,
                     elements.mobileTimelineTab,
                     elements.mobileParticipantsPanel,
@@ -70,25 +83,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 );
             });
         }
-
-        // タブ切り替え共通関数
-        function switchTab(activeTab, inactiveTab, activePanel, inactivePanel) {
-            // アクティブタブのスタイル
-            activeTab.classList.add('border-b-2', 'border-primary', 'text-primary', 'font-medium');
-            inactiveTab.classList.remove('border-b-2', 'border-primary', 'text-primary', 'font-medium');
-
-            // パネル表示切替
-            activePanel.classList.remove('hidden');
-            activePanel.classList.add('block');
-            inactivePanel.classList.remove('block');
-            inactivePanel.classList.add('hidden');
-        }
     }
-  /**
+
+    /**
+     * タブ切り替え共通関数
+     */
+    switchTab(activeTab, inactiveTab, activePanel, inactivePanel) {
+        // アクティブタブのスタイル
+        activeTab.classList.add('border-b-2', 'border-primary', 'text-primary', 'font-medium');
+        inactiveTab.classList.remove('border-b-2', 'border-primary', 'text-primary', 'font-medium');
+
+        // パネル表示切替
+        activePanel.classList.remove('hidden');
+        activePanel.classList.add('block');
+        inactivePanel.classList.remove('block');
+        inactivePanel.classList.add('hidden');
+    }
+
+    /**
      * サイドバーモジュール
      * モバイル対応とサイドバー表示制御
      */
-    function initSidebarModule() {
+    initSidebarModule() {
         // DOM要素の取得
         const elements = {
             leftSidebar: document.getElementById('left-sidebar'),
@@ -101,24 +117,24 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // ウィンドウリサイズイベント
-        window.addEventListener('resize', adjustLayout);
+        window.addEventListener('resize', () => this.adjustLayout(elements));
 
         // 初期レイアウト調整
-        adjustLayout();
+        this.adjustLayout(elements);
 
         // デスクトップ用ハンバーガーメニュークリックイベント
         if (elements.desktopHamburgerBtn) {
-            elements.desktopHamburgerBtn.addEventListener('click', toggleDesktopSidebar);
+            elements.desktopHamburgerBtn.addEventListener('click', () => this.toggleDesktopSidebar(elements));
         }
 
         // モバイル用ハンバーガーメニュークリックイベント
         elements.mobileHamburgerBtns.forEach(btn => {
-            btn.addEventListener('click', openMobileSidebar);
+            btn.addEventListener('click', () => this.openMobileSidebar(elements));
         });
 
         // 閉じるボタン（モバイル用）
         if (elements.closeMobileSidebar) {
-            elements.closeMobileSidebar.addEventListener('click', closeMobileSidebar);
+            elements.closeMobileSidebar.addEventListener('click', () => this.closeMobileSidebar(elements));
         }
 
         // オーバーレイクリック（モバイル用）
@@ -126,73 +142,80 @@ document.addEventListener('DOMContentLoaded', function() {
             elements.mobileSidebarOverlay.addEventListener('click', (e) => {
                 // イベントターゲットがオーバーレイ自身の場合のみ閉じる（コンテンツ部分のクリックでは閉じない）
                 if (e.target === elements.mobileSidebarOverlay) {
-                    closeMobileSidebar();
+                    this.closeMobileSidebar(elements);
                 }
             });
         }
+    }
 
-        // デスクトップサイドバーの表示切替
-        function toggleDesktopSidebar() {
-            if (elements.leftSidebar) {
-                elements.leftSidebar.classList.toggle('hidden');
-            }
-        }
-
-        // レイアウト調整
-        function adjustLayout() {
-            const isMobileOrTablet = window.innerWidth < 768; // Tailwindのmdブレークポイント
-
-            // leftSidebar要素が存在するか確認
-            if (elements.leftSidebar) {
-                if (isMobileOrTablet) {
-                    // モバイル/タブレットビューでは、デスクトップサイドバーを常に非表示にする
-                    elements.leftSidebar.classList.add('hidden');
-                } else {
-
-                }
-            }
-
-            // mobileSidebarOverlay要素が存在するか確認
-            if (elements.mobileSidebarOverlay) {
-                if (isMobileOrTablet) {
-                    // モバイル/タブレット時はオーバーレイを利用可能にする
-                } else {
-                    // デスクトップ時はオーバーレイを強制的に非表示にし、閉じる
-                    closeMobileSidebar();
-                    elements.mobileSidebarOverlay.classList.add('hidden');
-                }
-            }
-        }
-
-        // モバイルサイドバーを開く
-        function openMobileSidebar() {
-            if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
-
-            // オーバーレイ表示
-            elements.mobileSidebarOverlay.classList.remove('hidden');
-            // 少し遅延させてから transform を適用し、アニメーションを開始
-            setTimeout(() => {
-                elements.mobileSidebarContent.classList.remove('-translate-x-full');
-            }, 10);
-        }
-
-        // モバイルサイドバーを閉じる
-        function closeMobileSidebar() {
-            if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
-
-            // サイドバーを左にスライドアウト
-            elements.mobileSidebarContent.classList.add('-translate-x-full');
-            // トランジション完了後にオーバーレイを非表示にする
-            setTimeout(() => {
-                elements.mobileSidebarOverlay.classList.add('hidden');
-            }, 300);
+    /**
+     * デスクトップサイドバーの表示切替
+     */
+    toggleDesktopSidebar(elements) {
+        if (elements.leftSidebar) {
+            elements.leftSidebar.classList.toggle('hidden');
         }
     }
+
+    /**
+     * レイアウト調整
+     */
+    adjustLayout(elements) {
+        const isMobileOrTablet = window.innerWidth < 768; // Tailwindのmdブレークポイント
+
+        // leftSidebar要素が存在するか確認
+        if (elements.leftSidebar) {
+            if (isMobileOrTablet) {
+                // モバイル/タブレットビューでは、デスクトップサイドバーを常に非表示にする
+                elements.leftSidebar.classList.add('hidden');
+            }
+        }
+
+        // mobileSidebarOverlay要素が存在するか確認
+        if (elements.mobileSidebarOverlay) {
+            if (isMobileOrTablet) {
+                // モバイル/タブレット時はオーバーレイを利用可能にする
+            } else {
+                // デスクトップ時はオーバーレイを強制的に非表示にし、閉じる
+                this.closeMobileSidebar(elements);
+                elements.mobileSidebarOverlay.classList.add('hidden');
+            }
+        }
+    }
+
+    /**
+     * モバイルサイドバーを開く
+     */
+    openMobileSidebar(elements) {
+        if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
+
+        // オーバーレイ表示
+        elements.mobileSidebarOverlay.classList.remove('hidden');
+        // 少し遅延させてから transform を適用し、アニメーションを開始
+        setTimeout(() => {
+            elements.mobileSidebarContent.classList.remove('-translate-x-full');
+        }, 10);
+    }
+
+    /**
+     * モバイルサイドバーを閉じる
+     */
+    closeMobileSidebar(elements) {
+        if (!elements.mobileSidebarOverlay || !elements.mobileSidebarContent) return;
+
+        // サイドバーを左にスライドアウト
+        elements.mobileSidebarContent.classList.add('-translate-x-full');
+        // トランジション完了後にオーバーレイを非表示にする
+        setTimeout(() => {
+            elements.mobileSidebarOverlay.classList.add('hidden');
+        }, 300);
+    }
+
     /**
      * モーダルモジュール
      * ヘルプモーダルなどの表示制御
      */
-    function initModalModule() {
+    initModalModule() {
         // DOM要素の取得
         const elements = {
             helpButton: document.getElementById('help-button'),
@@ -224,7 +247,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function initFullscreenModule() {
+    /**
+     * 全画面表示モジュール
+     */
+    initFullscreenModule() {
         const fullscreenToggle = document.getElementById('fullscreen-toggle');
         const fullscreenIcon = fullscreenToggle?.querySelector('.fullscreen-icon');
 
@@ -248,48 +274,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.webkitFullscreenElement ||
                 document.mozFullScreenElement ||
                 document.msFullscreenElement) {
-                // 全画面解除
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen';
+                // 全画面終了
+                this.exitFullscreen();
             } else {
-                // 全画面化
-                const debateContainer = document.documentElement;
-                if (debateContainer.requestFullscreen) {
-                    debateContainer.requestFullscreen();
-                } else if (debateContainer.webkitRequestFullscreen) {
-                    debateContainer.webkitRequestFullscreen();
-                } else if (debateContainer.mozRequestFullScreen) {
-                    debateContainer.mozRequestFullScreen();
-                } else if (debateContainer.msRequestFullscreen) {
-                    debateContainer.msRequestFullscreen();
-                }
-                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen_exit';
+                // 全画面開始
+                this.enterFullscreen();
             }
         });
 
-        // 全画面状態変更イベントリスナー
-        document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
-        document.addEventListener('webkitfullscreenchange', updateFullscreenButtonIcon);
-        document.addEventListener('mozfullscreenchange', updateFullscreenButtonIcon);
-        document.addEventListener('MSFullscreenChange', updateFullscreenButtonIcon);
+        // 全画面状態変更イベント
+        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'msfullscreenchange'].forEach(event => {
+            document.addEventListener(event, () => this.updateFullscreenButtonIcon(fullscreenIcon));
+        });
 
-        function updateFullscreenButtonIcon() {
-            if (document.fullscreenElement ||
-                document.webkitFullscreenElement ||
-                document.mozFullScreenElement ||
-                document.msFullscreenElement) {
-                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen_exit';
-            } else {
-                if (fullscreenIcon) fullscreenIcon.textContent = 'fullscreen';
-            }
+        // 初期アイコン設定
+        this.updateFullscreenButtonIcon(fullscreenIcon);
+    }
+
+    /**
+     * 全画面表示開始
+     */
+    enterFullscreen() {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
         }
     }
-});
+
+    /**
+     * 全画面表示終了
+     */
+    exitFullscreen() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+
+    /**
+     * 全画面ボタンアイコンを更新
+     */
+    updateFullscreenButtonIcon(fullscreenIcon) {
+        if (!fullscreenIcon) return;
+
+        const isFullscreen = document.fullscreenElement ||
+                           document.webkitFullscreenElement ||
+                           document.mozFullScreenElement ||
+                           document.msFullscreenElement;
+
+        fullscreenIcon.textContent = isFullscreen ? 'fullscreen_exit' : 'fullscreen';
+    }
+}
+
+export default DebateUIManager;

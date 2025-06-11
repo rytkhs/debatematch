@@ -121,28 +121,5 @@
         <livewire:debates.early-termination :debate="$debate" />
     </div>
 
-    @script
-    <script>
-    document.addEventListener('livewire:initialized', function() {
-        const timeLeftSmall = document.getElementById('time-left-small');
-        if (timeLeftSmall && window.debateCountdown) {
-            // グローバルカウントダウンから時間を取得
-            window.debateCountdown.addListener(timeData => {
-                if (!timeData.isRunning) {
-                    timeLeftSmall.textContent = "{{ __('messages.finished') }}";
-                    return;
-                }
-
-                timeLeftSmall.textContent = `${String(timeData.minutes).padStart(2, '0')}:${String(timeData.seconds).padStart(2, '0')}`;
-
-                if (timeData.isWarning) {
-                    timeLeftSmall.classList.add('text-red-600', 'font-bold');
-                } else {
-                    timeLeftSmall.classList.remove('text-red-600', 'font-bold');
-                }
-            });
-        }
-    });
-    </script>
-    @endscript
+    {{-- JavaScript is now handled by pages/debate-show.js --}}
 </div>

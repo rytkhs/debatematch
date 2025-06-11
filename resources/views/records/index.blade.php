@@ -107,4 +107,5 @@
     </x-slot>
 
     @include('records.partials.scripts')
+@vite(['resources/js/pages/records-index.js'])
 </x-app-layout>
