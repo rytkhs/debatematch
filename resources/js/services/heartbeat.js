@@ -12,7 +12,7 @@ class HeartbeatService {
             endpoint: '/api/heartbeat',
             contextType: null, // 'room' または 'debate'
             contextId: null,
-            ...options
+            ...options,
         };
 
         this.timerId = null;
@@ -64,12 +64,14 @@ class HeartbeatService {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content'),
                 },
                 body: JSON.stringify({
                     context_type: this.options.contextType,
-                    context_id: this.options.contextId
-                })
+                    context_id: this.options.contextId,
+                }),
             });
 
             if (!response.ok) {
@@ -79,7 +81,10 @@ class HeartbeatService {
             this.consecutiveFailures = 0;
         } catch (error) {
             this.consecutiveFailures++;
-            this.logger.error(`ハートビート失敗 (${this.consecutiveFailures}/${this.maxConsecutiveFailures}):`, error);
+            this.logger.error(
+                `ハートビート失敗 (${this.consecutiveFailures}/${this.maxConsecutiveFailures}):`,
+                error
+            );
 
             // 連続失敗が上限に達した場合の処理
             if (this.consecutiveFailures >= this.maxConsecutiveFailures) {

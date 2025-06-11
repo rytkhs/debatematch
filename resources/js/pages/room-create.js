@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = {
         formType: 'room',
         formSelector: '#room-create-form',
-        ...formConfig
+        ...formConfig,
     };
 
     // ディベートフォームマネージャーを初期化

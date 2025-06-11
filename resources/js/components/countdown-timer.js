@@ -16,7 +16,7 @@ class CountdownTimer {
         return {
             headerTimers: document.querySelectorAll('.countdown-timer'),
             participantTimers: document.querySelectorAll('.participant-countdown'),
-            timerDisplays: document.querySelectorAll('[data-countdown-display]')
+            timerDisplays: document.querySelectorAll('[data-countdown-display]'),
         };
     }
 
@@ -25,7 +25,7 @@ class CountdownTimer {
      */
     setupEventListeners() {
         // カウントダウンマネージャーからの状態変更を受信
-        this.countdownManager.addListener((timeData) => {
+        this.countdownManager.addListener(timeData => {
             this.updateDisplay(timeData);
         });
     }

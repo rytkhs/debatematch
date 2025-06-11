@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = {
         formType: 'ai',
         formSelector: '#ai-debate-create-form',
-        ...formConfig
+        ...formConfig,
     };
 
     // ディベートフォームマネージャーを初期化

@@ -52,7 +52,7 @@ class RoomShowManager {
     initializeHeartbeat() {
         this.heartbeatService = new HeartbeatService({
             contextType: 'room',
-            contextId: this.roomId
+            contextId: this.roomId,
         });
 
         // 30秒後にハートビートを開始
@@ -70,7 +70,7 @@ class RoomShowManager {
             channel: this.connectionManager.getChannel(),
             presenceChannel: this.connectionManager.getPresenceChannel(),
             showNotification: this.eventHandler.showNotification.bind(this.eventHandler),
-            showLoadingCountdown: this.eventHandler.showLoadingCountdown.bind(this.eventHandler)
+            showLoadingCountdown: this.eventHandler.showLoadingCountdown.bind(this.eventHandler),
         };
 
         window.heartbeatService = this.heartbeatService;

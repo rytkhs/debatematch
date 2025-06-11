@@ -135,7 +135,7 @@ class DebateShowManager {
             // Livewire初期化後のイベント設定も維持
             document.addEventListener('livewire:initialized', () => {
                 if (window.Livewire) {
-                    window.Livewire.on('turn-advanced', (data) => {
+                    window.Livewire.on('turn-advanced', data => {
                         if (data.turnEndTime) {
                             this.managers.countdownManager.start(data.turnEndTime);
                         } else {
@@ -198,7 +198,9 @@ class DebateShowManager {
         this.managers.countdownManager.addListener(timeData => {
             // wire:loading が表示されている場合は更新しない
             const loadingElement = countdownTextElement.querySelector('[wire\\:loading]');
-            const loadingRemoveElement = countdownTextElement.querySelector('[wire\\:loading\\.remove]');
+            const loadingRemoveElement = countdownTextElement.querySelector(
+                '[wire\\:loading\\.remove]'
+            );
 
             if (loadingElement) {
                 loadingElement.style.display = 'none';
@@ -262,7 +264,9 @@ class DebateShowManager {
             this.managers.countdownManager.start(turnEndTime);
         } else {
             // turnEndTime がない場合は初期表示
-            const loadingRemoveElement = countdownTextElement.querySelector('[wire\\:loading\\.remove]');
+            const loadingRemoveElement = countdownTextElement.querySelector(
+                '[wire\\:loading\\.remove]'
+            );
             if (loadingRemoveElement) {
                 loadingRemoveElement.textContent = '--:--';
             } else {
@@ -271,7 +275,7 @@ class DebateShowManager {
         }
 
         // turnEndTime変更の監視
-        component.$watch('turnEndTime', (newValue) => {
+        component.$watch('turnEndTime', newValue => {
             if (newValue) {
                 this.managers.countdownManager.start(newValue);
             } else {
@@ -343,10 +347,11 @@ class DebateShowManager {
         // グローバル関数として定義（テンプレートから呼び出されるため）
         window.confirmEarlyTermination = () => {
             // AIディベートかどうかの判定（DOM要素から推測）
-            const isAiDebate = document.querySelector('[data-ai-debate="true"]') !== null ||
-                             document.querySelector('.ai-debate-indicator') !== null ||
-                             document.body.dataset.aiDebate === 'true' ||
-                             window.debateData?.isAiDebate;
+            const isAiDebate =
+                document.querySelector('[data-ai-debate="true"]') !== null ||
+                document.querySelector('.ai-debate-indicator') !== null ||
+                document.body.dataset.aiDebate === 'true' ||
+                window.debateData?.isAiDebate;
 
             const message = isAiDebate
                 ? 'ディベートを早期終了しますか？'
@@ -400,7 +405,7 @@ class DebateShowManager {
 }
 
 // DOMContentLoaded または Livewire初期化完了後に自動初期化
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // 初期化を遅延実行
     setTimeout(() => {
         const debateManager = new DebateShowManager();
