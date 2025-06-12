@@ -25,28 +25,30 @@ export default class Logger {
             return process.env.NODE_ENV || 'development';
         }
 
-        // Vite環境変数の確認（ブラウザ環境での主要な方法）
-        // import.metaは文字列で確認してからアクセス
-        if (
-            typeof window !== 'undefined' &&
-            typeof globalThis !== 'undefined' &&
-            'import' in globalThis &&
-            typeof globalThis.import === 'object'
-        ) {
-            try {
-                // ブラウザ環境での動的import.meta確認
-                const importMeta = new Function('return import.meta')();
-                if (importMeta && importMeta.env) {
-                    return importMeta.env.MODE || importMeta.env.NODE_ENV || 'development';
-                }
-            } catch (e) {
-                // import.metaが利用できない場合は無視
+        // Vite環境変数の確認（ブラウザ環境）
+        if (typeof window !== 'undefined') {
+            // ViteのHMR環境チェック
+            if (window.__vite_plugin_react_preamble_installed__) {
+                return 'development';
+            }
+
+            // Viteの開発サーバーの存在確認
+            if (window.__vite_is_modern_browser || window.__HMR_PORT__) {
+                return 'development';
             }
         }
 
         // Viteの環境変数（window経由）
         if (typeof window !== 'undefined' && window.__VITE_ENV__) {
             return window.__VITE_ENV__;
+        }
+
+        // HTML の meta タグから環境変数を取得
+        if (typeof document !== 'undefined') {
+            const envMeta = document.querySelector('meta[name="app-env"]');
+            if (envMeta) {
+                return envMeta.getAttribute('content') || 'development';
+            }
         }
 
         // 最終的なフォールバック（本番環境の判定）
