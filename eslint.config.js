@@ -1,10 +1,11 @@
 import js from '@eslint/js';
 import prettier from 'eslint-plugin-prettier';
-import alpinejs from 'eslint-plugin-alpinejs';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
+    js.configs.recommended,
     {
-        // グローバルな設定
+        files: ['resources/js/**/*.js'],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
@@ -19,75 +20,53 @@ export default [
                 clearInterval: 'readonly',
                 requestAnimationFrame: 'readonly',
                 cancelAnimationFrame: 'readonly',
-                fetch: 'readonly',
-                navigator: 'readonly',
                 confirm: 'readonly',
                 alert: 'readonly',
+                prompt: 'readonly',
+                fetch: 'readonly',
+                navigator: 'readonly',
+                location: 'readonly',
+
+                // Node.js環境
                 process: 'readonly',
-                // Laravel Echo
+
+                // Laravel/Vite関連
+                Vite: 'readonly',
+
+                // プロジェクト固有のグローバル変数
                 Echo: 'readonly',
-                // Pusher
                 Pusher: 'readonly',
-                // Alpine.js
                 Alpine: 'readonly',
-                // Jest (テスト環境)
-                describe: 'readonly',
-                it: 'readonly',
-                test: 'readonly',
-                expect: 'readonly',
-                beforeEach: 'readonly',
-                afterEach: 'readonly',
-                beforeAll: 'readonly',
-                afterAll: 'readonly',
-                jest: 'readonly',
+                Livewire: 'readonly',
+
+                // 翻訳・設定データ
+                translations: 'readonly',
+                debateData: 'readonly',
+                roomCreateConfig: 'readonly',
+                aiDebateCreateConfig: 'readonly',
             },
         },
         plugins: {
-            prettier,
-            alpinejs,
+            prettier: prettier,
         },
         rules: {
-            ...js.configs.recommended.rules,
-            // Prettier連携
+            // Prettier統合
             'prettier/prettier': 'error',
 
-            // Alpine.js関連は基本設定のみ
-
-            // 一般的なJavaScriptルール
+            // 基本的なコード品質ルール
             'no-unused-vars': 'warn',
-            'no-console': 'warn', // 開発時のデバッグでは警告レベル
+            'no-console': 'warn',
+            'no-debugger': 'error',
+
+            // ES6+ ベストプラクティス
             'prefer-const': 'error',
             'no-var': 'error',
+            'prefer-arrow-callback': 'warn',
 
-            // Import/Export関連
             'no-undef': 'error',
+            'no-duplicate-imports': 'error',
+            'no-unused-expressions': 'warn',
         },
     },
-    {
-        // JavaScriptファイル用の設定
-        files: ['resources/js/**/*.js'],
-    },
-    {
-        // テストファイル用の設定
-        files: ['resources/js/**/*.test.js', 'tests/js/**/*.js'],
-        languageOptions: {
-            globals: {
-                // Jest環境のグローバル変数は上で定義済み
-            },
-        },
-        rules: {
-            'no-console': 'off', // テストではconsoleを許可
-        },
-    },
-    {
-        // 除外ファイル
-        ignores: [
-            'node_modules/**',
-            'public/**',
-            'vendor/**',
-            'storage/**',
-            'bootstrap/cache/**',
-            'coverage/**',
-        ],
-    },
+    prettierConfig,
 ];

@@ -2,10 +2,18 @@ import StepManager from './step-manager.js';
 import FormatManager from './format-manager.js';
 import CustomFormatManager from './custom-format-manager.js';
 import Utils from './utils.js';
+import DOMUtils from '@/utils/dom-utils.js';
 
 /**
  * ディベートフォーム用統括マネージャー
  * rooms.create と ai.debate.create で共用
+ * @class DebateFormManager
+ * @param {Object} config - 設定オブジェクト
+ * @param {string} [config.formType='room'] - フォームタイプ ('room' | 'ai')
+ * @param {string} [config.formSelector='#room-create-form'] - フォームセレクタ
+ * @param {Object} [config.formats={}] - フォーマット設定
+ * @param {Object} [config.translations={}] - 翻訳データ
+ * @param {Array} [config.requiredFields=[]] - 必須フィールドリスト
  */
 class DebateFormManager {
     constructor(config = {}) {
@@ -15,7 +23,7 @@ class DebateFormManager {
             formats: config.formats || {},
             translations: config.translations || {},
             requiredFields: config.requiredFields || [],
-            ...config
+            ...config,
         };
 
         this.stepManager = new StepManager(this.config);
@@ -25,37 +33,61 @@ class DebateFormManager {
     }
 
     init() {
-        // グローバル参照を先に設定（マネージャー間の連携のため）
-        window.stepManager = this.stepManager;
-        window.formatManager = this.formatManager;
+        try {
+            // グローバル参照を先に設定（マネージャー間の連携のため）
+            window.stepManager = this.stepManager;
+            window.formatManager = this.formatManager;
 
-        this.stepManager.init();
-        this.formatManager.init();
-        this.customFormatManager.init();
-        this.setupFormValidation();
-        this.setupGlobalFunctions();
+            this.stepManager.init();
+            this.formatManager.init();
+            this.customFormatManager.init();
+            this.setupFormValidation();
+            this.setupGlobalFunctions();
+        } catch (error) {
+            console.error('[DebateFormManager] Initialization failed:', error);
+            // 初期化に失敗した場合でも、可能な限り続行
+        }
     }
 
     setupFormValidation() {
-        const form = document.querySelector(this.config.formSelector);
+        const form = DOMUtils.safeQuerySelector(
+            this.config.formSelector,
+            false,
+            'DebateFormManager'
+        );
         if (form) {
-            form.addEventListener('submit', (e) => {
-                if (!this.validateForm()) {
-                    e.preventDefault();
-                    this.stepManager.goToStep(1);
-                }
-            });
+            DOMUtils.safeAddEventListener(
+                form,
+                'submit',
+                e => {
+                    if (!this.validateForm()) {
+                        e.preventDefault();
+                        this.stepManager.goToStep(1);
+                    }
+                },
+                false,
+                'DebateFormManager'
+            );
+        } else {
+            console.warn('[DebateFormManager] Form not found:', this.config.formSelector);
         }
     }
 
     validateForm() {
-        const requiredFields = document.querySelectorAll('input[required], select[required]');
+        const requiredFields = DOMUtils.safeQuerySelectorAll(
+            'input[required], select[required]',
+            false,
+            'DebateFormManager'
+        );
         let hasEmpty = false;
 
         requiredFields.forEach(field => {
-            if (!field.value.trim()) {
+            if (!field.value || !field.value.trim()) {
                 hasEmpty = true;
-                this.utils.showFieldError(field.name, this.config.translations.fieldRequired);
+                const fieldName = field.name || field.id || 'unknown';
+                const errorMessage =
+                    this.config.translations.fieldRequired || 'This field is required';
+                this.utils.showFieldError(fieldName, errorMessage);
             }
         });
 
@@ -69,70 +101,134 @@ class DebateFormManager {
         window.toggleFormatHelp = this.toggleFormatHelp.bind(this);
     }
 
+    /**
+     * フォーマット選択変更処理
+     * @public
+     * @param {string} selectionType - 選択タイプ ('standard' | 'free' | 'custom')
+     */
     handleFormatSelectionChange(selectionType) {
-        const formatSelect = document.getElementById('format_type');
-        const hiddenField = document.getElementById('free_format_hidden');
+        try {
+            const formatSelect = DOMUtils.safeGetElement('format_type', false, 'DebateFormManager');
+            const hiddenField = DOMUtils.safeGetElement(
+                'free_format_hidden',
+                false,
+                'DebateFormManager'
+            );
 
-        if (selectionType === 'standard') {
-            formatSelect.disabled = false;
-            hiddenField.value = formatSelect.value || '';
-            this.formatManager.toggleCustomFormat(false);
-            this.formatManager.toggleFreeFormat(false);
-            this.formatManager.updateFormatPreview(formatSelect.value);
-        } else if (selectionType === 'free') {
-            formatSelect.disabled = true;
-            formatSelect.value = '';
-            hiddenField.value = 'free';
-            this.formatManager.toggleCustomFormat(false);
-            this.formatManager.toggleFreeFormat(true);
-        } else if (selectionType === 'custom') {
-            formatSelect.disabled = true;
-            formatSelect.value = '';
-            hiddenField.value = 'custom';
-            this.formatManager.toggleFreeFormat(false);
-            this.formatManager.toggleCustomFormat(true);
+            if (!formatSelect || !hiddenField) {
+                console.warn(
+                    '[DebateFormManager] Required elements not found for format selection'
+                );
+                return;
+            }
+
+            if (selectionType === 'standard') {
+                formatSelect.disabled = false;
+                hiddenField.value = formatSelect.value || '';
+                this.formatManager.toggleCustomFormat(false);
+                this.formatManager.toggleFreeFormat(false);
+                this.formatManager.updateFormatPreview(formatSelect.value);
+            } else if (selectionType === 'free') {
+                formatSelect.disabled = true;
+                formatSelect.value = '';
+                hiddenField.value = 'free';
+                this.formatManager.toggleCustomFormat(false);
+                this.formatManager.toggleFreeFormat(true);
+            } else if (selectionType === 'custom') {
+                formatSelect.disabled = true;
+                formatSelect.value = '';
+                hiddenField.value = 'custom';
+                this.formatManager.toggleFreeFormat(false);
+                this.formatManager.toggleCustomFormat(true);
+            }
+
+            // 検証を実行
+            this.stepManager.hasUserInteracted = true;
+            this.stepManager.handleFormatElementsVisibility();
+            this.stepManager.validateCurrentStep();
+        } catch (error) {
+            console.error('[DebateFormManager] Error in handleFormatSelectionChange:', error);
         }
-
-        // 検証を実行
-        this.stepManager.hasUserInteracted = true;
-        this.stepManager.handleFormatElementsVisibility();
-        this.stepManager.validateCurrentStep();
     }
 
+    /**
+     * フォーマットプレビューの表示切替
+     * @public
+     */
     toggleFormatPreview() {
-        const content = document.getElementById('format-preview-content');
-        const icon = document.querySelector('.format-preview-icon');
+        const content = DOMUtils.safeGetElement(
+            'format-preview-content',
+            false,
+            'DebateFormManager'
+        );
+        const icon = DOMUtils.safeQuerySelector('.format-preview-icon', false, 'DebateFormManager');
 
-        if (content?.classList.contains('hidden')) {
-            content.classList.remove('hidden');
-            setTimeout(() => content.classList.add('opacity-100'), 10);
-            if (icon) icon.textContent = 'expand_less';
-        } else {
-            content?.classList.remove('opacity-100');
-            content?.classList.add('opacity-0');
-            setTimeout(() => {
-                content?.classList.add('hidden');
-                if (icon) icon.textContent = 'expand_more';
-            }, 200);
+        if (!content) {
+            console.warn('[DebateFormManager] Format preview content not found');
+            return;
         }
+
+        DOMUtils.safeExecute(() => {
+            if (DOMUtils.safeClassOperation(content, 'contains', 'hidden', 'DebateFormManager')) {
+                DOMUtils.safeClassOperation(content, 'remove', 'hidden', 'DebateFormManager');
+                setTimeout(
+                    () =>
+                        DOMUtils.safeClassOperation(
+                            content,
+                            'add',
+                            'opacity-100',
+                            'DebateFormManager'
+                        ),
+                    10
+                );
+                if (icon) icon.textContent = 'expand_less';
+            } else {
+                DOMUtils.safeClassOperation(content, 'remove', 'opacity-100', 'DebateFormManager');
+                DOMUtils.safeClassOperation(content, 'add', 'opacity-0', 'DebateFormManager');
+                setTimeout(() => {
+                    DOMUtils.safeClassOperation(content, 'add', 'hidden', 'DebateFormManager');
+                    if (icon) icon.textContent = 'expand_more';
+                }, 200);
+            }
+        }, 'DebateFormManager');
     }
 
+    /**
+     * フォーマットヘルプの表示切替
+     * @public
+     */
     toggleFormatHelp() {
-        const content = document.getElementById('format-help-content');
-        const icon = document.querySelector('.format-help-icon');
+        const content = DOMUtils.safeGetElement('format-help-content', false, 'DebateFormManager');
+        const icon = DOMUtils.safeQuerySelector('.format-help-icon', false, 'DebateFormManager');
 
-        if (content?.classList.contains('hidden')) {
-            content.classList.remove('hidden');
-            setTimeout(() => content.classList.add('opacity-100'), 10);
-            if (icon) icon.textContent = 'expand_less';
-        } else {
-            content?.classList.remove('opacity-100');
-            content?.classList.add('opacity-0');
-            setTimeout(() => {
-                content?.classList.add('hidden');
-                if (icon) icon.textContent = 'expand_more';
-            }, 200);
+        if (!content) {
+            console.warn('[DebateFormManager] Format help content not found');
+            return;
         }
+
+        DOMUtils.safeExecute(() => {
+            if (DOMUtils.safeClassOperation(content, 'contains', 'hidden', 'DebateFormManager')) {
+                DOMUtils.safeClassOperation(content, 'remove', 'hidden', 'DebateFormManager');
+                setTimeout(
+                    () =>
+                        DOMUtils.safeClassOperation(
+                            content,
+                            'add',
+                            'opacity-100',
+                            'DebateFormManager'
+                        ),
+                    10
+                );
+                if (icon) icon.textContent = 'expand_less';
+            } else {
+                DOMUtils.safeClassOperation(content, 'remove', 'opacity-100', 'DebateFormManager');
+                DOMUtils.safeClassOperation(content, 'add', 'opacity-0', 'DebateFormManager');
+                setTimeout(() => {
+                    DOMUtils.safeClassOperation(content, 'add', 'hidden', 'DebateFormManager');
+                    if (icon) icon.textContent = 'expand_more';
+                }, 200);
+            }
+        }, 'DebateFormManager');
     }
 }
 

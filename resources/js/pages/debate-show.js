@@ -130,7 +130,7 @@ class DebateShowManager {
         window.debateCountdown = this.managers.countdownManager;
         window.debateShowManager = this;
 
-        // カウントダウンをグローバルエクスポート（元のコードと同じ形式）
+        // カウントダウンをグローバルエクスポート
         if (this.managers.countdownManager) {
             // Livewire初期化後のイベント設定も維持
             document.addEventListener('livewire:initialized', () => {
@@ -405,7 +405,7 @@ class DebateShowManager {
 }
 
 // DOMContentLoaded または Livewire初期化完了後に自動初期化
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
     // 初期化を遅延実行
     setTimeout(() => {
         const debateManager = new DebateShowManager();

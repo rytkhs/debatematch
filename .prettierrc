@@ -5,24 +5,7 @@
     "printWidth": 100,
     "tabWidth": 4,
     "useTabs": false,
-    "quoteProps": "as-needed",
     "bracketSpacing": true,
     "arrowParens": "avoid",
-    "endOfLine": "lf",
-    "bracketSameLine": false,
-    "overrides": [
-        {
-            "files": "*.json",
-            "options": {
-                "tabWidth": 2
-            }
-        },
-        {
-            "files": "*.md",
-            "options": {
-                "printWidth": 80,
-                "proseWrap": "always"
-            }
-        }
-    ]
+    "endOfLine": "lf"
 }

@@ -1,51 +1,23 @@
-# Dependencies
+# 依存関係
 node_modules/
 vendor/
 
-# Build outputs
+# ビルド成果物
 public/build/
-public/hot
-public/storage
-public/vendor/
+dist/
 
-# Laravel specific
-storage/
-bootstrap/cache/
-.env
-.env.*
+# ログファイル
+storage/logs/*.log
 
-# Logs
-*.log
-logs/
-
-# Coverage
-coverage/
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Editor directories and files
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Temporary files
-*.tmp
-*.temp
-
-# Lock files
-package-lock.json
+# 設定ファイル
+.env*
 composer.lock
+package-lock.json
 
-# Generated documentation
-docs/api/
+# Laravel固有
+bootstrap/cache/
+storage/framework/
+
+# その他
+*.min.js
+*.min.css
