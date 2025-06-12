@@ -20,52 +20,79 @@ export default class Logger {
      * @returns {string} 環境名 ('production', 'development', 'test', etc.)
      */
     _getEnvironment() {
-        // Node.js環境（テスト環境含む）
-        if (typeof process !== 'undefined' && process.env) {
-            return process.env.NODE_ENV || 'development';
-        }
+        try {
+            // Viteの環境変数を最優先で使用（ブラウザ環境）
+            if (typeof import.meta !== 'undefined' && import.meta.env) {
+                // カスタム環境変数（VITE_APP_ENV）があれば最優先
+                if (import.meta.env.VITE_APP_ENV) {
+                    return import.meta.env.VITE_APP_ENV;
+                }
 
-        // Vite環境変数の確認（ブラウザ環境）
-        if (typeof window !== 'undefined') {
-            // ViteのHMR環境チェック
-            if (window.__vite_plugin_react_preamble_installed__) {
-                return 'development';
+                // Viteの標準的な環境判定
+                if (import.meta.env.PROD) {
+                    return 'production';
+                }
+                if (import.meta.env.DEV) {
+                    return 'development';
+                }
+
+                // Viteのモード設定
+                if (import.meta.env.MODE) {
+                    return import.meta.env.MODE;
+                }
             }
 
-            // Viteの開発サーバーの存在確認
-            if (window.__vite_is_modern_browser || window.__HMR_PORT__) {
-                return 'development';
+            // HTML の meta タグから環境変数を取得（Laravel Bladeテンプレートから）
+            if (typeof document !== 'undefined') {
+                const envMeta = document.querySelector('meta[name="app-env"]');
+                if (envMeta) {
+                    const envValue = envMeta.getAttribute('content');
+                    if (envValue && envValue.trim()) {
+                        return envValue.trim();
+                    }
+                }
             }
-        }
 
-        // Viteの環境変数（window経由）
-        if (typeof window !== 'undefined' && window.__VITE_ENV__) {
-            return window.__VITE_ENV__;
-        }
-
-        // HTML の meta タグから環境変数を取得
-        if (typeof document !== 'undefined') {
-            const envMeta = document.querySelector('meta[name="app-env"]');
-            if (envMeta) {
-                return envMeta.getAttribute('content') || 'development';
-            }
-        }
-
-        // 最終的なフォールバック（本番環境の判定）
-        if (typeof window !== 'undefined') {
-            // location.hostnameで本番環境を判定
-            const hostname = window.location.hostname;
+            // Node.js環境での環境変数取得（SSR時やテスト環境）
+            // ブラウザ環境では process は存在しないため、存在チェックを厳密に行う
             if (
-                hostname.includes('localhost') ||
-                hostname.includes('127.0.0.1') ||
-                hostname.includes('dev')
+                typeof process !== 'undefined' &&
+                process &&
+                typeof process.env === 'object' &&
+                process.env !== null
             ) {
-                return 'development';
-            } else if (hostname.includes('test') || hostname.includes('staging')) {
-                return 'test';
-            } else {
-                return 'production';
+                return process.env.NODE_ENV || 'development';
             }
+
+            // ブラウザ環境での最終的なフォールバック（hostname判定）
+            if (typeof window !== 'undefined' && window.location) {
+                const hostname = window.location.hostname;
+                if (
+                    hostname === 'localhost' ||
+                    hostname === '127.0.0.1' ||
+                    hostname.startsWith('192.168.') ||
+                    hostname.startsWith('10.') ||
+                    hostname.startsWith('172.') ||
+                    hostname.includes('.local') ||
+                    hostname.includes('dev.') ||
+                    hostname.endsWith('.dev')
+                ) {
+                    return 'development';
+                } else if (
+                    hostname.includes('test.') ||
+                    hostname.includes('staging.') ||
+                    hostname.includes('stg.') ||
+                    hostname.endsWith('.test') ||
+                    hostname.endsWith('.staging')
+                ) {
+                    return 'test';
+                } else {
+                    return 'production';
+                }
+            }
+        } catch (error) {
+            // 環境変数取得でエラーが発生した場合のフォールバック
+            console.warn('[Logger] Environment detection failed:', error);
         }
 
         // すべて失敗した場合のデフォルト
@@ -110,13 +137,53 @@ export default class Logger {
      * @returns {Object} 環境情報
      */
     getEnvironmentInfo() {
-        return {
+        const info = {
             namespace: this.namespace,
             environment: this._getEnvironment(),
             isProduction: this.isProduction,
-            hasProcess: typeof process !== 'undefined',
-            hasWindow: typeof window !== 'undefined',
-            hostname: typeof window !== 'undefined' ? window.location.hostname : 'unknown',
+            runtime: {
+                hasProcess: typeof process !== 'undefined',
+                hasWindow: typeof window !== 'undefined',
+                hasDocument: typeof document !== 'undefined',
+                hasImportMeta: typeof import.meta !== 'undefined',
+            },
+            hostname:
+                typeof window !== 'undefined' && window.location
+                    ? window.location.hostname
+                    : 'unknown',
         };
+
+        // Vite環境変数の詳細情報（開発環境でのみ）
+        if (!this.isProduction && typeof import.meta !== 'undefined' && import.meta.env) {
+            info.viteEnv = {
+                MODE: import.meta.env.MODE || 'not set',
+                DEV: import.meta.env.DEV,
+                PROD: import.meta.env.PROD,
+                VITE_APP_ENV: import.meta.env.VITE_APP_ENV || 'not set',
+                BASE_URL: import.meta.env.BASE_URL || 'not set',
+            };
+        }
+
+        // Node.js環境変数の情報（利用可能な場合のみ）
+        if (
+            !this.isProduction &&
+            typeof process !== 'undefined' &&
+            process &&
+            typeof process.env === 'object'
+        ) {
+            info.nodeEnv = {
+                NODE_ENV: process.env.NODE_ENV || 'not set',
+            };
+        }
+
+        // HTML meta タグの情報
+        if (!this.isProduction && typeof document !== 'undefined') {
+            const envMeta = document.querySelector('meta[name="app-env"]');
+            info.htmlMeta = {
+                appEnv: envMeta ? envMeta.getAttribute('content') : 'not found',
+            };
+        }
+
+        return info;
     }
 }
