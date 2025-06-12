@@ -64,7 +64,7 @@ export function cleanupDOM() {
     // body要素のクリーンアップ
     if (document.body) {
         document.body.innerHTML = '';
-        // イベントリスナー
+        // body要素を新しい要素で置換することで、すべてのイベントリスナーを削除
         const bodyClone = document.body.cloneNode(false);
         document.body.parentNode.replaceChild(bodyClone, document.body);
     }
@@ -81,13 +81,6 @@ export function cleanupDOM() {
         });
     }
 
-    // グローバルイベントリスナーのクリーンアップ
-    ['resize', 'scroll', 'click', 'keydown', 'keyup'].forEach(eventType => {
-        const listeners = document.body?.eventListeners?.[eventType] || [];
-        listeners.forEach(listener => {
-            document.removeEventListener(eventType, listener);
-        });
-    });
 }
 
 /**
