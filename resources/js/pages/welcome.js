@@ -91,3 +91,5 @@ class WelcomePageEffects {
 document.addEventListener('DOMContentLoaded', () => {
     new WelcomePageEffects();
 });
+
+export default WelcomePageEffects;

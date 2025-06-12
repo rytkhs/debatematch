@@ -39,14 +39,16 @@ class StepManager {
     }
 
     attachRealtimeValidation(selectorPrefix) {
-        document.querySelectorAll(`${selectorPrefix} input, ${selectorPrefix} select`).forEach(field => {
-            ['input', 'change'].forEach(eventType => {
-                field.addEventListener(eventType, () => {
-                    this.hasUserInteracted = true;
-                    this.validateCurrentStep();
+        document
+            .querySelectorAll(`${selectorPrefix} input, ${selectorPrefix} select`)
+            .forEach(field => {
+                ['input', 'change'].forEach(eventType => {
+                    field.addEventListener(eventType, () => {
+                        this.hasUserInteracted = true;
+                        this.validateCurrentStep();
+                    });
                 });
             });
-        });
     }
 
     goToStep(step) {
@@ -135,10 +137,11 @@ class StepManager {
 
         if (nextButton) nextButton.style.display = this.currentStep === 1 ? 'inline-flex' : 'none';
         if (backButton) backButton.style.display = this.currentStep === 2 ? 'inline-flex' : 'none';
-        if (submitButton) submitButton.style.display = this.currentStep === 2 ? 'inline-flex' : 'none';
+        if (submitButton)
+            submitButton.style.display = this.currentStep === 2 ? 'inline-flex' : 'none';
     }
 
-        validateStep1(showErrors = true) {
+    validateStep1(showErrors = true) {
         if (showErrors) {
             this.utils.clearFieldErrors();
         }

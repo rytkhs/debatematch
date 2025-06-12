@@ -63,6 +63,12 @@ class RoomShowManager {
 
     setupGlobalReferences() {
         // 既存コードとの互換性のため、グローバル参照を設定
+        // eventHandlerの存在チェック
+        if (!this.eventHandler) {
+            console.warn('eventHandler is not initialized yet');
+            return;
+        }
+
         window.roomManager = {
             roomId: this.roomId,
             userId: this.userId,
