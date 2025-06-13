@@ -209,26 +209,6 @@ class ConnectionLogFactory extends Factory
         });
     }
 
-    /**
-     * 頻繁な切断のログ
-     */
-    public function frequentDisconnection(): static
-    {
-        return $this->state([
-            'status' => 'temporarily_disconnected',
-            'metadata' => [
-                'client_info' => $this->faker->userAgent(),
-                'ip_address' => $this->faker->ipv4(),
-                'connection_type' => 'unstable',
-                'disconnection_reason' => $this->faker->randomElement([
-                    'network_timeout',
-                    'client_refresh',
-                    'server_restart',
-                    'connection_lost'
-                ])
-            ]
-        ]);
-    }
 
     /**
      * モバイル接続のログ

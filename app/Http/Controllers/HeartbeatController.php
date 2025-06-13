@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ConnectionManager;
+use App\Services\Connection\ConnectionCoordinator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
 class HeartbeatController extends Controller
 {
-    protected $connectionManager;
+    protected $connectionCoordinator;
 
-    public function __construct(ConnectionManager $connectionManager)
+    public function __construct(ConnectionCoordinator $connectionCoordinator)
     {
-        $this->connectionManager = $connectionManager;
+        $this->connectionCoordinator = $connectionCoordinator;
     }
 
     /**
@@ -37,7 +37,7 @@ class HeartbeatController extends Controller
 
         try {
             // ConnectionManagerを通じて接続状態を更新
-            $this->connectionManager->updateLastSeen($userId, [
+            $this->connectionCoordinator->updateLastSeen($userId, [
                 'type' => $contextType,
                 'id' => $contextId
             ]);

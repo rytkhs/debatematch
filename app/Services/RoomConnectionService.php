@@ -8,74 +8,96 @@ use App\Events\UserLeftRoom;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Events\CreatorLeftRoom;
+use App\Services\Connection\ConnectionCoordinator;
+use App\Services\Connection\Traits\ConnectionErrorHandler;
 
 class RoomConnectionService
 {
-    protected $connectionManager;
+    use ConnectionErrorHandler;
 
-    public function __construct(ConnectionManager $connectionManager)
+    protected ConnectionCoordinator $connectionCoordinator;
+
+    public function __construct(ConnectionCoordinator $connectionCoordinator)
     {
-        $this->connectionManager = $connectionManager;
+        $this->connectionCoordinator = $connectionCoordinator;
     }
 
     /**
      * サービスを初期化
+     *
+     * @param int $roomId
+     * @return void
      */
-    public function initialize($roomId)
+    public function initialize(int $roomId): void
     {
         //
     }
 
     /**
      * ユーザー切断処理
+     *
+     * @param int $userId
+     * @param int $roomId
+     * @return mixed
+     * @throws \Exception
      */
-    public function handleUserDisconnection($userId, $roomId)
+    public function handleUserDisconnection(int $userId, int $roomId)
     {
         try {
-            return $this->connectionManager->handleDisconnection($userId, [
+            return $this->connectionCoordinator->handleDisconnection($userId, [
                 'type' => 'room',
                 'id' => $roomId
             ]);
         } catch (\Exception $e) {
-            Log::error('ルーム切断処理中にエラー発生', [
+            $this->handleConnectionError($e, [
+                'operation' => 'room_disconnection',
                 'userId' => $userId,
-                'roomId' => $roomId,
-                'error' => $e->getMessage()
+                'context' => ['roomId' => $roomId]
             ]);
+            throw $e;
         }
     }
 
     /**
      * ユーザー再接続処理
+     *
+     * @param int $userId
+     * @param int $roomId
+     * @return bool
+     * @throws \Exception
      */
-    public function handleUserReconnection($userId, $roomId)
+    public function handleUserReconnection(int $userId, int $roomId): bool
     {
         try {
-            return $this->connectionManager->handleReconnection($userId, [
+            return $this->connectionCoordinator->handleReconnection($userId, [
                 'type' => 'room',
                 'id' => $roomId
             ]);
         } catch (\Exception $e) {
-            Log::error('ルーム再接続処理中にエラー発生', [
+            $this->handleConnectionError($e, [
+                'operation' => 'room_reconnection',
                 'userId' => $userId,
-                'roomId' => $roomId,
-                'error' => $e->getMessage()
+                'context' => ['roomId' => $roomId]
             ]);
+            throw $e;
         }
     }
 
     /**
      * 切断タイムアウト後の処理
+     *
+     * @param int $userId
+     * @param int $roomId
+     * @return void
      */
-    public function handleUserDisconnectionTimeout($userId, $roomId)
+    public function handleUserDisconnectionTimeout(int $userId, int $roomId): void
     {
         try {
-
             $room = Room::find($roomId);
             $user = User::withTrashed()->find($userId);
 
             if (!$room || !$user) {
-                Log::warning('タイムアウト処理のためのルームまたはユーザーが見つかりません', [
+                $this->logWithConfig('warning', 'タイムアウト処理のためのルームまたはユーザーが見つかりません', [
                     'userId' => $userId,
                     'roomId' => $roomId
                 ]);
@@ -113,17 +135,16 @@ class RoomConnectionService
                     }
                 });
 
-                Log::info('ユーザーがタイムアウトによりルームから退出しました', [
+                $this->logWithConfig('info', 'ユーザーがタイムアウトによりルームから退出しました', [
                     'userId' => $user->id,
                     'roomId' => $room->id
                 ]);
             });
         } catch (\Exception $e) {
-            Log::error('ルーム切断タイムアウト処理中にエラー発生', [
+            $this->handleConnectionError($e, [
+                'operation' => 'room_disconnection_timeout',
                 'userId' => $userId,
-                'roomId' => $roomId,
-                'error' => $e->getMessage(),
-                'stackTrace' => $e->getTraceAsString()
+                'context' => ['roomId' => $roomId]
             ]);
         }
     }

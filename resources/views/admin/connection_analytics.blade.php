@@ -38,22 +38,6 @@
                 </div>
             </div>
 
-            {{-- 異常検知アラート --}}
-            @if(count($frequentDisconnectionUsers) > 0)
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <h3 class="text-lg font-medium text-red-800 mb-2">頻繁な切断が検出されたユーザー ({{ $startDate->diffForHumans($endDate, true) }})</h3>
-                <ul class="list-disc list-inside text-sm text-red-700">
-                    @foreach($frequentDisconnectionUsers as $item)
-                        <li>
-                            <a href="{{ route('admin.connection.user-detail', $item->user_id) }}" class="font-semibold hover:underline">
-                                {{ $item->user ? $item->user->name : '削除されたユーザー' }} ({{ $item->user_id }})
-                            </a> - {{ $item->frequent_count }} 回の頻繁切断ログ
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-            {{-- 低再接続率ユーザーのアラートも同様に追加 --}}
 
 
             {{-- 直近24時間の切断統計 --}}

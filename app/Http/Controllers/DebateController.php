@@ -5,18 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Debate;
 use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
-use App\Services\ConnectionManager;
+use App\Services\Connection\ConnectionCoordinator;
 use App\Services\DebateService;
 
 class DebateController extends Controller
 {
     protected $debateService;
-    protected $connectionManager;
+    protected $connectionCoordinator;
 
-    public function __construct(DebateService $debateService, ConnectionManager $connectionManager)
+    public function __construct(DebateService $debateService, ConnectionCoordinator $connectionCoordinator)
     {
         $this->debateService = $debateService;
-        $this->connectionManager = $connectionManager;
+        $this->connectionCoordinator = $connectionCoordinator;
     }
 
     public function show(Debate $debate)
@@ -31,7 +31,7 @@ class DebateController extends Controller
         }
 
         // 接続記録
-        $this->connectionManager->recordInitialConnection(Auth::id(), [
+        $this->connectionCoordinator->recordInitialConnection(Auth::id(), [
             'type' => 'debate',
             'id' => $debate->id
         ]);

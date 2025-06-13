@@ -8,90 +8,119 @@ use App\Models\User;
 use App\Events\DebateTerminated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\Connection\ConnectionCoordinator;
+use App\Services\Connection\Traits\ConnectionErrorHandler;
 
 class DebateConnectionService
 {
-    protected $connectionManager;
-    protected $debateService;
+    use ConnectionErrorHandler;
 
-    public function __construct(ConnectionManager $connectionManager, DebateService $debateService)
+    protected ConnectionCoordinator $connectionCoordinator;
+    protected DebateService $debateService;
+
+    public function __construct(ConnectionCoordinator $connectionCoordinator, DebateService $debateService)
     {
-        $this->connectionManager = $connectionManager;
+        $this->connectionCoordinator = $connectionCoordinator;
         $this->debateService = $debateService;
     }
 
     /**
      * サービスを初期化
+     *
+     * @param int $debateId
+     * @return void
      */
-    public function initialize($debateId)
+    public function initialize(int $debateId): void
     {
         //
     }
 
     /**
      * ユーザー切断処理
+     *
+     * @param int $userId
+     * @param int $debateId
+     * @return mixed
+     * @throws \Exception
      */
-    public function handleUserDisconnection($userId, $debateId)
+    public function handleUserDisconnection(int $userId, int $debateId)
     {
         try {
-            return $this->connectionManager->handleDisconnection($userId, [
+            return $this->connectionCoordinator->handleDisconnection($userId, [
                 'type' => 'debate',
                 'id' => $debateId
             ]);
         } catch (\Exception $e) {
-            Log::error('ディベート切断処理中にエラー発生', [
+            $this->handleConnectionError($e, [
+                'operation' => 'debate_disconnection',
                 'userId' => $userId,
-                'debateId' => $debateId,
-                'error' => $e->getMessage()
+                'context' => ['debateId' => $debateId]
             ]);
+            throw $e;
         }
     }
 
     /**
      * ユーザー再接続処理
+     *
+     * @param int $userId
+     * @param int $debateId
+     * @return bool
+     * @throws \Exception
      */
-    public function handleUserReconnection($userId, $debateId)
+    public function handleUserReconnection(int $userId, int $debateId): bool
     {
         try {
-            return $this->connectionManager->handleReconnection($userId, [
+            return $this->connectionCoordinator->handleReconnection($userId, [
                 'type' => 'debate',
                 'id' => $debateId
             ]);
         } catch (\Exception $e) {
-            Log::error('ディベート再接続処理中にエラー発生', [
+            $this->handleConnectionError($e, [
+                'operation' => 'debate_reconnection',
                 'userId' => $userId,
-                'debateId' => $debateId,
-                'error' => $e->getMessage()
+                'context' => ['debateId' => $debateId]
             ]);
+            throw $e;
         }
     }
 
     /**
      * ディベート強制終了処理
      * 評価は行わず、welcomeページにリダイレクト
+     *
+     * @param int $debateId
+     * @param string $reason
+     * @return Debate|null
      */
-    public function terminateDebate($debateId, $reason = 'connection_lost')
+    public function terminateDebate(int $debateId, string $reason = 'connection_lost'): ?Debate
     {
         try {
             $debate = Debate::with('room')->find($debateId);
             if (!$debate) {
-                Log::warning('終了対象のディベートが見つかりません', ['debateId' => $debateId]);
+                $this->logWithConfig('warning', '終了対象のディベートが見つかりません', [
+                    'debateId' => $debateId,
+                    'reason' => $reason
+                ]);
                 return null;
             }
 
             $this->debateService->terminateDebate($debate);
 
-            Log::info('ディベートが強制終了されました', [
+            $this->logWithConfig('info', 'ディベートが強制終了されました', [
                 'debateId' => $debate->id,
                 'reason' => $reason
             ]);
 
             return $debate;
         } catch (\Exception $e) {
-            Log::error('ディベート強制終了処理中にエラー発生', [
-                'debateId' => $debateId,
-                'reason' => $reason,
-                'error' => $e->getMessage()
+            $this->handleConnectionError($e, [
+                'operation' => 'debate_termination',
+                'userId' => null,
+                'context' => [
+                    'debateId' => $debateId,
+                    'reason' => $reason
+                ]
             ]);
             return null;
         }

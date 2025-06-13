@@ -10,7 +10,7 @@ use App\Events\UserJoinedRoom;
 use App\Events\UserLeftRoom;
 use App\Events\CreatorLeftRoom;
 use Illuminate\Support\Facades\DB;
-use App\Services\ConnectionManager;
+use App\Services\Connection\ConnectionCoordinator;
 // use App\Http\Controllers\SNSController;
 use App\Services\SlackNotifier;
 use Illuminate\Support\Facades\Lang;
@@ -225,8 +225,8 @@ class RoomController extends Controller
             return redirect()->route('rooms.preview', $room);
         }
         // 接続記録
-        $connectionManager = app(ConnectionManager::class);
-        $connectionManager->recordInitialConnection(Auth::id(), [
+        $connectionCoordinator = app(ConnectionCoordinator::class);
+        $connectionCoordinator->recordInitialConnection(Auth::id(), [
             'type' => 'room',
             'id' => $room->id
         ]);
