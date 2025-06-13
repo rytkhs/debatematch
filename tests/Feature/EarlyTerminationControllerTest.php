@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use App\Events\EarlyTerminationRequested;
 use App\Events\EarlyTerminationAgreed;
 use App\Events\EarlyTerminationDeclined;
@@ -55,13 +56,15 @@ class EarlyTerminationControllerTest extends TestCase
             'negative_user_id' => $this->negativeUser->id,
             'current_turn' => 1
         ]);
+
+        // リレーションを明示的にロード
+        $this->debate->load('room');
     }
 
     public function test_request_early_termination_success()
     {
         Event::fake();
-        Cache::shouldReceive('has')->once()->andReturn(false);
-        Cache::shouldReceive('put')->once()->andReturn(true);
+        Queue::fake();
 
         $response = $this->actingAs($this->affirmativeUser)
             ->postJson("/debates/{$this->debate->id}/early-termination/request");
