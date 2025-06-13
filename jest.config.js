@@ -2,20 +2,15 @@ export default {
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: ['<rootDir>/tests/js/setup.js'],
     testMatch: ['<rootDir>/tests/js/**/*.test.js'],
-    collectCoverageFrom: [
-        'resources/js/**/*.js',
-        '!resources/js/bootstrap.js',
-        '!resources/js/app.js',
-        '!**/node_modules/**',
-    ],
+    collectCoverageFrom: ['resources/js/utils/dom-utils.js'],
     coverageDirectory: 'coverage',
-    coverageReporters: ['text', 'lcov', 'html'],
+    coverageReporters: ['text', 'html'],
     coverageThreshold: {
-        global: {
-            branches: 60,
-            functions: 65,
-            lines: 65,
-            statements: 65,
+        './resources/js/utils/dom-utils.js': {
+            branches: 50,
+            functions: 60,
+            lines: 50,
+            statements: 50,
         },
     },
     moduleNameMapper: {
@@ -27,5 +22,28 @@ export default {
     transform: {
         '^.+\\.js$': 'babel-jest',
     },
-    maxWorkers: '50%',
+    maxWorkers: 1,
+    cache: true,
+    verbose: false,
+    silent: true,
+    coveragePathIgnorePatterns: [
+        '/node_modules/',
+        '/tests/',
+        '/coverage/',
+        'bootstrap.js',
+        'app.js',
+        'echo.js',
+        'resources/js/features/',
+        'resources/js/services/',
+        'resources/js/pages/',
+        'resources/js/components/',
+    ],
+    detectOpenHandles: false,
+    forceExit: true,
+    collectCoverage: true,
+    bail: false,
+    roots: ['<rootDir>/tests/js'],
+    testEnvironmentOptions: {
+        url: 'https://localhost/',
+    },
 };

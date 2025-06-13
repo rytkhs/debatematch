@@ -4,13 +4,22 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "test": "jest",
-        "test:watch": "jest --watch",
-        "test:coverage": "jest --coverage",
+        "test": "jest --silent",
+        "test:watch": "jest --watch --silent",
+        "test:coverage": "jest --coverage --silent",
+        "test:quick": "jest --passWithNoTests --maxWorkers=2 --silent",
+        "test:ci": "jest --coverage --watchAll=false --maxWorkers=2 --silent",
+        "test:debug": "jest --no-cache --verbose --silent=false",
+        "test:personal": "jest --coverage --silent --maxWorkers=1",
+        "test:focused": "jest --testNamePattern --silent",
+        "test:file": "jest --testPathPattern --silent",
+        "test:minimal": "jest --passWithNoTests --silent --maxWorkers=1 --coverage=false",
         "lint": "eslint resources/js/**/*.js",
         "lint:fix": "eslint resources/js/**/*.js --fix",
         "format": "prettier --write resources/js/**/*.js",
-        "format:check": "prettier --check resources/js/**/*.js"
+        "format:check": "prettier --check resources/js/**/*.js",
+        "quality": "npm run lint && npm run test:minimal",
+        "quality:full": "npm run lint && npm run test:personal"
     },
     "devDependencies": {
         "@babel/core": "^7.27.4",

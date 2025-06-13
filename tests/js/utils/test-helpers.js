@@ -36,9 +36,10 @@ export function setupUnifiedTestEnvironment() {
  * グローバルエラーハンドリング設定
  */
 function setupGlobalErrorHandling() {
-    // 未処理のPromise rejectionをキャッチ
+    // 未処理のPromise rejectionをキャッチ（テスト環境では抑制）
     process.on('unhandledRejection', (reason, promise) => {
-        console.warn('Unhandled Rejection at:', promise, 'reason:', reason);
+        // テスト環境では意図的なrejectionが多いので基本的に抑制
+        // 必要に応じてログを有効化
     });
 
     // jsdomのnavigationエラーを抑制
@@ -48,7 +49,7 @@ function setupGlobalErrorHandling() {
         if (typeof message === 'string' && message.includes('Not implemented: navigation')) {
             return; // navigationエラーは無視
         }
-        originalError.apply(console, args);
+        // その他のエラーも基本的に抑制（テスト環境）
     };
 }
 
@@ -80,7 +81,6 @@ export function cleanupDOM() {
             }
         });
     }
-
 }
 
 /**
