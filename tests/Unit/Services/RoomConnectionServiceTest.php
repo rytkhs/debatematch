@@ -4,7 +4,7 @@ namespace Tests\Unit\Services;
 
 use PHPUnit\Framework\Attributes\Test;
 use App\Services\RoomConnectionService;
-use App\Services\ConnectionManager;
+use App\Services\Connection\ConnectionCoordinator;
 use App\Models\Room;
 use App\Models\User;
 use App\Events\UserLeftRoom;
@@ -23,22 +23,22 @@ class RoomConnectionServiceTest extends BaseServiceTest
     /** @var RoomConnectionService */
     protected $service;
 
-    /** @var MockInterface|ConnectionManager */
-    protected $connectionManagerMock;
+    /** @var MockInterface|ConnectionCoordinator */
+    protected $connectionCoordinatorMock;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->connectionManagerMock = $this->createServiceMock(ConnectionManager::class);
-        $this->service = new RoomConnectionService($this->connectionManagerMock);
+        $this->connectionCoordinatorMock = $this->createServiceMock(ConnectionCoordinator::class);
+        $this->service = new RoomConnectionService($this->connectionCoordinatorMock);
     }
 
     #[Test]
     public function testConstructor()
     {
-        $connectionManager = Mockery::mock(ConnectionManager::class);
-        $service = new RoomConnectionService($connectionManager);
+        $connectionCoordinator = Mockery::mock(ConnectionCoordinator::class);
+        $service = new RoomConnectionService($connectionCoordinator);
 
         $this->assertInstanceOf(RoomConnectionService::class, $service);
     }
@@ -62,7 +62,7 @@ class RoomConnectionServiceTest extends BaseServiceTest
         $roomId = 2;
         $expectedResult = true;
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleDisconnection')
             ->once()
             ->with($userId, [
@@ -91,7 +91,7 @@ class RoomConnectionServiceTest extends BaseServiceTest
                 'error' => $exception->getMessage()
             ]);
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleDisconnection')
             ->once()
             ->andThrow($exception);
@@ -108,7 +108,7 @@ class RoomConnectionServiceTest extends BaseServiceTest
         $roomId = 2;
         $expectedResult = true;
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleReconnection')
             ->once()
             ->with($userId, [
@@ -137,7 +137,7 @@ class RoomConnectionServiceTest extends BaseServiceTest
                 'error' => $exception->getMessage()
             ]);
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleReconnection')
             ->once()
             ->andThrow($exception);

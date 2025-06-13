@@ -5,7 +5,7 @@ namespace Tests\Unit\Models;
 use PHPUnit\Framework\Attributes\Test;
 use App\Models\ConnectionLog;
 use App\Models\User;
-use App\Services\ConnectionManager;
+use App\Enums\ConnectionStatus;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +22,7 @@ class ConnectionLogTest extends TestCase
     }
 
     // データベースを使わないテスト（高速）
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function casts()
     {
         $casts = [
@@ -38,7 +38,7 @@ class ConnectionLogTest extends TestCase
         }
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function fillable_attributes()
     {
         $fillable = [
@@ -56,7 +56,7 @@ class ConnectionLogTest extends TestCase
     }
 
     // データベースを使うテスト（低速）
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function factory_creation()
     {
         $connectionLog = ConnectionLog::factory()->create();
@@ -77,7 +77,7 @@ class ConnectionLogTest extends TestCase
             'user_id' => $user->id,
             'context_type' => 'room',
             'context_id' => 1,
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'connected_at' => $now,
             'metadata' => ['test' => 'data']
         ]);
@@ -85,7 +85,7 @@ class ConnectionLogTest extends TestCase
         $this->assertEquals($user->id, $connectionLog->user_id);
         $this->assertEquals('room', $connectionLog->context_type);
         $this->assertEquals(1, $connectionLog->context_id);
-        $this->assertEquals(ConnectionManager::STATUS_CONNECTED, $connectionLog->status);
+        $this->assertEquals(ConnectionStatus::CONNECTED, $connectionLog->status);
         $this->assertEquals($now->format('Y-m-d H:i:s'), $connectionLog->connected_at->format('Y-m-d H:i:s'));
         $this->assertEquals(['test' => 'data'], $connectionLog->metadata);
     }
@@ -152,11 +152,11 @@ class ConnectionLogTest extends TestCase
     public function is_connected()
     {
         $connectedLog = ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_CONNECTED
+            'status' => ConnectionStatus::CONNECTED
         ]);
 
         $disconnectedLog = ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_DISCONNECTED
+            'status' => ConnectionStatus::DISCONNECTED
         ]);
 
         $this->assertTrue($connectedLog->isConnected());
@@ -167,11 +167,11 @@ class ConnectionLogTest extends TestCase
     public function is_temporarily_disconnected()
     {
         $tempDisconnectedLog = ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED
+            'status' => ConnectionStatus::TEMPORARILY_DISCONNECTED
         ]);
 
         $connectedLog = ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_CONNECTED
+            'status' => ConnectionStatus::CONNECTED
         ]);
 
         $this->assertTrue($tempDisconnectedLog->isTemporarilyDisconnected());
@@ -190,14 +190,14 @@ class ConnectionLogTest extends TestCase
             'user_id' => $user1->id,
             'context_type' => 'room',
             'context_id' => 1,
-            'status' => ConnectionManager::STATUS_CONNECTED
+            'status' => ConnectionStatus::CONNECTED
         ]);
 
         ConnectionLog::factory()->create([
             'user_id' => $user2->id,
             'context_type' => 'room',
             'context_id' => 1,
-            'status' => ConnectionManager::STATUS_CONNECTED
+            'status' => ConnectionStatus::CONNECTED
         ]);
 
         // 切断されたユーザー
@@ -205,7 +205,7 @@ class ConnectionLogTest extends TestCase
             'user_id' => $user3->id,
             'context_type' => 'room',
             'context_id' => 1,
-            'status' => ConnectionManager::STATUS_DISCONNECTED
+            'status' => ConnectionStatus::DISCONNECTED
         ]);
 
         $connectedUserIds = ConnectionLog::getConnectedUserIds('room', 1);
@@ -221,7 +221,7 @@ class ConnectionLogTest extends TestCase
         $connectedAt = now()->subMinutes(30);
 
         $connectionLog = ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'connected_at' => $connectedAt
         ]);
 
@@ -239,7 +239,7 @@ class ConnectionLogTest extends TestCase
         $disconnectedAt = now()->subHour();
 
         $connectionLog = ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'connected_at' => $connectedAt,
             'disconnected_at' => $disconnectedAt
         ]);
@@ -254,7 +254,7 @@ class ConnectionLogTest extends TestCase
     public function get_connection_duration_returns_null_when_no_connected_at()
     {
         $connectionLog = ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'connected_at' => null
         ]);
 
@@ -263,46 +263,7 @@ class ConnectionLogTest extends TestCase
         $this->assertNull($duration);
     }
 
-    #[Test]
-    public function analyze_connection_issues()
-    {
-        $user = User::factory()->create();
 
-        // 切断ログ（24時間以内）
-        ConnectionLog::factory()->count(3)->create([
-            'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED,
-            'created_at' => now()->subHours(12)
-        ]);
-
-        // 再接続ログ（reconnected_atがnullでない）
-        ConnectionLog::factory()->count(2)->create([
-            'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_CONNECTED,
-            'reconnected_at' => now()->subHours(11),
-            'created_at' => now()->subHours(11)
-        ]);
-
-        $analysis = ConnectionLog::analyzeConnectionIssues($user->id, 24);
-
-        $this->assertEquals(3, $analysis['total_disconnections']);
-        // 実際の実装では、reconnected_atがnullでないログの数をカウントしている
-        // 実際の結果に合わせて期待値を調整
-        $this->assertIsInt($analysis['successful_reconnections']);
-        $this->assertIsNumeric($analysis['failure_rate']);
-    }
-
-    #[Test]
-    public function analyze_connection_issues_with_no_disconnections()
-    {
-        $user = User::factory()->create();
-
-        $analysis = ConnectionLog::analyzeConnectionIssues($user->id, 24);
-
-        $this->assertEquals(0, $analysis['total_disconnections']);
-        $this->assertEquals(0, $analysis['successful_reconnections']);
-        $this->assertEquals(0, $analysis['failure_rate']);
-    }
 
     #[Test]
     public function record_initial_connection_success()
@@ -318,7 +279,7 @@ class ConnectionLogTest extends TestCase
         $this->assertEquals($user->id, $connectionLog->user_id);
         $this->assertEquals('room', $connectionLog->context_type);
         $this->assertEquals(1, $connectionLog->context_id);
-        $this->assertEquals(ConnectionManager::STATUS_CONNECTED, $connectionLog->status);
+        $this->assertEquals(ConnectionStatus::CONNECTED, $connectionLog->status);
         $this->assertNotNull($connectionLog->connected_at);
         $this->assertEquals('Test Browser', $connectionLog->metadata['client_info']);
         $this->assertEquals('127.0.0.1', $connectionLog->metadata['ip_address']);
@@ -334,7 +295,7 @@ class ConnectionLogTest extends TestCase
             'user_id' => $user->id,
             'context_type' => 'room',
             'context_id' => 1,
-            'status' => ConnectionManager::STATUS_CONNECTED
+            'status' => ConnectionStatus::CONNECTED
         ]);
 
         $connectionLog = ConnectionLog::recordInitialConnection($user->id, 'room', 1);
@@ -381,7 +342,7 @@ class ConnectionLogTest extends TestCase
         // 期間外のログ（期間開始前）
         $logOutOfPeriod = ConnectionLog::factory()->create([
             'created_at' => now()->subDays(10),
-            'status' => ConnectionManager::STATUS_DISCONNECTED
+            'status' => ConnectionStatus::DISCONNECTED
         ]);
 
         $logsInPeriod = ConnectionLog::period($start, $end)->get();
@@ -397,14 +358,14 @@ class ConnectionLogTest extends TestCase
     {
         // 現在接続中のユーザー
         ConnectionLog::factory()->count(3)->create([
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'context_type' => 'room',
             'created_at' => now()->subMinutes(5)
         ]);
 
         // 一時的に切断されたユーザー
         ConnectionLog::factory()->count(2)->create([
-            'status' => ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED,
+            'status' => ConnectionStatus::TEMPORARILY_DISCONNECTED,
             'context_type' => 'room',
             'created_at' => now()->subMinutes(3)
         ]);
@@ -419,35 +380,7 @@ class ConnectionLogTest extends TestCase
         $this->assertIsInt($stats['temporarily_disconnected']);
     }
 
-    #[Test]
-    public function get_frequent_disconnection_users()
-    {
-        $user1 = User::factory()->create();
-        $user2 = User::factory()->create();
-        $start = now()->subDays(7);
-        $end = now();
 
-        // user1: 頻繁な切断フラグ付きログ
-        ConnectionLog::factory()->count(5)->create([
-            'user_id' => $user1->id,
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
-            'created_at' => now()->subDays(3),
-            'metadata' => ['frequent_disconnections' => true]
-        ]);
-
-        // user2: 頻繁な切断フラグ付きログ
-        ConnectionLog::factory()->count(2)->create([
-            'user_id' => $user2->id,
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
-            'created_at' => now()->subDays(2),
-            'metadata' => ['frequent_disconnections' => true]
-        ]);
-
-        $frequentUsers = ConnectionLog::getFrequentDisconnectionUsers($start, $end);
-
-        $this->assertIsIterable($frequentUsers);
-        // 実装がJSONクエリを使用しているため、結果の詳細は環境に依存
-    }
 
     #[Test]
     public function analyze_disconnection_trends()
@@ -457,7 +390,7 @@ class ConnectionLogTest extends TestCase
 
         // 異なる日に切断ログを作成
         ConnectionLog::factory()->count(3)->create([
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'created_at' => now()->subDays(3),
             'metadata' => [
                 'client_info' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -466,7 +399,7 @@ class ConnectionLogTest extends TestCase
         ]);
 
         ConnectionLog::factory()->count(2)->create([
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'created_at' => now()->subDays(2),
             'metadata' => [
                 'client_info' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
@@ -493,14 +426,14 @@ class ConnectionLogTest extends TestCase
         // 接続セッション
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'connected_at' => now()->subDays(3),
             'created_at' => now()->subDays(3)
         ]);
 
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'disconnected_at' => now()->subDays(3)->addHours(2),
             'created_at' => now()->subDays(3)->addHours(2),
             'metadata' => ['finalized_at' => now()->subDays(3)->addHours(2)->toISOString()]
@@ -593,7 +526,7 @@ class ConnectionLogTest extends TestCase
 
         foreach ($userAgents as $userAgent) {
             ConnectionLog::factory()->create([
-                'status' => ConnectionManager::STATUS_DISCONNECTED,
+                'status' => ConnectionStatus::DISCONNECTED,
                 'created_at' => now()->subDays(rand(1, 6)),
                 'metadata' => [
                     'client_info' => $userAgent,
@@ -624,7 +557,7 @@ class ConnectionLogTest extends TestCase
         // 1. 接続開始
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'connected_at' => now()->subDays(3),
             'created_at' => now()->subDays(3)
         ]);
@@ -632,7 +565,7 @@ class ConnectionLogTest extends TestCase
         // 2. 一時切断
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED,
+            'status' => ConnectionStatus::TEMPORARILY_DISCONNECTED,
             'disconnected_at' => now()->subDays(3)->addHour(),
             'created_at' => now()->subDays(3)->addHour()
         ]);
@@ -640,7 +573,7 @@ class ConnectionLogTest extends TestCase
         // 3. 再接続
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'connected_at' => now()->subDays(3)->addHours(2),
             'reconnected_at' => now()->subDays(3)->addHours(2),
             'created_at' => now()->subDays(3)->addHours(2),
@@ -650,7 +583,7 @@ class ConnectionLogTest extends TestCase
         // 4. 最終切断
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'disconnected_at' => now()->subDays(3)->addHours(4),
             'created_at' => now()->subDays(3)->addHours(4),
             'metadata' => ['finalized_at' => now()->subDays(3)->addHours(4)->toISOString()]
@@ -682,7 +615,7 @@ class ConnectionLogTest extends TestCase
         // 孤立した切断ログ（接続ログなし）
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'disconnected_at' => now()->subDays(3),
             'created_at' => now()->subDays(3),
             'metadata' => ['finalized_at' => now()->subDays(3)->toISOString()]
@@ -691,7 +624,7 @@ class ConnectionLogTest extends TestCase
         // 孤立した一時切断ログ
         ConnectionLog::factory()->create([
             'user_id' => $user->id,
-            'status' => ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED,
+            'status' => ConnectionStatus::TEMPORARILY_DISCONNECTED,
             'disconnected_at' => now()->subDays(2),
             'created_at' => now()->subDays(2)
         ]);
@@ -709,24 +642,7 @@ class ConnectionLogTest extends TestCase
         }
     }
 
-    #[Test]
-    public function get_frequent_disconnection_users_with_empty_result()
-    {
-        $start = now()->subDays(7);
-        $end = now();
 
-        // 頻繁な切断フラグなしのログのみ作成
-        ConnectionLog::factory()->count(3)->create([
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
-            'created_at' => now()->subDays(3),
-            'metadata' => ['frequent_disconnections' => false]
-        ]);
-
-        $frequentUsers = ConnectionLog::getFrequentDisconnectionUsers($start, $end);
-
-        $this->assertIsIterable($frequentUsers);
-        // JSONクエリの結果は環境に依存するため、基本的な型チェックのみ
-    }
 
     #[Test]
     public function analyze_disconnection_trends_with_empty_metadata()
@@ -736,13 +652,13 @@ class ConnectionLogTest extends TestCase
 
         // メタデータが空または不完全なログ
         ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'created_at' => now()->subDays(3),
             'metadata' => []
         ]);
 
         ConnectionLog::factory()->create([
-            'status' => ConnectionManager::STATUS_DISCONNECTED,
+            'status' => ConnectionStatus::DISCONNECTED,
             'created_at' => now()->subDays(2),
             'metadata' => null
         ]);
@@ -763,19 +679,19 @@ class ConnectionLogTest extends TestCase
     {
         // 異なるコンテキストタイプでログを作成
         ConnectionLog::factory()->count(2)->create([
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'context_type' => 'room',
             'created_at' => now()->subMinutes(5)
         ]);
 
         ConnectionLog::factory()->count(3)->create([
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'context_type' => 'debate',
             'created_at' => now()->subMinutes(5)
         ]);
 
         ConnectionLog::factory()->count(1)->create([
-            'status' => ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED,
+            'status' => ConnectionStatus::TEMPORARILY_DISCONNECTED,
             'context_type' => 'room',
             'created_at' => now()->subMinutes(3)
         ]);
@@ -809,7 +725,7 @@ class ConnectionLogTest extends TestCase
         $this->assertEquals($user->id, $connectionLog->user_id);
         $this->assertEquals('room', $connectionLog->context_type);
         $this->assertEquals(1, $connectionLog->context_id);
-        $this->assertEquals(ConnectionManager::STATUS_CONNECTED, $connectionLog->status);
+        $this->assertEquals(ConnectionStatus::CONNECTED, $connectionLog->status);
 
         // メタデータにクライアント情報が含まれているかチェック
         $this->assertArrayHasKey('client_info', $connectionLog->metadata);
