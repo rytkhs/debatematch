@@ -79,6 +79,7 @@ return [
     |
     */
     'critical_operations' => [
+        'disconnection',
         'debate_disconnection',
         'massive_disconnection',
         'database_error',
