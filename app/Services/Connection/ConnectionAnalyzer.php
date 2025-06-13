@@ -347,23 +347,4 @@ class ConnectionAnalyzer
             'error' => true
         ];
     }
-
-    /**
-     * キャッシュをクリア
-     *
-     * @param int|null $userId
-     */
-    public function clearCache(?int $userId = null): void
-    {
-        if ($userId) {
-            // 特定ユーザーのキャッシュをクリア
-            $pattern = self::CACHE_PREFIX . "*:{$userId}:*";
-        } else {
-            // 全キャッシュをクリア
-            $pattern = self::CACHE_PREFIX . "*";
-        }
-
-        // 実際のキャッシュクリア実装（Redis使用時）
-        // Cache::flush() または特定パターンのクリア
-    }
 }
