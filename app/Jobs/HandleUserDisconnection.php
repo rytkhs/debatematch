@@ -7,7 +7,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Services\ConnectionManager;
+use App\Services\Connection\ConnectionCoordinator;
+use App\Enums\ConnectionStatus;
 use App\Models\ConnectionLog;
 use App\Services\RoomConnectionService;
 use App\Services\DebateConnectionService;
@@ -37,13 +38,13 @@ class HandleUserDisconnection implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param ConnectionManager $connectionManager
+     * @param ConnectionCoordinator $connectionCoordinator
      * @param RoomConnectionService $roomService
      * @param DebateConnectionService $debateService
      * @return void
      */
     public function handle(
-        ConnectionManager $connectionManager,
+        ConnectionCoordinator $connectionCoordinator,
         RoomConnectionService $roomService,
         DebateConnectionService $debateService
     ): void {
@@ -71,7 +72,7 @@ class HandleUserDisconnection implements ShouldQueue
             );
 
             // すでに再接続済みの場合は何もしない
-            if ($log && $log->status === ConnectionManager::STATUS_CONNECTED) {
+            if ($log && $log->status === ConnectionStatus::CONNECTED) {
                 Log::info('ユーザーは既に再接続済みのため、タイムアウト処理をスキップします', [
                     'userId' => $this->userId,
                     'context' => $this->context
@@ -80,7 +81,7 @@ class HandleUserDisconnection implements ShouldQueue
             }
 
             // 切断を確定する
-            $connectionManager->finalizeDisconnection($this->userId, $this->context);
+            $connectionCoordinator->finalizeDisconnection($this->userId, $this->context);
 
             // コンテキストタイプに応じた処理
             if ($this->context['type'] === 'room') {

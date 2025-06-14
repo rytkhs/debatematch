@@ -8,18 +8,18 @@ use App\Models\Room;
 use App\Jobs\HandleUserDisconnection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Services\ConnectionManager;
+use App\Services\Connection\ConnectionCoordinator;
 use App\Models\Debate;
 use App\Services\DebateService;
 
 class PusherWebhookController extends Controller
 {
-    protected $connectionManager;
+    protected $connectionCoordinator;
     protected $debateService;
 
-    public function __construct(ConnectionManager $connectionManager, DebateService $debateService)
+    public function __construct(ConnectionCoordinator $connectionCoordinator, DebateService $debateService)
     {
-        $this->connectionManager = $connectionManager;
+        $this->connectionCoordinator = $connectionCoordinator;
         $this->debateService = $debateService;
     }
 
@@ -115,7 +115,7 @@ class PusherWebhookController extends Controller
                 return;
             }
 
-            $this->connectionManager->handleDisconnection($userId, $context);
+            $this->connectionCoordinator->handleDisconnection($userId, $context);
         }
     }
 
@@ -140,7 +140,7 @@ class PusherWebhookController extends Controller
         }
 
         if ($context) {
-            $this->connectionManager->handleReconnection($userId, $context);
+            $this->connectionCoordinator->handleReconnection($userId, $context);
         }
     }
 

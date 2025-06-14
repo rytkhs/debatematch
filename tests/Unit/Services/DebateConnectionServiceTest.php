@@ -4,7 +4,7 @@ namespace Tests\Unit\Services;
 
 use PHPUnit\Framework\Attributes\Test;
 use App\Services\DebateConnectionService;
-use App\Services\ConnectionManager;
+use App\Services\Connection\ConnectionCoordinator;
 use App\Services\DebateService;
 use App\Models\Debate;
 use App\Models\Room;
@@ -21,8 +21,8 @@ class DebateConnectionServiceTest extends BaseServiceTest
     /** @var DebateConnectionService */
     protected $service;
 
-    /** @var MockInterface|ConnectionManager */
-    protected $connectionManagerMock;
+    /** @var MockInterface|ConnectionCoordinator */
+    protected $connectionCoordinatorMock;
 
     /** @var MockInterface|DebateService */
     protected $debateServiceMock;
@@ -31,17 +31,17 @@ class DebateConnectionServiceTest extends BaseServiceTest
     {
         parent::setUp();
 
-        $this->connectionManagerMock = $this->createServiceMock(ConnectionManager::class);
+        $this->connectionCoordinatorMock = $this->createServiceMock(ConnectionCoordinator::class);
         $this->debateServiceMock = $this->createServiceMock(DebateService::class);
-        $this->service = new DebateConnectionService($this->connectionManagerMock, $this->debateServiceMock);
+        $this->service = new DebateConnectionService($this->connectionCoordinatorMock, $this->debateServiceMock);
     }
 
     #[Test]
     public function testConstructor()
     {
-        $connectionManager = Mockery::mock(ConnectionManager::class);
+        $connectionCoordinator = Mockery::mock(ConnectionCoordinator::class);
         $debateService = Mockery::mock(DebateService::class);
-        $service = new DebateConnectionService($connectionManager, $debateService);
+        $service = new DebateConnectionService($connectionCoordinator, $debateService);
 
         $this->assertInstanceOf(DebateConnectionService::class, $service);
     }
@@ -65,7 +65,7 @@ class DebateConnectionServiceTest extends BaseServiceTest
         $debateId = 2;
         $expectedResult = true;
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleDisconnection')
             ->once()
             ->with($userId, [
@@ -94,7 +94,7 @@ class DebateConnectionServiceTest extends BaseServiceTest
                 'error' => $exception->getMessage()
             ]);
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleDisconnection')
             ->once()
             ->andThrow($exception);
@@ -111,7 +111,7 @@ class DebateConnectionServiceTest extends BaseServiceTest
         $debateId = 2;
         $expectedResult = true;
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleReconnection')
             ->once()
             ->with($userId, [
@@ -140,7 +140,7 @@ class DebateConnectionServiceTest extends BaseServiceTest
                 'error' => $exception->getMessage()
             ]);
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleReconnection')
             ->once()
             ->andThrow($exception);
@@ -312,13 +312,13 @@ class DebateConnectionServiceTest extends BaseServiceTest
         $debateId = 2;
 
         // 切断と再接続の連続処理
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleDisconnection')
             ->once()
             ->with($userId, ['type' => 'debate', 'id' => $debateId])
             ->andReturn(true);
 
-        $this->connectionManagerMock
+        $this->connectionCoordinatorMock
             ->shouldReceive('handleReconnection')
             ->once()
             ->with($userId, ['type' => 'debate', 'id' => $debateId])

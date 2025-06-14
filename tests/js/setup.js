@@ -32,26 +32,41 @@ const originalWarn = console.warn;
 global.console = {
     ...console,
     error: jest.fn((message, ...args) => {
-        // jsdom固有の無害なエラーのみ抑制
-        const jsdomOnlyPatterns = [
+        // テスト環境では基本的にコンソールエラーを抑制
+        const suppressPatterns = [
             'Not implemented: navigation',
             'Not implemented: HTMLFormElement.prototype.requestSubmit',
+            '[DOMUtils]', // DOMUtilsの意図的エラー
+            '[test]', // テスト用エラー
         ];
 
-        const shouldSuppress = jsdomOnlyPatterns.some(
+        const shouldSuppress = suppressPatterns.some(
             pattern => message && message.toString().includes(pattern)
         );
 
         if (shouldSuppress) {
-            return; // jsdom固有のエラーは抑制
+            return; // テスト時のエラーは抑制
         }
 
-        // その他のエラーは重要なので表示
-        originalError.apply(console, ['[TEST ERROR]', message, ...args]);
+        // 予期しない重要なエラーのみ表示
+        originalError.apply(console, ['[UNEXPECTED ERROR]', message, ...args]);
     }),
     warn: jest.fn((message, ...args) => {
-        // 警告は基本的に表示
-        originalWarn.apply(console, ['[TEST WARN]', message, ...args]);
+        // テスト環境では警告も基本的に抑制
+        const suppressPatterns = [
+            '[DOMUtils]', // DOMUtilsの意図的警告
+        ];
+
+        const shouldSuppress = suppressPatterns.some(
+            pattern => message && message.toString().includes(pattern)
+        );
+
+        if (shouldSuppress) {
+            return; // テスト時の警告は抑制
+        }
+
+        // 予期しない警告のみ表示
+        originalWarn.apply(console, ['[UNEXPECTED WARN]', message, ...args]);
     }),
 };
 
