@@ -26,6 +26,7 @@ export default [
                 fetch: 'readonly',
                 navigator: 'readonly',
                 location: 'readonly',
+                MutationObserver: 'readonly',
 
                 // Node.js環境
                 process: 'readonly',
@@ -96,6 +97,7 @@ export default [
                 clearInterval: 'readonly',
                 requestAnimationFrame: 'readonly',
                 cancelAnimationFrame: 'readonly',
+                MutationObserver: 'readonly',
 
                 // Node.js環境
                 global: 'readonly',
