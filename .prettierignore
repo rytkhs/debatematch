@@ -1,0 +1,23 @@
+# 依存関係
+node_modules/
+vendor/
+
+# ビルド成果物
+public/build/
+dist/
+
+# ログファイル
+storage/logs/*.log
+
+# 設定ファイル
+.env*
+composer.lock
+package-lock.json
+
+# Laravel固有
+bootstrap/cache/
+storage/framework/
+
+# その他
+*.min.js
+*.min.css

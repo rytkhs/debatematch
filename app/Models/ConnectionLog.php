@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Services\ConnectionManager;
+use App\Enums\ConnectionStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -60,7 +60,7 @@ class ConnectionLog extends Model
      */
     public function isConnected()
     {
-        return $this->status === ConnectionManager::STATUS_CONNECTED;
+        return $this->status === ConnectionStatus::CONNECTED;
     }
 
     /**
@@ -70,7 +70,7 @@ class ConnectionLog extends Model
      */
     public function isTemporarilyDisconnected()
     {
-        return $this->status === ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED;
+        return $this->status === ConnectionStatus::TEMPORARILY_DISCONNECTED;
     }
 
     /**
@@ -86,7 +86,7 @@ class ConnectionLog extends Model
             ->select('cl1.user_id')
             ->where('cl1.context_type', $contextType)
             ->where('cl1.context_id', $contextId)
-            ->where('cl1.status', ConnectionManager::STATUS_CONNECTED)
+            ->where('cl1.status', ConnectionStatus::CONNECTED)
             ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('connection_logs as cl2')
@@ -107,49 +107,18 @@ class ConnectionLog extends Model
     public function getConnectionDuration()
     {
         // 接続中の場合は現在時刻までの時間を計算
-        if ($this->status === ConnectionManager::STATUS_CONNECTED) {
-            return $this->connected_at ? now()->diffInSeconds($this->connected_at) : null;
+        if ($this->status === ConnectionStatus::CONNECTED) {
+            return $this->connected_at ? $this->connected_at->diffInSeconds(now()) : null;
         }
 
         // 切断された場合は接続から切断までの時間を計算
         if ($this->disconnected_at && $this->connected_at) {
-            return $this->disconnected_at->diffInSeconds($this->connected_at);
+            return $this->connected_at->diffInSeconds($this->disconnected_at);
         }
 
         return null;
     }
 
-    /**
-     * 特定期間内の接続エラー頻度を分析
-     *
-     * @param int $userId
-     * @param int $hours 分析する時間枠（時間単位）
-     * @return array 分析結果
-     */
-    public static function analyzeConnectionIssues($userId, $hours = 24)
-    {
-        $startTime = now()->subHours($hours);
-
-        $disconnections = self::where('user_id', $userId)
-            ->where('created_at', '>=', $startTime)
-            ->whereIn('status', [
-                ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED,
-                ConnectionManager::STATUS_DISCONNECTED
-            ])
-            ->count();
-
-        $reconnections = self::where('user_id', $userId)
-            ->where('created_at', '>=', $startTime)
-            ->whereNotNull('reconnected_at')
-            ->count();
-
-        return [
-            'total_disconnections' => $disconnections,
-            'successful_reconnections' => $reconnections,
-            'failure_rate' => $disconnections > 0 ?
-                (($disconnections - $reconnections) / $disconnections) * 100 : 0
-        ];
-    }
 
     /**
      * 特定のコンテキストに対するユーザーの初回接続を記録する
@@ -187,7 +156,7 @@ class ConnectionLog extends Model
             'user_id' => $userId,
             'context_type' => $contextType,
             'context_id' => $contextId,
-            'status' => ConnectionManager::STATUS_CONNECTED,
+            'status' => ConnectionStatus::CONNECTED,
             'connected_at' => now(),
             'metadata' => [
                 'client_info' => $clientInfo,
@@ -214,7 +183,7 @@ class ConnectionLog extends Model
                 ->orWhereBetween('disconnected_at', [$start, $end])
                 ->orWhereBetween('reconnected_at', [$start, $end])
                 ->orWhere(function ($subQ) use ($start) {
-                    $subQ->whereIn('status', [ConnectionManager::STATUS_CONNECTED, ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED])
+                    $subQ->whereIn('status', [ConnectionStatus::CONNECTED, ConnectionStatus::TEMPORARILY_DISCONNECTED])
                         ->where('connected_at', '<', $start);
                 });
         });
@@ -240,8 +209,8 @@ class ConnectionLog extends Model
                 $join->on('connection_logs.id', '=', 'latest_logs.id');
             })
             ->whereIn('status', [
-                ConnectionManager::STATUS_CONNECTED,
-                ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED
+                ConnectionStatus::CONNECTED,
+                ConnectionStatus::TEMPORARILY_DISCONNECTED
             ])
             ->groupBy('status', 'context_type')
             ->get();
@@ -254,14 +223,14 @@ class ConnectionLog extends Model
         ];
 
         foreach ($stats as $stat) {
-            if ($stat->status === ConnectionManager::STATUS_CONNECTED) {
+            if ($stat->status === ConnectionStatus::CONNECTED) {
                 $result['total_connected'] += $stat->user_count;
                 if ($stat->context_type === 'room') {
                     $result['room_connected'] += $stat->user_count;
                 } elseif ($stat->context_type === 'debate') {
                     $result['debate_connected'] += $stat->user_count;
                 }
-            } elseif ($stat->status === ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED) {
+            } elseif ($stat->status === ConnectionStatus::TEMPORARILY_DISCONNECTED) {
                 $result['temporarily_disconnected'] += $stat->user_count;
             }
         }
@@ -269,24 +238,7 @@ class ConnectionLog extends Model
         return $result;
     }
 
-    /**
-     * 指定期間内に頻繁な切断が記録されたユーザーを取得
-     *
-     * @param Carbon $start
-     * @param Carbon $end
-     * @return \Illuminate\Support\Collection
-     */
-    public static function getFrequentDisconnectionUsers(Carbon $start, Carbon $end)
-    {
-        // LaravelのJSONクエリメソッドを使用してデータベース非依存にする
-        return self::select('user_id', DB::raw('COUNT(*) as frequent_count'))
-            ->whereJsonContains('metadata', ['frequent_disconnections' => true])
-            ->whereBetween('created_at', [$start, $end])
-            ->groupBy('user_id')
-            ->orderByDesc('frequent_count')
-            ->with('user:id,name') // ユーザー情報も取得
-            ->get();
-    }
+
 
     /**
      * 指定期間内の切断傾向を分析
@@ -298,8 +250,8 @@ class ConnectionLog extends Model
     public static function analyzeDisconnectionTrends(Carbon $start, Carbon $end): array
     {
         $logs = self::whereIn('status', [
-            ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED,
-            ConnectionManager::STATUS_DISCONNECTED
+            ConnectionStatus::TEMPORARILY_DISCONNECTED,
+            ConnectionStatus::DISCONNECTED
         ])
             ->whereBetween('created_at', [$start, $end])
             ->select('created_at', 'metadata')
@@ -374,7 +326,7 @@ class ConnectionLog extends Model
         $currentSession = null;
 
         foreach ($logs as $log) {
-            if ($log->status === ConnectionManager::STATUS_CONNECTED) {
+            if ($log->status === ConnectionStatus::CONNECTED) {
                 // 新しいセッションの開始 or 再接続
                 if ($currentSession === null) {
                     $currentSession = [
@@ -403,7 +355,7 @@ class ConnectionLog extends Model
                     $currentSession['disconnection_duration'] = $log->metadata['disconnection_duration'] ?? null;
                 }
                 $currentSession['logs'][] = $log;
-            } elseif ($log->status === ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED) {
+            } elseif ($log->status === ConnectionStatus::TEMPORARILY_DISCONNECTED) {
                 if ($currentSession !== null && $currentSession['status'] === 'connected') {
                     $currentSession['status'] = 'temporarily_disconnected';
                     $currentSession['disconnected_at'] = $log->disconnected_at; // 一時切断時刻
@@ -420,7 +372,7 @@ class ConnectionLog extends Model
                     ];
                 }
                 $currentSession['logs'][] = $log;
-            } elseif ($log->status === ConnectionManager::STATUS_DISCONNECTED) {
+            } elseif ($log->status === ConnectionStatus::DISCONNECTED) {
                 if ($currentSession !== null) {
                     $currentSession['status'] = 'disconnected';
                     // finalized_at があればそれを終了時刻とするのがより正確

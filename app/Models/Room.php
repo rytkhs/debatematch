@@ -63,20 +63,24 @@ class Room extends Model
 
     public function updateStatus(string $status): void
     {
+        if ($this->status === $status) {
+            return;
+        }
+
         // 有効な状態遷移を定義
-        // $validTransitions = [
-        //     self::STATUS_WAITING => [self::STATUS_READY, self::STATUS_DELETED, self::STATUS_TERMINATED],
-        //     self::STATUS_READY => [self::STATUS_DEBATING, self::STATUS_WAITING, self::STATUS_DELETED, self::STATUS_TERMINATED],
-        //     self::STATUS_DEBATING => [self::STATUS_FINISHED, self::STATUS_TERMINATED],
-        //     self::STATUS_FINISHED => [],
-        //     self::STATUS_DELETED => [],
-        //     self::STATUS_TERMINATED => [],
-        // ];
+        $validTransitions = [
+            self::STATUS_WAITING => [self::STATUS_WAITING, self::STATUS_READY, self::STATUS_DELETED, self::STATUS_TERMINATED],
+            self::STATUS_READY => [self::STATUS_READY, self::STATUS_DEBATING, self::STATUS_WAITING, self::STATUS_DELETED, self::STATUS_TERMINATED],
+            self::STATUS_DEBATING => [self::STATUS_DEBATING, self::STATUS_FINISHED, self::STATUS_DELETED, self::STATUS_TERMINATED],
+            self::STATUS_FINISHED => [self::STATUS_FINISHED],
+            self::STATUS_DELETED => [self::STATUS_DELETED],
+            self::STATUS_TERMINATED => [self::STATUS_TERMINATED],
+        ];
 
         // 通常の状態遷移のバリデーション
-        // if (!in_array($status, $validTransitions[$this->status])) {
-        //     throw new \InvalidArgumentException("Invalid status transition: {$this->status} → {$status}");
-        // }
+        if (!in_array($status, $validTransitions[$this->status])) {
+            throw new \InvalidArgumentException("Invalid status transition: {$this->status} → {$status}");
+        }
 
         // 状態を更新
         $this->update(['status' => $status]);

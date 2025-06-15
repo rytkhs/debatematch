@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\ConnectionAnalyticsController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\AIDebateController;
+use Illuminate\Support\Facades\Log;
 
 
 // 基本ルート
@@ -119,20 +120,50 @@ Route::post('/webhook/pusher', [PusherWebhookController::class, 'handle'])->with
 
 
 Route::post('/pusher/auth', function (Request $request) {
-    $pusher = new Pusher(
-        config('broadcasting.connections.pusher.key'),
-        config('broadcasting.connections.pusher.secret'),
-        config('broadcasting.connections.pusher.app_id'),
-        config('broadcasting.connections.pusher.options')
-    );
+    try {
+        // ユーザー認証の確認
+        if (!Auth::check()) {
+            return response('Unauthorized', 401);
+        }
 
-    return $pusher->presence_auth(
-        $request->input('channel_name'),
-        $request->input('socket_id'),
-        Auth::user()->id,
-        ['name' => Auth::user()->name]
-    );
-})->middleware(['auth', 'verified'])->withoutMiddleware([ValidateCsrfToken::class]);
+        $pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            config('broadcasting.connections.pusher.options')
+        );
+
+        $channelName = $request->input('channel_name');
+        $socketId = $request->input('socket_id');
+
+        // チャンネル名の検証
+        if (!$channelName || !$socketId) {
+            return response('Bad Request: Missing required parameters', 400);
+        }
+
+        // プレゼンスチャンネルの場合
+        if (strpos($channelName, 'presence-') === 0) {
+            return $pusher->presence_auth(
+                $channelName,
+                $socketId,
+                Auth::user()->id,
+                ['name' => Auth::user()->name]
+            );
+        }
+
+        // 通常のプライベートチャンネルの場合
+        return $pusher->socket_auth($channelName, $socketId);
+    } catch (Exception $e) {
+        Log::error('Pusher auth error: ' . $e->getMessage(), [
+            'user_id' => Auth::id(),
+            'channel' => $request->input('channel_name'),
+            'socket_id' => $request->input('socket_id'),
+            'error' => $e->getMessage()
+        ]);
+
+        return response('Internal Server Error', 500);
+    }
+})->middleware(['auth', 'verified', 'throttle:30,1'])->withoutMiddleware([ValidateCsrfToken::class]);
 
 // ハートビートエンドポイント
 Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])

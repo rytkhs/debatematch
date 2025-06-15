@@ -33,9 +33,11 @@
         <div class="mt-4 text-center">
             <div class="flex flex-col items-center justify-center space-y-1">
                 <span class="text-yellow-500 text-md font-semibold">{{ __('messages.debate_in_progress') }}</span>
+                @if($room->debate)
                 <a href="/debate/{{ $room->debate->id }}" class="text-blue-500 hover:underline">
                     <span>{{ __('messages.click_if_no_redirect') }}</span>
                 </a>
+                @endif
             </div>
         </div>
     @endif

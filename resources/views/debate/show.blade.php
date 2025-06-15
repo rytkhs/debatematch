@@ -101,6 +101,7 @@
         debateId: {{ Js::from($debate->id) }},
         roomId: {{ Js::from($debate->room->id) }},
         authUserId: {{ Js::from(auth()->id()) }},
+        roomLanguage: {{ Js::from($debate->room->language) }},
         pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
         pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }},
     };
@@ -128,13 +129,6 @@
 
     </script>
     <script src="https://js.pusher.com/8.3.0/pusher.min.js"></script>
-    @vite([
-        'resources/js/debate/ui.js',
-        'resources/js/debate/presence.js',
-        'resources/js/debate/countdown.js',
-        'resources/js/debate/event-listener.js',
-        'resources/js/debate/notification.js',
-        'resources/js/debate/scroll.js',
-    ])
+    @vite('resources/js/pages/debate-show.js')
 
 </x-show-layout>

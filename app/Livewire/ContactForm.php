@@ -24,10 +24,15 @@ class ContactForm extends Component
     {
         $validTypes = implode(',', Contact::getValidTypes());
 
+        // テスト環境ではDNSチェックを無効にする
+        $emailRule = app()->environment('testing')
+            ? 'required|email:rfc|max:255'
+            : 'required|email:rfc,dns|max:255';
+
         return [
             'type' => "required|in:{$validTypes}",
             'name' => 'required|string|max:255',
-            'email' => 'required|email:rfc,dns|max:255',
+            'email' => $emailRule,
             'subject' => 'required|string|max:500',
             'message' => 'required|string|min:10|max:5000',
         ];
@@ -103,9 +108,6 @@ class ContactForm extends Component
                 'user_id' => Auth::id(),
             ]);
 
-            $slackService = new ContactSlackNotifier();
-            $slackService->notifyNewContact($contact);
-
             $this->contactId = $contact->id;
             $this->submitted = true;
 
@@ -116,6 +118,14 @@ class ContactForm extends Component
             if (Auth::check()) {
                 $this->name = Auth::user()->name ?? '';
                 $this->email = Auth::user()->email ?? '';
+            }
+
+            // Slack通知は別途実行（失敗してもフォーム送信は成功として扱う）
+            try {
+                $slackService = new ContactSlackNotifier();
+                $slackService->notifyNewContact($contact);
+            } catch (\Exception $slackError) {
+                Log::warning('Slack notification failed for contact #' . $contact->id . ': ' . $slackError->getMessage());
             }
         } catch (\Exception $e) {
             session()->flash('error', __('An error occurred while submitting your contact. Please try again.'));

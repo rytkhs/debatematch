@@ -24,9 +24,14 @@ class RoomUser extends Pivot
 
     /**
      * ユーザーがルーム作成者かどうかを判定
+     * roomリレーションが事前にロードされていることを前提とする
      */
     public function isCreator()
     {
+        // roomリレーションがロードされていない場合は事前にロード
+        if (!$this->relationLoaded('room')) {
+            $this->load('room');
+        }
         return $this->room->created_by === $this->user_id;
     }
 }

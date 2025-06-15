@@ -259,7 +259,7 @@ return [
     'early_termination_feature_list3' => '提案から60秒以内に応答が必要',
     'flexible_settings' => '柔軟な設定',
     'flexible_settings_desc' => 'ディベートの長さを自由に設定できます。',
-    'flexible_settings_list1' => '1ターンの時間を自由に設定（1～10分）',
+    'flexible_settings_list1' => '1ターンの時間を自由に設定（1～15分）',
     'flexible_settings_list2' => '最大ターン数を設定（4～100ターン）',
     'flexible_settings_list3' => '短時間でも長時間でも対応可能',
     'recommended_situations' => 'こんな場面におすすめ',
@@ -385,6 +385,7 @@ return [
     'click_if_no_redirect' => 'リダイレクトされない場合はこちらをクリック',
     'waiting_status' => '待機中', // Specific for room status display
     'ready_status' => '準備完了',   // Specific for room status display
+    'debate_in_progress' => '進行中',  // Specific for room status display
     'closed_status' => '閉鎖済',
     'unknown_status' => '不明',
     'peer_connection_unstable' => '相手の接続が不安定です。',
@@ -497,7 +498,7 @@ return [
     'twitter_login' => 'Twitterアカウントでログイン',
     'guest_login' => 'ゲストとして続行',
     'guest_user' => 'ゲストユーザー',
-    'guest_login_notice' => 'ゲストアクセスは24時間で期限切れになります',
+    'guest_login_notice' => 'ゲストアクセスは2時間で期限切れになります',
     'demo_mode_notice' => 'ゲストモードで閲覧中',
     'demo_mode_description' => 'デモ:で始まる論題はサンプルのディベート履歴です。ゲストユーザーでも実際のディベートに参加できます。',
 

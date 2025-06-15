@@ -1,19 +1,49 @@
 export default {
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: ['<rootDir>/tests/js/setup.js'],
-    testMatch: [
-        '<rootDir>/tests/js/**/*.test.js'
-    ],
-    collectCoverageFrom: [
-        'resources/js/**/*.js',
-        '!resources/js/bootstrap.js',
-        '!resources/js/app.js',
-        '!**/node_modules/**'
-    ],
+    testMatch: ['<rootDir>/tests/js/**/*.test.js'],
+    collectCoverageFrom: ['resources/js/utils/dom-utils.js'],
     coverageDirectory: 'coverage',
-    coverageReporters: ['text', 'lcov', 'html'],
-    moduleNameMapper: {
-        '^@/(.*)$': '<rootDir>/resources/js/$1'
+    coverageReporters: ['text', 'html'],
+    coverageThreshold: {
+        './resources/js/utils/dom-utils.js': {
+            branches: 50,
+            functions: 60,
+            lines: 50,
+            statements: 50,
+        },
     },
-    transform: {}
+    moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/resources/js/$1',
+    },
+    testTimeout: 10000,
+    clearMocks: true,
+    restoreMocks: true,
+    transform: {
+        '^.+\\.js$': 'babel-jest',
+    },
+    maxWorkers: 1,
+    cache: true,
+    verbose: false,
+    silent: true,
+    coveragePathIgnorePatterns: [
+        '/node_modules/',
+        '/tests/',
+        '/coverage/',
+        'bootstrap.js',
+        'app.js',
+        'echo.js',
+        'resources/js/features/',
+        'resources/js/services/',
+        'resources/js/pages/',
+        'resources/js/components/',
+    ],
+    detectOpenHandles: false,
+    forceExit: true,
+    collectCoverage: true,
+    bail: false,
+    roots: ['<rootDir>/tests/js'],
+    testEnvironmentOptions: {
+        url: 'https://localhost/',
+    },
 };

@@ -23,6 +23,7 @@ class EarlyTermination extends Component
     public function mount(Debate $debate, DebateService $debateService)
     {
         $this->debate = $debate;
+        $debate->load(['affirmativeUser', 'negativeUser', 'room']);
         $this->isFreeFormat = $debateService->isFreeFormat($debate);
         $this->isAiDebate = $debate->room->is_ai_debate ?? false;
         $this->aiUserId = (int)config('app.ai_user_id', 1);
@@ -134,7 +135,8 @@ class EarlyTermination extends Component
         $this->refreshStatus();
 
         // 提案者でない場合のみ通知を表示
-        if ($event['requestedBy'] !== Auth::id()) {
+        $requestedBy = $event['requestedBy'] ?? null;
+        if ($requestedBy && $requestedBy !== Auth::id()) {
             $this->dispatch('showFlashMessage', __('messages.early_termination_proposal', ['name' => $this->getOpponentName()]), 'info');
         }
     }

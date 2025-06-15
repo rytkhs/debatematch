@@ -28,6 +28,7 @@ class StartDebateButton extends Component
     public function mount(Room $room): void
     {
         $this->room = $room;
+        $room->load('users');
         $this->status = $this->room->status;
     }
 
@@ -41,6 +42,7 @@ class StartDebateButton extends Component
     public function startDebate()
     {
         // 参加者が2名揃っているか確認
+        $this->room->load('users');
         if ($this->room->users->count() !== 2) {
             session()->flash('error', __('flash.start_debate.error.not_enough_participants'));
             return;

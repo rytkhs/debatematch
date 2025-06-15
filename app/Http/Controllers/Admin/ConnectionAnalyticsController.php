@@ -8,7 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Services\ConnectionManager;
+use App\Enums\ConnectionStatus;
+use App\Services\Connection\ConnectionCoordinator;
 
 class ConnectionAnalyticsController extends Controller
 {
@@ -24,11 +25,6 @@ class ConnectionAnalyticsController extends Controller
         // リアルタイム接続状況
         $realtimeStats = ConnectionLog::getRealtimeConnectionStats();
 
-        // 異常検知: 頻繁な切断ユーザー
-        $frequentDisconnectionUsers = ConnectionLog::getFrequentDisconnectionUsers($startDate, $endDate);
-
-        // 異常検知: 低再接続率ユーザー (閾値50%)
-        // $lowReconnectionRateUsers = ConnectionLog::getLowReconnectionRateUsers($startDate, $endDate, 50);
 
         // 切断傾向分析
         $disconnectionTrends = ConnectionLog::analyzeDisconnectionTrends($startDate, $endDate);
@@ -38,7 +34,7 @@ class ConnectionAnalyticsController extends Controller
             DB::raw('DATE_FORMAT(created_at, "%H:00") as hour'),
             DB::raw('COUNT(*) as count')
         )
-            ->whereIn('status', [ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED, ConnectionManager::STATUS_DISCONNECTED]) // 切断イベントをカウント
+            ->whereIn('status', [ConnectionStatus::TEMPORARILY_DISCONNECTED, ConnectionStatus::DISCONNECTED]) // 切断イベントをカウント
             ->where('created_at', '>=', now()->subDay())
             ->groupBy('hour')
             ->orderBy('hour')
@@ -49,7 +45,7 @@ class ConnectionAnalyticsController extends Controller
             'user_id',
             DB::raw('COUNT(*) as disconnection_count')
         )
-            ->whereIn('status', [ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED, ConnectionManager::STATUS_DISCONNECTED])
+            ->whereIn('status', [ConnectionStatus::TEMPORARILY_DISCONNECTED, ConnectionStatus::DISCONNECTED])
             ->whereBetween('created_at', [$startDate, $endDate]) // 期間指定
             ->groupBy('user_id')
             ->orderByDesc('disconnection_count')
@@ -58,7 +54,7 @@ class ConnectionAnalyticsController extends Controller
             ->get();
 
         // 平均再接続率 (指定期間)
-        $totalTemporaryDisconnections = ConnectionLog::where('status', ConnectionManager::STATUS_TEMPORARILY_DISCONNECTED)
+        $totalTemporaryDisconnections = ConnectionLog::where('status', ConnectionStatus::TEMPORARILY_DISCONNECTED)
             ->whereBetween('created_at', [$startDate, $endDate]) // 期間内に一時切断が発生したログの数
             ->count();
 
@@ -83,8 +79,6 @@ class ConnectionAnalyticsController extends Controller
             'endDate',
             'period',
             'realtimeStats',
-            'frequentDisconnectionUsers',
-            // 'lowReconnectionRateUsers',
             'disconnectionTrends',
             'disconnectionStats24h',
             'userDisconnectionRanking',
@@ -104,8 +98,6 @@ class ConnectionAnalyticsController extends Controller
         // 接続セッション履歴を取得
         $connectionSessions = ConnectionLog::getUserConnectionSessions($user->id, $startDate, $endDate);
 
-        // 接続問題概要 (指定期間)
-        $connectionIssues = ConnectionLog::analyzeConnectionIssues($user->id, $startDate->diffInHours($endDate)); // 時間で指定
 
         // ページネーションはセッションベースでは難しいので、一旦全件表示か、
         // ログ単位のページネーションに戻すか検討
@@ -119,8 +111,7 @@ class ConnectionAnalyticsController extends Controller
             'startDate',
             'endDate',
             'period',
-            'connectionSessions', // セッションデータを渡す
-            'connectionIssues'
+            'connectionSessions' // セッションデータを渡す
             // 'connectionLogs' // 必要ならログ単位も渡す
         ));
     }
