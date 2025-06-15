@@ -184,10 +184,21 @@ class RoomTest extends BaseModelTest
     #[Test]
     public function test_update_status_with_all_available_statuses()
     {
-        foreach (Room::AVAILABLE_STATUSES as $status) {
-            $room = Room::factory()->create();
-            $room->updateStatus($status);
-            $this->assertEquals($status, $room->fresh()->status);
+        // 各状態に遷移するための適切な初期状態を定義
+        $validInitialStates = [
+            Room::STATUS_WAITING => Room::STATUS_WAITING,     // waiting -> waiting (同じ状態)
+            Room::STATUS_READY => Room::STATUS_WAITING,       // waiting -> ready
+            Room::STATUS_DEBATING => Room::STATUS_READY,      // ready -> debating
+            Room::STATUS_FINISHED => Room::STATUS_DEBATING,   // debating -> finished
+            Room::STATUS_DELETED => Room::STATUS_WAITING,     // waiting -> deleted
+            Room::STATUS_TERMINATED => Room::STATUS_WAITING,  // waiting -> terminated
+        ];
+
+        foreach (Room::AVAILABLE_STATUSES as $targetStatus) {
+            $initialStatus = $validInitialStates[$targetStatus];
+            $room = Room::factory()->create(['status' => $initialStatus]);
+            $room->updateStatus($targetStatus);
+            $this->assertEquals($targetStatus, $room->fresh()->status);
         }
     }
     #[Test]
