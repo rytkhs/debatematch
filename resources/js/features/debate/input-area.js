@@ -1,3 +1,5 @@
+import DOMUtils from '../../utils/dom-utils.js';
+
 /**
  * メッセージ入力エリア管理
  * 入力エリアのリサイズ、音声認識、キーボードショートカットなどを管理
@@ -35,14 +37,26 @@ class InputAreaManager {
      */
     initializeElements() {
         this.elements = {
-            messageInput: document.getElementById('message-input'),
-            resizeHandle: document.getElementById('resize-handle'),
-            expandInput: document.getElementById('expand-input'),
-            shrinkInput: document.getElementById('shrink-input'),
-            toggleInputVisibility: document.getElementById('toggle-input-visibility'),
-            inputArea: document.getElementById('input-area'),
-            voiceInputToggle: document.getElementById('voice-input-toggle'),
-            voiceInterimResults: document.getElementById('voice-interim-results')
+            messageInput: DOMUtils.safeGetElement('message-input', false, 'InputAreaManager'),
+            resizeHandle: DOMUtils.safeGetElement('resize-handle', false, 'InputAreaManager'),
+            expandInput: DOMUtils.safeGetElement('expand-input', false, 'InputAreaManager'),
+            shrinkInput: DOMUtils.safeGetElement('shrink-input', false, 'InputAreaManager'),
+            toggleInputVisibility: DOMUtils.safeGetElement(
+                'toggle-input-visibility',
+                false,
+                'InputAreaManager'
+            ),
+            inputArea: DOMUtils.safeGetElement('input-area', false, 'InputAreaManager'),
+            voiceInputToggle: DOMUtils.safeGetElement(
+                'voice-input-toggle',
+                false,
+                'InputAreaManager'
+            ),
+            voiceInterimResults: DOMUtils.safeGetElement(
+                'voice-interim-results',
+                false,
+                'InputAreaManager'
+            ),
         };
     }
 
@@ -59,16 +73,18 @@ class InputAreaManager {
 
         // 保存された高さを復元
         if (messageInput) {
-            const savedHeight = localStorage.getItem('debate_messageInputHeight');
+            const savedHeight = window.localStorage.getItem('debate_messageInputHeight');
             if (savedHeight) {
                 messageInput.style.height = savedHeight;
             }
 
             // 保存された表示状態を復元
-            const savedVisibility = localStorage.getItem('debate_messageInputVisibility');
+            const savedVisibility = window.localStorage.getItem('debate_messageInputVisibility');
             if (savedVisibility === 'hidden') {
                 if (inputArea) inputArea.classList.add('hidden');
-                if (toggleInputVisibility) toggleInputVisibility.querySelector('.material-icons').textContent = 'visibility_off';
+                if (toggleInputVisibility)
+                    toggleInputVisibility.querySelector('.material-icons').textContent =
+                        'visibility_off';
                 this.state.isVisible = false;
             }
         }
@@ -91,7 +107,7 @@ class InputAreaManager {
 
         if (resizeHandle && messageInput) {
             // マウスイベント
-            resizeHandle.addEventListener('mousedown', (e) => {
+            resizeHandle.addEventListener('mousedown', e => {
                 this.startResize(e.clientY);
                 document.addEventListener('mousemove', this.handleMouseMove.bind(this));
                 document.addEventListener('mouseup', this.handleMouseUp.bind(this));
@@ -99,7 +115,7 @@ class InputAreaManager {
             });
 
             // タッチイベント（モバイル用）
-            resizeHandle.addEventListener('touchstart', (e) => {
+            resizeHandle.addEventListener('touchstart', e => {
                 if (e.touches.length !== 1) return;
                 this.startResize(e.touches[0].clientY);
                 document.addEventListener('touchmove', this.handleTouchMove.bind(this));
@@ -113,14 +129,15 @@ class InputAreaManager {
      * ボタンハンドラーを設定
      */
     setupButtonHandlers() {
-        const { expandInput, shrinkInput, toggleInputVisibility, inputArea, messageInput } = this.elements;
+        const { expandInput, shrinkInput, toggleInputVisibility, inputArea, messageInput } =
+            this.elements;
 
         // 入力エリア拡大ボタン
         if (expandInput && messageInput) {
             expandInput.addEventListener('click', () => {
                 const maxHeightPercentage = window.innerWidth < 768 ? 0.7 : 0.73;
                 this.state.expandedHeight = window.innerHeight * maxHeightPercentage;
-                messageInput.style.transition = "height 0.2s ease";
+                messageInput.style.transition = 'height 0.2s ease';
                 messageInput.style.height = `${this.state.expandedHeight}px`;
                 this.saveInputHeight();
                 this.ensureInputVisible();
@@ -131,7 +148,7 @@ class InputAreaManager {
         // 入力エリア縮小ボタン
         if (shrinkInput && messageInput) {
             shrinkInput.addEventListener('click', () => {
-                messageInput.style.transition = "height 0.2s ease";
+                messageInput.style.transition = 'height 0.2s ease';
                 messageInput.style.height = `${this.state.defaultHeight}px`;
                 this.saveInputHeight();
                 this.ensureInputVisible();
@@ -144,11 +161,13 @@ class InputAreaManager {
             toggleInputVisibility.addEventListener('click', () => {
                 if (this.state.isVisible) {
                     inputArea.classList.add('hidden');
-                    toggleInputVisibility.querySelector('.material-icons').textContent = 'visibility_off';
+                    toggleInputVisibility.querySelector('.material-icons').textContent =
+                        'visibility_off';
                     this.state.isVisible = false;
                 } else {
                     inputArea.classList.remove('hidden');
-                    toggleInputVisibility.querySelector('.material-icons').textContent = 'visibility';
+                    toggleInputVisibility.querySelector('.material-icons').textContent =
+                        'visibility';
                     this.state.isVisible = true;
                 }
                 this.saveInputVisibility(this.state.isVisible);
@@ -164,11 +183,13 @@ class InputAreaManager {
 
         if (messageInput) {
             // テキストエリアへの通常入力時の処理
-            messageInput.addEventListener('input', (e) => {
+            messageInput.addEventListener('input', e => {
                 // Livewireモデルを更新
                 if (window.Livewire && typeof window.Livewire.find !== 'undefined') {
                     // Livewireコンポーネントを見つけて更新
-                    const component = window.Livewire.find(messageInput.closest('[wire\\:id]')?.getAttribute('wire:id'));
+                    const component = window.Livewire.find(
+                        messageInput.closest('[wire\\:id]')?.getAttribute('wire:id')
+                    );
                     if (component) {
                         component.set('newMessage', messageInput.value);
                     }
@@ -189,10 +210,10 @@ class InputAreaManager {
         const { messageInput } = this.elements;
         this.state.isResizing = true;
         this.state.startY = clientY;
-        this.state.startHeight = parseInt(getComputedStyle(messageInput).height, 10);
+        this.state.startHeight = parseInt(window.getComputedStyle(messageInput).height, 10);
         this.ensureInputVisible();
         this.state.isAnimating = false;
-        messageInput.style.transition = "none";
+        messageInput.style.transition = 'none';
     }
 
     /**
@@ -218,7 +239,10 @@ class InputAreaManager {
         const { messageInput } = this.elements;
         const deltaY = this.state.startY - clientY;
         const maxHeightPercentage = window.innerWidth < 768 ? 0.6 : 0.73;
-        const newHeight = Math.max(60, Math.min(window.innerHeight * maxHeightPercentage, this.state.startHeight + deltaY));
+        const newHeight = Math.max(
+            60,
+            Math.min(window.innerHeight * maxHeightPercentage, this.state.startHeight + deltaY)
+        );
         messageInput.style.height = `${newHeight}px`;
     }
 
@@ -247,7 +271,7 @@ class InputAreaManager {
         const { messageInput } = this.elements;
         if (!this.state.isResizing) return;
         this.state.isResizing = false;
-        messageInput.style.transition = "";
+        messageInput.style.transition = '';
         this.state.isAnimating = false;
         this.saveInputHeight();
     }
@@ -265,7 +289,8 @@ class InputAreaManager {
             this.recognition = new SpeechRecognition();
 
             // 言語設定
-            const roomLanguage = document.documentElement.getAttribute('data-room-language') || 'english';
+            const roomLanguage =
+                document.documentElement.getAttribute('data-room-language') || 'english';
             this.recognition.lang = roomLanguage === 'japanese' ? 'ja-JP' : 'en-US';
             this.recognition.continuous = true;
             this.recognition.interimResults = true;
@@ -291,7 +316,7 @@ class InputAreaManager {
         };
 
         // 音声認識結果の処理
-        this.recognition.onresult = (event) => {
+        this.recognition.onresult = event => {
             let finalTranscript = '';
             let interimTranscript = '';
 
@@ -315,13 +340,15 @@ class InputAreaManager {
 
             // 最終結果があればテキストエリアとLivewireモデルを更新
             if (finalTranscript) {
-                let updatedText = this.currentMessageValue + finalTranscript;
+                const updatedText = this.currentMessageValue + finalTranscript;
                 messageInput.value = updatedText;
                 this.currentMessageValue = updatedText;
 
                 // Livewireモデルを更新
                 if (window.Livewire) {
-                    const component = window.Livewire.find(messageInput.closest('[wire\\:id]')?.getAttribute('wire:id'));
+                    const component = window.Livewire.find(
+                        messageInput.closest('[wire\\:id]')?.getAttribute('wire:id')
+                    );
                     if (component) {
                         component.set('newMessage', updatedText);
                     }
@@ -352,7 +379,7 @@ class InputAreaManager {
         };
 
         // エラー処理
-        this.recognition.onerror = (event) => {
+        this.recognition.onerror = event => {
             console.error('音声認識エラー:', event.error);
             this.state.isVoiceRecognizing = false;
             this.resetVoiceRecognitionUI();
@@ -392,7 +419,7 @@ class InputAreaManager {
         const { messageInput } = this.elements;
 
         if (messageInput) {
-            messageInput.addEventListener('keydown', (e) => {
+            messageInput.addEventListener('keydown', e => {
                 // Ctrl+Enterキーで送信機能
                 if (e.ctrlKey && e.key === 'Enter') {
                     e.preventDefault();
@@ -407,7 +434,9 @@ class InputAreaManager {
                     if (submitButton && !submitButton.disabled && messageInput.value.trim()) {
                         try {
                             // LivewireのsendMessageメソッドを呼び出し
-                            const component = window.Livewire.find(messageInput.closest('[wire\\:id]')?.getAttribute('wire:id'));
+                            const component = window.Livewire.find(
+                                messageInput.closest('[wire\\:id]')?.getAttribute('wire:id')
+                            );
                             if (component) {
                                 component.call('sendMessage');
                             }
@@ -420,9 +449,10 @@ class InputAreaManager {
         }
 
         // グローバルキーボードショートカット
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', e => {
             if ((e.ctrlKey && e.altKey) || (e.metaKey && e.altKey)) {
-                const { expandInput, shrinkInput, toggleInputVisibility, voiceInputToggle } = this.elements;
+                const { expandInput, shrinkInput, toggleInputVisibility, voiceInputToggle } =
+                    this.elements;
 
                 switch (e.key) {
                     case 'ArrowUp': // 拡大
@@ -478,7 +508,7 @@ class InputAreaManager {
     saveInputHeight() {
         const { messageInput } = this.elements;
         if (messageInput) {
-            localStorage.setItem('debate_messageInputHeight', messageInput.style.height);
+            window.localStorage.setItem('debate_messageInputHeight', messageInput.style.height);
         }
     }
 
@@ -486,7 +516,10 @@ class InputAreaManager {
      * 入力エリアの表示状態を保存
      */
     saveInputVisibility(isVisible) {
-        localStorage.setItem('debate_messageInputVisibility', isVisible ? 'visible' : 'hidden');
+        window.localStorage.setItem(
+            'debate_messageInputVisibility',
+            isVisible ? 'visible' : 'hidden'
+        );
     }
 
     /**

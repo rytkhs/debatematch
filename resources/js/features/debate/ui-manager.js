@@ -1,4 +1,4 @@
-import DOMUtils from '@/utils/dom-utils.js';
+import DOMUtils from '../../utils/dom-utils.js';
 
 /**
  * ディベートUI管理

@@ -1,4 +1,5 @@
 import Logger from '../../services/logger.js';
+import DOMUtils from '../../utils/dom-utils.js';
 
 /**
  * ディベートイベントハンドラー
@@ -23,17 +24,17 @@ class DebateEventHandler {
 
         // ディベート終了イベントを監視
         this.channel = window.Echo.private(`debate.${this.debateId}`)
-            .listen('DebateFinished', (e) => {
+            .listen('DebateFinished', e => {
                 this.handleDebateFinished(e);
             })
-            .listen('DebateEvaluated', (e) => {
+            .listen('DebateEvaluated', e => {
                 this.handleDebateEvaluated(e);
             })
-            .listen('DebateTerminated', (e) => {
+            .listen('DebateTerminated', e => {
                 this.logger.log('DebateTerminated イベントを受信:', e);
                 this.handleDebateTerminated(e);
             })
-            .listen('EarlyTerminationExpired', (e) => {
+            .listen('EarlyTerminationExpired', e => {
                 this.logger.log('EarlyTerminationExpired イベントを受信:', e);
                 this.handleEarlyTerminationExpired(e);
             });
@@ -46,9 +47,11 @@ class DebateEventHandler {
         // 終了通知を表示
         this.showNotification({
             title: window.translations?.debate_finished_title || 'ディベートが終了しました',
-            message: window.translations?.evaluating_message || 'AIによる評価を行っています。しばらくお待ちください...',
+            message:
+                window.translations?.evaluating_message ||
+                'AIによる評価を行っています。しばらくお待ちください...',
             type: 'info',
-            duration: 10000
+            duration: 10000,
         });
 
         // オーバーレイを表示
@@ -64,7 +67,7 @@ class DebateEventHandler {
             title: window.translations?.evaluation_complete_title || 'ディベート評価が完了しました',
             message: window.translations?.redirecting_to_results || '結果ページへ移動します',
             type: 'success',
-            duration: 2000
+            duration: 2000,
         });
         this.logger.log(event.debateId);
 
@@ -82,7 +85,10 @@ class DebateEventHandler {
      */
     handleDebateTerminated(event) {
         // 終了通知を表示
-        alert(window.translations?.host_left_terminated || '相手との接続が切断されたため、ディベートを終了します');
+        alert(
+            window.translations?.host_left_terminated ||
+                '相手との接続が切断されたため、ディベートを終了します'
+        );
         window.location.href = '/';
     }
 
@@ -91,10 +97,14 @@ class DebateEventHandler {
      */
     handleEarlyTerminationExpired(event) {
         this.showNotification({
-            title: window.translations?.early_termination_expired_notification || '早期終了提案がタイムアウトしました',
-            message: window.translations?.early_termination_timeout_message || '早期終了の提案は1分で期限切れになりました。ディベートを継続します。',
+            title:
+                window.translations?.early_termination_expired_notification ||
+                '早期終了提案がタイムアウトしました',
+            message:
+                window.translations?.early_termination_timeout_message ||
+                '早期終了の提案は1分で期限切れになりました。ディベートを継続します。',
             type: 'warning',
-            duration: 8000
+            duration: 8000,
         });
     }
 
@@ -189,7 +199,6 @@ class DebateEventHandler {
             setTimeout(() => {
                 notificationElement.remove();
             }, transitionDuration);
-
         }, displayDuration);
     }
 
@@ -198,13 +207,14 @@ class DebateEventHandler {
      */
     showFinishedOverlay() {
         // すでにオーバーレイがあれば何もしない
-        if (document.getElementById('debate-finished-overlay')) {
+        if (DOMUtils.safeGetElement('debate-finished-overlay', false, 'DebateEventHandler')) {
             return;
         }
 
         const overlay = document.createElement('div');
         overlay.id = 'debate-finished-overlay';
-        overlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+        overlay.className =
+            'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
 
         overlay.innerHTML = `
             <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4 border-t-4 border-primary">
