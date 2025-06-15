@@ -101,6 +101,7 @@
         debateId: {{ Js::from($debate->id) }},
         roomId: {{ Js::from($debate->room->id) }},
         authUserId: {{ Js::from(auth()->id()) }},
+        roomLanguage: {{ Js::from($debate->room->language) }},
         pusherKey: {{ Js::from(config('broadcasting.connections.pusher.key')) }},
         pusherCluster: {{ Js::from(config('broadcasting.connections.pusher.options.cluster')) }},
     };

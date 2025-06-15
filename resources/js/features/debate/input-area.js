@@ -289,9 +289,16 @@ class InputAreaManager {
             this.recognition = new SpeechRecognition();
 
             // 言語設定
-            const roomLanguage =
-                document.documentElement.getAttribute('data-room-language') || 'english';
-            this.recognition.lang = roomLanguage === 'japanese' ? 'ja-JP' : 'en-US';
+            let roomLanguage = 'english';
+
+            if (window.debateData && window.debateData.roomLanguage) {
+                roomLanguage = window.debateData.roomLanguage;
+            }
+
+            // 日本語判定
+            const isJapanese = roomLanguage === 'japanese';
+            this.recognition.lang = isJapanese ? 'ja-JP' : 'en-US';
+
             this.recognition.continuous = true;
             this.recognition.interimResults = true;
 
