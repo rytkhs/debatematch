@@ -79,44 +79,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Debate::class, 'negative_user_id');
     }
 
-    /**
-     * ユーザーが参加しているすべてのディベート
-     */
-    public function getAllDebatesAttribute()
-    {
-        return Debate::where('affirmative_user_id', $this->id)
-            ->orWhere('negative_user_id', $this->id)
-            ->with(['room', 'evaluations'])
-            ->get();
-    }
 
-    /**
-     * ユーザーのディベート数を取得
-     */
-    public function getDebatesCountAttribute()
-    {
-        return Debate::where('affirmative_user_id', $this->id)
-            ->orWhere('negative_user_id', $this->id)
-            ->count();
-    }
-
-    /**
-     * ユーザーの勝利数を取得
-     */
-    public function getWinsCountAttribute()
-    {
-        return Debate::whereHas('evaluations', function ($query) {
-            $query->where(function ($q) {
-                $q->where('winner', 'affirmative')
-                    ->whereColumn('affirmative_user_id', 'debates.affirmative_user_id')
-                    ->where('affirmative_user_id', $this->id);
-            })->orWhere(function ($q) {
-                $q->where('winner', 'negative')
-                    ->whereColumn('negative_user_id', 'debates.negative_user_id')
-                    ->where('negative_user_id', $this->id);
-            });
-        })->count();
-    }
 
     public function isAdmin()
     {
