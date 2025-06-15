@@ -18,7 +18,7 @@ class PusherAuthSimpleTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    public function test_pusher認証エンドポイントが存在する()
+    public function test_pusher_auth_endpoint_exists()
     {
         $response = $this->post('/pusher/auth');
 
@@ -26,7 +26,7 @@ class PusherAuthSimpleTest extends TestCase
         $this->assertContains($response->getStatusCode(), [302, 401]);
     }
 
-    public function test_認証済みユーザーは必須パラメータなしでエラーになる()
+    public function test_authenticated_user_gets_error_without_required_parameters()
     {
         $response = $this->actingAs($this->user)->post('/pusher/auth');
 
@@ -34,7 +34,7 @@ class PusherAuthSimpleTest extends TestCase
         $response->assertSeeText('Bad Request: Missing required parameters');
     }
 
-    public function test_必須パラメータが揃っていればエラーにならない()
+    public function test_no_error_with_all_required_parameters()
     {
         $response = $this->actingAs($this->user)->post('/pusher/auth', [
             'channel_name' => 'test-channel',
@@ -46,7 +46,7 @@ class PusherAuthSimpleTest extends TestCase
         $this->assertNotSame('Bad Request: Missing required parameters', $response->getContent());
     }
 
-    public function test_レート制限ミドルウェアが適用されている()
+    public function test_rate_limit_middleware_is_applied()
     {
         // 単純にエンドポイントのレスポンスヘッダーを確認
         $response = $this->actingAs($this->user)->post('/pusher/auth', [
@@ -62,7 +62,7 @@ class PusherAuthSimpleTest extends TestCase
         );
     }
 
-    public function test_CSRFプロテクションが無効になっている()
+    public function test_csrf_protection_is_disabled()
     {
         // CSRFトークンなしでリクエスト
         $response = $this->actingAs($this->user)
@@ -76,7 +76,7 @@ class PusherAuthSimpleTest extends TestCase
         $this->assertNotEquals(419, $response->getStatusCode());
     }
 
-    public function test_未認証ユーザーは401エラーまたはリダイレクト()
+    public function test_unauthenticated_user_gets_401_or_redirect()
     {
         $response = $this->post('/pusher/auth', [
             'channel_name' => 'test-channel',
@@ -87,7 +87,7 @@ class PusherAuthSimpleTest extends TestCase
         $this->assertContains($response->getStatusCode(), [302, 401]);
     }
 
-    public function test_プレゼンスチャンネルの判定が動作する()
+    public function test_presence_channel_detection_works()
     {
         // プレゼンスチャンネル名での呼び出し
         $response = $this->actingAs($this->user)->post('/pusher/auth', [
@@ -99,7 +99,7 @@ class PusherAuthSimpleTest extends TestCase
         $this->assertNotEquals(400, $response->getStatusCode());
     }
 
-    public function test_通常チャンネルの判定が動作する()
+    public function test_private_channel_detection_works()
     {
         // 通常のプライベートチャンネル名での呼び出し
         $response = $this->actingAs($this->user)->post('/pusher/auth', [

@@ -179,8 +179,8 @@ class DebateFormComponentTest extends TestCase
         $this->assertStringContainsString('name="max_turns"', $html);
         $this->assertStringContainsString('1ターンの時間', $html);
         $this->assertStringContainsString('最大ターン数', $html);
-        $this->assertStringContainsString('value="3"', $html); // デフォルトのターン時間
-        $this->assertStringContainsString('value="20"', $html); // デフォルトの最大ターン数
+        $this->assertStringContainsString('value="5"', $html); // デフォルトのターン時間
+        $this->assertStringContainsString('value="30"', $html); // デフォルトの最大ターン数
     }
 
     #[Test]
