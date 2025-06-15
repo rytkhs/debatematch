@@ -30,6 +30,7 @@ class Participants extends Component
     public function mount(Debate $debate): void
     {
         $this->debate = $debate;
+        $debate->load(['affirmativeUser', 'negativeUser']);
         $this->syncTurnState();
 
         $this->onlineUsers[$debate->affirmative_user_id] = $debate->affirmative_user_id !== $this->aiUserId ? false : true; // AI以外は初期オフライン

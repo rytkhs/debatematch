@@ -29,7 +29,9 @@ class RoomController extends Controller
 
     public function index()
     {
-        $rooms = Room::where('status', Room::STATUS_WAITING)->get();
+        $rooms = Room::where('status', Room::STATUS_WAITING)
+            ->with(['creator', 'users'])
+            ->get();
         return view('rooms.index', compact('rooms'));
     }
 
@@ -202,6 +204,7 @@ class RoomController extends Controller
     public function preview(Room $room)
     {
         // 参加しているユーザーはルームページにリダイレクト
+        $room->load('users');
         if ($room->users->contains(Auth::user())) {
             return redirect()->route('rooms.show', $room);
         }
@@ -221,6 +224,7 @@ class RoomController extends Controller
             return redirect()->route('rooms.index')->with('error', __('flash.room.show.forbidden'));
         }
         // 参加していないユーザーはpreviewにリダイレクト
+        $room->load('users');
         if (!$room->users->contains(Auth::user())) {
             return redirect()->route('rooms.preview', $room);
         }
@@ -246,6 +250,7 @@ class RoomController extends Controller
         $user = Auth::user();
 
         // 参加可能かどうかの事前チェック
+        $room->load('users');
         if ($room->users->count() >= 2) {
             return redirect()->route('rooms.index')->with('error', __('flash.room.join.full'));
         }
@@ -321,6 +326,7 @@ class RoomController extends Controller
         $user = Auth::user();
 
         // ユーザーがルームに参加していない場合は処理しない
+        $room->load('users');
         if (!$room->users->contains($user)) {
             return redirect()->route('rooms.index');
         }

@@ -21,6 +21,8 @@ class DebateController extends Controller
 
     public function show(Debate $debate)
     {
+        $debate->load(['room', 'affirmativeUser', 'negativeUser']);
+
         if ($debate->room->status === Room::STATUS_FINISHED) {
             return redirect()->route('debate.result', $debate)
                 ->with('info', __('flash.debate.show.finished'));
@@ -41,6 +43,8 @@ class DebateController extends Controller
 
     public function result(Debate $debate)
     {
+        $debate->load(['room', 'affirmativeUser', 'negativeUser', 'evaluations']);
+
         // ユーザーがこのディベートの参加者であることを確認
         $user = Auth::user();
         if ($debate->affirmative_user_id !== $user->id && $debate->negative_user_id !== $user->id) {

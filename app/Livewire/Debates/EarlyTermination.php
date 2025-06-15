@@ -23,6 +23,7 @@ class EarlyTermination extends Component
     public function mount(Debate $debate, DebateService $debateService)
     {
         $this->debate = $debate;
+        $debate->load(['affirmativeUser', 'negativeUser', 'room']);
         $this->isFreeFormat = $debateService->isFreeFormat($debate);
         $this->isAiDebate = $debate->room->is_ai_debate ?? false;
         $this->aiUserId = (int)config('app.ai_user_id', 1);

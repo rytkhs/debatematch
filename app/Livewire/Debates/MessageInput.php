@@ -38,6 +38,7 @@ class MessageInput extends Component
     public function mount(Debate $debate): void
     {
         $this->debate = $debate;
+        $debate->load(['affirmativeUser', 'negativeUser', 'room']);
         $this->syncTurnState();
     }
 

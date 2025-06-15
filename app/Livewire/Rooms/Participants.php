@@ -15,6 +15,7 @@ class Participants extends Component
     public function mount(Room $room)
     {
         $this->room = $room;
+        $room->load('users');
         $affirmativeUser = $room->users->firstWhere('pivot.side', 'affirmative');
         $negativeUser = $room->users->firstWhere('pivot.side', 'negative');
 
