@@ -15,6 +15,7 @@ class DebateShowManager {
     constructor() {
         this.managers = {};
         this.isInitialized = false;
+        this.initializationTimeout = null;
     }
 
     /**
@@ -23,31 +24,54 @@ class DebateShowManager {
     initialize() {
         if (this.isInitialized) return;
 
-        // デバッグデータの確認
-        if (typeof window.debateData === 'undefined') {
-            console.error('window.debateData is not available');
-            return;
+        try {
+            // デバッグデータの確認
+            if (typeof window.debateData === 'undefined') {
+                console.error('window.debateData is not available');
+                return;
+            }
+
+            // 既存のグローバルマネージャーをクリーンアップ
+            if (window.debateShowManager && window.debateShowManager !== this) {
+                window.debateShowManager.cleanup();
+            }
+
+            // 各機能の初期化（エラーハンドリング付き）
+            this.safeInitialize('Countdown', () => this.initializeCountdown());
+            this.safeInitialize('EventHandler', () => this.initializeEventHandler());
+            this.safeInitialize('PresenceManager', () => this.initializePresenceManager());
+            this.safeInitialize('ChatScroll', () => this.initializeChatScroll());
+            this.safeInitialize('UIManager', () => this.initializeUIManager());
+            this.safeInitialize('AudioHandler', () => this.initializeAudioHandler());
+            this.safeInitialize('InputArea', () => this.initializeInputArea());
+
+            // グローバル参照設定（後方互換性のため）
+            this.setupGlobalReferences();
+
+            // 早期終了機能の初期化
+            this.initializeEarlyTermination();
+
+            // Livewireコンポーネントの初期化（遅延実行）
+            this.initializeLivewireComponentsDelayed();
+
+            this.isInitialized = true;
+        } catch (error) {
+            console.error('DebateShowManager initialization failed:', error);
+            // 部分的な初期化でも継続
+            this.isInitialized = true;
         }
+    }
 
-        // 各機能の初期化
-        this.initializeCountdown();
-        this.initializeEventHandler();
-        this.initializePresenceManager();
-        this.initializeChatScroll();
-        this.initializeUIManager();
-        this.initializeAudioHandler();
-        this.initializeInputArea();
-
-        // グローバル参照設定（後方互換性のため）
-        this.setupGlobalReferences();
-
-        // 早期終了機能の初期化
-        this.initializeEarlyTermination();
-
-        // Livewireコンポーネントの初期化（遅延実行）
-        this.initializeLivewireComponentsDelayed();
-
-        this.isInitialized = true;
+    /**
+     * 安全な初期化ヘルパー
+     */
+    safeInitialize(componentName, initFunction) {
+        try {
+            initFunction();
+        } catch (error) {
+            console.error(`${componentName} initialization failed:`, error);
+            // 個別の初期化失敗でも全体は継続
+        }
     }
 
     /**
@@ -388,29 +412,80 @@ class DebateShowManager {
      * リソースをクリーンアップ
      */
     cleanup() {
+        if (!this.isInitialized) return;
+
+        // 初期化タイムアウトをクリア
+        if (this.initializationTimeout) {
+            clearTimeout(this.initializationTimeout);
+            this.initializationTimeout = null;
+        }
+
         // 各マネージャーのクリーンアップ
         Object.values(this.managers).forEach(manager => {
             if (manager && typeof manager.cleanup === 'function') {
-                manager.cleanup();
+                try {
+                    manager.cleanup();
+                } catch (error) {
+                    console.error('Error cleaning up manager:', error);
+                }
             }
         });
 
+        // マネージャー参照をクリア
+        this.managers = {};
+
         // グローバル参照のクリーンアップ
-        delete window.debateCountdown;
-        delete window.debateShowManager;
-        delete window.confirmEarlyTermination;
+        if (window.debateCountdown === this.managers.countdownManager) {
+            delete window.debateCountdown;
+        }
+        if (window.debateShowManager === this) {
+            delete window.debateShowManager;
+        }
+        if (window.confirmEarlyTermination) {
+            delete window.confirmEarlyTermination;
+        }
 
         this.isInitialized = false;
     }
 }
 
+// グローバルマネージャーインスタンス
+let globalDebateManager = null;
+
 // DOMContentLoaded または Livewire初期化完了後に自動初期化
 document.addEventListener('DOMContentLoaded', () => {
+    // 既存のマネージャーがある場合はクリーンアップ
+    if (globalDebateManager) {
+        globalDebateManager.cleanup();
+    }
+
     // 初期化を遅延実行
     setTimeout(() => {
-        const debateManager = new DebateShowManager();
-        debateManager.initialize();
+        globalDebateManager = new DebateShowManager();
+        globalDebateManager.initialize();
     }, 300);
+});
+
+// ページ離脱時のクリーンアップ
+window.addEventListener('beforeunload', () => {
+    if (globalDebateManager) {
+        globalDebateManager.cleanup();
+    }
+});
+
+// Livewire初期化時の再初期化
+document.addEventListener('livewire:initialized', () => {
+    // Livewireが初期化された場合、マネージャーが未初期化なら初期化
+    if (!globalDebateManager || !globalDebateManager.isInitialized) {
+        setTimeout(() => {
+            if (!globalDebateManager) {
+                globalDebateManager = new DebateShowManager();
+            }
+            if (!globalDebateManager.isInitialized) {
+                globalDebateManager.initialize();
+            }
+        }, 500);
+    }
 });
 
 export default DebateShowManager;
