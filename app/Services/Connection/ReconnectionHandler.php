@@ -4,6 +4,7 @@ namespace App\Services\Connection;
 
 use App\Models\ConnectionLog;
 use App\Services\Connection\Traits\ConnectionErrorHandler;
+use App\Models\User;
 
 class ReconnectionHandler
 {
@@ -31,7 +32,7 @@ class ReconnectionHandler
     {
         try {
             // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
-            $user = \App\Models\User::withTrashed()->find($userId);
+            $user = User::withTrashed()->find($userId);
             if (!$user) {
                 $this->logWithConfig('warning', '存在しないユーザーIDによる再接続処理をスキップしました', [
                     'userId' => $userId,

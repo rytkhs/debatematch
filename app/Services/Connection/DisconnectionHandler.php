@@ -6,6 +6,7 @@ use App\Models\ConnectionLog;
 use App\Jobs\HandleUserDisconnection;
 use App\Services\Connection\Traits\ConnectionErrorHandler;
 use Carbon\Carbon;
+use App\Models\User;
 
 class DisconnectionHandler
 {
@@ -33,7 +34,7 @@ class DisconnectionHandler
     {
         try {
             // ユーザーの存在確認（ソフトデリートされたユーザーも含む）
-            $user = \App\Models\User::withTrashed()->find($userId);
+            $user = User::withTrashed()->find($userId);
             if (!$user) {
                 $this->logWithConfig('warning', '存在しないユーザーIDによる切断処理をスキップしました', [
                     'userId' => $userId,
