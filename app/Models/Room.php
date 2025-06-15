@@ -63,6 +63,10 @@ class Room extends Model
 
     public function updateStatus(string $status): void
     {
+        if ($this->status === $status) {
+            return;
+        }
+
         // 有効な状態遷移を定義
         $validTransitions = [
             self::STATUS_WAITING => [self::STATUS_WAITING, self::STATUS_READY, self::STATUS_DELETED, self::STATUS_TERMINATED],

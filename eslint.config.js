@@ -71,7 +71,7 @@ export default [
     },
     // Jest テストファイル用の設定
     {
-        files: ['tests/js/**/*.test.js'],
+        files: ['tests/js/**/*.test.js', 'tests/js/setup.js'],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
@@ -101,12 +101,16 @@ export default [
 
                 // Node.js環境
                 global: 'readonly',
+                process: 'readonly',
 
                 // プロジェクト固有のグローバル変数
                 Echo: 'readonly',
                 Pusher: 'readonly',
                 Livewire: 'readonly',
             },
+        },
+        env: {
+            node: true, // Node.js 環境を有効にする
         },
         plugins: {
             prettier: prettier,

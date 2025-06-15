@@ -24,7 +24,7 @@ use Mockery\MockInterface;
 class AIServiceTest extends BaseServiceTest
 {
     protected AIService $aiService;
-    protected MockInterface $debateServiceMock;
+    protected MockInterface&DebateService $debateServiceMock;
 
     protected function setUp(): void
     {
