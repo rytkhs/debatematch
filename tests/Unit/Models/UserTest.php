@@ -289,202 +289,7 @@ class UserTest extends BaseModelTest
     // TODO-008: User 統計機能テスト
     // ============================================
 
-    #[Test]
-    public function testGetDebatesCountAttribute()
-    {
-        $user = User::factory()->create();
-        $opponent = User::factory()->create();
 
-        // Initially no debates
-        $this->assertEquals(0, $user->debates_count);
-
-        // Create debates where user is affirmative
-        $room1 = Room::factory()->create();
-        Debate::factory()->create([
-            'room_id' => $room1->id,
-            'affirmative_user_id' => $user->id,
-            'negative_user_id' => $opponent->id,
-        ]);
-
-        // Create debates where user is negative
-        $room2 = Room::factory()->create();
-        Debate::factory()->create([
-            'room_id' => $room2->id,
-            'affirmative_user_id' => $opponent->id,
-            'negative_user_id' => $user->id,
-        ]);
-
-        // Fresh the model to clear cached attributes
-        $user = $user->fresh();
-        $this->assertEquals(2, $user->debates_count);
-
-        // Opponent should have same count (participated in both debates)
-        $opponent = $opponent->fresh();
-        $this->assertEquals(2, $opponent->debates_count);
-    }
-
-    #[Test]
-    public function testGetWinsCountAttribute()
-    {
-        $user = User::factory()->create();
-        $opponent = User::factory()->create();
-
-        // Initially no wins
-        $this->assertEquals(0, $user->wins_count);
-
-        // Create debate where user wins as affirmative
-        $room1 = Room::factory()->create();
-        $debate1 = Debate::factory()->create([
-            'room_id' => $room1->id,
-            'affirmative_user_id' => $user->id,
-            'negative_user_id' => $opponent->id,
-        ]);
-
-        DebateEvaluation::factory()->create([
-            'debate_id' => $debate1->id,
-            'winner' => 'affirmative',
-        ]);
-
-        // Create debate where user loses as negative
-        $room2 = Room::factory()->create();
-        $debate2 = Debate::factory()->create([
-            'room_id' => $room2->id,
-            'affirmative_user_id' => $opponent->id,
-            'negative_user_id' => $user->id,
-        ]);
-
-        DebateEvaluation::factory()->create([
-            'debate_id' => $debate2->id,
-            'winner' => 'affirmative',
-        ]);
-
-        // Create debate where user wins as negative
-        $room3 = Room::factory()->create();
-        $debate3 = Debate::factory()->create([
-            'room_id' => $room3->id,
-            'affirmative_user_id' => $opponent->id,
-            'negative_user_id' => $user->id,
-        ]);
-
-        DebateEvaluation::factory()->create([
-            'debate_id' => $debate3->id,
-            'winner' => 'negative',
-        ]);
-
-        // Fresh the model to clear cached attributes
-        $user = $user->fresh();
-        $this->assertEquals(2, $user->wins_count); // Won as affirmative and negative
-    }
-
-    #[Test]
-    public function testComplexStatisticsCalculation()
-    {
-        $user = User::factory()->create();
-
-        // Create multiple opponents
-        $opponents = User::factory(3)->create();
-
-        $totalDebates = 0;
-        $totalWins = 0;
-
-        // Create various debate scenarios
-        foreach ($opponents as $index => $opponent) {
-            $room = Room::factory()->create();
-            $debate = Debate::factory()->create([
-                'room_id' => $room->id,
-                'affirmative_user_id' => $user->id,
-                'negative_user_id' => $opponent->id,
-            ]);
-
-            // User wins 2 out of 3 debates
-            if ($index < 2) {
-                DebateEvaluation::factory()->create([
-                    'debate_id' => $debate->id,
-                    'winner' => 'affirmative',
-                ]);
-                $totalWins++;
-            } else {
-                DebateEvaluation::factory()->create([
-                    'debate_id' => $debate->id,
-                    'winner' => 'negative',
-                ]);
-            }
-            $totalDebates++;
-        }
-
-        $user = $user->fresh();
-        $this->assertEquals($totalDebates, $user->debates_count);
-        $this->assertEquals($totalWins, $user->wins_count);
-
-        // Calculate win rate
-        $expectedWinRate = $totalWins / $totalDebates;
-        $actualWinRate = $user->wins_count / $user->debates_count;
-        $this->assertEquals($expectedWinRate, $actualWinRate);
-    }
-
-    #[Test]
-    public function testStatisticsPerformance()
-    {
-        $user = User::factory()->create();
-        $opponents = User::factory(10)->create();
-
-        // Create 10 debates with evaluations
-        foreach ($opponents as $opponent) {
-            $room = Room::factory()->create();
-            $debate = Debate::factory()->create([
-                'room_id' => $room->id,
-                'affirmative_user_id' => $user->id,
-                'negative_user_id' => $opponent->id,
-            ]);
-
-            DebateEvaluation::factory()->create([
-                'debate_id' => $debate->id,
-                'winner' => 'affirmative',
-            ]);
-        }
-
-        // Measure performance of statistics calculation
-        $startTime = microtime(true);
-
-        $user = $user->fresh();
-        $debatesCount = $user->debates_count;
-        $winsCount = $user->wins_count;
-
-        $endTime = microtime(true);
-        $executionTime = $endTime - $startTime;
-
-        $this->assertEquals(10, $debatesCount);
-        $this->assertEquals(10, $winsCount);
-
-        // Performance should be reasonable (less than 1 second)
-        $this->assertLessThan(1.0, $executionTime);
-    }
-
-    #[Test]
-    public function testStatisticsWithoutEvaluations()
-    {
-        $user = User::factory()->create();
-        $opponent = User::factory()->create();
-
-        // Create debates without evaluations
-        $room1 = Room::factory()->create();
-        Debate::factory()->create([
-            'room_id' => $room1->id,
-            'affirmative_user_id' => $user->id,
-            'negative_user_id' => $opponent->id,
-        ]);
-
-        $room2 = Room::factory()->create();
-        Debate::factory()->create([
-            'room_id' => $room2->id,
-            'affirmative_user_id' => $opponent->id,
-            'negative_user_id' => $user->id,
-        ]);
-
-        $user = $user->fresh();
-        $this->assertEquals(2, $user->debates_count); // Has debates
-        $this->assertEquals(0, $user->wins_count);   // No wins (no evaluations)
-    }
 
     // ============================================
     // TODO-009: User ゲスト機能テスト
@@ -716,7 +521,8 @@ class UserTest extends BaseModelTest
         // Test that admin users can participate in debates
         $adminUser = User::factory()->admin()->withDebates(2)->create();
         $this->assertTrue($adminUser->isAdmin());
-        $this->assertEquals(2, $adminUser->fresh()->debates_count);
+        // 削除されたAccessor属性のテストを削除
+        // $this->assertEquals(2, $adminUser->fresh()->debates_count);
 
         // Test that guest users can participate in debates
         $guestUser = User::factory()->guest()->create();
@@ -730,7 +536,8 @@ class UserTest extends BaseModelTest
         ]);
 
         $this->assertTrue($guestUser->isGuest());
-        $this->assertEquals(1, $guestUser->fresh()->debates_count);
+        // 削除されたAccessor属性のテストを削除
+        // $this->assertEquals(1, $guestUser->fresh()->debates_count);
     }
 
     #[Test]
@@ -739,49 +546,14 @@ class UserTest extends BaseModelTest
         $user = User::factory()->withDebates()->create();
 
         $this->assertInstanceOf(User::class, $user);
-        $this->assertGreaterThan(0, $user->debates_count);
+        // 削除されたAccessor属性のテストを削除
+        // $this->assertGreaterThan(0, $user->debates_count);
     }
 
     /**
      * Phase1 レビュー: 追加のエッジケースとカバレッジ向上テスト
      */
-    #[Test]
-    public function get_all_debates_attribute_with_no_debates()
-    {
-        $user = User::factory()->create();
-        $allDebates = $user->getAllDebatesAttribute();
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $allDebates);
-        $this->assertCount(0, $allDebates);
-    }
-
-    #[Test]
-    public function get_all_debates_attribute_with_mixed_sides()
-    {
-        $user = User::factory()->create();
-        $room1 = Room::factory()->create();
-        $room2 = Room::factory()->create();
-
-        // 肯定側として参加
-        $debate1 = Debate::factory()->create([
-            'room_id' => $room1->id,
-            'affirmative_user_id' => $user->id,
-            'negative_user_id' => User::factory()->create()->id
-        ]);
-
-        // 否定側として参加
-        $debate2 = Debate::factory()->create([
-            'room_id' => $room2->id,
-            'affirmative_user_id' => User::factory()->create()->id,
-            'negative_user_id' => $user->id
-        ]);
-
-        $allDebates = $user->getAllDebatesAttribute();
-
-        $this->assertCount(2, $allDebates);
-        $this->assertTrue($allDebates->contains($debate1));
-        $this->assertTrue($allDebates->contains($debate2));
-    }
 
     #[Test]
     public function user_with_very_long_name()
@@ -957,8 +729,9 @@ class UserTest extends BaseModelTest
             'negative_user_id' => $opponent1->id
         ]);
 
-        $this->assertEquals(3, $user->debates_count);
-        $this->assertEquals(1, $user->wins_count);
+        // 削除されたAccessor属性のテストを削除
+        // $this->assertEquals(3, $user->debates_count);
+        // $this->assertEquals(1, $user->wins_count);
     }
 
     #[Test]
