@@ -38,12 +38,12 @@ class CountdownManager {
         const now = Date.now();
         const distance = this.endTime - now;
 
-        let timeData = {
+        const timeData = {
             isRunning: distance > 0,
             distance: Math.max(0, distance),
             minutes: Math.floor((distance / 1000 / 60) % 60),
             seconds: Math.floor((distance / 1000) % 60),
-            isWarning: distance <= 30000 // 残り30秒以下
+            isWarning: distance <= 30000, // 残り30秒以下
         };
 
         // リスナーに通知
@@ -87,7 +87,7 @@ class CountdownManager {
             distance: Math.max(0, distance),
             minutes: Math.floor((distance / 1000 / 60) % 60),
             seconds: Math.floor((distance / 1000) % 60),
-            isWarning: distance <= 30000 // 残り30秒以下
+            isWarning: distance <= 30000, // 残り30秒以下
         };
     }
 
@@ -101,7 +101,7 @@ class CountdownManager {
         }
 
         // Livewireコンポーネントからのイベントを受信
-        window.Livewire.on('turn-advanced', (data) => {
+        window.Livewire.on('turn-advanced', data => {
             if (data.turnEndTime) {
                 this.start(data.turnEndTime);
             } else {

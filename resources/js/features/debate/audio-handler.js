@@ -47,20 +47,18 @@ class AudioHandler {
         }
 
         // 通知音機能の実装 - メッセージ受信時
-        window.Echo.private(`debate.${debateId}`)
-            .listen('DebateMessageSent', () => {
-                if (this.userInteracted) {
-                    this.playNotificationSound('messageNotification');
-                }
-            });
+        window.Echo.private(`debate.${debateId}`).listen('DebateMessageSent', () => {
+            if (this.userInteracted) {
+                this.playNotificationSound('messageNotification');
+            }
+        });
 
         // ターン変更時には別の通知音を鳴らす
-        window.Echo.private(`debate.${debateId}`)
-            .listen('TurnAdvanced', () => {
-                if (this.userInteracted) {
-                    this.playNotificationSound('turnAdvancedNotification');
-                }
-            });
+        window.Echo.private(`debate.${debateId}`).listen('TurnAdvanced', () => {
+            if (this.userInteracted) {
+                this.playNotificationSound('turnAdvancedNotification');
+            }
+        });
     }
 
     /**
@@ -86,11 +84,14 @@ class AudioHandler {
             const silentAudio = document.getElementById('messageNotification');
             if (silentAudio) {
                 silentAudio.volume = 0.01;
-                silentAudio.play().then(() => {
-                    silentAudio.pause();
-                    silentAudio.currentTime = 0;
-                    this.logger.log('オーディオコンテキストがアクティブ化されました');
-                }).catch(e => this.logger.log('オーディオのアクティブ化に失敗:', e));
+                silentAudio
+                    .play()
+                    .then(() => {
+                        silentAudio.pause();
+                        silentAudio.currentTime = 0;
+                        this.logger.log('オーディオコンテキストがアクティブ化されました');
+                    })
+                    .catch(e => this.logger.log('オーディオのアクティブ化に失敗:', e));
             }
         }
     }

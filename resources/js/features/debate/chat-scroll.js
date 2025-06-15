@@ -41,7 +41,9 @@ class ChatScrollManager {
 
         // 実際のメッセージを含む内部コンテナを取得
         // Livewire.Debates.Chat コンポーネント内のスクロール可能な領域を取得
-        this.chatContainer = this.mainContainer.querySelector('.flex-1.overflow-y-auto.p-4.space-y-4');
+        this.chatContainer = this.mainContainer.querySelector(
+            '.flex-1.overflow-y-auto.p-4.space-y-4'
+        );
         if (!this.chatContainer) {
             // バックアップ: 内部のoverflowを持つ要素を探す
             this.chatContainer = this.mainContainer.querySelector('.overflow-y-auto');
@@ -80,7 +82,7 @@ class ChatScrollManager {
         }
 
         // DOM変更の監視
-        this.observer = new MutationObserver((mutations) => {
+        this.observer = new MutationObserver(mutations => {
             let hasContentChanges = false;
 
             mutations.forEach(mutation => {
@@ -96,7 +98,7 @@ class ChatScrollManager {
 
         this.observer.observe(this.chatContainer, {
             childList: true,
-            subtree: true
+            subtree: true,
         });
     }
 
@@ -135,7 +137,7 @@ class ChatScrollManager {
 
         this.chatContainer.scrollTo({
             top: this.chatContainer.scrollHeight,
-            behavior: smooth ? 'smooth' : 'instant'
+            behavior: smooth ? 'smooth' : 'instant',
         });
 
         this.resetScrollState();
@@ -155,7 +157,10 @@ class ChatScrollManager {
         if (!this.checkIfOverflowing()) return true; // オーバーフローがなければ常に最下部と判断
 
         const threshold = 100;
-        const scrollBottom = this.chatContainer.scrollHeight - this.chatContainer.scrollTop - this.chatContainer.clientHeight;
+        const scrollBottom =
+            this.chatContainer.scrollHeight -
+            this.chatContainer.scrollTop -
+            this.chatContainer.clientHeight;
         return scrollBottom < threshold;
     }
 
