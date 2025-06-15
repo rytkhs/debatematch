@@ -68,5 +68,56 @@ export default [
             'no-unused-expressions': 'warn',
         },
     },
+    // Jest テストファイル用の設定
+    {
+        files: ['tests/js/**/*.test.js'],
+        languageOptions: {
+            ecmaVersion: 2022,
+            sourceType: 'module',
+            globals: {
+                // Jest globals
+                describe: 'readonly',
+                test: 'readonly',
+                it: 'readonly',
+                expect: 'readonly',
+                beforeEach: 'readonly',
+                afterEach: 'readonly',
+                beforeAll: 'readonly',
+                afterAll: 'readonly',
+                jest: 'readonly',
+
+                // ブラウザ環境
+                window: 'readonly',
+                document: 'readonly',
+                console: 'readonly',
+                setTimeout: 'readonly',
+                clearTimeout: 'readonly',
+                setInterval: 'readonly',
+                clearInterval: 'readonly',
+                requestAnimationFrame: 'readonly',
+                cancelAnimationFrame: 'readonly',
+
+                // Node.js環境
+                global: 'readonly',
+
+                // プロジェクト固有のグローバル変数
+                Echo: 'readonly',
+                Pusher: 'readonly',
+                Livewire: 'readonly',
+            },
+        },
+        plugins: {
+            prettier: prettier,
+        },
+        rules: {
+            // Prettier統合
+            'prettier/prettier': 'error',
+
+            // テスト用にルールを緩和
+            'no-unused-vars': 'warn',
+            'no-undef': 'error',
+            'no-console': 'off', // テストでは console.log を許可
+        },
+    },
     prettierConfig,
 ];
