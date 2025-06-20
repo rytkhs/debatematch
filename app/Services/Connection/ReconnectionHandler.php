@@ -10,15 +10,11 @@ class ReconnectionHandler
 {
     use ConnectionErrorHandler;
 
-    private ConnectionStateManager $stateManager;
-    private ConnectionLogger $logger;
-
     public function __construct(
-        ConnectionStateManager $stateManager,
-        ConnectionLogger $logger
+        private ConnectionStateManager $stateManager,
+        private ConnectionLogger $logger
     ) {
-        $this->stateManager = $stateManager;
-        $this->logger = $logger;
+        //
     }
 
     /**
@@ -45,7 +41,7 @@ class ReconnectionHandler
             $currentLog = ConnectionLog::getLatestLog($userId, $context['type'], $context['id']);
 
             // 再接続可能性を検証
-            if (!$this->validateReconnectionContext($currentLog, $context)) {
+            if (!$this->validateReconnection($currentLog, $context)) {
                 return false;
             }
 
@@ -97,7 +93,7 @@ class ReconnectionHandler
      * @param array $context
      * @return bool
      */
-    private function validateReconnectionContext(?ConnectionLog $log, array $context): bool
+    private function validateReconnection(?ConnectionLog $log, array $context): bool
     {
         // 基本的な再接続可能性チェック
         if (!$this->stateManager->canReconnect($log)) {

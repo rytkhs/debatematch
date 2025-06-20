@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Log;
 
 class ContactSlackNotifier
 {
-    protected $webhookUrl;
-    protected bool $enabled;
+    private ?string $webhookUrl;
+    private bool $enabled;
 
     public function __construct()
     {
@@ -114,7 +114,7 @@ class ContactSlackNotifier
     /**
      * 言語に応じた種別名を取得
      */
-    protected function getTypeName(string $type, string $language): string
+    private function getTypeName(string $type, string $language): string
     {
         $types = config('contact.types', []);
 

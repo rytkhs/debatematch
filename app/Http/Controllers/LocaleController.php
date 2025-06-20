@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Config;
 class LocaleController extends Controller
 {
     /**
-     * Switch the application locale and redirect back.
+     * Change the application locale and redirect back.
      *
      * @param  string  $locale
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function switch($locale)
+    public function changeLocale($locale)
     {
         // サポートされている言語かチェック (config/app.php の supported_locales を参照)
         $supportedLocales = Config::get('app.supported_locales', ['ja', 'en']);
@@ -27,7 +27,6 @@ class LocaleController extends Controller
             // アプリケーションのロケールも即時反映（リダイレクト後の表示のため）
             App::setLocale($locale);
         } else {
-
         }
 
         return Redirect::back();

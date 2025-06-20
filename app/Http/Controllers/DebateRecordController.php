@@ -10,12 +10,9 @@ use App\Services\DebateService;
 
 class DebateRecordController extends Controller
 {
-    protected $debateService;
-
-    public function __construct(DebateService $debateService)
-    {
-        $this->debateService = $debateService;
-    }
+    public function __construct(
+        private DebateRecordService $recordService
+    ) {}
 
     public function index(Request $request)
     {

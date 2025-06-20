@@ -10,24 +10,25 @@ use Throwable;
 
 class AIService
 {
-    protected string $apiKey;
-    protected string $model;
-    protected string $referer;
-    protected string $title;
-    protected DebateService $debateService;
-    protected int $aiUserId;
+    private string $apiKey;
+    private string $model;
+    private string $referer;
+    private string $title;
+    private int $aiUserId;
 
-    // 言語別の1分あたりの文字/単語数定数
     const JAPANESE_CHARS_PER_MINUTE = 320;
     const ENGLISH_WORDS_PER_MINUTE = 160;
+    const DEFAULT_TEMPERATURE = 0.7;
+    const MAX_TOKENS = 12000;
+    const API_TIMEOUT_SECONDS = 240;
+    const FREE_FORMAT_RESPONSE_RATIO = 0.5; // フリーフォーマット時の応答長さ比率
 
-    public function __construct(DebateService $debateService)
+    public function __construct(private DebateService $debateService)
     {
         $this->apiKey = Config::get('services.openrouter.api_key');
         $this->model = Config::get('services.openrouter.model', 'google/gemini-pro');
         $this->referer = Config::get('services.openrouter.referer', config('app.url'));
         $this->title = Config::get('services.openrouter.title', config('app.name'));
-        $this->debateService = $debateService;
         $this->aiUserId = (int)config('app.ai_user_id', 1);
     }
 
@@ -60,14 +61,14 @@ class AIService
                 'X-Title' => $this->title,
                 'Content-Type' => 'application/json',
             ])
-                ->timeout(240)
+                ->timeout(self::API_TIMEOUT_SECONDS)
                 ->post('https://openrouter.ai/api/v1/chat/completions', [
                     'model' => $this->model,
                     'messages' => [
                         ['role' => 'user', 'content' => $prompt]
                     ],
-                    'temperature' => 0.7,
-                    'max_tokens' => 12000,
+                    'temperature' => self::DEFAULT_TEMPERATURE,
+                    'max_tokens' => self::MAX_TOKENS,
                 ]);
 
             if ($response->failed()) {
@@ -108,7 +109,7 @@ class AIService
      * @return string
      * @throws \Exception
      */
-    protected function buildPrompt(Debate $debate): string
+    private function buildPrompt(Debate $debate): string
     {
         $room = $debate->room;
         $language = $room->language ?? 'japanese';
@@ -237,14 +238,14 @@ class AIService
      * @param bool $isFreeFormat フリーフォーマットかどうか
      * @return string
      */
-    protected function calculateCharacterLimit(float $timeLimitMinutes, string $language, bool $isFreeFormat = false): string
+    private function calculateCharacterLimit(float $timeLimitMinutes, string $language, bool $isFreeFormat = false): string
     {
         if ($language === 'japanese') {
             // 日本語の場合は文字数制限
             $totalChars = (int)($timeLimitMinutes * self::JAPANESE_CHARS_PER_MINUTE);
             // フリーフォーマットの場合は半分にして対話的にする
             if ($isFreeFormat) {
-                $totalChars = (int)($totalChars / 2);
+                $totalChars = (int)($totalChars * self::FREE_FORMAT_RESPONSE_RATIO);
             }
             return "{$totalChars}文字程度";
         } else {
@@ -252,7 +253,7 @@ class AIService
             $totalWords = (int)($timeLimitMinutes * self::ENGLISH_WORDS_PER_MINUTE);
             // フリーフォーマットの場合は半分にして対話的にする
             if ($isFreeFormat) {
-                $totalWords = (int)($totalWords / 2);
+                $totalWords = (int)($totalWords * self::FREE_FORMAT_RESPONSE_RATIO);
             }
             return "approximately {$totalWords} words";
         }
@@ -269,7 +270,7 @@ class AIService
      * @param Debate $debate
      * @return string
      */
-    protected function buildFormatDescription(Debate $debate): string
+    private function buildFormatDescription(Debate $debate): string
     {
         $format = $debate->room->getDebateFormat();
         $formatDescriptionParts = [];
@@ -310,7 +311,7 @@ class AIService
     /**
      * エラー時や空応答時の代替メッセージを取得
      */
-    protected function getFallbackResponse(string $language, ?string $errorInfo = null): string
+    private function getFallbackResponse(string $language, ?string $errorInfo = null): string
     {
         $baseMessage = __('messages.fallback_response');
 

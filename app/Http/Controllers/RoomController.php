@@ -18,14 +18,11 @@ use Illuminate\Support\Facades\Log;
 
 class RoomController extends Controller
 {
-    // protected SNSController $snsController;
-    protected SlackNotifier $slackNotifier;
-
-    public function __construct(SlackNotifier $slackNotifier)
-    {
-        // $this->snsController = $snsController;
-        $this->slackNotifier = $slackNotifier;
-    }
+    public function __construct(
+        private FormatManager $formatManager,
+        private RoomCreationService $roomCreationService,
+        private RoomParticipationService $roomParticipationService
+    ) {}
 
     public function index()
     {

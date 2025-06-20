@@ -14,14 +14,9 @@ use App\Services\DebateService;
 
 class PusherWebhookController extends Controller
 {
-    protected $connectionCoordinator;
-    protected $debateService;
-
-    public function __construct(ConnectionCoordinator $connectionCoordinator, DebateService $debateService)
-    {
-        $this->connectionCoordinator = $connectionCoordinator;
-        $this->debateService = $debateService;
-    }
+    public function __construct(
+        private PusherEventProcessor $eventProcessor
+    ) {}
 
     public function handle(Request $request)
     {

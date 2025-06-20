@@ -19,20 +19,15 @@ class AdvanceDebateTurnJob implements ShouldQueue
 {
     use Queueable, InteractsWithQueue, SerializesModels;
 
-    public int $debateId;
-    public int $expectedTurn;
-
-    // 再試行設定
     public $tries = 3;
     public $backoff = 5;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(int $debateId, int $expectedTurn)
+    public function __construct(public int $debateId, public int $expectedTurn)
     {
-        $this->debateId = $debateId;
-        $this->expectedTurn = $expectedTurn;
+        //
     }
 
     /**

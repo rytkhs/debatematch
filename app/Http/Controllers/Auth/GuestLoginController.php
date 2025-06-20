@@ -7,17 +7,14 @@ use App\Services\SlackNotifier;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class GuestLoginController extends Controller
 {
-    protected SlackNotifier $slackNotifier;
-
-    public function __construct(SlackNotifier $slackNotifier)
+    public function __construct(private SlackNotifier $slackNotifier)
     {
-        $this->slackNotifier = $slackNotifier;
+        //
     }
 
     /**

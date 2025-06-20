@@ -16,12 +16,10 @@ use Illuminate\Support\Facades\Lang;
 
 class AIDebateController extends Controller
 {
-    protected DebateService $debateService;
-
-    public function __construct(DebateService $debateService)
-    {
-        $this->debateService = $debateService;
-    }
+    public function __construct(
+        private FormatManager $formatManager,
+        private AIDebateCreationService $aiDebateService
+    ) {}
 
     public function create()
     {

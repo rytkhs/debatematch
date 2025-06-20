@@ -12,15 +12,11 @@ class DisconnectionHandler
 {
     use ConnectionErrorHandler;
 
-    private ConnectionStateManager $stateManager;
-    private ConnectionLogger $logger;
-
     public function __construct(
-        ConnectionStateManager $stateManager,
-        ConnectionLogger $logger
+        private ConnectionStateManager $stateManager,
+        private ConnectionLogger $logger
     ) {
-        $this->stateManager = $stateManager;
-        $this->logger = $logger;
+        //
     }
 
     /**

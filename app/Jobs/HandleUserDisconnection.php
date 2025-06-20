@@ -23,8 +23,6 @@ class HandleUserDisconnection implements ShouldQueue
 {
     use Dispatchable, Queueable, SerializesModels, InteractsWithQueue, ConnectionErrorHandler;
 
-    protected $userId;
-    protected $context;
     public $tries = 3;
     public $backoff = 5;
 
@@ -34,10 +32,9 @@ class HandleUserDisconnection implements ShouldQueue
      * @param $userId
      * @param $context
      */
-    public function __construct($userId, $context)
+    public function __construct(private $userId, private $context)
     {
-        $this->userId = $userId;
-        $this->context = $context;
+        //
     }
 
     /**

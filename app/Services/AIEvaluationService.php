@@ -9,11 +9,9 @@ use Illuminate\Support\Facades\Config;
 
 class AIEvaluationService
 {
-    protected $debateService;
-
-    public function __construct(DebateService $debateService)
+    public function __construct(private DebateService $debateService)
     {
-        $this->debateService = $debateService;
+        //
     }
 
     /**

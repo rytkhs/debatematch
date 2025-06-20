@@ -10,11 +10,9 @@ use Illuminate\Support\Facades\Cache;
 
 class HeartbeatController extends Controller
 {
-    protected $connectionCoordinator;
-
-    public function __construct(ConnectionCoordinator $connectionCoordinator)
+    public function __construct(private ConnectionCoordinator $connectionCoordinator)
     {
-        $this->connectionCoordinator = $connectionCoordinator;
+        //
     }
 
     /**

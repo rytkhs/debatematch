@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Config;
 
 class SlackNotifier
 {
-    protected ?string $webhookUrl;
-    protected bool $enabled;
+    private ?string $webhookUrl;
+    private bool $enabled;
 
     public function __construct()
     {

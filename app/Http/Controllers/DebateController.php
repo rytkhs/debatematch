@@ -10,13 +10,11 @@ use App\Services\DebateService;
 
 class DebateController extends Controller
 {
-    protected $debateService;
-    protected $connectionCoordinator;
-
-    public function __construct(DebateService $debateService, ConnectionCoordinator $connectionCoordinator)
-    {
-        $this->debateService = $debateService;
-        $this->connectionCoordinator = $connectionCoordinator;
+    public function __construct(
+        private DebateService $debateService,
+        private ConnectionCoordinator $connectionCoordinator
+    ) {
+        //
     }
 
     public function show(Debate $debate)
