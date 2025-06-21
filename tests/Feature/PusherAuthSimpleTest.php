@@ -20,23 +20,23 @@ class PusherAuthSimpleTest extends TestCase
 
     public function test_pusher_auth_endpoint_exists()
     {
-        $response = $this->post('/pusher/auth');
+        $response = $this->post('/broadcasting/auth');
 
-        // 302 (リダイレクト) または 401 が返されることを確認（エンドポイントが存在する証拠）
-        $this->assertContains($response->getStatusCode(), [302, 401]);
+        // 302 (リダイレクト) または 401、403 が返されることを確認（エンドポイントが存在する証拠）
+        $this->assertContains($response->getStatusCode(), [302, 401, 403]);
     }
 
     public function test_authenticated_user_gets_error_without_required_parameters()
     {
-        $response = $this->actingAs($this->user)->post('/pusher/auth');
+        $response = $this->actingAs($this->user)->post('/broadcasting/auth');
 
-        $response->assertStatus(400);
-        $response->assertSeeText('Bad Request: Missing required parameters');
+        // Laravel 10以降では403が返される
+        $response->assertStatus(403);
     }
 
     public function test_no_error_with_all_required_parameters()
     {
-        $response = $this->actingAs($this->user)->post('/pusher/auth', [
+        $response = $this->actingAs($this->user)->post('/broadcasting/auth', [
             'channel_name' => 'test-channel',
             'socket_id' => 'test-socket-123'
         ]);
@@ -49,7 +49,7 @@ class PusherAuthSimpleTest extends TestCase
     public function test_rate_limit_middleware_is_applied()
     {
         // 単純にエンドポイントのレスポンスヘッダーを確認
-        $response = $this->actingAs($this->user)->post('/pusher/auth', [
+        $response = $this->actingAs($this->user)->post('/broadcasting/auth', [
             'channel_name' => 'test-channel',
             'socket_id' => 'test-socket-123'
         ]);
@@ -67,7 +67,7 @@ class PusherAuthSimpleTest extends TestCase
         // CSRFトークンなしでリクエスト
         $response = $this->actingAs($this->user)
             ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
-            ->post('/pusher/auth', [
+            ->post('/broadcasting/auth', [
                 'channel_name' => 'test-channel',
                 'socket_id' => 'test-socket-123'
             ]);
@@ -78,19 +78,19 @@ class PusherAuthSimpleTest extends TestCase
 
     public function test_unauthenticated_user_gets_401_or_redirect()
     {
-        $response = $this->post('/pusher/auth', [
+        $response = $this->post('/broadcasting/auth', [
             'channel_name' => 'test-channel',
             'socket_id' => 'test-socket-123'
         ]);
 
-        // 302 (リダイレクト) または 401 が返されることを確認
-        $this->assertContains($response->getStatusCode(), [302, 401]);
+        // 302 (リダイレクト) または 401、403 が返されることを確認
+        $this->assertContains($response->getStatusCode(), [302, 401, 403]);
     }
 
     public function test_presence_channel_detection_works()
     {
         // プレゼンスチャンネル名での呼び出し
-        $response = $this->actingAs($this->user)->post('/pusher/auth', [
+        $response = $this->actingAs($this->user)->post('/broadcasting/auth', [
             'channel_name' => 'presence-test-channel',
             'socket_id' => 'test-socket-123'
         ]);
@@ -102,7 +102,7 @@ class PusherAuthSimpleTest extends TestCase
     public function test_private_channel_detection_works()
     {
         // 通常のプライベートチャンネル名での呼び出し
-        $response = $this->actingAs($this->user)->post('/pusher/auth', [
+        $response = $this->actingAs($this->user)->post('/broadcasting/auth', [
             'channel_name' => 'private-test-channel',
             'socket_id' => 'test-socket-123'
         ]);

@@ -729,9 +729,17 @@ class UserTest extends BaseModelTest
             'negative_user_id' => $opponent1->id
         ]);
 
-        // 削除されたAccessor属性のテストを削除
-        // $this->assertEquals(3, $user->debates_count);
-        // $this->assertEquals(1, $user->wins_count);
+        // ユーザーが正しくディベートに関連付けられていることを確認
+        $this->assertEquals(2, $user->affirmativeDebates()->count());
+        $this->assertEquals(1, $user->negativeDebates()->count());
+
+        // 評価が正しく関連付けられていることを確認
+        $userDebatesWithEvaluation = Debate::where(function ($query) use ($user) {
+            $query->where('affirmative_user_id', $user->id)
+                ->orWhere('negative_user_id', $user->id);
+        })->has('evaluations')->count();
+
+        $this->assertEquals(2, $userDebatesWithEvaluation);
     }
 
     #[Test]

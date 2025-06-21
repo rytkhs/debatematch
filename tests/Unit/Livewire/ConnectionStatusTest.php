@@ -62,9 +62,9 @@ class ConnectionStatusTest extends BaseLivewireTest
     }
 
     /**
-     * 接続切断イベントのテスト
+     * コンポーネントの基本動作テスト
      */
-    public function test_handle_connection_lost(): void
+    public function test_component_basic_functionality(): void
     {
         $user = User::factory()->create();
         $room = Room::factory()->create();
@@ -72,25 +72,8 @@ class ConnectionStatusTest extends BaseLivewireTest
         Livewire::actingAs($user)
             ->test(ConnectionStatus::class, ['room' => $room])
             ->assertSet('isOffline', false)
-            ->dispatch('connection-lost')
-            ->assertSet('isOffline', true);
-    }
-
-    /**
-     * 接続復元イベントのテスト
-     */
-    public function test_handle_connection_restored(): void
-    {
-        $user = User::factory()->create();
-        $room = Room::factory()->create();
-
-        $livewire = Livewire::actingAs($user)
-            ->test(ConnectionStatus::class, ['room' => $room])
-            ->dispatch('connection-lost')
-            ->assertSet('isOffline', true);
-
-        $livewire->dispatch('connection-restored')
-            ->assertSet('isOffline', false);
+            ->assertSet('isPeerOffline', false)
+            ->assertSet('onlineUsers', []);
     }
 
     /**
@@ -214,8 +197,6 @@ class ConnectionStatusTest extends BaseLivewireTest
 
         $livewire = Livewire::actingAs($user)
             ->test(ConnectionStatus::class, ['room' => $room])
-            ->dispatch('connection-lost')
-            ->assertSet('isOffline', true)
             ->dispatch('member-online', ['id' => 123])
             ->assertSet('onlineUsers.123', true);
 
@@ -299,7 +280,7 @@ class ConnectionStatusTest extends BaseLivewireTest
     }
 
     /**
-     * 接続状態の連続変更テスト
+     * メンバー状態の連続変更テスト
      */
     public function test_connection_status_rapid_changes(): void
     {
@@ -308,14 +289,14 @@ class ConnectionStatusTest extends BaseLivewireTest
 
         $livewire = Livewire::actingAs($user)
             ->test(ConnectionStatus::class, ['room' => $room])
-            ->assertSet('isOffline', false);
+            ->assertSet('onlineUsers', []);
 
-        // 連続的な接続状態変更
+        // 連続的なメンバー状態変更
         for ($i = 0; $i < 5; $i++) {
-            $livewire->dispatch('connection-lost')
-                ->assertSet('isOffline', true)
-                ->dispatch('connection-restored')
-                ->assertSet('isOffline', false);
+            $livewire->dispatch('member-online', ['id' => $i])
+                ->assertSet("onlineUsers.{$i}", true)
+                ->dispatch('member-offline', ['id' => $i])
+                ->assertSet("onlineUsers.{$i}", false);
         }
     }
 

@@ -88,7 +88,7 @@ class ConnectionAnalyzerTest extends TestCase
     }
 
     #[Test]
-    public function detectAnomalousPatternsDetectsAbnormalPatterns()
+    public function analyzeConnectionPatternsDetectsAbnormalPatterns()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -104,7 +104,7 @@ class ConnectionAnalyzerTest extends TestCase
             ]);
         }
 
-        $patterns = $this->analyzer->detectAnomalousPatterns($this->user->id, $context);
+        $patterns = $this->analyzer->analyzeConnectionPatterns($this->user->id, $context);
 
         $this->assertEquals(1, $patterns['patterns_detected']);
         $this->assertCount(1, $patterns['anomalous_patterns']);
@@ -113,7 +113,7 @@ class ConnectionAnalyzerTest extends TestCase
     }
 
     #[Test]
-    public function detectAnomalousPatternsDetectsRapidReconnectionPatterns()
+    public function analyzeConnectionPatternsDetectsRapidReconnectionPatterns()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -134,7 +134,7 @@ class ConnectionAnalyzerTest extends TestCase
             ]);
         }
 
-        $patterns = $this->analyzer->detectAnomalousPatterns($this->user->id, $context);
+        $patterns = $this->analyzer->analyzeConnectionPatterns($this->user->id, $context);
 
         $this->assertEquals(1, $patterns['patterns_detected']);
         $rapidPattern = collect($patterns['anomalous_patterns'])
@@ -144,7 +144,7 @@ class ConnectionAnalyzerTest extends TestCase
     }
 
     #[Test]
-    public function detectAnomalousPatternsDetectsProlongedDisconnectionPatterns()
+    public function analyzeConnectionPatternsDetectsProlongedDisconnectionPatterns()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -159,7 +159,7 @@ class ConnectionAnalyzerTest extends TestCase
             'metadata' => []
         ]);
 
-        $patterns = $this->analyzer->detectAnomalousPatterns($this->user->id, $context);
+        $patterns = $this->analyzer->analyzeConnectionPatterns($this->user->id, $context);
 
         $this->assertEquals(1, $patterns['patterns_detected']);
         $prolongedPattern = collect($patterns['anomalous_patterns'])
@@ -169,7 +169,7 @@ class ConnectionAnalyzerTest extends TestCase
     }
 
     #[Test]
-    public function detectAnomalousPatternsHandlesNormalPatternsCorrectly()
+    public function analyzeConnectionPatternsHandlesNormalPatternsCorrectly()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -185,7 +185,7 @@ class ConnectionAnalyzerTest extends TestCase
             ]);
         }
 
-        $patterns = $this->analyzer->detectAnomalousPatterns($this->user->id, $context);
+        $patterns = $this->analyzer->analyzeConnectionPatterns($this->user->id, $context);
 
         $this->assertEquals(0, $patterns['patterns_detected']);
         $this->assertEmpty($patterns['anomalous_patterns']);
@@ -258,7 +258,7 @@ class ConnectionAnalyzerTest extends TestCase
     }
 
     #[Test]
-    public function detectFrequentDisconnectionsPerformsAccurateDetection()
+    public function analyzeFrequentDisconnectionsPerformsAccurateDetection()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -274,7 +274,7 @@ class ConnectionAnalyzerTest extends TestCase
             ]);
         }
 
-        $result = $this->invokePrivateMethod($this->analyzer, 'detectFrequentDisconnections', [$this->user->id, $context, 1]);
+        $result = $this->invokePrivateMethod($this->analyzer, 'analyzeFrequentDisconnections', [$this->user->id, $context, 1]);
 
         $this->assertTrue($result['is_anomalous']);
         $this->assertEquals(5, $result['disconnection_count']);
@@ -282,7 +282,7 @@ class ConnectionAnalyzerTest extends TestCase
     }
 
     #[Test]
-    public function detectRapidReconnectionsPerformsAccurateDetection()
+    public function analyzeRapidReconnectionsPerformsAccurateDetection()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -303,7 +303,7 @@ class ConnectionAnalyzerTest extends TestCase
             ]);
         }
 
-        $result = $this->invokePrivateMethod($this->analyzer, 'detectRapidReconnections', [$this->user->id, $context, 1]);
+        $result = $this->invokePrivateMethod($this->analyzer, 'analyzeRapidReconnections', [$this->user->id, $context, 1]);
 
         $this->assertTrue($result['is_anomalous']);
         $this->assertEquals(3, $result['rapid_reconnection_count']);

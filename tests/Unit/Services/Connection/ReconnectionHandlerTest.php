@@ -116,7 +116,7 @@ class ReconnectionHandlerTest extends TestCase
     }
 
     #[Test]
-    public function validateReconnectionContextAllowsValidReconnection()
+    public function validateReconnectionAllowsValidReconnection()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -130,13 +130,13 @@ class ReconnectionHandlerTest extends TestCase
             'metadata' => []
         ]);
 
-        $isValid = $this->invokePrivateMethod($this->handler, 'validateReconnectionContext', [$log, $context]);
+        $isValid = $this->invokePrivateMethod($this->handler, 'validateReconnection', [$log, $context]);
 
         $this->assertTrue($isValid);
     }
 
     #[Test]
-    public function validateReconnectionContextRejectsInvalidState()
+    public function validateReconnectionRejectsInvalidState()
     {
         $context = ['type' => 'room', 'id' => 1];
 
@@ -150,7 +150,7 @@ class ReconnectionHandlerTest extends TestCase
             'metadata' => []
         ]);
 
-        $isValid = $this->invokePrivateMethod($this->handler, 'validateReconnectionContext', [$log, $context]);
+        $isValid = $this->invokePrivateMethod($this->handler, 'validateReconnection', [$log, $context]);
 
         $this->assertFalse($isValid);
     }

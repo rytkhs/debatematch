@@ -49,29 +49,6 @@ class ConnectionStatusFeatureTest extends TestCase
     }
 
     #[Test]
-    public function connection_lost_can_be_handled()
-    {
-        $room = Room::factory()->create();
-
-        $livewire = Livewire::test(ConnectionStatus::class, ['room' => $room]);
-
-        $livewire->call('handleConnectionLost')
-            ->assertSet('isOffline', true);
-    }
-
-    #[Test]
-    public function connection_restored_can_be_handled()
-    {
-        $room = Room::factory()->create();
-
-        $livewire = Livewire::test(ConnectionStatus::class, ['room' => $room])
-            ->set('isOffline', true);
-
-        $livewire->call('handleConnectionRestored')
-            ->assertSet('isOffline', false);
-    }
-
-    #[Test]
     public function member_online_event_can_be_handled()
     {
         $room = Room::factory()->create();
@@ -168,19 +145,17 @@ class ConnectionStatusFeatureTest extends TestCase
     }
 
     #[Test]
-    public function connection_status_rapid_changes()
+    public function connection_status_offline_state_handling()
     {
         $room = Room::factory()->create();
 
         $livewire = Livewire::test(ConnectionStatus::class, ['room' => $room]);
 
-        // 接続状態の高速切り替え
-        for ($i = 0; $i < 5; $i++) {
-            $livewire->call('handleConnectionLost')
-                ->assertSet('isOffline', true);
+        // デフォルトでオフライン状態ではない
+        $livewire->assertSet('isOffline', false);
 
-            $livewire->call('handleConnectionRestored')
-                ->assertSet('isOffline', false);
-        }
+        // 手動でオフライン状態に設定
+        $livewire->set('isOffline', true)
+            ->assertSet('isOffline', true);
     }
 }

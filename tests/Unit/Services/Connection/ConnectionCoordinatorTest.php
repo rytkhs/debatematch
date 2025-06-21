@@ -156,18 +156,18 @@ class ConnectionCoordinatorTest extends TestCase
         $this->assertEquals($expectedStats, $result);
     }
 
-    public function test_detectAnomalousPatterns_delegates_to_analyzer()
+    public function test_analyzeConnectionPatterns_delegates_to_analyzer()
     {
         $userId = 1;
         $context = ['type' => 'room', 'id' => 123];
         $expectedPatterns = ['frequent_disconnections' => true];
 
-        $this->analyzer->shouldReceive('detectAnomalousPatterns')
+        $this->analyzer->shouldReceive('analyzeConnectionPatterns')
             ->once()
             ->with($userId, $context)
             ->andReturn($expectedPatterns);
 
-        $result = $this->coordinator->detectAnomalousPatterns($userId, $context);
+        $result = $this->coordinator->analyzeConnectionPatterns($userId, $context);
 
         $this->assertEquals($expectedPatterns, $result);
     }
