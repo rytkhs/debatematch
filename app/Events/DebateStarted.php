@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -12,15 +12,12 @@ class DebateStarted implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public int $debateId;
-    public int $roomId;
     /**
      * Create a new event instance.
      */
-    public function __construct(int $debateId, int $roomId)
+    public function __construct(public int $debateId, public int $roomId)
     {
-        $this->debateId = $debateId;
-        $this->roomId = $roomId;
+        //
     }
 
     /**
@@ -31,7 +28,7 @@ class DebateStarted implements ShouldBroadcastNow
     public function broadcastOn()
     {
         return [
-            new Channel('rooms.' . $this->roomId),
+            new PrivateChannel('rooms.' . $this->roomId),
         ];
     }
 

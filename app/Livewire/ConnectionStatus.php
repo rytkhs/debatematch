@@ -23,20 +23,6 @@ class ConnectionStatus extends Component
         $this->debate = $room->debate;
     }
 
-    #[On('connection-lost')]
-    public function handleConnectionLost(): void
-    {
-        // 接続が失われた場合の処理
-        $this->isOffline = true;
-    }
-
-    #[On('connection-restored')]
-    public function handleConnectionRestored(): void
-    {
-        // 接続が復元した場合の処理
-        $this->isOffline = false;
-    }
-
     #[On('member-online')]
     public function handleMemberOnline($data): void
     {
@@ -84,7 +70,7 @@ class ConnectionStatus extends Component
         }
     }
 
-    #[On('echo:rooms.{room.id},UserLeftRoom')]
+    #[On('echo:private-rooms.{room.id},UserLeftRoom')]
     public function resetState(): void
     {
         // ユーザーが退出した場合、状態を初期化
