@@ -21,7 +21,7 @@ return [
     */
     'grace_periods' => [
         // ルーム接続の猶予期間
-        'room' => env('ROOM_GRACE_PERIOD', 840),
+        'room' => env('ROOM_GRACE_PERIOD', 60),
 
         // ディベート接続の猶予期間
         'debate' => env('DEBATE_GRACE_PERIOD', 300),

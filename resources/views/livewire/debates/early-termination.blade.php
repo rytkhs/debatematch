@@ -8,9 +8,9 @@
                 <p class="text-xs text-gray-500 mb-2">
                         <span class="material-icons text-gray-400 text-sm mr-1">schedule</span>
                         @if($isAiDebate)
-                            ディベートを早期終了できます
+                            {{ __('messages.early_termination_ai_desc') }}
                         @else
-                            ディベートの早期終了を提案できます
+                            {{ __('messages.early_termination_human_desc') }}
                         @endif
                     </p>
                     <button
@@ -22,9 +22,9 @@
                         <span wire:loading.remove wire:target="requestEarlyTermination" class="flex items-center">
                             <span class="material-icons text-sm mr-1">flag</span>
                             @if($isAiDebate)
-                                早期終了
+                                {{ __('messages.early_termination_ai_button') }}
                             @else
-                                早期終了を提案
+                                {{ __('messages.early_termination_human_button') }}
                             @endif
                         </span>
                         <span wire:loading wire:target="requestEarlyTermination" class="flex items-center">
@@ -37,7 +37,7 @@
                     </button>
                 @else
                     <p class="text-xs text-gray-500 text-center py-2">
-                        {{ __('messages.early_termination_request') }}は参加者のみ可能です
+                        {{ __('messages.early_termination_request') }}{{ __('messages.early_termination_participant_only') }}
                     </p>
                 @endif
 
@@ -55,7 +55,7 @@
                             </span>
                         </div>
                         <p class="text-xs text-gray-500">
-                            相手の応答をお待ちください
+                            {{ __('messages.early_termination_wait_response') }}
                         </p>
                     </div>
                 @elseif($canRespond)

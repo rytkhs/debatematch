@@ -26,6 +26,8 @@ export default [
                 fetch: 'readonly',
                 navigator: 'readonly',
                 location: 'readonly',
+                localStorage: 'readonly',
+                sessionStorage: 'readonly',
                 MutationObserver: 'readonly',
 
                 // Node.js環境

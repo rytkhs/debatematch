@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\DebateController;
-use App\Http\Controllers\EarlyTerminationController;
 use App\Http\Controllers\DebateRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PusherWebhookController;
@@ -93,12 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/{debate}/exit', [DebateController::class, 'exit'])->name('debate.exit');
     Route::post('/{debate}/terminate', [DebateController::class, 'terminate'])->name('debate.terminate');
 
-    // 早期終了機能のルート
-    Route::prefix('debates/{debate}/early-termination')->name('debate.early-termination.')->group(function () {
-        Route::post('/request', [EarlyTerminationController::class, 'request'])->name('request');
-        Route::post('/respond', [EarlyTerminationController::class, 'respond'])->name('respond');
-        Route::get('/status', [EarlyTerminationController::class, 'status'])->name('status');
-    });
+
 
     // AIディベート退出ルート
     Route::post('/ai/debate/{debate}/exit', [AIDebateController::class, 'exit'])->name('ai.debate.exit');
@@ -140,7 +134,7 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
 });
 
 // 言語切り替えルート
-Route::get('language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
+Route::get('language/{locale}', [LocaleController::class, 'changeLocale'])->name('language.switch');
 
 Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('auth.google.callback');
