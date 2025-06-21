@@ -27,18 +27,18 @@
             @include('records.partials.filters', compact('side', 'result', 'sort', 'keyword'))
 
             <!-- 統計情報と表示切り替え -->
-            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center sm:gap-4">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center sm:gap-4" data-view-container>
                 @include('records.partials.display-info', compact('debates', 'side', 'result', 'keyword'))
 
                 <!-- ビュー切り替えボタン -->
                 <div class="flex items-center bg-white rounded-lg shadow-sm border p-1 self-start sm:self-auto">
-                    <button id="viewGrid" class="view-toggle-btn px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 flex items-center space-x-1 sm:space-x-2">
+                    <button class="view-toggle-btn px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 flex items-center space-x-1 sm:space-x-2" data-view-toggle="grid">
                         <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg>
                         <span class="hidden sm:inline">{{ __('messages.grid_view') }}</span>
                     </button>
-                    <button id="viewList" class="view-toggle-btn px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 flex items-center space-x-1 sm:space-x-2">
+                    <button class="view-toggle-btn px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 flex items-center space-x-1 sm:space-x-2" data-view-toggle="list">
                         <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
                         </svg>
@@ -61,35 +61,35 @@
                 }
             @endphp
 
-            <!-- 履歴一覧 (グリッドビュー) -->
-            <div id="gridView" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                @forelse($debates as $debate)
-                    @include('records.partials.debate-card', [
-                        'debate' => $debate,
-                        'currentUser' => $currentUser,
-                        'isGuest' => $isGuest,
-                        'demoUserIds' => $demoUserIds,
-                        'viewType' => 'grid'
-                    ])
-                @empty
-                    @include('records.partials.empty-state')
-                @endforelse
-            </div>
+            @if($debates->isNotEmpty())
+                <!-- 履歴一覧 (グリッドビュー) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8" data-view-panel="grid">
+                    @foreach($debates as $debate)
+                        @include('records.partials.debate-card', [
+                            'debate' => $debate,
+                            'currentUser' => $currentUser,
+                            'isGuest' => $isGuest,
+                            'demoUserIds' => $demoUserIds,
+                            'viewType' => 'grid'
+                        ])
+                    @endforeach
+                </div>
 
-            <!-- 履歴一覧 (リストビュー) -->
-            <div id="listView" class="space-y-4 mb-8 hidden">
-                @forelse($debates as $debate)
-                    @include('records.partials.debate-card', [
-                        'debate' => $debate,
-                        'currentUser' => $currentUser,
-                        'isGuest' => $isGuest,
-                        'demoUserIds' => $demoUserIds,
-                        'viewType' => 'list'
-                    ])
-                @empty
-                    @include('records.partials.empty-state')
-                @endforelse
-            </div>
+                <!-- 履歴一覧 (リストビュー) -->
+                <div class="space-y-4 mb-8 hidden" data-view-panel="list">
+                    @foreach($debates as $debate)
+                        @include('records.partials.debate-card', [
+                            'debate' => $debate,
+                            'currentUser' => $currentUser,
+                            'isGuest' => $isGuest,
+                            'demoUserIds' => $demoUserIds,
+                            'viewType' => 'list'
+                        ])
+                    @endforeach
+                </div>
+            @else
+                @include('records.partials.empty-state')
+            @endif
 
             <!-- ページネーション -->
             @if($debates->hasPages())
@@ -107,5 +107,5 @@
     </x-slot>
 
     @include('records.partials.scripts')
-@vite(['resources/js/pages/records-index.js'])
+    @vite(['resources/js/pages/records-index.js'])
 </x-app-layout>
