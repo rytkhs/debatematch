@@ -32,7 +32,7 @@ class StatusUpdated implements ShouldBroadcast
     {
         return
             [
-                new Channel('rooms.' . $this->room->id)
+                new Channel('room.' . $this->room->id)
             ];
     }
 

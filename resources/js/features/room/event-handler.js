@@ -9,8 +9,8 @@ export class RoomEventHandler {
         this.logger = new Logger('RoomEventHandler');
         this.roomId = roomId;
         this.userId = userId;
-        this.channelName = `rooms.${this.roomId}`;
-        this.presenceChannelName = `presence-room.${this.roomId}`;
+        this.channelName = `room.${this.roomId}`;
+        this.presenceChannelName = `room.${this.roomId}`;
         this.channel = null;
         this.presenceChannel = null;
         this.offlineTimeout = null;
@@ -52,10 +52,9 @@ export class RoomEventHandler {
     handleUserJoined(data) {
         if (data.user.id !== this.userId) {
             const title = window.translations?.user_joined_room_title || 'User Joined';
-            const message = (window.translations?.user_joined_room || ':name has joined.').replace(
-                ':name',
-                data.user.name
-            );
+            const message = (
+                window.translations?.rooms?.user_joined_room || ':name has joined.'
+            ).replace(':name', data.user.name);
             showNotification({ title, message, type: 'info' });
         }
         this.logger.log(`${data.user.name} さんが参加しました`);
@@ -64,10 +63,9 @@ export class RoomEventHandler {
     handleUserLeft(data) {
         if (data.user.id !== this.userId) {
             const title = window.translations?.user_left_room_title || 'User Left';
-            const message = (window.translations?.user_left_room || ':name has left.').replace(
-                ':name',
-                data.user.name
-            );
+            const message = (
+                window.translations?.rooms?.user_left_room || ':name has left.'
+            ).replace(':name', data.user.name);
             showNotification({ title, message, type: 'warning' });
         }
         this.logger.log(`${data.user.name} さんが退出しました`);
@@ -77,7 +75,7 @@ export class RoomEventHandler {
         if (data.creator.id === this.userId) return;
         setTimeout(() => {
             alert(
-                window.translations?.host_left_room_closed ||
+                window.translations?.rooms?.host_left_room_closed ||
                     'The host has left, so the room has been closed.'
             );
             window.location.href = '/';
@@ -89,7 +87,7 @@ export class RoomEventHandler {
         showNotification({
             title: window.translations?.debate_starting_title || 'Debate Starting',
             message:
-                window.translations?.debate_starting_message ||
+                window.translations?.rooms?.debate_starting_message ||
                 'Starting the debate. Preparing to navigate...',
             type: 'success',
         });
@@ -119,7 +117,7 @@ export class RoomEventHandler {
         const countdownElement = document.querySelector('#countdown-overlay .text-gray-500');
         if (countdownElement) {
             countdownElement.innerHTML = (
-                window.translations?.redirecting_in_seconds ||
+                window.translations?.rooms?.redirecting_in_seconds ||
                 'Redirecting to the debate page in :seconds seconds...'
             ).replace(':seconds', countdown);
         }
@@ -127,7 +125,7 @@ export class RoomEventHandler {
             countdown--;
             if (countdownElement) {
                 countdownElement.innerHTML = (
-                    window.translations?.redirecting_in_seconds ||
+                    window.translations?.rooms?.redirecting_in_seconds ||
                     'Redirecting to the debate page in :seconds seconds...'
                 ).replace(':seconds', countdown);
             }

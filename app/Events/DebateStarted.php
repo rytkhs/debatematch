@@ -28,7 +28,7 @@ class DebateStarted implements ShouldBroadcastNow
     public function broadcastOn()
     {
         return [
-            new PrivateChannel('rooms.' . $this->roomId),
+            new PrivateChannel('room.' . $this->roomId),
         ];
     }
 
