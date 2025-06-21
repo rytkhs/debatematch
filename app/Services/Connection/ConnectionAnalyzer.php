@@ -70,32 +70,32 @@ class ConnectionAnalyzer
     }
 
     /**
-     * 異常パターンを検知
+     * 異常パターンを分析
      *
      * @param int $userId
      * @param array $context
      * @return array
      */
-    public function detectAnomalousPatterns(int $userId, array $context): array
+    public function analyzeConnectionPatterns(int $userId, array $context): array
     {
         try {
             $patterns = [];
             $windowHours = config('connection.analysis.analysis_window_hours', 1);
 
-            // 頻繁な切断パターンの検知
-            $frequentDisconnections = $this->detectFrequentDisconnections($userId, $context, $windowHours);
+            // 頻繁な切断パターンの分析
+            $frequentDisconnections = $this->analyzeFrequentDisconnections($userId, $context, $windowHours);
             if ($frequentDisconnections['is_anomalous']) {
                 $patterns[] = $frequentDisconnections;
             }
 
-            // 短時間再接続パターンの検知
-            $rapidReconnections = $this->detectRapidReconnections($userId, $context, $windowHours);
+            // 短時間再接続パターンの分析
+            $rapidReconnections = $this->analyzeRapidReconnections($userId, $context, $windowHours);
             if ($rapidReconnections['is_anomalous']) {
                 $patterns[] = $rapidReconnections;
             }
 
-            // 異常に長い切断時間の検知
-            $prolongedDisconnections = $this->detectProlongedDisconnections($userId, $context, $windowHours);
+            // 異常に長い切断時間の分析
+            $prolongedDisconnections = $this->analyzeProlongedDisconnections($userId, $context, $windowHours);
             if ($prolongedDisconnections['is_anomalous']) {
                 $patterns[] = $prolongedDisconnections;
             }
@@ -126,14 +126,14 @@ class ConnectionAnalyzer
     }
 
     /**
-     * 頻繁な切断パターンを検知
+     * 頻繁な切断パターンを分析
      *
      * @param int $userId
      * @param array $context
      * @param int $hours
      * @return array
      */
-    private function detectFrequentDisconnections(int $userId, array $context, int $hours): array
+    private function analyzeFrequentDisconnections(int $userId, array $context, int $hours): array
     {
         $disconnections = ConnectionLog::where('user_id', $userId)
             ->where('context_type', $context['type'])
@@ -156,14 +156,14 @@ class ConnectionAnalyzer
     }
 
     /**
-     * 短時間再接続パターンを検知
+     * 短時間再接続パターンを分析
      *
      * @param int $userId
      * @param array $context
      * @param int $hours
      * @return array
      */
-    private function detectRapidReconnections(int $userId, array $context, int $hours): array
+    private function analyzeRapidReconnections(int $userId, array $context, int $hours): array
     {
         $rapidReconnections = ConnectionLog::where('user_id', $userId)
             ->where('context_type', $context['type'])
@@ -191,14 +191,14 @@ class ConnectionAnalyzer
     }
 
     /**
-     * 異常に長い切断時間を検知
+     * 異常に長い切断時間を分析
      *
      * @param int $userId
      * @param array $context
      * @param int $hours
      * @return array
      */
-    private function detectProlongedDisconnections(int $userId, array $context, int $hours): array
+    private function analyzeProlongedDisconnections(int $userId, array $context, int $hours): array
     {
         $gracePeriod = $context['type'] === 'debate'
             ? config('connection.grace_periods.debate', 300)
@@ -260,7 +260,7 @@ class ConnectionAnalyzer
     {
         try {
             $stats = $this->getBasicConnectionStats($userId, $hours);
-            $anomalies = $this->detectAnomalousPatterns($userId, $context);
+            $anomalies = $this->analyzeConnectionPatterns($userId, $context);
 
             // 基本スコア（100点満点）
             $baseScore = 100;

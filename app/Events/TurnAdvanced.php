@@ -16,16 +16,12 @@ class TurnAdvanced implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $debate;
-    public $additionalData;
-
     /**
      * Create a new event instance.
      */
-    public function __construct(Debate $debate, array $additionalData = [])
+    public function __construct(public Debate $debate, public array $additionalData = [])
     {
-        $this->debate = $debate;
-        $this->additionalData = $additionalData;
+        //
     }
 
     /**

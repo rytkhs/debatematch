@@ -15,9 +15,34 @@
         <!-- 参加者が揃った時のメッセージ -->
         @if($isCreator)
         <div class="mt-4 text-center">
-            <div class="flex flex-col items-center justify-center space-y-0">
+            <div class="flex flex-col items-center justify-center space-y-2">
                 <span class="text-green-500 text-lg font-semibold">{{ __('messages.debaters_ready') }}</span>
-                <span class="text-green-500 text-lg font-semibold">{{ __('messages.please_start_debate') }}</span>
+
+                <!-- オンライン状態表示 -->
+                <div class="flex items-center space-x-4 text-sm">
+                    @foreach($room->users as $user)
+                        <div class="flex items-center space-x-1">
+                            <div class="w-2 h-2 rounded-full {{ ($onlineUsers[$user->id] ?? false) ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                            <span class="text-gray-600">{{ $user->name }}</span>
+                        </div>
+                    @endforeach
+                </div>
+
+                @php
+                    $allOnline = true;
+                    foreach($room->users as $user) {
+                        if (!($onlineUsers[$user->id] ?? false)) {
+                            $allOnline = false;
+                            break;
+                        }
+                    }
+                @endphp
+
+                @if($allOnline)
+                    <span class="text-green-500 text-lg font-semibold">{{ __('messages.please_start_debate') }}</span>
+                @else
+                    <span class="text-orange-500 text-sm">{{ __('messages.waiting_for_all_online') }}</span>
+                @endif
             </div>
         </div>
         @else
@@ -48,10 +73,21 @@
         <div class="flex justify-center">
             <form wire:submit="startDebate">
                 @csrf
+                @php
+                    $allOnline = true;
+                    foreach($room->users as $user) {
+                        if (!($onlineUsers[$user->id] ?? false)) {
+                            $allOnline = false;
+                            break;
+                        }
+                    }
+                    $canStart = $status === 'ready' && $allOnline;
+                @endphp
+
                 <button type="submit"
                 onclick="return confirm('{{ __('messages.confirm_start_debate') }}')"
-                    class="bg-primary text-white text-lg px-6 py-2 m-4 rounded-md hover:bg-primary-dark transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center {{ $status !== 'ready' ? 'opacity-50 cursor-not-allowed' : '' }}"
-                    {{ $status !== 'ready' ? 'disabled' : '' }}>
+                    class="bg-primary text-white text-lg px-6 py-2 m-4 rounded-md hover:bg-primary-dark transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center {{ !$canStart ? 'opacity-50 cursor-not-allowed' : '' }}"
+                    {{ !$canStart ? 'disabled' : '' }}>
                     <span class="material-icons-outlined">play_arrow</span>
                     {{ __('messages.start_debate') }}
                 </button>

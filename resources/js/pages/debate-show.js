@@ -1,11 +1,11 @@
 import CountdownManager from '../features/debate/countdown-manager.js';
 import CountdownTimer from '../components/countdown-timer.js';
 import DebateEventHandler from '../features/debate/event-handler.js';
-import DebatePresenceManager from '../features/debate/presence-manager.js';
 import ChatScrollManager from '../features/debate/chat-scroll.js';
 import DebateUIManager from '../features/debate/ui-manager.js';
 import AudioHandler from '../features/debate/audio-handler.js';
 import InputAreaManager from '../features/debate/input-area.js';
+import HeartbeatService from '../services/heartbeat.js';
 
 /**
  * ディベートページの統合管理クラス
@@ -16,6 +16,7 @@ class DebateShowManager {
         this.managers = {};
         this.isInitialized = false;
         this.initializationTimeout = null;
+        this.heartbeatService = null;
     }
 
     /**
@@ -39,7 +40,7 @@ class DebateShowManager {
             // 各機能の初期化（エラーハンドリング付き）
             this.safeInitialize('Countdown', () => this.initializeCountdown());
             this.safeInitialize('EventHandler', () => this.initializeEventHandler());
-            this.safeInitialize('PresenceManager', () => this.initializePresenceManager());
+            this.safeInitialize('Heartbeat', () => this.initializeHeartbeat());
             this.safeInitialize('ChatScroll', () => this.initializeChatScroll());
             this.safeInitialize('UIManager', () => this.initializeUIManager());
             this.safeInitialize('AudioHandler', () => this.initializeAudioHandler());
@@ -93,11 +94,14 @@ class DebateShowManager {
     }
 
     /**
-     * プレゼンス管理を初期化
+     * ハートビートサービスを初期化
      */
-    initializePresenceManager() {
-        this.managers.presenceManager = new DebatePresenceManager(window.debateData);
-        this.managers.presenceManager.initialize();
+    initializeHeartbeat() {
+        this.heartbeatService = new HeartbeatService({
+            contextType: 'debate',
+            contextId: window.debateData.debateId,
+        });
+        setTimeout(() => this.heartbeatService.start(), 30000);
     }
 
     /**
@@ -430,6 +434,11 @@ class DebateShowManager {
                 }
             }
         });
+
+        // ハートビートサービスのクリーンアップ
+        if (this.heartbeatService) {
+            this.heartbeatService.stop();
+        }
 
         // マネージャー参照をクリア
         this.managers = {};

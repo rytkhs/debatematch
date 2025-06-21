@@ -141,8 +141,9 @@ class LivewirePerformanceTest extends TestCase
                     ->call('submit');
             } else {
                 // ConnectionStatus
-                $livewire->call('handleConnectionLost')
-                    ->call('handleConnectionRestored');
+                $user = $users[($index - 1) / 2];
+                $livewire->call('handleMemberOnline', ['id' => $user->id])
+                    ->call('handleMemberOffline', ['id' => $user->id]);
             }
         }
 

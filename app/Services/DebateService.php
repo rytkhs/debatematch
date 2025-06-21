@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
 
 class DebateService
 {
-    protected int $aiUserId;
+    private int $aiUserId;
 
     public function __construct()
     {

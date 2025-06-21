@@ -21,9 +21,6 @@ class GenerateAIResponseJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $debateId;
-    public int $currentTurn;
-
     public $tries = 3;
     public $backoff = 10;
     public $timeout = 240;
@@ -31,10 +28,9 @@ class GenerateAIResponseJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(int $debateId, int $currentTurn)
+    public function __construct(public int $debateId, public int $currentTurn)
     {
-        $this->debateId = $debateId;
-        $this->currentTurn = $currentTurn;
+        //
     }
 
     /**
@@ -128,7 +124,7 @@ class GenerateAIResponseJob implements ShouldQueue
     /**
      * ジョブが最大リトライ回数に達したときの処理
      */
-    protected function handleMaxRetries(?Debate $debate, int $aiUserId, Throwable $exception): void
+    private function handleMaxRetries(?Debate $debate, int $aiUserId, Throwable $exception): void
     {
         Log::critical('GenerateAIResponseJob failed after max retries', [
             'debate_id' => $this->debateId,

@@ -13,11 +13,9 @@ class ConnectionLogger
 {
     use ConnectionErrorHandler;
 
-    private ConnectionStateManager $stateManager;
-
-    public function __construct(ConnectionStateManager $stateManager)
+    public function __construct(private ConnectionStateManager $stateManager)
     {
-        $this->stateManager = $stateManager;
+        //
     }
 
     /**

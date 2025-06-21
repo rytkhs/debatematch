@@ -20,21 +20,18 @@ class EarlyTerminationTimeoutJob implements ShouldQueue
 {
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
-    public int $debateId;
-    public int $requestedBy;
-    public string $timestamp;
-
     public $tries = 3;
     public $backoff = 5;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(int $debateId, int $requestedBy, string $timestamp)
-    {
-        $this->debateId = $debateId;
-        $this->requestedBy = $requestedBy;
-        $this->timestamp = $timestamp;
+    public function __construct(
+        public int $debateId,
+        public int $requestedBy,
+        public string $timestamp
+    ) {
+        //
     }
 
     /**

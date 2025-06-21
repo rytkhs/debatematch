@@ -14,24 +14,14 @@ class ConnectionCoordinator
 {
     use ConnectionErrorHandler;
 
-    private ConnectionStateManager $stateManager;
-    private ConnectionLogger $logger;
-    private DisconnectionHandler $disconnectionHandler;
-    private ReconnectionHandler $reconnectionHandler;
-    private ConnectionAnalyzer $analyzer;
-
     public function __construct(
-        ConnectionStateManager $stateManager,
-        ConnectionLogger $logger,
-        DisconnectionHandler $disconnectionHandler,
-        ReconnectionHandler $reconnectionHandler,
-        ConnectionAnalyzer $analyzer
+        private ConnectionStateManager $stateManager,
+        private ConnectionLogger $logger,
+        private DisconnectionHandler $disconnectionHandler,
+        private ReconnectionHandler $reconnectionHandler,
+        private ConnectionAnalyzer $analyzer
     ) {
-        $this->stateManager = $stateManager;
-        $this->logger = $logger;
-        $this->disconnectionHandler = $disconnectionHandler;
-        $this->reconnectionHandler = $reconnectionHandler;
-        $this->analyzer = $analyzer;
+        //
     }
 
     /**
@@ -183,14 +173,20 @@ class ConnectionCoordinator
         }
     }
 
-    // 異常パターン検知
-    public function detectAnomalousPatterns($userId, array $context): array
+    /**
+     * 異常パターンを分析
+     *
+     * @param int $userId
+     * @param array $context
+     * @return array
+     */
+    public function analyzeConnectionPatterns($userId, array $context): array
     {
         try {
-            return $this->analyzer->detectAnomalousPatterns($userId, $context);
+            return $this->analyzer->analyzeConnectionPatterns($userId, $context);
         } catch (\Exception $e) {
             $this->handleConnectionError($e, [
-                'operation' => 'detect_anomalous_patterns',
+                'operation' => 'analyze_anomalous_patterns',
                 'userId' => $userId,
                 'context' => $context
             ]);

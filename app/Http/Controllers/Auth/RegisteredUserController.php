@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-// use App\Http\Controllers\SNSController;
 use App\Services\SlackNotifier;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -17,13 +16,9 @@ use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
-    // protected SNSController $snsController;
-    protected SlackNotifier $slackNotifier;
-
-    public function __construct(SlackNotifier $slackNotifier)
+    public function __construct(private SlackNotifier $slackNotifier)
     {
-        // $this->snsController = $snsController;
-        $this->slackNotifier = $slackNotifier;
+        //
     }
 
     /**

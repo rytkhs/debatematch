@@ -13,13 +13,12 @@ class DebateMessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public int $debateId;
     /**
      * Create a new event instance.
      */
-    public function __construct(int $debateId)
+    public function __construct(public int $debateId)
     {
-        $this->debateId = $debateId;
+        //
     }
 
     /**

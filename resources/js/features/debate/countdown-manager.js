@@ -96,7 +96,6 @@ class CountdownManager {
      */
     initLivewireEvents() {
         if (typeof window.Livewire === 'undefined') {
-            console.warn('Livewire not available for countdown manager');
             return;
         }
 

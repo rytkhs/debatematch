@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\DebateController;
-use App\Http\Controllers\EarlyTerminationController;
 use App\Http\Controllers\DebateRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PusherWebhookController;
@@ -10,18 +9,15 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Pusher\Pusher;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use App\Http\Middleware\CheckUserActiveStatus;
 use App\Http\Controllers\HeartbeatController;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Admin\ConnectionAnalyticsController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\AIDebateController;
-use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Broadcast;
 
 // 基本ルート
 Route::middleware([CheckUserActiveStatus::class])->group(function () {
@@ -88,18 +84,15 @@ Route::middleware(['auth', 'verified', CheckUserActiveStatus::class])->group(fun
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Broadcast::routes();
+
     Route::post('/{room}/exit', [RoomController::class, 'exit'])->name('rooms.exit');
     Route::post('/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
     Route::post('/{room}/start', [RoomController::class, 'startDebate'])->name('rooms.start');
     Route::post('/{debate}/exit', [DebateController::class, 'exit'])->name('debate.exit');
     Route::post('/{debate}/terminate', [DebateController::class, 'terminate'])->name('debate.terminate');
 
-    // 早期終了機能のルート
-    Route::prefix('debates/{debate}/early-termination')->name('debate.early-termination.')->group(function () {
-        Route::post('/request', [EarlyTerminationController::class, 'request'])->name('request');
-        Route::post('/respond', [EarlyTerminationController::class, 'respond'])->name('respond');
-        Route::get('/status', [EarlyTerminationController::class, 'status'])->name('status');
-    });
+
 
     // AIディベート退出ルート
     Route::post('/ai/debate/{debate}/exit', [AIDebateController::class, 'exit'])->name('ai.debate.exit');
@@ -118,52 +111,6 @@ Route::middleware(['auth', 'verified', CheckUserActiveStatus::class])->prefix('a
 // pusher関連
 Route::post('/webhook/pusher', [PusherWebhookController::class, 'handle'])->withoutMiddleware([ValidateCsrfToken::class]);
 
-
-Route::post('/pusher/auth', function (Request $request) {
-    try {
-        // ユーザー認証の確認
-        if (!Auth::check()) {
-            return response('Unauthorized', 401);
-        }
-
-        $pusher = new Pusher(
-            config('broadcasting.connections.pusher.key'),
-            config('broadcasting.connections.pusher.secret'),
-            config('broadcasting.connections.pusher.app_id'),
-            config('broadcasting.connections.pusher.options')
-        );
-
-        $channelName = $request->input('channel_name');
-        $socketId = $request->input('socket_id');
-
-        // チャンネル名の検証
-        if (!$channelName || !$socketId) {
-            return response('Bad Request: Missing required parameters', 400);
-        }
-
-        // プレゼンスチャンネルの場合
-        if (strpos($channelName, 'presence-') === 0) {
-            return $pusher->presence_auth(
-                $channelName,
-                $socketId,
-                Auth::user()->id,
-                ['name' => Auth::user()->name]
-            );
-        }
-
-        // 通常のプライベートチャンネルの場合
-        return $pusher->socket_auth($channelName, $socketId);
-    } catch (Exception $e) {
-        Log::error('Pusher auth error: ' . $e->getMessage(), [
-            'user_id' => Auth::id(),
-            'channel' => $request->input('channel_name'),
-            'socket_id' => $request->input('socket_id'),
-            'error' => $e->getMessage()
-        ]);
-
-        return response('Internal Server Error', 500);
-    }
-})->middleware(['auth', 'verified', 'throttle:30,1'])->withoutMiddleware([ValidateCsrfToken::class]);
 
 // ハートビートエンドポイント
 Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])
@@ -187,7 +134,7 @@ Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')
 });
 
 // 言語切り替えルート
-Route::get('language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
+Route::get('language/{locale}', [LocaleController::class, 'changeLocale'])->name('language.switch');
 
 Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('auth.google.callback');

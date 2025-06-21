@@ -20,8 +20,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Connection\ReconnectionHandler::class);
         $this->app->singleton(\App\Services\Connection\ConnectionAnalyzer::class);
         $this->app->singleton(\App\Services\Connection\ConnectionCoordinator::class);
-
-        // 完全移行によりConnectionManagerの登録は不要
     }
 
     /**

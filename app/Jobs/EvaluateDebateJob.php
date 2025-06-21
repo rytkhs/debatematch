@@ -19,14 +19,13 @@ class EvaluateDebateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private int $debateId;
     public $tries = 3;
     public $backoff = 10;
     public $timeout = 300;
 
-    public function __construct(int $debateId)
+    public function __construct(private int $debateId)
     {
-        $this->debateId = $debateId;
+        //
     }
 
     public function handle(AIEvaluationService $aiEvaluationService): void

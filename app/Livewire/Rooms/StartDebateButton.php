@@ -18,6 +18,7 @@ class StartDebateButton extends Component
     public Room $room;
     public string $status;
     public bool $isCreator;
+    public array $onlineUsers = [];
     protected $debateService;
 
     public function boot(DebateService $debateService)
@@ -30,13 +31,34 @@ class StartDebateButton extends Component
         $this->room = $room;
         $room->load('users');
         $this->status = $this->room->status;
+
+        // 初期状態では全ユーザーをオフラインとして設定
+        foreach ($this->room->users as $user) {
+            $this->onlineUsers[$user->id] = false;
+        }
     }
 
-    #[On('echo:rooms.{room.id},UserJoinedRoom')]
-    #[On('echo:rooms.{room.id},UserLeftRoom')]
+    #[On('echo:private-rooms.{room.id},UserJoinedRoom')]
+    #[On('echo:private-rooms.{room.id},UserLeftRoom')]
     public function updateStatus(array $data): void
     {
         $this->status = $data['room']['status'];
+    }
+
+    #[On('member-online')]
+    public function handleMemberOnline($data): void
+    {
+        if (isset($data['id'])) {
+            $this->onlineUsers[$data['id']] = true;
+        }
+    }
+
+    #[On('member-offline')]
+    public function handleMemberOffline($data): void
+    {
+        if (isset($data['id'])) {
+            $this->onlineUsers[$data['id']] = false;
+        }
     }
 
     public function startDebate()
@@ -57,6 +79,14 @@ class StartDebateButton extends Component
         //ルームの作成者か確認
         if (Auth::id() != $this->room->created_by) {
             return redirect()->route('rooms.show', $this->room)->with('error', __('flash.start_debate.unauthorized'));
+        }
+
+        // 全参加者がオンラインか確認
+        foreach ($this->room->users as $user) {
+            if (!($this->onlineUsers[$user->id] ?? false)) {
+                session()->flash('error', __('flash.start_debate.error.participants_offline'));
+                return;
+            }
         }
 
         return DB::transaction(function () {

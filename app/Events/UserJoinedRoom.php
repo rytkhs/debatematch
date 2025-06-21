@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -14,16 +14,12 @@ class UserJoinedRoom implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $room;
-    public $user;
-
     /**
      * Create a new event instance.
      */
-    public function __construct(Room $room, User $user)
+    public function __construct(public Room $room, public User $user)
     {
-        $this->room = $room;
-        $this->user = $user;
+        //
     }
 
     /**
@@ -34,7 +30,7 @@ class UserJoinedRoom implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new Channel('rooms.' . $this->room->id),
+            new PrivateChannel('rooms.' . $this->room->id),
         ];
     }
 }

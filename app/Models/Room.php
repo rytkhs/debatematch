@@ -26,6 +26,7 @@ class Room extends Model
     protected $casts = [
         'custom_format_settings' => 'array',
         'evidence_allowed' => 'boolean',
+        'is_ai_debate' => 'boolean',
     ];
 
     // 状態の定数
