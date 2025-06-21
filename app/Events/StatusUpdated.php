@@ -13,16 +13,14 @@ class StatusUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $room;
-
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Room $room)
+    public function __construct(public Room $room)
     {
-        $this->room = $room;
+        //
     }
 
     /**

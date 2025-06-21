@@ -13,13 +13,12 @@ class DebateTerminated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Debate $debate;
     /**
      * Create a new event instance.
      */
-    public function __construct(Debate $debate)
+    public function __construct(public Debate $debate)
     {
-        $this->debate = $debate;
+        //
     }
 
     /**

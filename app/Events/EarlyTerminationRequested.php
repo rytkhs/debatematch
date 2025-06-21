@@ -12,16 +12,12 @@ class EarlyTerminationRequested implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public int $debateId;
-    public int $requestedBy;
-
     /**
      * Create a new event instance.
      */
-    public function __construct(int $debateId, int $requestedBy)
+    public function __construct(public int $debateId, public int $requestedBy)
     {
-        $this->debateId = $debateId;
-        $this->requestedBy = $requestedBy;
+        //
     }
 
     /**
