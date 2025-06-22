@@ -4,7 +4,7 @@
     </x-slot>
 
     <div class="min-h-screen bg-gray-50 py-8 sm:py-12">
-        <div class="max-w-none sm:max-w-none mx-auto px-4 sm:px-6 lg:px-8 leading-normal text-gray-700 prose prose-sm sm:prose">
+        <div class="max-w-4xl mx-auto px-6 sm:px-8 lg:px-10 leading-tight text-gray-600 prose prose-xs font-serif">
             @php
                 $locale = App::getLocale();
                 $markdownPath = resource_path("markdown/{$locale}/terms.md");
