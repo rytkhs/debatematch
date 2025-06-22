@@ -71,16 +71,16 @@ class StatusTest extends BaseLivewireTest
             // ステータスに応じた表示内容をテスト
             switch ($status) {
                 case Room::STATUS_WAITING:
-                    $livewire->assertSee(__('messages.waiting_status'));
+                    $livewire->assertSee(__('rooms.waiting'));
                     break;
                 case Room::STATUS_READY:
-                    $livewire->assertSee(__('messages.ready_status'));
+                    $livewire->assertSee(__('rooms.ready'));
                     break;
                 case Room::STATUS_DEBATING:
-                    $livewire->assertSee(__('messages.debate_in_progress'));
+                    $livewire->assertSee(__('rooms.debating'));
                     break;
                 case Room::STATUS_FINISHED:
-                    $livewire->assertSee(__('messages.finished'));
+                    $livewire->assertSee(__('debates_format.finished'));
                     break;
             }
         }
@@ -231,7 +231,7 @@ class StatusTest extends BaseLivewireTest
         $livewire = Livewire::test(Status::class, ['room' => $room]);
 
         // 最初のステータス表示を確認
-        $livewire->assertSee(__('messages.waiting_status'));
+        $livewire->assertSee(__('rooms.waiting'));
 
         // READYに変更
         $eventData = ['room' => ['status' => Room::STATUS_READY]];
@@ -243,8 +243,8 @@ class StatusTest extends BaseLivewireTest
         );
 
         // 新しいステータス表示を確認
-        $livewire->assertSee(__('messages.ready_status'))
-            ->assertDontSee(__('messages.waiting_status'));
+        $livewire->assertSee(__('rooms.ready'))
+            ->assertDontSee(__('rooms.waiting'));
     }
 
     /**
@@ -409,7 +409,7 @@ class StatusTest extends BaseLivewireTest
 
         Livewire::test(Status::class, ['room' => $room])
             ->assertViewIs('livewire.rooms.status')
-            ->assertSee(__('messages.ready_status'));
+            ->assertSee(__('rooms.ready'));
     }
 
     /**

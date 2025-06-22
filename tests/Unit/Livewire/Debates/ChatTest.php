@@ -401,10 +401,11 @@ class ChatTest extends BaseLivewireTest
     #[Test]
     public function test_component_performance_with_many_messages(): void
     {
-        // 多数のメッセージを作成
+        // 多数のメッセージを作成（turnカラムも設定）
         DebateMessage::factory()->count(30)->create([
             'debate_id' => $this->debate->id,
             'user_id' => $this->affirmativeUser->id,
+            'turn' => 0, // turnカラムを明示的に設定
         ]);
 
         $start = microtime(true);
