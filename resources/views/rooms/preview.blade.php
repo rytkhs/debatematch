@@ -9,12 +9,12 @@
                 <h1 class="text-xl sm:text-2xl font-bold text-primary">
                     <span
                         class="material-icons-outlined align-middle mr-1 sm:mr-2 text-base sm:text-normal">preview</span>
-                    {{ __('messages.room_details') }}
+                    {{ __('rooms.room_details') }}
                 </h1>
                 <a href="{{ route('rooms.index') }}"
                     class="flex items-center text-sm sm:text-base text-gray-600 hover:text-primary transition-colors">
                     <span class="material-icons-outlined mr-1 text-sm sm:text-normal">arrow_back</span>
-                    {{ __('messages.back_to_room_list') }}
+                    {{ __('rooms.back_to_room_list') }}
                 </a>
             </div>
 
@@ -28,7 +28,7 @@
                                 <span
                                     class="material-icons-outlined text-primary text-xl sm:text-2xl">meeting_room</span>
                                 <div>
-                                    <p class="text-xs sm:text-sm text-gray-500">{{ __('messages.room_name') }}</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">{{ __('rooms.room_name') }}</p>
                                     <h2 class="text-base sm:text-lg font-semibold">{{ $room->name }}</h2>
                                 </div>
                             </div>
@@ -37,7 +37,7 @@
                                     class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 rounded-md text-xs sm:text-sm text-gray-600 flex items-center">
                                     <span
                                         class="material-icons-outlined text-gray-400 mr-0.5 sm:mr-1 text-xs sm:text-sm">language</span>
-                                    {{ $room->language === 'japanese' ? __('messages.japanese') : __('messages.english')
+                                    {{ $room->language === 'japanese' ? __('debates_format.japanese') : __('debates_format.english')
                                     }}
                                 </div>
                                 <!-- 証拠資料の有無を表示 -->
@@ -45,12 +45,12 @@
                                     class="px-1.5 sm:px-2 py-0.5 sm:py-1 {{ $room->evidence_allowed ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600' }} rounded-md text-xs sm:text-sm flex items-center">
                                     <span
                                         class="material-icons-outlined mr-0.5 sm:mr-1 text-xs sm:text-sm">{{ $room->evidence_allowed ? 'fact_check' : 'no_sim' }}</span>
-                                    {{ $room->evidence_allowed ? __('messages.evidence_allowed') : __('messages.evidence_not_allowed') }}
+                                    {{ $room->evidence_allowed ? __('rooms.evidence_allowed') : __('rooms.evidence_not_allowed') }}
                                 </div>
                                 <div class="flex items-center">
                                     <span
                                         class="material-icons-outlined text-gray-400 mr-0.5 sm:mr-1 text-xs sm:text-sm">person</span>
-                                    <span class="text-xs sm:text-sm text-gray-500">{{ __('messages.host') }}: {{
+                                    <span class="text-xs sm:text-sm text-gray-500">{{ __('rooms.host') }}: {{
                                         $room->creator->name }}</span>
                                 </div>
                             </div>
@@ -58,7 +58,7 @@
 
                         <div class="mt-4 sm:mt-5 mb-4 sm:mb-6">
                             <div class="bg-primary-light rounded-lg p-3 sm:p-4 border-l-4 border-primary">
-                                <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ __('messages.topic') }}</p>
+                                <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ __('rooms.topic') }}</p>
                                 <h3 class="text-lg sm:text-xl font-bold text-gray-800">{{ $room->topic }}</h3>
                             </div>
                         </div>
@@ -68,7 +68,7 @@
                             <h4 class="text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2 flex items-center">
                                 <span
                                     class="material-icons-outlined text-gray-400 mr-1 text-xs sm:text-sm">info</span>{{
-                                __('messages.remarks') }}
+                                __('rooms.remarks') }}
                             </h4>
                             <p class="text-xs sm:text-sm text-gray-600 whitespace-pre-wrap">{{ $room->remarks }}</p>
                         </div>
@@ -88,7 +88,7 @@
                                 <span class="flex items-center">
                                     <span
                                         class="material-icons-outlined text-primary mr-1 sm:mr-2 text-sm sm:text-normal">format_list_numbered</span>
-                                    {{ __('messages.format') }}
+                                    {{ __('debates_format.format') }}
                                 </span>
                                 <span
                                     class="material-icons-outlined text-gray-400 group-hover:text-primary transition-colors format-preview-icon text-sm sm:text-normal">expand_less</span>
@@ -99,7 +99,7 @@
                             class="mt-3 sm:mt-4 transition-all duration-300 transform opacity-100">
                             <div class="pt-2 border-t border-gray-100">
                                 <h4 class="text-sm sm:text-md font-medium text-gray-600 mb-2 sm:mb-3">
-                                    {{ $room->getFormatName() }} {{ __('messages.format_suffix') }}
+                                    {{ $room->getFormatName() }} {{ __('debates_format.format_suffix') }}
                                 </h4>
                                 <div class="overflow-x-auto">
                                     <table
@@ -132,9 +132,9 @@
                                                         }
                                                         $speakerName = $turn['speaker'];
                                                         if ($turn['speaker'] === 'affirmative') {
-                                                            $speakerName = __('messages.affirmative_side');
+                                                            $speakerName = __('rooms.affirmative_side');
                                                         } elseif ($turn['speaker'] === 'negative') {
-                                                            $speakerName = __('messages.negative_side');
+                                                            $speakerName = __('rooms.negative_side');
                                                         }
                                                     @endphp
                                                     <span
@@ -145,7 +145,7 @@
                                                 <td class="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">{{
                                                     $turn['name'] }}</td>
                                                 <td class="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">{{
-                                                    floor($turn['duration'] / 60) }}{{ __('messages.minute_suffix') }}
+                                                    floor($turn['duration'] / 60) }}{{ __('debates_format.minute_suffix') }}
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -164,7 +164,7 @@
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                             <span
                                 class="material-icons-outlined text-primary mr-1 sm:mr-2 text-sm sm:text-normal">groups</span>
-                            {{ __('messages.debaters') }}
+                            {{ __('debates_ui.debaters') }}
                         </h3>
                         <livewire:rooms.participants :room="$room" />
                     </div>
@@ -174,14 +174,14 @@
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                             <span
                                 class="material-icons-outlined text-primary mr-1 sm:mr-2 text-sm sm:text-normal">how_to_reg</span>
-                            {{ __('messages.join_debate') }}
+                            {{ __('rooms.join_debate') }}
                         </h3>
 
                         @if($room->status === 'waiting')
                         <div class="p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200 mb-3 sm:mb-4">
                             <div class="flex items-center text-blue-700 text-xs sm:text-sm">
                                 <span class="material-icons-outlined mr-1 sm:mr-2 text-xs sm:text-sm">info</span>
-                                <p>{{ __('messages.select_side_to_join') }}</p>
+                                <p>{{ __('rooms.select_side_to_join') }}</p>
                             </div>
                         </div>
 
@@ -195,7 +195,7 @@
                                     {{ $room->users->where('pivot.side', 'affirmative')->count() ? 'disabled' : '' }}>
                                     <span
                                         class="material-icons-outlined mr-1 sm:mr-2 text-xs sm:text-sm">add_circle</span>
-                                    {{ __('messages.join_as_affirmative') }}
+                                    {{ __('rooms.join_as_affirmative') }}
                                 </button>
                             </form>
 
@@ -208,7 +208,7 @@
                                     {{ $room->users->where('pivot.side', 'negative')->count() ? 'disabled' : '' }}>
                                     <span
                                         class="material-icons-outlined mr-1 sm:mr-2 text-xs sm:text-sm">add_circle</span>
-                                    {{ __('messages.join_as_negative') }}
+                                    {{ __('rooms.join_as_negative') }}
                                 </button>
                             </form>
                         </div>
@@ -216,14 +216,14 @@
                         <div class="p-3 sm:p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                             <div class="flex items-center text-yellow-700 justify-center text-xs sm:text-sm">
                                 <span class="material-icons-outlined mr-1 sm:mr-2 text-xs sm:text-sm">info</span>
-                                <p>{{ __('messages.room_is_full') }}</p>
+                                <p>{{ __('rooms.room_is_full') }}</p>
                             </div>
                         </div>
                         @else
                         <div class="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="flex items-center text-gray-700 justify-center text-xs sm:text-sm">
                                 <span class="material-icons-outlined mr-1 sm:mr-2 text-xs sm:text-sm">block</span>
-                                <p>{{ __('messages.cannot_join_room') }}</p>
+                                <p>{{ __('rooms.cannot_join_room') }}</p>
                             </div>
                         </div>
                         @endif
@@ -236,7 +236,7 @@
     <script>
         // 翻訳済みテキスト
         const translations = {
-            confirmJoinMessage: "{{ __('messages.confirm_join_room_side') }}"
+            confirmJoinMessage: "{{ __('rooms.confirm_join_room_side') }}"
         };
 
         function confirmJoin(event) {

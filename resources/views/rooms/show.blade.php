@@ -6,7 +6,7 @@
                 class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
                 <h1 class="text-xl sm:text-2xl font-bold text-primary">
                     <span class="material-icons-outlined align-middle mr-1 sm:mr-2 text-base sm:text-xl">forum</span>
-                    {{ __('messages.debate_room') }}
+                    {{ __('rooms.debate_room') }}
                 </h1>
                 <div class="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end">
                     <livewire:rooms.status :room="$room" />
@@ -16,7 +16,7 @@
                         <button type="submit"
                             class="btn-danger flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-lg transition-all hover:scale-105">
                             <span class="material-icons-outlined mr-1 text-sm">exit_to_app</span>{{
-                            __('messages.exit_room') }}
+                            __('rooms.exit_room') }}
                         </button>
                     </form>
                 </div>
@@ -33,7 +33,7 @@
                                 <span
                                     class="material-icons-outlined text-primary text-xl sm:text-2xl">meeting_room</span>
                                 <div>
-                                    <p class="text-xs sm:text-sm text-gray-500">{{ __('messages.room_name') }}</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">{{ __('rooms.room_name') }}</p>
                                     <h2 class="text-base sm:text-lg font-semibold">{{ $room->name }}</h2>
                                 </div>
                             </div>
@@ -43,7 +43,7 @@
                                     class="px-1.5 py-0.5 sm:px-2 sm:py-1 bg-gray-100 rounded-md text-xs sm:text-sm text-gray-600 flex items-center">
                                     <span
                                         class="material-icons-outlined text-gray-400 mr-1 text-xs sm:text-sm">language</span>
-                                    {{ $room->language === 'japanese' ? __('messages.japanese') : __('messages.english')
+                                    {{ $room->language === 'japanese' ? __('debates_format.japanese') : __('debates_format.english')
                                     }}
                                 </div>
                                 <!-- 証拠資料の有無を表示 -->
@@ -51,12 +51,12 @@
                                     class="px-1.5 py-0.5 sm:px-2 sm:py-1 {{ $room->evidence_allowed ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600' }} rounded-md text-xs sm:text-sm flex items-center">
                                     <span
                                         class="material-icons-outlined mr-1 text-xs sm:text-sm">{{ $room->evidence_allowed ? 'fact_check' : 'no_sim' }}</span>
-                                    {{ $room->evidence_allowed ? __('messages.evidence_allowed') : __('messages.evidence_not_allowed') }}
+                                    {{ $room->evidence_allowed ? __('rooms.evidence_allowed') : __('rooms.evidence_not_allowed') }}
                                 </div>
                                 <div class="flex items-center">
                                     <span
                                         class="material-icons-outlined text-gray-400 mr-1 text-xs sm:text-sm">person</span>
-                                    <span class="text-xs sm:text-sm text-gray-500">{{ __('messages.host') }}: {{
+                                    <span class="text-xs sm:text-sm text-gray-500">{{ __('rooms.host') }}: {{
                                         $room->creator->name }}</span>
                                 </div>
                             </div>
@@ -64,7 +64,7 @@
 
                         <div class="mt-3 sm:mt-5 mb-4 sm:mb-6">
                             <div class="bg-primary-light rounded-lg p-3 sm:p-4 border-l-4 border-primary">
-                                <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ __('messages.topic') }}</p>
+                                <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ __('rooms.topic') }}</p>
                                 <h3 class="text-lg sm:text-xl font-bold text-gray-800">{{ $room->topic }}</h3>
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                             <h4 class="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 flex items-center">
                                 <span
                                     class="material-icons-outlined text-gray-400 mr-1 text-xs sm:text-sm">info</span>{{
-                                __('messages.remarks') }}
+                                __('rooms.remarks') }}
                             </h4>
                             <p class="text-xs sm:text-sm text-gray-600 whitespace-pre-wrap">{{ $room->remarks }}</p>
                         </div>
@@ -90,7 +90,7 @@
                                 <span class="flex items-center">
                                     <span
                                         class="material-icons-outlined text-primary mr-1.5 sm:mr-2 text-sm sm:text-base">format_list_numbered</span>
-                                    {{ __('messages.format') }}
+                                    {{ __('debates_format.format') }}
                                 </span>
                                 <span
                                     class="material-icons-outlined text-gray-400 group-hover:text-primary transition-colors format-icon text-sm sm:text-base">expand_less</span>
@@ -100,7 +100,7 @@
                         <div id="format-content" class="mt-3 sm:mt-4 transition-all duration-300 transform opacity-100">
                             <div class="pt-2 border-t border-gray-100">
                                 <h4 class="text-sm sm:text-md font-medium text-gray-600 mb-2 sm:mb-3">
-                                    {{ $room->getFormatName() }} {{ __('messages.format_suffix') }}
+                                    {{ $room->getFormatName() }} {{ __('debates_format.format_suffix') }}
                                 </h4>
                                 <div class="overflow-x-auto">
                                     <table
@@ -134,9 +134,9 @@
 
                                                         $speakerName = $turn['speaker'];
                                                         if ($turn['speaker'] === 'affirmative') {
-                                                            $speakerName = __('messages.affirmative_side');
+                                                            $speakerName = __('rooms.affirmative_side');
                                                         } elseif ($turn['speaker'] === 'negative') {
-                                                            $speakerName = __('messages.negative_side');
+                                                            $speakerName = __('rooms.negative_side');
                                                         }
                                                     @endphp
                                                     <span
@@ -147,7 +147,7 @@
                                                 <td class="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">{{
                                                     $turn['name'] }}</td>
                                                 <td class="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">{{
-                                                    floor($turn['duration'] / 60) }}{{ __('messages.minute_suffix') }}
+                                                    floor($turn['duration'] / 60) }}{{ __('debates_format.minute_suffix') }}
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -166,7 +166,7 @@
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                             <span
                                 class="material-icons-outlined text-primary mr-1.5 sm:mr-2 text-sm sm:text-base">groups</span>
-                            {{ __('messages.debaters') }}
+                            {{ __('debates_ui.debaters') }}
                         </h3>
                         <livewire:rooms.participants :room="$room" />
                     </div>
@@ -176,7 +176,7 @@
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                             <span
                                 class="material-icons-outlined text-primary mr-1.5 sm:mr-2 text-sm sm:text-base">play_circle</span>
-                            {{ __('messages.start_debate') }}
+                            {{ __('rooms.start_debate') }}
                         </h3>
                         <livewire:rooms.start-debate-button :room="$room" :isCreator="$isCreator" />
                     </div>
@@ -192,14 +192,14 @@
     <div id="countdown-overlay"
         class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg p-5 sm:p-8 text-center max-w-md mx-auto">
-            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">{{ __('messages.starting_debate_title')
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">{{ __('rooms.starting_debate_title')
                 }}</h2>
             <div
                 class="w-16 h-16 sm:w-20 sm:h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4 sm:mb-6 mx-auto">
             </div>
-            <p class="text-sm sm:text-base text-gray-600 mb-1.5 sm:mb-2">{{ __('messages.redirecting_to_debate_soon') }}
+            <p class="text-sm sm:text-base text-gray-600 mb-1.5 sm:mb-2">{{ __('rooms.redirecting_to_debate_soon') }}
             </p>
-            <div class="text-xs sm:text-sm text-gray-500">{{ __('messages.redirecting_in_seconds', ['seconds' => 5]) }}
+            <div class="text-xs sm:text-sm text-gray-500">{{ __('rooms.redirecting_in_seconds', ['seconds' => 5]) }}
             </div>
         </div>
     </div>
@@ -207,14 +207,21 @@
     <script>
         // 翻訳文字列の設定
         window.translations = {
-            confirmExitCreator: "{{ __('messages.confirm_exit_creator') }}",
-            confirmExitParticipant: "{{ __('messages.confirm_exit_participant') }}",
-            user_joined_room: "{{ __('messages.user_joined_room', ['name' => ':name']) }}",
-            user_left_room: "{{ __('messages.user_left_room', ['name' => ':name']) }}",
-            host_left_room_closed: "{{ __('messages.host_left_room_closed') }}",
-            debate_starting_message: "{{ __('messages.debate_starting_message') }}",
-            redirecting_in_seconds: "{{ __('messages.redirecting_in_seconds', ['seconds' => ':seconds']) }}",
-            connection_restored: "{{ __('messages.connection_restored') }}",
+            confirmExitCreator: "{{ __('rooms.confirm_exit_creator') }}",
+            confirmExitParticipant: "{{ __('rooms.confirm_exit_participant') }}",
+            user_joined_room_title: "{{ __('rooms.user_joined_room_title') }}",
+            user_left_room_title: "{{ __('rooms.user_left_room_title') }}",
+            host_left_room_closed: "{{ __('rooms.host_left_room_closed') }}",
+            debate_starting: "{{ __('rooms.debate_starting') }}",
+            redirecting_in_seconds: "{{ __('rooms.redirecting_in_seconds', ['seconds' => ':seconds']) }}",
+            connection_restored: "{{ __('rooms.connection_restored') }}",
+            rooms: {
+                user_joined_room: "{{ __('rooms.user_joined_room', ['name' => ':name']) }}",
+                user_left_room: "{{ __('rooms.user_left_room', ['name' => ':name']) }}",
+                host_left_room_closed: "{{ __('rooms.host_left_room_closed') }}",
+                debate_starting_message: "{{ __('rooms.debate_starting_message') }}",
+                redirecting_in_seconds: "{{ __('rooms.redirecting_in_seconds', ['seconds' => ':seconds']) }}",
+            }
         };
 
         // ルームデータの設定

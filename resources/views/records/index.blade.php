@@ -16,8 +16,8 @@
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <h3 class="text-base sm:text-lg font-medium text-blue-900">{{ __('messages.demo_mode_notice') }}</h3>
-                            <p class="text-sm sm:text-base text-blue-700 mt-1">{{ __('messages.demo_mode_description') }}</p>
+                            <h3 class="text-base sm:text-lg font-medium text-blue-900">{{ __('records.demo_mode_notice') }}</h3>
+                            <p class="text-sm sm:text-base text-blue-700 mt-1">{{ __('records.demo_mode_description') }}</p>
                         </div>
                     </div>
                 </div>
@@ -36,13 +36,13 @@
                         <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg>
-                        <span class="hidden sm:inline">{{ __('messages.grid_view') }}</span>
+                        <span class="hidden sm:inline">{{ __('records.grid_view') }}</span>
                     </button>
                     <button class="view-toggle-btn px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 flex items-center space-x-1 sm:space-x-2" data-view-toggle="list">
                         <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
                         </svg>
-                        <span class="hidden sm:inline">{{ __('messages.list_view') }}</span>
+                        <span class="hidden sm:inline">{{ __('records.list_view') }}</span>
                     </button>
                 </div>
             </div>

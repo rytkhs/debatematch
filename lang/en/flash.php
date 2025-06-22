@@ -1,12 +1,9 @@
 <?php
 
 return [
-    // DebateController
     'debate.show.finished' => 'The debate has finished.',
     'debate.show.terminated' => 'Disconnected.',
     'debate.terminate.success' => 'The debate was terminated due to disconnection with the opponent.',
-
-    // RoomController
     'room.store.success' => 'Room created successfully.',
     'room.show.forbidden' => 'Cannot access this page.',
     'room.join.already_joined' => 'You have already joined this room.',
@@ -17,37 +14,20 @@ return [
     'room.exit.creator_success' => 'Room deleted successfully.',
     'room.exit.participant_success' => 'Exited the room successfully.',
     'room.start_debate.unauthorized' => 'You do not have permission to start the debate.',
-
-    // AuthenticatedSessionController
     'auth.login.success' => 'Logged in successfully.',
     'auth.logout.success' => 'Logged out successfully.',
     'auth.guest_login.success' => 'Guest logged in successfully.',
-
-    // Livewire/Debates/Chat.php
     'chat.message.received' => 'Received a message.',
-
-    // Livewire/Debates/Header.php
-    'header.turn.my_turn' => "It's your speech.",
-
-    // Livewire/Debates/MessageInput.php
+    'header.turn.my_turn' => 'It\'s your speech.',
     'message_input.send.success' => 'Message sent successfully.',
-
-    // Livewire/Debates/Participants.php
     'participants.turn.advanced' => 'Speech finished.',
-
-    // Livewire/Rooms/StartDebateButton.php
     'start_debate.error.not_enough_participants' => 'Not enough debaters.',
     'start_debate.error.already_started' => 'The debate has already started.',
-
-    // Middleware/CheckUserActiveStatus.php
+    'start_debate.error.participants_offline' => 'Some participants are offline. Please wait for all participants to be online before starting the debate.',
     'middleware.active_debate' => 'You are in an active debate.',
     'middleware.active_room' => 'You are in a waiting room.',
-
-    // AIDebateController
     'ai_debate.exit.success' => 'Successfully exited the AI debate.',
     'ai_debate.exit.error' => 'Failed to exit the AI debate.',
-
-    // ValidateDebateAccess.php
     'auth.login_required' => 'Login is required.',
     'debate.not_found' => 'Debate not found.',
     'debate.access_denied' => 'You do not have access to this debate.',
@@ -55,4 +35,6 @@ return [
     'debate.terminated' => 'Debate terminated.',
     'room.not_found' => 'Room not found.',
     'debate.invalid_state' => 'Debate state is invalid.',
+    'room.deleted' => 'flash.room.deleted',
+    'start_debate.unauthorized' => 'flash.start_debate.unauthorized',
 ];

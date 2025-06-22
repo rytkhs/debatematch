@@ -8,9 +8,9 @@
                 <p class="text-xs text-gray-500 mb-2">
                         <span class="material-icons text-gray-400 text-sm mr-1">schedule</span>
                         @if($isAiDebate)
-                            {{ __('messages.early_termination_ai_desc') }}
+                            {{ __('debates_ui.early_termination_ai_desc') }}
                         @else
-                            {{ __('messages.early_termination_human_desc') }}
+                            {{ __('debates_ui.early_termination_human_desc') }}
                         @endif
                     </p>
                     <button
@@ -22,9 +22,9 @@
                         <span wire:loading.remove wire:target="requestEarlyTermination" class="flex items-center">
                             <span class="material-icons text-sm mr-1">flag</span>
                             @if($isAiDebate)
-                                {{ __('messages.early_termination_ai_button') }}
+                                {{ __('debates_ui.early_termination_ai_button') }}
                             @else
-                                {{ __('messages.early_termination_human_button') }}
+                                {{ __('debates_ui.early_termination_human_button') }}
                             @endif
                         </span>
                         <span wire:loading wire:target="requestEarlyTermination" class="flex items-center">
@@ -32,12 +32,12 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            {{ __('messages.processing') }}
+                            {{ __('common.processing') }}
                         </span>
                     </button>
                 @else
                     <p class="text-xs text-gray-500 text-center py-2">
-                        {{ __('messages.early_termination_request') }}{{ __('messages.early_termination_participant_only') }}
+                        {{ __('debates_ui.early_termination_request') }}{{ __('debates_ui.early_termination_participant_only') }}
                     </p>
                 @endif
 
@@ -51,18 +51,18 @@
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                             <span class="text-xs font-medium text-orange-600">
-                                {{ __('messages.early_termination_waiting_response') }}
+                                {{ __('debates_ui.early_termination_waiting_response') }}
                             </span>
                         </div>
                         <p class="text-xs text-gray-500">
-                            {{ __('messages.early_termination_wait_response') }}
+                            {{ __('debates_ui.early_termination_wait_response') }}
                         </p>
                     </div>
                 @elseif($canRespond)
                     <!-- 応答者の場合：同意/拒否ボタン -->
                     <div class="space-y-2">
                         <p class="text-xs text-gray-700 text-center font-medium">
-                            {{ __('messages.early_termination_proposal', ['name' => $this->getOpponentName()]) }}
+                            {{ __('debates_ui.early_termination_proposal', ['name' => $this->getOpponentName()]) }}
                         </p>
                         <div class="flex space-x-2">
                             <button
@@ -72,7 +72,7 @@
                                 wire:target="respondToEarlyTermination"
                             >
                                 <span wire:loading.remove wire:target="respondToEarlyTermination">
-                                    {{ __('messages.early_termination_agree') }}
+                                    {{ __('debates_ui.early_termination_agree') }}
                                 </span>
                                 <span wire:loading wire:target="respondToEarlyTermination" class="flex items-center">
                                     <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@
                                 wire:target="respondToEarlyTermination"
                             >
                                 <span wire:loading.remove wire:target="respondToEarlyTermination">
-                                    {{ __('messages.early_termination_decline') }}
+                                    {{ __('debates_ui.early_termination_decline') }}
                                 </span>
                                 <span wire:loading wire:target="respondToEarlyTermination" class="flex items-center">
                                     <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

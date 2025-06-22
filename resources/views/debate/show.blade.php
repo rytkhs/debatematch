@@ -10,10 +10,10 @@
                 <!-- タブナビゲーション -->
                 <div class="flex border-b border-gray-200">
                     <button id="participants-tab" class="flex-1 py-3 px-4 text-center border-b-2 border-primary text-primary font-medium">
-                        {{ __('messages.debate_information_tab') }}
+                        {{ __('debates_ui.debate_information_tab') }}
                     </button>
                     <button id="timeline-tab" class="flex-1 py-3 px-4 text-center text-gray-500 hover:text-gray-700">
-                        {{ __('messages.timeline_tab') }}
+                        {{ __('debates_ui.timeline_tab') }}
                     </button>
                 </div>
 
@@ -60,10 +60,10 @@
                     <!-- タブナビゲーション -->
                     <div class="flex border-b border-gray-200">
                         <button id="mobile-participants-tab" class="flex-1 py-3 px-4 text-center border-b-2 border-primary text-primary font-medium">
-                            {{ __('messages.debate_information_tab') }}
+                            {{ __('debates_ui.debate_information_tab') }}
                         </button>
                         <button id="mobile-timeline-tab" class="flex-1 py-3 px-4 text-center text-gray-500 hover:text-gray-700">
-                            {{ __('messages.timeline_tab') }}
+                            {{ __('debates_ui.timeline_tab') }}
                         </button>
                     </div>
 
@@ -107,23 +107,25 @@
     };
 
     const translations = {
-        debate_finished_title: "{{ __('messages.debate_finished_title') }}",
-        evaluating_message: "{{ __('messages.evaluating_message') }}",
-        evaluation_complete_title: "{{ __('messages.evaluation_complete_title') }}",
-        redirecting_to_results: "{{ __('messages.redirecting_to_results') }}",
-        host_left_terminated: "{{ __('messages.host_left_terminated') }}",
-        debate_finished_overlay_title: "{{ __('messages.debate_finished_overlay_title') }}",
-        evaluating_overlay_message: "{{ __('messages.evaluating_overlay_message') }}",
-        go_to_results_page: "{{ __('messages.go_to_results_page') }}",
-        connection_restored: "{{ __('messages.connection_restored') }}",
-        connection_lost_title: "{{ __('messages.connection_lost_title') }}",
-        connection_lost_message: "{{ __('messages.connection_lost_message') }}",
-        reconnecting_message: "{{ __('messages.reconnecting_message') }}",
-        reconnecting_failed_message: "{{ __('messages.reconnecting_failed_message') }}",
-        redirecting_after_termination: "{{ __('messages.redirecting_after_termination') }}",
-        early_termination_agreed: "{{ __('messages.early_termination_agreed') }}",
-        early_termination_declined: "{{ __('messages.early_termination_declined') }}",
-        early_termination_proposal: "{{ __('messages.early_termination_proposal', ['name' => ':name']) }}",
+        debate_finished_title: "{{ __('debates_ui.debate_finished_title') }}",
+        evaluating_message: "{{ __('debates_ui.evaluating_message') }}",
+        evaluation_complete_title: "{{ __('debates_ui.evaluation_complete_title') }}",
+        redirecting_to_results: "{{ __('debates_ui.redirecting_to_results') }}",
+        host_left_terminated: "{{ __('debates_ui.host_left_terminated') }}",
+        debate_finished_overlay_title: "{{ __('debates_ui.debate_finished_overlay_title') }}",
+        evaluating_overlay_message: "{{ __('debates_ui.evaluating_overlay_message') }}",
+        go_to_results_page: "{{ __('debates_ui.go_to_results_page') }}",
+        connection_restored: "{{ __('rooms.connection_restored') }}",
+        connection_lost_title: "{{ __('debates_ui.connection_lost_title') }}",
+        connection_lost_message: "{{ __('debates_ui.connection_lost_message') }}",
+        reconnecting_message: "{{ __('debates_ui.reconnecting_message') }}",
+        reconnecting_failed_message: "{{ __('debates_ui.reconnecting_failed_message') }}",
+        redirecting_after_termination: "{{ __('debates_ui.redirecting_after_termination') }}",
+        early_termination_agreed: "{{ __('debates_ui.early_termination_agreed') }}",
+        early_termination_declined: "{{ __('debates_ui.early_termination_declined') }}",
+        early_termination_proposal: "{{ __('debates_ui.early_termination_proposal', ['name' => ':name']) }}",
+        early_termination_expired_notification: "{{ __('debates_ui.early_termination_expired_notification') }}",
+        early_termination_timeout_message: "{{ __('debates_ui.early_termination_timeout_message') }}",
     };
     window.translations = translations;
 

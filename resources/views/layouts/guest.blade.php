@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
-    <meta name="description" content="{{ __('messages.app_meta_description') }}">
+    <meta name="description" content="{{ __('misc.app_meta_description') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -54,10 +54,10 @@
             {{ $slot }}
 
             <p class="text-gray-500 text-sm mt-4 text-center">
-                {{ __('messages.agree_terms_privacy') }}
+                {{ __('auth.agree_terms_privacy') }}
             </p>
             <p class="text-gray-500 text-sm text-center">
-                <a href="{{ route('terms') }}" class="text-gray-500 underline">{{ __('messages.terms_of_service') }}</a> | <a href="{{ route('privacy') }}" class="text-gray-500 underline">{{ __('messages.privacy_policy') }}</a>
+                <a href="{{ route('terms') }}" class="text-gray-500 underline">{{ __('navigation.terms_of_service') }}</a> | <a href="{{ route('privacy') }}" class="text-gray-500 underline">{{ __('navigation.privacy_policy') }}</a>
             </p>
         </div>
     </div>

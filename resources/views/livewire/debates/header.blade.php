@@ -27,12 +27,12 @@
                 <!-- AIディベートの場合は退出ボタンを表示 -->
                 @if($debate->room->is_ai_debate)
                 <form action="{{ route('ai.debate.exit', $debate) }}" method="POST"
-                    onSubmit="return confirm('{{ __('messages.confirm_exit_ai_debate') }}');">
+                    onSubmit="return confirm('{{ __('ai_debate.confirm_exit_ai_debate') }}');">
                     @csrf
                     <button type="submit"
                         class="btn-danger flex items-center px-2 py-1 sm:px-3 sm:py-1.5 text-xs rounded-lg transition-all hover:scale-105">
                         <span class="material-icons-outlined mr-1 text-sm">exit_to_app</span>
-                        {{ __('messages.exit_debate') }}
+                        {{ __('ai_debate.exit_debate') }}
                     </button>
                 </form>
                 @endif
@@ -55,7 +55,7 @@
                         @endif
                         {{-- サイド表示 --}}
                         <span>
-                            {{ $currentSpeaker === 'affirmative' ? __('messages.affirmative_side_label') : ($currentSpeaker === 'negative' ? __('messages.negative_side_label') : '') }}
+                            {{ $currentSpeaker === 'affirmative' ? __('debates_ui.affirmative_side_label') : ($currentSpeaker === 'negative' ? __('debates_ui.negative_side_label') : '') }}
                         </span>
                         {{-- ターン名 --}}
                         <span class="ml-1">{{ $currentTurnName }}</span>
@@ -63,13 +63,13 @@
                     {{-- ターン状況テキスト --}}
                     <span class="text-xs text-gray-500 mt-0.5">
                         @if($isMyTurn)
-                            {{ __('messages.your_turn') }}
+                            {{ __('debates_ui.your_turn') }}
                         @elseif($isAITurn)
-                            {{ __('messages.ai_turn') }}
+                            {{ __('ai_debate.ai_turn') }}
                         @elseif($isPrepTime)
-                            {{ __('messages.prep_time') }}
+                            {{ __('debates_format.prep_time') }}
                         @else
-                            {{ __('messages.opponent_turn') }}
+                            {{ __('debates_ui.opponent_turn') }}
                         @endif
                     </span>
                 </div>
@@ -79,7 +79,7 @@
                     <div class="text-2xl font-bold tabular-nums
                         " id="countdown-timer">
                     </div>
-                    <span class="text-xs text-gray-500">{{ __('messages.remaining_time') }}</span>
+                    <span class="text-xs text-gray-500">{{ __('debates_ui.remaining_time') }}</span>
                 </div>
 
             </div>

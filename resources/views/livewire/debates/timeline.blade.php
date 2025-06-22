@@ -1,6 +1,6 @@
 <div class="h-full flex flex-col p-4 overflow-auto">
     <h2 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
-        <span class="material-icons mr-2">timeline</span>{{ __('messages.progress') }}
+        <span class="material-icons mr-2">timeline</span>{{ __('debates_ui.progress') }}
     </h2>
 
     <div class="space-y-1 relative">
@@ -21,18 +21,18 @@
 
                         <!-- 話者表示 -->
                         <span class="ml-2 px-2 py-0.5 text-xs rounded-full {{ $turn['speaker'] === 'affirmative' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $turn['speaker'] === 'affirmative' ? __('messages.affirmative_side_label') : __('messages.negative_side_label') }}
+                            {{ $turn['speaker'] === 'affirmative' ? __('debates_ui.affirmative_side_label') : __('debates_ui.negative_side_label') }}
                         </span>
                     </div>
 
                     <!-- ターン説明 -->
                     <div class="text-xs text-gray-500 mt-1">
-                        {{ $turn['duration'] / 60 }}{{ __('messages.minute_unit') }}
+                        {{ $turn['duration'] / 60 }}{{ __('debates_format.minute_unit') }}
                         @if($turn['is_prep_time'] ?? false)
-                            · {{ __('messages.prep_time') }}
+                            · {{ __('debates_format.prep_time') }}
                         @endif
                         @if($turn['is_questions'] ?? false)
-                            · {{ __('messages.questions_allowed') }}
+                            · {{ __('debates_ui.questions_allowed') }}
                         @endif
                     </div>
 
@@ -40,7 +40,7 @@
                     @if($index < $currentTurn)
                     <div class="text-xs text-primary mt-1 flex items-center">
                         <span class="material-icons text-sm mr-1">check_circle</span>
-                        {{ __('messages.completed') }}
+                        {{ __('debates_ui.completed') }}
                     </div>
                     @endif
                 </div>
@@ -56,7 +56,7 @@
             <div class="ml-6 pb-5 pt-0">
                 <div class="flex items-center">
                     <span class="text-sm font-medium text-gray-400">
-                        {{ __('messages.finished') }}
+                        {{ __('rooms.finished') }}
                     </span>
                 </div>
             </div>

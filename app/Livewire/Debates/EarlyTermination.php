@@ -43,7 +43,7 @@ class EarlyTermination extends Component
             $userId = Auth::id();
 
             if (!$userId) {
-                $this->dispatch('showFlashMessage', __('messages.error'), 'error');
+                $this->dispatch('showFlashMessage', __('common.error'), 'error');
                 return;
             }
 
@@ -61,12 +61,12 @@ class EarlyTermination extends Component
 
                     if ($aiSuccess) {
                         // AIディベートでは即座に終了するため、完了通知のみ表示
-                        $this->dispatch('showFlashMessage', __('messages.early_termination_completed'), 'success');
+                        $this->dispatch('showFlashMessage', __('debates_ui.early_termination_completed'), 'success');
                     } else {
-                        $this->dispatch('showFlashMessage', __('messages.early_termination_request_failed'), 'error');
+                        $this->dispatch('showFlashMessage', __('debates_ui.early_termination_request_failed'), 'error');
                     }
                 } else {
-                    $this->dispatch('showFlashMessage', __('messages.early_termination_request_failed'), 'error');
+                    $this->dispatch('showFlashMessage', __('debates_ui.early_termination_request_failed'), 'error');
                 }
             } else {
                 // 通常のディベートの場合は提案のみ
@@ -74,9 +74,9 @@ class EarlyTermination extends Component
 
                 if ($success) {
                     // 提案者には提案送信の確認のみ表示（相手への通知はWebSocketイベントで行う）
-                    $this->dispatch('showFlashMessage', __('messages.early_termination_proposal_sent'), 'info');
+                    $this->dispatch('showFlashMessage', __('debates_ui.early_termination_proposal_sent'), 'info');
                 } else {
-                    $this->dispatch('showFlashMessage', __('messages.early_termination_request_failed'), 'error');
+                    $this->dispatch('showFlashMessage', __('debates_ui.early_termination_request_failed'), 'error');
                 }
             }
 
@@ -89,7 +89,7 @@ class EarlyTermination extends Component
                 'error' => $e->getMessage()
             ]);
 
-            $this->dispatch('showFlashMessage', __('messages.error'), 'error');
+            $this->dispatch('showFlashMessage', __('common.error'), 'error');
         }
     }
 
@@ -99,7 +99,7 @@ class EarlyTermination extends Component
             $userId = Auth::id();
 
             if (!$userId) {
-                $this->dispatch('showFlashMessage', __('messages.error'), 'error');
+                $this->dispatch('showFlashMessage', __('common.error'), 'error');
                 return;
             }
 
@@ -109,13 +109,13 @@ class EarlyTermination extends Component
             if ($success) {
                 // 応答者には応答送信の確認のみ表示（結果はWebSocketイベントで両方に通知）
                 $message = $agree
-                    ? __('messages.early_termination_response_sent_agree')
-                    : __('messages.early_termination_response_sent_decline');
+                    ? __('debates_ui.early_termination_response_sent_agree')
+                    : __('debates_ui.early_termination_response_sent_decline');
 
                 $this->dispatch('showFlashMessage', $message, 'info');
                 $this->refreshStatus();
             } else {
-                $this->dispatch('showFlashMessage', __('messages.early_termination_response_failed'), 'error');
+                $this->dispatch('showFlashMessage', __('debates_ui.early_termination_response_failed'), 'error');
             }
         } catch (\Exception $e) {
             Log::error('Early termination response failed in Livewire', [
@@ -125,7 +125,7 @@ class EarlyTermination extends Component
                 'error' => $e->getMessage()
             ]);
 
-            $this->dispatch('showFlashMessage', __('messages.error'), 'error');
+            $this->dispatch('showFlashMessage', __('common.error'), 'error');
         }
     }
 
@@ -137,7 +137,7 @@ class EarlyTermination extends Component
         // 提案者でない場合のみ通知を表示
         $requestedBy = $event['requestedBy'] ?? null;
         if ($requestedBy && $requestedBy !== Auth::id()) {
-            $this->dispatch('showFlashMessage', __('messages.early_termination_proposal', ['name' => $this->getOpponentName()]), 'info');
+            $this->dispatch('showFlashMessage', __('debates_ui.early_termination_proposal', ['name' => $this->getOpponentName()]), 'info');
         }
     }
 
@@ -149,10 +149,10 @@ class EarlyTermination extends Component
         // 応答者の場合は重複を避けるため、少し遅らせて表示
         if (isset($event['respondedBy']) && $event['respondedBy'] === Auth::id()) {
             // 応答者には遅延して結果を表示（即座の確認通知と重複を避ける）
-            $this->dispatch('showDelayedFlashMessage', __('messages.early_termination_agreed_result'), 'success', 1500);
+            $this->dispatch('showDelayedFlashMessage', __('debates_ui.early_termination_agreed_result'), 'success', 1500);
         } else {
             // 提案者には即座に結果を表示
-            $this->dispatch('showFlashMessage', __('messages.early_termination_agreed_result'), 'success');
+            $this->dispatch('showFlashMessage', __('debates_ui.early_termination_agreed_result'), 'success');
         }
     }
 
@@ -164,10 +164,10 @@ class EarlyTermination extends Component
         // 応答者の場合は重複を避けるため、少し遅らせて表示
         if (isset($event['respondedBy']) && $event['respondedBy'] === Auth::id()) {
             // 応答者には遅延して結果を表示（即座の確認通知と重複を避ける）
-            $this->dispatch('showDelayedFlashMessage', __('messages.early_termination_declined_result'), 'info', 1500);
+            $this->dispatch('showDelayedFlashMessage', __('debates_ui.early_termination_declined_result'), 'info', 1500);
         } else {
             // 提案者には即座に結果を表示
-            $this->dispatch('showFlashMessage', __('messages.early_termination_declined_result'), 'info');
+            $this->dispatch('showFlashMessage', __('debates_ui.early_termination_declined_result'), 'info');
         }
     }
 
@@ -176,7 +176,7 @@ class EarlyTermination extends Component
     {
         $this->refreshStatus();
         // タイムアウトは両方に同じタイミングで表示
-        // $this->dispatch('showFlashMessage', __('messages.early_termination_timeout_message'), 'warning');
+        // $this->dispatch('showFlashMessage', __('debates_ui.early_termination_timeout_message'), 'warning');
     }
 
     public function refreshStatus()
@@ -217,9 +217,9 @@ class EarlyTermination extends Component
     {
         $userId = Auth::id();
         if ($userId === $this->debate->affirmative_user_id) {
-            return $this->debate->negativeUser->name ?? __('messages.unknown_user');
+            return $this->debate->negativeUser->name ?? __('rooms.unknown_user');
         } else {
-            return $this->debate->affirmativeUser->name ?? __('messages.unknown_user');
+            return $this->debate->affirmativeUser->name ?? __('rooms.unknown_user');
         }
     }
 

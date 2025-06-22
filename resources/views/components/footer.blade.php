@@ -17,10 +17,10 @@
                     {{ __('Contact Us') }}
                 </a>
                 <a href="{{ route('terms') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
-                    {{ __('messages.terms_of_service') }}
+                    {{ __('navigation.terms_of_service') }}
                 </a>
                 <a href="{{ route('privacy') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
-                    {{ __('messages.privacy_policy') }}
+                    {{ __('navigation.privacy_policy') }}
                 </a>
             </div>
 

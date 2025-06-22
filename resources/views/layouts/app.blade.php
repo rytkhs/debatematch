@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Laravel') }}</title>
-        <meta name="description" content="{{ __('messages.app_meta_description') }}">
+        <meta name="description" content="{{ __('misc.app_meta_description') }}">
 
         <!-- Fonts -->
         <link rel="icon" href="{{ asset('favicon.svg') }}" sizes="any" type="image/svg+xml">
@@ -72,7 +72,22 @@
             @endisset
         </div>
         <script>
-            window.translations = @json(__('messages'));
+            window.translations = {
+                common: @json(__('common')),
+                navigation: @json(__('navigation')),
+                rooms: @json(__('rooms')),
+                debates_format: @json(__('debates_format')),
+                debates_ui: @json(__('debates_ui')),
+                records: @json(__('records')),
+                errors: @json(__('errors')),
+                guide: @json(__('guide')),
+                welcome: @json(__('welcome')),
+                profile: @json(__('profile')),
+                forms: @json(__('forms')),
+                ai_debate: @json(__('ai_debate')),
+                misc: @json(__('misc')),
+                auth: @json(__('auth'))
+            };
         </script>
         @stack('scripts')
         @livewireScripts

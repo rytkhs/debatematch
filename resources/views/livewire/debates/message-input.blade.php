@@ -3,19 +3,19 @@
         <!-- ツールバー -->
         <div class="flex items-center mb-2 px-2">
             <!-- サイズ調整ハンドル -->
-            <div id="resize-handle" class="mr-2 cursor-ns-resize text-gray-400 hover:text-gray-600" title="{{ __('messages.resize_input_area') }}">
+            <div id="resize-handle" class="mr-2 cursor-ns-resize text-gray-400 hover:text-gray-600" title="{{ __('debates_ui.resize_input_area') }}">
                 <span class="material-icons">drag_handle</span>
             </div>
 
             <!-- 入力エリア操作ボタン -->
             <div class="flex items-center space-x-1 mr-2">
-                <button type="button" id="expand-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('messages.expand_input_area') }} (Ctrl+Alt+↑)">
+                <button type="button" id="expand-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('debates_ui.expand_input_area') }} (Ctrl+Alt+↑)">
                     <span class="material-icons text-sm">unfold_more</span>
                 </button>
-                <button type="button" id="shrink-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('messages.shrink_input_area') }} (Ctrl+Alt+↓)">
+                <button type="button" id="shrink-input" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('debates_ui.shrink_input_area') }} (Ctrl+Alt+↓)">
                     <span class="material-icons text-sm">unfold_less</span>
                 </button>
-                <button type="button" id="toggle-input-visibility" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('messages.toggle_input_visibility') }} (Ctrl+Alt+H)">
+                <button type="button" id="toggle-input-visibility" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100" title="{{ __('debates_ui.toggle_input_visibility') }} (Ctrl+Alt+H)">
                     <span class="material-icons text-sm">visibility</span>
                 </button>
             </div>
@@ -24,22 +24,22 @@
             @if($isPrepTime)
                 <div class="text-sm text-gray-500 flex items-center">
                     <span class="material-icons text-sm mr-1">timer</span>
-                    {{ __('messages.prep_time_in_progress') }}
+                    {{ __('debates_ui.prep_time_in_progress') }}
                 </div>
             @elseif($isMyTurn)
                 <div class="text-sm text-primary font-medium flex items-center">
                     <span class="material-icons text-sm mr-1">edit</span>
-                    {{ __('messages.ready_to_send') }}
+                    {{ __('debates_ui.ready_to_send') }}
                 </div>
             {{-- AIターン中の表示 --}}
             @elseif(!$isMyTurn && !$isPrepTime && !$isQuestioningTurn && $debate->room->is_ai_debate)
                 <div class="text-sm text-blue-500 flex items-center animate-pulse">
                     <span class="material-icons-outlined text-sm mr-1">smart_toy</span>
-                    {{ __('messages.ai_thinking') }}
+                    {{ __('ai_debate.ai_thinking') }}
                 </div>
             @else
                 <div class="text-sm text-gray-500 flex items-center">
-                    {{ $isQuestioningTurn ? __('messages.questioning_in_progress') : '' }}
+                    {{ $isQuestioningTurn ? __('debates_ui.questioning_in_progress') : '' }}
                 </div>
             @endif
 
@@ -49,7 +49,7 @@
             </div>
 
             <!-- 音声入力ボタン -->
-            <button wire:ignore type="button" id="voice-input-toggle" class="hidden md:block ml-auto p-1.5 rounded-full transition-all duration-200 hover:bg-gray-200 text-gray-500 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" title="{{ __('messages.voice_input') }} (Ctrl+Alt+V)">
+            <button wire:ignore type="button" id="voice-input-toggle" class="hidden md:block ml-auto p-1.5 rounded-full transition-all duration-200 hover:bg-gray-200 text-gray-500 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" title="{{ __('misc.voice_input') }} (Ctrl+Alt+V)">
                 <span class="material-icons text-base">mic</span>
             </button>
 
@@ -64,7 +64,7 @@
             <textarea
                 id="message-input"
                 wire:model.live="newMessage"
-                placeholder="{{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? __('messages.enter_message_placeholder') : __('messages.cannot_send_message_now') }}"
+                placeholder="{{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? __('debates_ui.enter_message_placeholder') : __('debates_ui.cannot_send_message_now') }}"
                 class="flex-1 border rounded-lg px-4 py-2 focus:ring-primary focus:border-primary resize-none overflow-y-auto bg-white disabled:bg-gray-100"
                 maxlength="5000"
                 rows="3"
@@ -73,7 +73,7 @@
             <button
                 type="submit"
                 {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? '' : 'disabled' }}
-                title="{{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? __('messages.send_message') : __('messages.cannot_send_message_now') }}"
+                title="{{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? __('debates_ui.send_message') : __('debates_ui.cannot_send_message_now') }}"
                 class="ml-2 w-10 h-10 rounded-full flex items-center justify-center self-end transition-colors duration-200 relative group
                        {{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime
                           ? 'bg-primary hover:bg-primary-dark text-white'
