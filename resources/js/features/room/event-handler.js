@@ -10,9 +10,8 @@ export class RoomEventHandler {
         this.roomId = roomId;
         this.userId = userId;
         this.channelName = `room.${this.roomId}`;
-        this.presenceChannelName = `room.${this.roomId}`;
-        this.channel = null;
         this.presenceChannel = null;
+        this.privateChannel = null;
         this.offlineTimeout = null;
 
         this.initEchoListeners();
@@ -24,14 +23,7 @@ export class RoomEventHandler {
             return;
         }
 
-        // 変更点: 安全なプライベートチャンネルを使用
-        this.channel = window.Echo.private(this.channelName)
-            .listen('UserJoinedRoom', data => this.handleUserJoined(data))
-            .listen('UserLeftRoom', data => this.handleUserLeft(data))
-            .listen('CreatorLeftRoom', data => this.handleCreatorLeft(data))
-            .listen('DebateStarted', data => this.handleDebateStarted(data));
-
-        this.presenceChannel = window.Echo.join(this.presenceChannelName)
+        this.presenceChannel = window.Echo.join(this.channelName)
             .here(users => {
                 users.forEach(user => Livewire.dispatch('member-online', { data: user }));
             })
@@ -47,6 +39,12 @@ export class RoomEventHandler {
                     Livewire.dispatch('member-offline', { data: user });
                 }, 5000);
             });
+
+        this.privateChannel = window.Echo.private(this.channelName)
+            .listen('UserJoinedRoom', data => this.handleUserJoined(data))
+            .listen('UserLeftRoom', data => this.handleUserLeft(data))
+            .listen('CreatorLeftRoom', data => this.handleCreatorLeft(data))
+            .listen('DebateStarted', data => this.handleDebateStarted(data));
     }
 
     handleUserJoined(data) {
@@ -85,7 +83,7 @@ export class RoomEventHandler {
     handleDebateStarted(data) {
         this.logger.log('ディベート開始イベントを受信しました:', data.debateId);
         showNotification({
-            title: window.translations?.debate_starting_title || 'Debate Starting',
+            title: window.translations?.debate_starting || 'Debate Starting',
             message:
                 window.translations?.rooms?.debate_starting_message ||
                 'Starting the debate. Preparing to navigate...',
@@ -96,14 +94,17 @@ export class RoomEventHandler {
     }
 
     cleanup() {
-        // 変更点: 正しいクリーンアップ方法
-        if (this.channel) {
-            window.Echo.leave(this.channelName);
-            this.channel = null;
-        }
         if (this.presenceChannel) {
-            window.Echo.leave(this.presenceChannelName);
+            window.Echo.leave(this.channelName);
             this.presenceChannel = null;
+        }
+
+        if (this.privateChannel) {
+            this.privateChannel.stopListening('UserJoinedRoom');
+            this.privateChannel.stopListening('UserLeftRoom');
+            this.privateChannel.stopListening('CreatorLeftRoom');
+            this.privateChannel.stopListening('DebateStarted');
+            this.privateChannel = null;
         }
 
         if (this.offlineTimeout) {

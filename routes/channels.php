@@ -5,16 +5,6 @@ use App\Models\Debate;
 use App\Models\Room;
 use App\Models\User;
 
-// Private Channel for Debate Events
-Broadcast::channel('debate.{debate}', function (User $user, Debate $debate) {
-    return $user->rooms()->where('room_id', $debate->room_id)->exists();
-});
-
-// Private Channel for Room Events
-Broadcast::channel('room.{room}', function (User $user, Room $room) {
-    return $user->rooms()->where('room_id', $room->id)->exists();
-});
-
 // Presence Channel for Room
 Broadcast::channel('room.{room}', function (User $user, Room $room) {
     if ($user->rooms()->where('room_id', $room->id)->exists()) {

@@ -38,8 +38,8 @@ class StartDebateButton extends Component
         }
     }
 
-    #[On('echo:private-rooms.{room.id},UserJoinedRoom')]
-    #[On('echo:private-rooms.{room.id},UserLeftRoom')]
+    #[On('echo:private-room.{room.id},UserJoinedRoom')]
+    #[On('echo:private-room.{room.id},UserLeftRoom')]
     public function updateStatus(array $data): void
     {
         $this->status = $data['room']['status'];
