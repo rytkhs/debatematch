@@ -71,9 +71,9 @@ We respect your privacy. Our Privacy Policy, available at [Privacy Policy](/priv
 
 ## 10. Contact Information
 
-For inquiries regarding the Service, please use the Google Form below.
+For inquiries regarding the Service, please use the contact form.
 
-[Contact Form](https://docs.google.com/forms/d/e/1FAIpQLSeojaEKvwrH1Ewi49qqN8S6i3HqF9yoeMSCvKpGk58soFLuqA/viewform?usp=dialog)
+[Contact Form](/contact)
 
 ---
 
