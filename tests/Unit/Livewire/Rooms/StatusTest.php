@@ -77,7 +77,7 @@ class StatusTest extends BaseLivewireTest
                     $livewire->assertSee(__('rooms.ready'));
                     break;
                 case Room::STATUS_DEBATING:
-                    $livewire->assertSee(__('rooms.debating'));
+                    $livewire->assertSee(__('rooms.debate_in_progress'));
                     break;
                 case Room::STATUS_FINISHED:
                     $livewire->assertSee(__('debates_format.finished'));

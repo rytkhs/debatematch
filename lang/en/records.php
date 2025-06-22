@@ -52,5 +52,5 @@ return [
     'view_debate_history' => 'View Debate History',
     'demo_mode_notice' => 'Viewing in Guest Mode',
     'demo_mode_description' => 'Topics starting with "Demo:" are sample debate records. Guest users can also participate in actual debates.',
-    'result' => 'records.result',
+    'result' => 'Result',
 ];
