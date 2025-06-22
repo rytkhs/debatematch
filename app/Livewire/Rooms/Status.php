@@ -15,8 +15,8 @@ class Status extends Component
         $this->room = $room;
     }
 
-    #[On('echo:private-room.{room.id},UserJoinedRoom')]
-    #[On('echo:private-room.{room.id},UserLeftRoom')]
+    #[On('echo-private:room.{room.id},UserJoinedRoom')]
+    #[On('echo-private:room.{room.id},UserLeftRoom')]
     public function updateStatus($data)
     {
         if (isset($data['room']['status'])) {

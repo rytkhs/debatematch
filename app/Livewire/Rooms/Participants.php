@@ -24,8 +24,8 @@ class Participants extends Component
     }
 
 
-    #[On('echo:private-room.{room.id},UserJoinedRoom')]
-    #[On('echo:private-room.{room.id},UserLeftRoom')]
+    #[On('echo-private:room.{room.id},UserJoinedRoom')]
+    #[On('echo-private:room.{room.id},UserLeftRoom')]
     public function updateParticipants()
     {
         $this->room->load('users');
