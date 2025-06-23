@@ -133,5 +133,4 @@ return [
     'beginner_practice' => 'Practice for debate beginners',
     'casual_discussion' => 'Casual discussion',
     'short_time_exchange' => 'Short-time opinion exchange',
-    'finished' => 'Finished',
 ];

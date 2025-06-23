@@ -151,5 +151,4 @@ return [
     'advanced' => '上級者向け',
     'custom_format_setting1' => '発言順序と時間を自由に設定可能',
     'custom_format_setting2' => '準備時間や質疑時間も調整可能',
-    'finished' => '終了',
 ];

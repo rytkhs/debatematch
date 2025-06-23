@@ -12,7 +12,7 @@
         'waiting' => 'rooms.waiting',
         'ready' => 'rooms.ready',
         'debating' => 'rooms.debate_in_progress', // 進行中のステータス用キー
-        'finished' => 'debates_format.finished',
+        'finished' => 'rooms.finished',
         'deleted' => 'rooms.closed_status'
     ];
 

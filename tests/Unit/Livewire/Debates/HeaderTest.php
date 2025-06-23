@@ -322,7 +322,7 @@ class HeaderTest extends BaseLivewireTest
         );
 
         // 終了状態では次のターン名が「終了」になることを確認
-        $livewire->assertSet('nextTurnName', __('debates_format.finished'));
+        $livewire->assertSet('nextTurnName', __('rooms.finished'));
     }
 
     /**
