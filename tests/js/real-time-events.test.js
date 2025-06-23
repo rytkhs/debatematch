@@ -131,7 +131,7 @@ describe('リアルタイムイベント処理', () => {
         const debateId = 789;
 
         beforeEach(() => {
-            debateChannel = window.Echo.private(`debate.${debateId}`);
+            debateChannel = window.Echo.presence(`debate.${debateId}`);
             presenceChannel = window.Echo.presence(`debate.${debateId}`);
         });
 
@@ -459,7 +459,7 @@ describe('リアルタイムイベント処理', () => {
 
         test('異なるチャンネルからの重複イベントが正常に処理されること', () => {
             const roomChannel = window.Echo.channel('rooms.1');
-            const debateChannel = window.Echo.private('debate.1');
+            const debateChannel = window.Echo.presence('debate.1');
 
             const roomCallback = jest.fn();
             const debateCallback = jest.fn();
@@ -479,7 +479,7 @@ describe('リアルタイムイベント処理', () => {
     describe('複雑なイベントシナリオ', () => {
         test('完全なディベートフローが正常に処理されること', () => {
             const debateId = 123;
-            const debateChannel = window.Echo.private(`debate.${debateId}`);
+            const debateChannel = window.Echo.presence(`debate.${debateId}`);
             const presenceChannel = window.Echo.presence(`debate.${debateId}`);
 
             const events = [];

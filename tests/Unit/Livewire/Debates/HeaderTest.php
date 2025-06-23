@@ -185,7 +185,7 @@ class HeaderTest extends BaseLivewireTest
         // リアルタイムイベントをシミュレーション
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'TurnAdvanced',
             $newTurnData
         );
@@ -213,7 +213,7 @@ class HeaderTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'TurnAdvanced',
             $turnData
         );
@@ -241,7 +241,7 @@ class HeaderTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'TurnAdvanced',
             $turnData
         );
@@ -288,7 +288,7 @@ class HeaderTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'TurnAdvanced',
             $prepTurnData
         );
@@ -316,7 +316,7 @@ class HeaderTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'TurnAdvanced',
             $finishedTurnData
         );
@@ -354,7 +354,7 @@ class HeaderTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'TurnAdvanced',
             $newTurnData
         );
@@ -383,7 +383,7 @@ class HeaderTest extends BaseLivewireTest
 
         $eventSequence = [
             [
-                'channel' => "private:debate.{$debate->id}",
+                'channel' => "presence:debate.{$debate->id}",
                 'event' => 'TurnAdvanced',
                 'data' => [
                     'turn_number' => 1,
@@ -392,7 +392,7 @@ class HeaderTest extends BaseLivewireTest
                 ]
             ],
             [
-                'channel' => "private:debate.{$debate->id}",
+                'channel' => "presence:debate.{$debate->id}",
                 'event' => 'TurnAdvanced',
                 'data' => [
                     'turn_number' => 2,

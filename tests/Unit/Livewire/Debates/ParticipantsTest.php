@@ -173,7 +173,7 @@ class ParticipantsTest extends BaseLivewireTest
         $this->debate->update(['current_turn' => 1]);
 
         // ターン進行イベントをシミュレート
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced');
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced');
 
         $livewire->assertSet('currentTurnName', 'Response')
             ->assertSet('nextTurnName', 'Rebuttal')
@@ -437,7 +437,7 @@ class ParticipantsTest extends BaseLivewireTest
 
         // 2. ターン進行
         $this->debate->update(['current_turn' => 1]);
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced');
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced');
         $livewire->assertSet('currentSpeaker', 'negative')
             ->assertSet('isMyTurn', false);
 

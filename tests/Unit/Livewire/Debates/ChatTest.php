@@ -219,7 +219,7 @@ class ChatTest extends BaseLivewireTest
         ]);
 
         // メッセージ受信イベントをシミュレート
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',DebateMessageSent');
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',DebateMessageSent');
 
         // メッセージが読み込まれることを確認
         $this->assertCount(1, $livewire->get('filteredMessages'));

@@ -322,11 +322,11 @@ describe('WebSocket基本機能', () => {
         test('ディベートシナリオが正常に処理されること', () => {
             const debateId = 789;
 
-            // ディベート関連チャンネルに参加
-            const debateChannel = window.Echo.private(`debate.${debateId}`);
+            // ディベート関連チャンネルに参加（プレゼンスチャンネルに統一）
+            const debateChannel = window.Echo.presence(`debate.${debateId}`);
             const presenceChannel = window.Echo.presence(`debate.${debateId}`);
 
-            expect(mockEcho.private).toHaveBeenCalledWith(`debate.${debateId}`);
+            expect(mockEcho.presence).toHaveBeenCalledWith(`debate.${debateId}`);
             expect(mockEcho.presence).toHaveBeenCalledWith(`debate.${debateId}`);
 
             // ディベートイベントリスナーを設定
@@ -343,7 +343,7 @@ describe('WebSocket基本機能', () => {
         test('複数チャンネル管理が正常に処理されること', () => {
             // 複数チャンネルの同時管理
             const roomChannel = window.Echo.channel('rooms.1');
-            const debateChannel = window.Echo.private('debate.1');
+            const debateChannel = window.Echo.presence('debate.1');
             const presenceChannel = window.Echo.presence('room.1');
 
             // 各チャンネルでイベントリスナーを設定
@@ -352,7 +352,7 @@ describe('WebSocket基本機能', () => {
             presenceChannel.here(jest.fn());
 
             expect(mockEcho.channel).toHaveBeenCalledWith('rooms.1');
-            expect(mockEcho.private).toHaveBeenCalledWith('debate.1');
+            expect(mockEcho.presence).toHaveBeenCalledWith('debate.1');
             expect(mockEcho.presence).toHaveBeenCalledWith('room.1');
         });
     });

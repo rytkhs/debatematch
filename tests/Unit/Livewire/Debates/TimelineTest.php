@@ -154,7 +154,7 @@ class TimelineTest extends BaseLivewireTest
 
         // ターン進行イベントをシミュレート
         $eventData = ['current_turn' => 1];
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced', $eventData);
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced', $eventData);
 
         $livewire->assertSet('currentTurn', 1)
             ->assertViewHas('currentTurn', 1);
@@ -183,13 +183,13 @@ class TimelineTest extends BaseLivewireTest
             ->assertSet('currentTurn', 0);
 
         // 複数のターン進行イベント
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => 1])
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => 1])
             ->assertSet('currentTurn', 1);
 
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => 2])
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => 2])
             ->assertSet('currentTurn', 2);
 
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => 3])
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => 3])
             ->assertSet('currentTurn', 3);
     }
 
@@ -306,13 +306,13 @@ class TimelineTest extends BaseLivewireTest
             ->assertSet('currentTurn', 0);
 
         // 無効なイベントデータ（current_turnキーなし）
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced', ['invalid_key' => 1]);
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced', ['invalid_key' => 1]);
 
         // currentTurnは変更されない（エラーが発生しないことを確認）
         $livewire->assertSet('currentTurn', 0);
 
         // 無効なイベントデータ（空の配列）
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced', []);
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced', []);
         $livewire->assertSet('currentTurn', 0);
     }
 
@@ -409,7 +409,7 @@ class TimelineTest extends BaseLivewireTest
 
         // 複数のターン進行イベントを処理
         for ($i = 0; $i < 10; $i++) {
-            $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => $i]);
+            $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced', ['current_turn' => $i]);
         }
 
         $duration = microtime(true) - $start;
