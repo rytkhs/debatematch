@@ -7,13 +7,13 @@
         <div class="max-w-6xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
             <!-- ステップインジケーター -->
             <x-debate-form.step-indicator
-                :steps="[__('messages.basic_information'), __('messages.debate_settings')]" />
+                :steps="[__('rooms.basic_information'), __('debates_format.debate_settings')]" />
 
             <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
                 <div class="px-3 py-4 sm:px-4 sm:py-5">
                     <div class="flex items-center mb-6 sm:mb-8 border-b pb-3 sm:pb-4">
                         <span class="material-icons-outlined text-indigo-600 text-xl sm:text-2xl mr-2 sm:mr-3">smart_toy</span>
-                        <h1 class="text-lg sm:text-xl font-bold text-gray-700">{{ __('messages.start_ai_debate') }}</h1>
+                        <h1 class="text-lg sm:text-xl font-bold text-gray-700">{{ __('ai_debate.start_ai_debate') }}</h1>
                     </div>
 
                     <form action="{{ route('ai.debate.store') }}" method="POST" class="space-y-6 sm:space-y-8" id="ai-debate-create-form">
@@ -30,7 +30,7 @@
                         <x-debate-form.debate-settings-step
                             formType="ai"
                             :translatedFormats="$translatedFormats"
-                            submitButtonText="{{ __('messages.start_debate') }}"
+                            submitButtonText="{{ __('rooms.start_debate') }}"
                             submitButtonIcon="play_circle"
                             :errors="$errors" />
 
@@ -51,7 +51,7 @@
                             <a href="{{ route('welcome') }}"
                                 class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
                                 <span class="material-icons-outlined text-gray-500 mr-1 text-sm">close</span>
-                                {{ __('messages.cancel') }}
+                                {{ __('common.cancel') }}
                             </a>
                         </div>
                     </form>
@@ -65,33 +65,33 @@
         window.aiDebateCreateConfig = {
             formats: @json($translatedFormats),
             requiredFields: [
-                { name: 'topic', message: "{{ __('messages.topic_required') }}" },
-                { name: 'language', message: "{{ __('messages.language_required') }}" }
+                { name: 'topic', message: "{{ __('forms.topic_required') }}" },
+                { name: 'language', message: "{{ __('forms.language_required') }}" }
             ],
             translations: {
-                affirmative: "{{ __('messages.affirmative_side') }}",
-                negative: "{{ __('messages.negative_side') }}",
-                formatInfoMissing: "{{ __('messages.format_info_missing') }}",
-                minuteSuffix: "{{ __('messages.minute_suffix') }}",
-                part: "{{ __('messages.part') }}",
-                side: "{{ __('messages.side') }}",
-                partName: "{{ __('messages.part_name') }}",
-                durationMinutes: "{{ __('messages.duration_minutes') }}",
-                questionTime: "{{ __('messages.question_time') }}",
-                prepTime: "{{ __('messages.prep_time') }}",
-                placeholderPartName: "{{ __('messages.placeholder_part_name') }}",
-                prepTimeSuggestion: "{{ __('messages.suggestion_prep_time') }}",
-                questionTimeSuggestion: "{{ __('messages.suggestion_questioning') }}",
-                suggestionConstructive: "{{ __('messages.suggestion_constructive') }}",
-                suggestionFirstConstructive: "{{ __('messages.suggestion_first_constructive') }}",
-                suggestionSecondConstructive: "{{ __('messages.suggestion_second_constructive') }}",
-                suggestionRebuttal: "{{ __('messages.suggestion_rebuttal') }}",
-                suggestionFirstRebuttal: "{{ __('messages.suggestion_first_rebuttal') }}",
-                suggestionSecondRebuttal: "{{ __('messages.suggestion_second_rebuttal') }}",
-                suggestionPrepTime: "{{ __('messages.suggestion_prep_time') }}",
-                topicRequired: "{{ __('messages.topic_required') }}",
-                languageRequired: "{{ __('messages.language_required') }}",
-                fieldRequired: "{{ __('messages.field_required') }}"
+                affirmative: "{{ __('rooms.affirmative_side') }}",
+                negative: "{{ __('rooms.negative_side') }}",
+                formatInfoMissing: "{{ __('debates_format.format_info_missing') }}",
+                minuteSuffix: "{{ __('debates_format.minute_suffix') }}",
+                part: "{{ __('debates_format.part') }}",
+                side: "{{ __('rooms.side') }}",
+                partName: "{{ __('debates_format.part_name') }}",
+                durationMinutes: "{{ __('debates_format.duration_minutes') }}",
+                questionTime: "{{ __('debates_format.question_time') }}",
+                prepTime: "{{ __('debates_format.prep_time') }}",
+                placeholderPartName: "{{ __('debates_format.placeholder_part_name') }}",
+                prepTimeSuggestion: "{{ __('debates_format.suggestion_prep_time') }}",
+                questionTimeSuggestion: "{{ __('debates_format.suggestion_questioning') }}",
+                suggestionConstructive: "{{ __('debates_format.suggestion_constructive') }}",
+                suggestionFirstConstructive: "{{ __('debates_format.suggestion_first_constructive') }}",
+                suggestionSecondConstructive: "{{ __('debates_format.suggestion_second_constructive') }}",
+                suggestionRebuttal: "{{ __('debates_format.suggestion_rebuttal') }}",
+                suggestionFirstRebuttal: "{{ __('debates_format.suggestion_first_rebuttal') }}",
+                suggestionSecondRebuttal: "{{ __('debates_format.suggestion_second_rebuttal') }}",
+                suggestionPrepTime: "{{ __('debates_format.suggestion_prep_time') }}",
+                topicRequired: "{{ __('forms.topic_required') }}",
+                languageRequired: "{{ __('forms.language_required') }}",
+                fieldRequired: "{{ __('common.field_required') }}"
             }
         };
     </script>

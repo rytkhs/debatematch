@@ -10,7 +10,6 @@ class DebateEventHandler {
     constructor(debateId) {
         this.logger = new Logger('DebateEventHandler');
         this.debateId = debateId;
-        this.channel = null;
         this.presenceChannel = null;
         this.offlineTimeout = null;
         this.initEchoListeners();
@@ -25,13 +24,7 @@ class DebateEventHandler {
             return;
         }
 
-        this.channel = window.Echo.private(`debate.${this.debateId}`)
-            .listen('DebateFinished', e => this.handleDebateFinished(e))
-            .listen('DebateEvaluated', e => this.handleDebateEvaluated(e))
-            .listen('DebateTerminated', e => this.handleDebateTerminated(e))
-            .listen('EarlyTerminationExpired', e => this.handleEarlyTerminationExpired(e));
-
-        this.presenceChannel = window.Echo.join(`presence-debate.${this.debateId}`)
+        this.presenceChannel = window.Echo.join(`debate.${this.debateId}`)
             .here(users => {
                 this.logger.log('Initial members:', users);
                 users.forEach(user => Livewire.dispatch('member-online', { data: user }));
@@ -47,7 +40,11 @@ class DebateEventHandler {
                 this.offlineTimeout = setTimeout(() => {
                     Livewire.dispatch('member-offline', { data: user });
                 }, 3000);
-            });
+            })
+            .listen('DebateFinished', e => this.handleDebateFinished(e))
+            .listen('DebateEvaluated', e => this.handleDebateEvaluated(e))
+            .listen('DebateTerminated', e => this.handleDebateTerminated(e))
+            .listen('EarlyTerminationExpired', e => this.handleEarlyTerminationExpired(e));
     }
 
     handleDebateFinished(event) {
@@ -127,14 +124,11 @@ class DebateEventHandler {
      * リソースをクリーンアップ
      */
     cleanup() {
-        if (this.channel) {
-            window.Echo.leave(`debate.${this.debateId}`);
-            this.channel = null;
-        }
         if (this.presenceChannel) {
-            window.Echo.leave(`presence-debate.${this.debateId}`);
+            window.Echo.leave(`debate.${this.debateId}`);
             this.presenceChannel = null;
         }
+
         if (this.offlineTimeout) {
             clearTimeout(this.offlineTimeout);
         }

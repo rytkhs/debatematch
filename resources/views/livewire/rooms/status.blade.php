@@ -9,15 +9,15 @@
 
     // 翻訳キーとステータスのマッピング
     $statusTranslationKeys = [
-        'waiting' => 'messages.waiting_status',
-        'ready' => 'messages.ready_status',
-        'debating' => 'messages.debate_in_progress', // 進行中のステータス用キー
-        'finished' => 'messages.finished',
-        'deleted' => 'messages.closed_status'
+        'waiting' => 'rooms.waiting',
+        'ready' => 'rooms.ready',
+        'debating' => 'rooms.debate_in_progress', // 進行中のステータス用キー
+        'finished' => 'rooms.finished',
+        'deleted' => 'rooms.closed_status'
     ];
 
     // 翻訳キーを取得。存在しない場合は不明ステータス用キー
-    $translationKey = $statusTranslationKeys[$room->status] ?? 'messages.unknown_status';
+    $translationKey = $statusTranslationKeys[$room->status] ?? 'rooms.unknown_status';
     // スタイルを取得。存在しない場合はfinishedのスタイル
     $styleClasses = $statusStyles[$room->status] ?? $statusStyles['finished'];
 @endphp

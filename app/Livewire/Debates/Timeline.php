@@ -26,7 +26,7 @@ class Timeline extends Component
         $this->currentTurn = $this->debate->current_turn;
     }
 
-    #[On("echo-private:debate.{debate.id},TurnAdvanced")]
+    #[On("echo-presence:debate.{debate.id},TurnAdvanced")]
     public function handleTurnAdvanced(array $data): void
     {
         if (isset($data['current_turn'])) {

@@ -50,7 +50,7 @@ class RoomCreationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'format_type.required' => __('messages.validation.format_type.required'),
+            'format_type.required' => __('forms.validation.format_type.required'),
         ];
     }
 

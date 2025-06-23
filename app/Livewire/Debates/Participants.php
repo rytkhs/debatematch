@@ -37,7 +37,7 @@ class Participants extends Component
         $this->onlineUsers[$debate->negative_user_id] = $debate->negative_user_id !== $this->aiUserId ? false : true; // AI以外は初期オフライン
     }
 
-    #[On("echo-private:debate.{debate.id},TurnAdvanced")]
+    #[On("echo-presence:debate.{debate.id},TurnAdvanced")]
     public function handleTurnAdvanced(): void
     {
         $this->debate->refresh();

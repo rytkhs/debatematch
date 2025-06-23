@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">{{ __('messages.login') }}</h2>
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">{{ __('common.login') }}</h2>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -9,7 +9,7 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('messages.email')" />
+            <x-input-label for="email" :value="__('common.email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
                 autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
@@ -17,12 +17,12 @@
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('messages.password')" />
+            <x-input-label for="password" :value="__('common.password')" />
 
             <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
                 autocomplete="current-password" />
             @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="text-gray-500 hover:text-gray-700 text-sm flex justify-end">{{ __('messages.forgot_password') }}</a>
+                <a href="{{ route('password.request') }}" class="text-gray-500 hover:text-gray-700 text-sm flex justify-end">{{ __('common.forgot_password') }}</a>
             @endif
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -33,20 +33,20 @@
                 <input id="remember_me" type="checkbox"
                     class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                     name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('messages.remember_me') }}</span>
+                <span class="ms-2 text-sm text-gray-600">{{ __('common.remember_me') }}</span>
             </label>
         </div>
 
         <div class="mt-4">
             <button class="bg-primary text-white py-2 px-4 rounded-md w-full hover:bg-primary-dark focus:outline-none focus:shadow-outline-gray active:bg-gray-800 mb-4">
-                {{ __('messages.login') }}
+                {{ __('common.login') }}
             </button>
         </div>
 
         <div class="mt-4 text-center">
             <a href="{{ route('register') }}"
             class="text-gray-600 hover:text-gray-500">
-            {{ __('messages.register') }}
+            {{ __('common.register') }}
         </a>
         </div>
 
@@ -54,7 +54,7 @@
 
     <div class="relative flex py-3 items-center">
         <div class="flex-grow border-t border-gray-300"></div>
-        <span class="mx-4 text-gray-500">{{ __('messages.or') }}</span>
+        <span class="mx-4 text-gray-500">{{ __('common.or') }}</span>
         <div class="flex-grow border-t border-gray-300"></div>
     </div>
 
@@ -66,11 +66,11 @@
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
                 </svg>
-                {{ __('messages.guest_login') }}
+                {{ __('common.guest_login') }}
             </button>
         </form>
         <p class="text-xs text-gray-500 text-center mt-0">
-            {{ __('messages.guest_login_notice') }}
+            {{ __('common.guest_login_notice') }}
         </p>
     </div>
 
@@ -84,7 +84,7 @@
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 <path d="M1 1h22v22H1z" fill="none" />
             </svg>
-            {{ __('messages.google_login') }}
+            {{ __('common.google_login') }}
         </a>
         @endif
     </div>

@@ -32,7 +32,7 @@ class AIDebateController extends Controller
         try {
             $debate = $this->aiDebateService->createAIDebate($validatedData, $user);
             return redirect()->route('debate.show', $debate)
-                ->with('success', __('messages.ai_debate_started'));
+                ->with('success', __('ai_debate.ai_debate_started'));
         } catch (\Exception $e) {
             Log::error('Failed to create AI debate', [
                 'user_id' => $user->id,
@@ -40,7 +40,7 @@ class AIDebateController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
             return redirect()->route('welcome')
-                ->with('error', __('messages.ai_debate_creation_failed'));
+                ->with('error', __('ai_debate.ai_debate_creation_failed'));
         }
     }
 

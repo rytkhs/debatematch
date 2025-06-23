@@ -7,7 +7,7 @@
                 <button wire:click="$set('activeTab', 'all')"
                     class="px-3 py-1 text-sm rounded-full whitespace-nowrap focus:outline-none
                            {{ $activeTab === 'all' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
-                    {{ __('messages.all') }}
+                    {{ __('debates_ui.all') }}
                 </button>
 
                 <!-- 各ターンのタブ -->
@@ -15,7 +15,7 @@
                 <button wire:click="$set('activeTab', '{{ $key }}')"
                     class="px-3 py-1 text-sm rounded-full whitespace-nowrap focus:outline-none
                            {{ $activeTab === (string) $key ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
-                           {{ $turn['speaker'] === 'affirmative' ? __('messages.affirmative_side_label') : __('messages.negative_side_label') }}{{ $turn['name'] }}
+                           {{ $turn['speaker'] === 'affirmative' ? __('debates_ui.affirmative_side_label') : __('debates_ui.negative_side_label') }}{{ $turn['name'] }}
                 </button>
                 @endforeach
             </div>
@@ -30,7 +30,7 @@
             @if($loop->first || $previousTurn !== $message->turn)
                 <div class="flex justify-center my-4">
                     <div class="px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-600">
-                        {{ ($turns[$message->turn]['speaker'] ?? '') === 'affirmative' ? __('messages.affirmative_side_label') : __('messages.negative_side_label') }} {{ $turns[$message->turn]['name'] ?? '' }}
+                        {{ ($turns[$message->turn]['speaker'] ?? '') === 'affirmative' ? __('debates_ui.affirmative_side_label') : __('debates_ui.negative_side_label') }} {{ $turns[$message->turn]['name'] ?? '' }}
                     </div>
                 </div>
                 @php $previousTurn = $message->turn; @endphp
@@ -73,10 +73,10 @@
 
                     <!-- 送信者名と時間 -->
                     <div class="flex mt-1 text-xs text-gray-500 {{ $message->user_id === Auth::id() ? 'justify-end' : 'justify-start' }}">
-                        <span>{{ $message->user ? $message->user->name : __('messages.unknown_user') }}</span>
+                        <span>{{ $message->user ? $message->user->name : __('rooms.unknown_user') }}</span>
                         {{-- AIラベル --}}
                         @if($isAIMessage)
-                            <span class="ml-1.5 px-1 py-0 bg-blue-100 text-blue-800 text-[9px] rounded-full font-semibold">{{ __('messages.ai_label') }}</span>
+                            <span class="ml-1.5 px-1 py-0 bg-blue-100 text-blue-800 text-[9px] rounded-full font-semibold">{{ __('ai_debate.ai_label') }}</span>
                         @endif
                         <span class="mx-1">·</span>
                         <span>{{ $message->created_at->format('H:i') }}</span>
@@ -87,7 +87,7 @@
             <div class="flex items-center justify-center h-full">
                 <div class="text-center text-gray-500">
                     <div class="material-icons text-4xl mb-2">chat</div>
-                    <p>{{ __('messages.no_messages_yet') }}</p>
+                    <p>{{ __('debates_ui.no_messages_yet') }}</p>
                 </div>
             </div>
         @endforelse

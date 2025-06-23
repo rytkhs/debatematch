@@ -9,9 +9,9 @@
             </div>
 
             <!-- メッセージ -->
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ __('messages.no_debate_records') }}</h3>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ __('records.no_debate_records') }}</h3>
             <p class="text-gray-600 mb-8 leading-relaxed">
-                {{ __('messages.no_debate_records_description') }}
+                {{ __('records.no_debate_records_description') }}
             </p>
 
             <!-- アクションボタン -->
@@ -20,13 +20,13 @@
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    {{ __('messages.join_debate') }}
+                    {{ __('rooms.join_debate') }}
                 </a>
                 <a href="{{ route('guide') }}" class="inline-flex items-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg border border-gray-300 shadow-sm transition-all duration-200">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {{ __('messages.how_to_use') }}
+                    {{ __('navigation.how_to_use') }}
                 </a>
             </div>
         </div>

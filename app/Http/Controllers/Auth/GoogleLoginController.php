@@ -44,7 +44,7 @@ class GoogleLoginController extends Controller
             Log::error('Google login error: ' . $e->getMessage());
 
             return redirect('login')
-                ->withErrors(['error' => __('messages.google_login_failed')]);
+                ->withErrors(['error' => __('auth.google_login_failed')]);
         }
     }
 }

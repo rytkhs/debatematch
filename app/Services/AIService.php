@@ -294,7 +294,7 @@ class AIService
             $part .= $turn['name'];
 
             // 時間を追加
-            $part .= " (" . ($turn['duration'] / 60 ?? 0) . __('messages.minute_unit', [], $locale) . ")";
+            $part .= " (" . ($turn['duration'] / 60 ?? 0) . __('debates_format.minute_unit', [], $locale) . ")";
 
             // 質疑の有無を追加
             if (isset($turn['is_questions']) && $turn['is_questions']) {
@@ -313,13 +313,10 @@ class AIService
      */
     private function getFallbackResponse(string $language, ?string $errorInfo = null): string
     {
-        $baseMessage = __('messages.fallback_response');
+        $baseMessage = __('ai_debate.fallback_response');
 
         if ($errorInfo) {
-            $techDetail =  __('messages.technical_issue');
-            // if (config('app.debug') && $errorInfo) {
-            //     $techDetail .= ': ' . $errorInfo;
-            // }
+            $techDetail =  __('ai_debate.technical_issue');
             return $baseMessage . " " . $techDetail;
         }
         return $baseMessage;

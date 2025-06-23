@@ -50,7 +50,7 @@
                 </div>
                 <button type="button" wire:click="hideFlashMessage"
                         class="flex-shrink-0 ml-3 p-1.5 rounded-lg hover:bg-white/20 focus:ring-2 focus:ring-white/50 transition-colors duration-200">
-                    <span class="sr-only">{{ __('messages.close') }}</span>
+                    <span class="sr-only">{{ __('common.close') }}</span>
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -78,7 +78,7 @@
                 </div>
                 <button type="button" wire:click="hideFlashMessage"
                         class="flex-shrink-0 ml-3 p-1.5 rounded-lg hover:bg-white/20 focus:ring-2 focus:ring-white/50 transition-colors duration-200">
-                    <span class="sr-only">{{ __('messages.close') }}</span>
+                    <span class="sr-only">{{ __('common.close') }}</span>
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -106,7 +106,7 @@
                 </div>
                 <button type="button" wire:click="hideFlashMessage"
                         class="flex-shrink-0 ml-3 p-1.5 rounded-lg hover:bg-white/20 focus:ring-2 focus:ring-white/50 transition-colors duration-200">
-                    <span class="sr-only">{{ __('messages.close') }}</span>
+                    <span class="sr-only">{{ __('common.close') }}</span>
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -134,7 +134,7 @@
                 </div>
                 <button type="button" wire:click="hideFlashMessage"
                         class="flex-shrink-0 ml-3 p-1.5 rounded-lg hover:bg-white/20 focus:ring-2 focus:ring-white/50 transition-colors duration-200">
-                    <span class="sr-only">{{ __('messages.close') }}</span>
+                    <span class="sr-only">{{ __('common.close') }}</span>
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>

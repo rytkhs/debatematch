@@ -71,7 +71,7 @@ class EarlyTerminationWebSocketTest extends TestCase
         $channels = $event->broadcastOn();
 
         $this->assertCount(1, $channels);
-        $this->assertEquals('private-debate.' . $this->debate->id, $channels[0]->name);
+        $this->assertEquals('presence-debate.' . $this->debate->id, $channels[0]->name);
     }
 
     public function test_early_termination_agreed_event_structure()
@@ -96,7 +96,7 @@ class EarlyTerminationWebSocketTest extends TestCase
         $channels = $event->broadcastOn();
 
         $this->assertCount(1, $channels);
-        $this->assertEquals('private-debate.' . $this->debate->id, $channels[0]->name);
+        $this->assertEquals('presence-debate.' . $this->debate->id, $channels[0]->name);
     }
 
     public function test_early_termination_declined_event_structure()
@@ -121,7 +121,7 @@ class EarlyTerminationWebSocketTest extends TestCase
         $channels = $event->broadcastOn();
 
         $this->assertCount(1, $channels);
-        $this->assertEquals('private-debate.' . $this->debate->id, $channels[0]->name);
+        $this->assertEquals('presence-debate.' . $this->debate->id, $channels[0]->name);
     }
 
     public function test_events_implement_should_broadcast()

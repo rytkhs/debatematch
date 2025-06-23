@@ -297,7 +297,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationRequested',
             $eventData
         );
@@ -324,7 +324,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationRequested',
             $eventData
         );
@@ -352,7 +352,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationAgreed',
             $eventData
         );
@@ -379,7 +379,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationAgreed',
             $eventData
         );
@@ -407,7 +407,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationDeclined',
             $eventData
         );
@@ -434,7 +434,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationDeclined',
             $eventData
         );
@@ -459,7 +459,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationExpired',
             $eventData
         );
@@ -522,7 +522,7 @@ class EarlyTerminationTest extends BaseLivewireTest
         // 1. 相手からの提案
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationRequested',
             ['requestedBy' => $opponent->id, 'debateId' => $debate->id]
         );
@@ -530,7 +530,7 @@ class EarlyTerminationTest extends BaseLivewireTest
         // 2. 自分が承認
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationAgreed',
             ['respondedBy' => $user->id, 'debateId' => $debate->id]
         );
@@ -575,7 +575,7 @@ class EarlyTerminationTest extends BaseLivewireTest
 
         $this->simulateRealtimeEvent(
             $livewire,
-            "private:debate.{$debate->id}",
+            "presence:debate.{$debate->id}",
             'EarlyTerminationRequested',
             ['requestedBy' => $opponent->id, 'debateId' => $debate->id]
         );

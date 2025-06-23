@@ -36,15 +36,15 @@ class Header extends Component
         $this->syncTurnState();
     }
 
-    #[On("echo-private:debate.{debate.id},TurnAdvanced")]
+    #[On("echo-presence:debate.{debate.id},TurnAdvanced")]
     public function handleTurnAdvanced($data): void
     {
         $this->currentTurn = $data['turn_number'] ?? $this->debate->refresh()->current_turn;
 
         $format = $this->debateService->getFormat($this->debate);
 
-        $this->currentTurnName = $format[$this->currentTurn]['name'] ?? __('messages.finished');
-        $this->nextTurnName = $format[$this->currentTurn + 1]['name'] ?? __('messages.finished');
+        $this->currentTurnName = $format[$this->currentTurn]['name'] ?? __('rooms.finished');
+        $this->nextTurnName = $format[$this->currentTurn + 1]['name'] ?? __('rooms.finished');
 
         $this->currentSpeaker = $data['speaker'] ?? null;
         $this->isPrepTime = $data['is_prep_time'] ?? false;
@@ -58,10 +58,6 @@ class Header extends Component
         } else {
             $this->debate->turn_end_time = null;
         }
-
-        // $this->dispatch('turn-advanced', [
-        //     'turnEndTime' => $this->turnEndTime
-        // ]);
 
         if ($this->isMyTurn) {
             $this->dispatch('showFlashMessage', __('flash.header.turn.my_turn'), 'info');
@@ -77,8 +73,8 @@ class Header extends Component
 
         $format = $this->debateService->getFormat($this->debate);
 
-        $this->currentTurnName = $format[$currentTurn]['name'] ?? __('messages.finished');
-        $this->nextTurnName = $format[$currentTurn + 1]['name'] ?? __('messages.finished');
+        $this->currentTurnName = $format[$currentTurn]['name'] ?? __('rooms.finished');
+        $this->nextTurnName = $format[$currentTurn + 1]['name'] ?? __('rooms.finished');
         $this->currentSpeaker = $format[$currentTurn]['speaker'] ?? null;
         $this->isPrepTime = $format[$currentTurn]['is_prep_time'] ?? false;
 

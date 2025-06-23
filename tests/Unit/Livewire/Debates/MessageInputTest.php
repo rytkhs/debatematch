@@ -379,7 +379,7 @@ class MessageInputTest extends BaseLivewireTest
                 ]);
         });
 
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced');
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced');
 
         $livewire
             ->assertSet('currentSpeaker', 'negative')
@@ -396,7 +396,7 @@ class MessageInputTest extends BaseLivewireTest
             ->test(MessageInput::class, ['debate' => $this->debate])
             ->set('newMessage', 'Some text');
 
-        $livewire->dispatch('echo-private:debate.' . $this->debate->id . ',DebateStarted');
+        $livewire->dispatch('echo-presence:debate.' . $this->debate->id . ',DebateStarted');
 
         $livewire->assertSet('newMessage', '');
     }
@@ -475,7 +475,7 @@ class MessageInputTest extends BaseLivewireTest
             $livewire
                 ->set('newMessage', "Message $i")
                 ->call('sendMessage')
-                ->dispatch('echo-private:debate.' . $this->debate->id . ',TurnAdvanced');
+                ->dispatch('echo-presence:debate.' . $this->debate->id . ',TurnAdvanced');
         }
 
         $duration = microtime(true) - $start;

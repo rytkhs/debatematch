@@ -24,14 +24,14 @@
     $resultClass = $isWinner
         ? 'bg-success-light text-success border-success/30'
         : 'bg-danger-light text-danger border-danger/30';
-    $resultText = $isWinner ? __('messages.win') : __('messages.loss');
+    $resultText = $isWinner ? __('records.win') : __('records.loss');
     $resultIcon = $isWinner
         ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>'
         : '<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
 
-    $side = $isAffirmative ? __('messages.affirmative_side') : __('messages.negative_side');
+    $side = $isAffirmative ? __('rooms.affirmative_side') : __('rooms.negative_side');
     $sideClass = $isAffirmative ? 'text-success' : 'text-danger';
-    $opponent = $isAffirmative ? ($debate->negativeUser ? $debate->negativeUser->name : __('messages.unknown_user')) : ($debate->affirmativeUser ? $debate->affirmativeUser->name : __('messages.unknown_user'));
+    $opponent = $isAffirmative ? ($debate->negativeUser ? $debate->negativeUser->name : __('rooms.unknown_user')) : ($debate->affirmativeUser ? $debate->affirmativeUser->name : __('rooms.unknown_user'));
 @endphp
 
 @if($viewType === 'grid')

@@ -83,11 +83,11 @@ trait LivewireEventTestHelpers
         string $event,
         array $data = []
     ): Testable {
-        // Private echo event format: echo-private:{channel},{event}
-        $echoEventName = "echo-private:{$channel},{$event}";
+        // Private echo event format: echo-presence:{channel},{event}
+        $echoEventName = "echo-presence:{$channel},{$event}";
 
         $this->realtimeEventLog[] = [
-            'type' => 'echo-private',
+            'type' => 'echo-presence',
             'channel' => $channel,
             'event' => $event,
             'data' => $data,
@@ -174,7 +174,7 @@ trait LivewireEventTestHelpers
                     $this->simulateEchoEvent($livewire, $channel, $eventName, $data);
                     break;
                 case 'echo-private':
-                    $this->simulatePrivateEchoEvent($livewire, $channel, $eventName, $data);
+                    $this->simulatePresenceEchoEvent($livewire, $channel, $eventName, $data);
                     break;
                 case 'echo-presence':
                     $this->simulatePresenceEchoEvent($livewire, $channel, $eventName, $data);
@@ -210,7 +210,7 @@ trait LivewireEventTestHelpers
 
         $data = array_merge($defaultData, $turnData);
 
-        return $this->simulatePrivateEchoEvent(
+        return $this->simulatePresenceEchoEvent(
             $livewire,
             "debate.{$debateId}",
             'TurnAdvanced',
@@ -238,7 +238,7 @@ trait LivewireEventTestHelpers
 
         $data = array_merge($defaultData, $finishData);
 
-        return $this->simulatePrivateEchoEvent(
+        return $this->simulatePresenceEchoEvent(
             $livewire,
             "debate.{$debateId}",
             'DebateFinished',
@@ -311,7 +311,7 @@ trait LivewireEventTestHelpers
 
         $data = array_merge($defaultData, $terminationData);
 
-        return $this->simulatePrivateEchoEvent(
+        return $this->simulatePresenceEchoEvent(
             $livewire,
             "debate.{$debateId}",
             $eventName,

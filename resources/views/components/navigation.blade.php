@@ -23,13 +23,13 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                 <!-- メインナビリンク -->
                 <div class="flex space-x-4">
                     <x-nav-link :href="route('rooms.create')" :active="request()->routeIs('rooms.create')">
-                        <i class="fa-solid fa-plus mr-1"></i>{{ __('messages.create_room') }}
+                        <i class="fa-solid fa-plus mr-1"></i>{{ __('navigation.create_room') }}
                     </x-nav-link>
                     <x-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')">
-                        <i class="fa-solid fa-door-open mr-1"></i>{{ __('messages.search_room') }}
+                        <i class="fa-solid fa-door-open mr-1"></i>{{ __('navigation.search_room') }}
                     </x-nav-link>
                     <x-nav-link :href="route('guide')" :active="request()->routeIs('guide')">
-                        <i class="fa-solid fa-book mr-1"></i>{{ __('messages.how_to_use') }}
+                        <i class="fa-solid fa-book mr-1"></i>{{ __('navigation.how_to_use') }}
                     </x-nav-link>
                 </div>
 
@@ -70,7 +70,7 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                                 <div class="flex flex-col items-start">
                                     <span>{{ Auth::user()->name }}</span>
                                     @if(Auth::user()->isGuest())
-                                        <span class="text-xs text-orange-600 font-medium">{{ __('messages.guest_user') }}</span>
+                                        <span class="text-xs text-orange-600 font-medium">{{ __('common.guest_user') }}</span>
                                     @endif
                                 </div>
                                 <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -81,10 +81,10 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                         <x-slot name="content">
                             {{-- プロフィール等へのリンク --}}
                             <x-dropdown-link :href="route('profile.edit')" class="flex items-center">
-                                <i class="fa-solid fa-user mr-2"></i>{{ __('messages.my_profile') }}
+                                <i class="fa-solid fa-user mr-2"></i>{{ __('navigation.my_profile') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('records.index')" class="flex items-center">
-                                <i class="fa-solid fa-history mr-2"></i>{{ __('messages.debate_history') }}
+                                <i class="fa-solid fa-history mr-2"></i>{{ __('navigation.debate_history') }}
                             </x-dropdown-link>
 
                             {{-- 管理者メニュー --}}
@@ -104,7 +104,7 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="flex items-center text-red-600 hover:text-red-800">
-                                    <i class="fa-solid fa-sign-out-alt mr-2"></i>{{ __('messages.logout') }}
+                                    <i class="fa-solid fa-sign-out-alt mr-2"></i>{{ __('common.logout') }}
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
@@ -112,8 +112,8 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                     @else
                     {{-- ログイン・登録ボタン --}}
                     <div class="flex items-center space-x-2">
-                        <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-primary border border-primary rounded-md hover:bg-primary-light transition duration-150 ease-in-out">{{ __('messages.login') }}</a>
-                        <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark transition duration-150 ease-in-out">{{ __('messages.register') }}</a>
+                        <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-primary border border-primary rounded-md hover:bg-primary-light transition duration-150 ease-in-out">{{ __('common.login') }}</a>
+                        <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark transition duration-150 ease-in-out">{{ __('common.register') }}</a>
                     </div>
                     @endauth
                 </div>
@@ -136,13 +136,13 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
         <!-- メインナビリンク（モバイル） -->
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('rooms.create')" :active="request()->routeIs('rooms.create')" class="flex items-center">
-                <i class="fa-solid fa-plus mr-2"></i>{{ __('messages.create_room') }}
+                <i class="fa-solid fa-plus mr-2"></i>{{ __('navigation.create_room') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')" class="flex items-center">
-                <i class="fa-solid fa-door-open mr-2"></i>{{ __('messages.search_room') }}
+                <i class="fa-solid fa-door-open mr-2"></i>{{ __('navigation.search_room') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('guide')" :active="request()->routeIs('guide')" class="flex items-center">
-                <i class="fa-solid fa-book mr-2"></i>{{ __('messages.how_to_use') }}
+                <i class="fa-solid fa-book mr-2"></i>{{ __('navigation.how_to_use') }}
             </x-responsive-nav-link>
         </div>
 
@@ -175,17 +175,17 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                 <div class="ml-3">
                     <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
                     @if(Auth::user()->isGuest())
-                        <div class="text-sm text-orange-600 font-medium">{{ __('messages.guest_user') }}</div>
+                        <div class="text-sm text-orange-600 font-medium">{{ __('common.guest_user') }}</div>
                     @endif
                 </div>
             </div>
             {{-- ユーザーメニューリンク --}}
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')" class="flex items-center">
-                    <i class="fa-solid fa-user mr-2"></i>{{ __('messages.my_profile') }}
+                    <i class="fa-solid fa-user mr-2"></i>{{ __('navigation.my_profile') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('records.index')" class="flex items-center">
-                    <i class="fa-solid fa-history mr-2"></i>{{ __('messages.debate_history') }}
+                    <i class="fa-solid fa-history mr-2"></i>{{ __('navigation.debate_history') }}
                 </x-responsive-nav-link>
 
                 {{-- 管理者メニュー --}}
@@ -204,7 +204,7 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="flex items-center text-red-600">
-                        <i class="fa-solid fa-sign-out-alt mr-2"></i>{{ __('messages.logout') }}
+                        <i class="fa-solid fa-sign-out-alt mr-2"></i>{{ __('common.logout') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
@@ -213,8 +213,8 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
         <!-- 未ログイン時メニュー（モバイル） -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="flex flex-col space-y-2 px-4 py-2">
-                <a href="{{ route('login') }}" class="w-full px-4 py-2 text-center text-sm font-medium text-primary border border-primary rounded-md hover:bg-primary-light transition duration-150 ease-in-out">{{ __('messages.login') }}</a>
-                <a href="{{ route('register') }}" class="w-full px-4 py-2 text-center text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark transition duration-150 ease-in-out">{{ __('messages.register') }}</a>
+                <a href="{{ route('login') }}" class="w-full px-4 py-2 text-center text-sm font-medium text-primary border border-primary rounded-md hover:bg-primary-light transition duration-150 ease-in-out">{{ __('common.login') }}</a>
+                <a href="{{ route('register') }}" class="w-full px-4 py-2 text-center text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark transition duration-150 ease-in-out">{{ __('common.register') }}</a>
             </div>
         </div>
         @endauth

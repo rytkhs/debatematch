@@ -5,7 +5,7 @@
         <h3 class="text-sm sm:text-md font-semibold text-gray-700 flex items-center justify-between">
             <span class="flex items-center">
                 <span class="material-icons-outlined text-indigo-500 mr-2">preview</span>
-                <span id="format-preview-title">{{ __('messages.format_preview') }}</span>
+                <span id="format-preview-title">{{ __('debates_format.format_preview') }}</span>
             </span>
             <span class="material-icons-outlined text-gray-400 group-hover:text-indigo-500 transition-colors format-preview-icon">expand_less</span>
         </h3>

@@ -15,8 +15,10 @@ export class RoomUIManager {
         // 退出確認ダイアログ
         window.confirmExit = (event, isCreator) => {
             const message = isCreator
-                ? window.translations?.confirmExitCreator || 'Are you sure you want to exit? The room will be closed.'
-                : window.translations?.confirmExitParticipant || 'Are you sure you want to exit the room?';
+                ? window.translations?.confirmExitCreator ||
+                  'Are you sure you want to exit? The room will be closed.'
+                : window.translations?.confirmExitParticipant ||
+                  'Are you sure you want to exit the room?';
 
             if (!confirm(message)) {
                 event.preventDefault();
@@ -26,7 +28,7 @@ export class RoomUIManager {
         };
 
         // フォーマットアコーディオンの開閉処理
-        window.toggleFormat = (contentId) => {
+        window.toggleFormat = contentId => {
             this.toggleFormat(contentId);
         };
     }

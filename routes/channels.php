@@ -5,22 +5,20 @@ use App\Models\Debate;
 use App\Models\Room;
 use App\Models\User;
 
-Broadcast::channel('debate.{debate}', function (User $user, Debate $debate) {
-    return $user->rooms()->where('room_id', $debate->room_id)->exists();
-});
-
-Broadcast::channel('rooms.{room}', function (User $user, Room $room) {
-    return $user->rooms()->where('room_id', $room->id)->exists();
-});
-
-Broadcast::channel('presence-room.{room}', function (User $user, Room $room) {
+// Presence Channel for Room
+Broadcast::channel('room.{room}', function (User $user, Room $room) {
     if ($user->rooms()->where('room_id', $room->id)->exists()) {
         return ['id' => $user->id, 'name' => $user->name];
     }
+
+    return false;
 });
 
-Broadcast::channel('presence-debate.{debate}', function (User $user, Debate $debate) {
+// Presence Channel for Debate
+Broadcast::channel('debate.{debate}', function (User $user, Debate $debate) {
     if ($user->rooms()->where('room_id', $debate->room_id)->exists()) {
         return ['id' => $user->id, 'name' => $user->name];
     }
+
+    return false;
 });
