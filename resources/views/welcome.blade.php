@@ -39,7 +39,6 @@
                                 <a href="{{ route('ai.debate.create') }}" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-teal-400 to-blue-500 text-white font-semibold rounded-full hover:from-teal-500 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg text-sm md:text-base relative group">
                                     <span class="material-icons mr-2">smart_toy</span>
                                     {{ __('ai_debate.ai_debate_button') }}
-                                    <span class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full opacity-95">β</span>
                                 </a>
                             </div>
                         </div>
@@ -63,7 +62,7 @@
                                 {{ __('welcome.features_title') }}
                             </span>
                         </h2>
-                        <p class="text-gray-600">{{ __('guide.features_subtitle') }}</p>
+                        <p class="text-gray-600">{{ __('welcome.features_subtitle') }}</p>
                     </div>
 
                     <div class="grid md:grid-cols-3 gap-6 md:gap-8">
@@ -119,7 +118,7 @@
                         <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                             {{ __('navigation.how_to_use') }}
                         </h2>
-                        <p class="text-gray-600">{{ __('guide.quick_start_steps') }}</p>
+                        <p class="text-gray-600">{{ __('welcome.quick_start_steps') }}</p>
                     </div>
 
                     <div class="relative">

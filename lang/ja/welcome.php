@@ -11,15 +11,17 @@ return [
     |
     */
 
-    'start_online_debate' => 'オンラインでディベートを始めよう',
+    'start_online_debate' => 'DebateMatchへようこそ',
     'welcome_description' => 'DebateMatch(ディベートマッチ)は、誰でも簡単に参加できるオンラインディベートプラットフォームです。意見を交わし、新しい視点を見つけましょう。',
     'features_title' => 'DebateMatchの特徴',
+    'features_subtitle' => 'DebateMatchが提供する主要な機能をご紹介します',
     'realtime_chat' => 'リアルタイムチャット',
     'realtime_chat_description' => '場所や時間に縛られることなく、いつでもどこでもディベーターとマッチング。すぐにディベートを始めることができます。',
     'time_management' => 'タイムマネジメント',
     'time_management_description' => '自動化されたタイマーと進行管理により、効率的な討論の場を提供します。',
     'ai_feedback' => 'AIフィードバック',
     'ai_feedback_description' => 'ディベート終了後、AIジャッジが議論を分析。勝敗判定と詳細な講評を提供します。具体的な改善点もフィードバックします。',
+    'quick_start_steps' => '簡単な3つのステップでディベートを始めることができます',
     'step1_title' => 'ルームを選択 / 作成',
     'step1_description' => 'ルームを探して参加するか、新しいルームを作成します',
     'step2_title' => 'ディベート開始',

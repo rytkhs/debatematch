@@ -11,15 +11,17 @@ return [
     |
     */
 
-    'start_online_debate' => 'Start Your Online Debate Now',
+    'start_online_debate' => 'Welcome to DebateMatch',
     'welcome_description' => 'DebateMatch is a platform where you can engage in online debates, improve your discussion skills, logical thinking, and expressive power.',
     'features_title' => 'Features',
+    'features_subtitle' => 'Discover the key features that make DebateMatch special',
     'realtime_chat' => 'Real-time Chat',
     'realtime_chat_description' => 'Engage in text-based debates that proceed in real-time.',
     'time_management' => 'Time Management',
     'time_management_description' => 'Each part has a time limit managed by a countdown timer.',
     'ai_feedback' => 'AI Feedback',
     'ai_feedback_description' => 'After the debate, AI analyzes the discussion and provides feedback.',
+    'quick_start_steps' => 'Get started with debates in just 3 simple steps',
     'step1_title' => '1. Create/Join Room',
     'step1_description' => 'Create your own debate room or join an existing one.',
     'step2_title' => '2. Wait for Opponent',
