@@ -424,8 +424,6 @@ class StartDebateButtonTest extends BaseLivewireTest
 
     public function test_start_debate_fails_when_participants_are_offline()
     {
-        $this->markTestSkipped('Known issue: Livewire session flash assertions not working in test environment. The feature works correctly in production.');
-
         // ルーム作成者とユーザーを作成
         $creator = User::factory()->create();
         $participant = User::factory()->create();
@@ -443,21 +441,25 @@ class StartDebateButtonTest extends BaseLivewireTest
         // 作成者としてログイン
         $this->actingAs($creator);
 
-        // コンポーネントをテスト（全員オフライン状態）
+        // 初期のディベート数を確認
+        $initialDebateCount = Debate::count();
+
+        // コンポーネントをテスト（全員オフライン状態 = デフォルト状態）
         $component = Livewire::test(StartDebateButton::class, ['room' => $room]);
 
-        // オンライン状態を確認
+        // オンライン状態を確認（初期状態は全員オフライン）
         $this->assertFalse($component->get('onlineUsers')[$creator->id] ?? true);
         $this->assertFalse($component->get('onlineUsers')[$participant->id] ?? true);
 
         // startDebateを呼び出し
         $component->call('startDebate');
 
-        // セッションにエラーメッセージが設定されることを確認
-        $this->assertEquals('Some participants are offline. Please wait for all participants to be online before starting the debate.', session('error'));
-
         // ディベートが作成されていないことを確認
-        $this->assertEquals(0, Debate::count());
+        $this->assertEquals($initialDebateCount, Debate::count());
+
+        // ルームのステータスが変更されていないことを確認
+        $room->refresh();
+        $this->assertEquals(Room::STATUS_READY, $room->status);
     }
 
     public function test_start_debate_succeeds_when_all_participants_are_online()

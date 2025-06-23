@@ -127,12 +127,10 @@ describe('リアルタイムイベント処理', () => {
 
     describe('ディベートイベント', () => {
         let debateChannel;
-        let presenceChannel;
         const debateId = 789;
 
         beforeEach(() => {
             debateChannel = window.Echo.presence(`debate.${debateId}`);
-            presenceChannel = window.Echo.presence(`debate.${debateId}`);
         });
 
         test('メッセージ送信イベントが正常に処理されること', () => {
@@ -244,7 +242,7 @@ describe('リアルタイムイベント処理', () => {
 
         test('タイピング表示用ウィスパーメッセージが正常に処理されること', async () => {
             const typingData = { user_id: 123, typing: true };
-            const result = await presenceChannel.whisper('typing', typingData);
+            const result = await debateChannel.whisper('typing', typingData);
 
             expect(mockChannel.whisper).toHaveBeenCalledWith('typing', typingData);
             expect(result).toEqual({ event: 'typing', data: typingData });
@@ -480,7 +478,6 @@ describe('リアルタイムイベント処理', () => {
         test('完全なディベートフローが正常に処理されること', () => {
             const debateId = 123;
             const debateChannel = window.Echo.presence(`debate.${debateId}`);
-            const presenceChannel = window.Echo.presence(`debate.${debateId}`);
 
             const events = [];
             const eventLogger = eventName => data => {
