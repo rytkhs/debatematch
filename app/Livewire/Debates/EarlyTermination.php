@@ -129,7 +129,7 @@ class EarlyTermination extends Component
         }
     }
 
-    #[On("echo-private:debate.{debate.id},EarlyTerminationRequested")]
+    #[On("echo-presence:debate.{debate.id},EarlyTerminationRequested")]
     public function handleEarlyTerminationRequested($event)
     {
         $this->refreshStatus();
@@ -141,7 +141,7 @@ class EarlyTermination extends Component
         }
     }
 
-    #[On('echo-private:debate.{debate.id},EarlyTerminationAgreed')]
+    #[On('echo-presence:debate.{debate.id},EarlyTerminationAgreed')]
     public function handleEarlyTerminationAgreed($event)
     {
         $this->refreshStatus();
@@ -156,7 +156,7 @@ class EarlyTermination extends Component
         }
     }
 
-    #[On('echo-private:debate.{debate.id},EarlyTerminationDeclined')]
+    #[On('echo-presence:debate.{debate.id},EarlyTerminationDeclined')]
     public function handleEarlyTerminationDeclined($event)
     {
         $this->refreshStatus();
@@ -171,7 +171,7 @@ class EarlyTermination extends Component
         }
     }
 
-    #[On('echo-private:debate.{debate.id},EarlyTerminationExpired')]
+    #[On('echo-presence:debate.{debate.id},EarlyTerminationExpired')]
     public function handleEarlyTerminationExpired($event)
     {
         $this->refreshStatus();

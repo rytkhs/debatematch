@@ -42,14 +42,14 @@ class MessageInput extends Component
         $this->syncTurnState();
     }
 
-    #[On("echo-private:debate.{debate.id},TurnAdvanced")]
+    #[On("echo-presence:debate.{debate.id},TurnAdvanced")]
     public function handleTurnAdvanced(): void
     {
         $this->debate->refresh();
         $this->syncTurnState();
     }
 
-    #[On("echo-private:debate.{debate.id},DebateStarted")]
+    #[On("echo-presence:debate.{debate.id},DebateStarted")]
     public function handleDebateStarted(): void
     {
         $this->newMessage = '';

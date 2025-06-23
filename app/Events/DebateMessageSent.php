@@ -7,7 +7,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 
 class DebateMessageSent implements ShouldBroadcast
 {
@@ -29,7 +29,7 @@ class DebateMessageSent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('debate.' . $this->debateId),
+            new PresenceChannel('debate.' . $this->debateId),
         ];
     }
 

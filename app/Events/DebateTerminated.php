@@ -4,7 +4,7 @@ namespace App\Events;
 
 use App\Models\Debate;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -29,7 +29,7 @@ class DebateTerminated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('debate.' . $this->debate->id),
+            new PresenceChannel('debate.' . $this->debate->id),
         ];
     }
 }

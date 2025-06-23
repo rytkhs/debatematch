@@ -36,7 +36,7 @@ class Header extends Component
         $this->syncTurnState();
     }
 
-    #[On("echo-private:debate.{debate.id},TurnAdvanced")]
+    #[On("echo-presence:debate.{debate.id},TurnAdvanced")]
     public function handleTurnAdvanced($data): void
     {
         $this->currentTurn = $data['turn_number'] ?? $this->debate->refresh()->current_turn;
@@ -58,10 +58,6 @@ class Header extends Component
         } else {
             $this->debate->turn_end_time = null;
         }
-
-        // $this->dispatch('turn-advanced', [
-        //     'turnEndTime' => $this->turnEndTime
-        // ]);
 
         if ($this->isMyTurn) {
             $this->dispatch('showFlashMessage', __('flash.header.turn.my_turn'), 'info');

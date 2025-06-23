@@ -70,7 +70,7 @@ class ConnectionStatus extends Component
         }
     }
 
-    #[On('echo-private:room.{room.id},UserLeftRoom')]
+    #[On('echo-presence:room.{room.id},UserLeftRoom')]
     public function resetState(): void
     {
         // ユーザーが退出した場合、状態を初期化

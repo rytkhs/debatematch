@@ -11,7 +11,6 @@ export class RoomEventHandler {
         this.userId = userId;
         this.channelName = `room.${this.roomId}`;
         this.presenceChannel = null;
-        this.privateChannel = null;
         this.offlineTimeout = null;
 
         this.initEchoListeners();
@@ -38,9 +37,7 @@ export class RoomEventHandler {
                 this.offlineTimeout = setTimeout(() => {
                     Livewire.dispatch('member-offline', { data: user });
                 }, 5000);
-            });
-
-        this.privateChannel = window.Echo.private(this.channelName)
+            })
             .listen('UserJoinedRoom', data => this.handleUserJoined(data))
             .listen('UserLeftRoom', data => this.handleUserLeft(data))
             .listen('CreatorLeftRoom', data => this.handleCreatorLeft(data))
@@ -97,14 +94,6 @@ export class RoomEventHandler {
         if (this.presenceChannel) {
             window.Echo.leave(this.channelName);
             this.presenceChannel = null;
-        }
-
-        if (this.privateChannel) {
-            this.privateChannel.stopListening('UserJoinedRoom');
-            this.privateChannel.stopListening('UserLeftRoom');
-            this.privateChannel.stopListening('CreatorLeftRoom');
-            this.privateChannel.stopListening('DebateStarted');
-            this.privateChannel = null;
         }
 
         if (this.offlineTimeout) {

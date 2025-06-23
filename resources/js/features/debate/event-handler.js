@@ -11,7 +11,6 @@ class DebateEventHandler {
         this.logger = new Logger('DebateEventHandler');
         this.debateId = debateId;
         this.presenceChannel = null;
-        this.privateChannel = null;
         this.offlineTimeout = null;
         this.initEchoListeners();
     }
@@ -41,9 +40,7 @@ class DebateEventHandler {
                 this.offlineTimeout = setTimeout(() => {
                     Livewire.dispatch('member-offline', { data: user });
                 }, 3000);
-            });
-
-        this.privateChannel = window.Echo.private(`debate.${this.debateId}`)
+            })
             .listen('DebateFinished', e => this.handleDebateFinished(e))
             .listen('DebateEvaluated', e => this.handleDebateEvaluated(e))
             .listen('DebateTerminated', e => this.handleDebateTerminated(e))
@@ -130,14 +127,6 @@ class DebateEventHandler {
         if (this.presenceChannel) {
             window.Echo.leave(`debate.${this.debateId}`);
             this.presenceChannel = null;
-        }
-
-        if (this.privateChannel) {
-            this.privateChannel.stopListening('DebateFinished');
-            this.privateChannel.stopListening('DebateEvaluated');
-            this.privateChannel.stopListening('DebateTerminated');
-            this.privateChannel.stopListening('EarlyTerminationExpired');
-            this.privateChannel = null;
         }
 
         if (this.offlineTimeout) {

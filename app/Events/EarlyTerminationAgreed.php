@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -28,7 +28,7 @@ class EarlyTerminationAgreed implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('debate.' . $this->debateId),
+            new PresenceChannel('debate.' . $this->debateId),
         ];
     }
 

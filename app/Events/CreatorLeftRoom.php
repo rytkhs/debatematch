@@ -9,6 +9,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Room;
 use App\Models\User;
+use Illuminate\Broadcasting\PresenceChannel;
 
 class CreatorLeftRoom implements ShouldBroadcast
 {
@@ -30,7 +31,7 @@ class CreatorLeftRoom implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('room.' . $this->room->id),
+            new PresenceChannel('room.' . $this->room->id),
         ];
     }
 

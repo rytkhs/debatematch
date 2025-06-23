@@ -30,7 +30,7 @@ class Chat extends Component
         $this->loadMessages();
     }
 
-    #[On("echo-private:debate.{debate.id},DebateMessageSent")]
+    #[On("echo-presence:debate.{debate.id},DebateMessageSent")]
     public function handleMessageReceived(): void
     {
         $this->loadMessages();

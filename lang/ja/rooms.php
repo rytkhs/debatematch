@@ -154,7 +154,7 @@ return [
     'redirecting_to_debate_soon' => 'まもなくディベートページへ移動します...',
     'confirm_exit_creator' => 'ホストが退出するとルームは閉鎖されます。本当に退出しますか？',
     'confirm_exit_participant' => '本当にルームから退出しますか？',
-    'host_left_room_closed' => 'ホストが退出するとルームは閉鎖されます。',
+    'host_left_room_closed' => 'ホストが退出したため、ルームが閉鎖されました。',
     'debate_starting_message' => 'ディベートを開始しています...',
     'language_ja' => '日本語',
     'language_en' => '英語',
