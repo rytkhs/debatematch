@@ -25,7 +25,7 @@ class RoomFactory extends Factory
             'remarks' => fake()->optional()->paragraph(),
             'status' => Room::STATUS_WAITING,
             'created_by' => User::factory(),
-            'language' => fake()->randomElement(['ja', 'en']),
+            'language' => fake()->randomElement(['japanese', 'english']),
             'format_type' => 'format_name_nada_high', // デフォルトで有効なフォーマットを使用
             'custom_format_settings' => null,
             'evidence_allowed' => fake()->boolean(),
@@ -221,7 +221,7 @@ class RoomFactory extends Factory
      */
     public function japanese(): static
     {
-        return $this->inLanguage('ja');
+        return $this->inLanguage('japanese');
     }
 
     /**
@@ -229,6 +229,6 @@ class RoomFactory extends Factory
      */
     public function english(): static
     {
-        return $this->inLanguage('en');
+        return $this->inLanguage('english');
     }
 }

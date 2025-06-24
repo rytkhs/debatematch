@@ -146,8 +146,8 @@ trait CreatesRooms
     protected function createMultilingualRooms(): array
     {
         return [
-            'japanese' => $this->createRoom(['language' => 'ja']),
-            'english' => $this->createRoom(['language' => 'en']),
+            'japanese' => $this->createRoom(['language' => 'japanese']),
+            'english' => $this->createRoom(['language' => 'english']),
         ];
     }
 
