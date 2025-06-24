@@ -96,7 +96,7 @@ class RoomTest extends BaseModelTest
             'name' => 'Test Room',
             'topic' => 'Test Topic',
             'remarks' => 'Test Remarks',
-            'language' => 'ja',
+            'language' => 'japanese',
             'format_type' => 'format_name_jda',
             'evidence_allowed' => true,
             'is_ai_debate' => false
@@ -105,7 +105,7 @@ class RoomTest extends BaseModelTest
         $this->assertEquals('Test Room', $room->name);
         $this->assertEquals('Test Topic', $room->topic);
         $this->assertEquals('Test Remarks', $room->remarks);
-        $this->assertEquals('ja', $room->language);
+        $this->assertEquals('japanese', $room->language);
         $this->assertEquals('format_name_jda', $room->format_type);
         $this->assertTrue($room->evidence_allowed);
         $this->assertFalse($room->is_ai_debate);
@@ -463,10 +463,10 @@ class RoomTest extends BaseModelTest
     public function test_factory_language_methods()
     {
         $japaneseRoom = Room::factory()->japanese()->create();
-        $this->assertEquals('ja', $japaneseRoom->language);
+        $this->assertEquals('japanese', $japaneseRoom->language);
 
         $englishRoom = Room::factory()->english()->create();
-        $this->assertEquals('en', $englishRoom->language);
+        $this->assertEquals('english', $englishRoom->language);
     }
 
     /**
