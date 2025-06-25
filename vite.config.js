@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/js/pages/room-create.js',
                 'resources/js/pages/ai-debate-create.js',
                 'resources/js/pages/records-index.js',
+                'resources/js/pages/records-show.js',
             ],
             refresh: true,
         }),

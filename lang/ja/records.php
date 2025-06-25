@@ -53,4 +53,6 @@ return [
     'demo_mode_notice' => 'ゲストモードで閲覧中',
     'demo_mode_description' => 'デモ:で始まる論題はサンプルのディベート履歴です。ゲストユーザーでも実際のディベートに参加できます。',
     'result' => '結果',
+    'evaluation_inconclusive' => '評価不能',
+    'evaluation_inconclusive_short' => '判定不能',
 ];

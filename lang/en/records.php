@@ -53,4 +53,6 @@ return [
     'demo_mode_notice' => 'Viewing in Guest Mode',
     'demo_mode_description' => 'Topics starting with "Demo:" are sample debate records. Guest users can also participate in actual debates.',
     'result' => 'Result',
+    'evaluation_inconclusive' => 'Evaluation Inconclusive',
+    'evaluation_inconclusive_short' => 'Inconclusive',
 ];

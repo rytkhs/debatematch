@@ -241,6 +241,18 @@ class DebateEvaluationTest extends TestCase
         $this->assertStringContainsString('clear', strtolower($evaluation->analysis));
     }
 
+    #[Test]
+    public function test_factory_inconclusive()
+    {
+        $evaluation = DebateEvaluation::factory()->inconclusive()->create();
+
+        $this->assertNull($evaluation->winner);
+        $this->assertStringContainsString('inconclusive', strtolower($evaluation->reason));
+        $this->assertStringContainsString('could not be properly evaluated', strtolower($evaluation->analysis));
+        $this->assertStringContainsString('inconclusive nature', strtolower($evaluation->feedback_for_affirmative));
+        $this->assertStringContainsString('inconclusive nature', strtolower($evaluation->feedback_for_negative));
+    }
+
     /**
      * Integration tests
      */
