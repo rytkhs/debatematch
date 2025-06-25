@@ -160,6 +160,25 @@ class DebateEvaluationFactory extends Factory
     }
 
     /**
+     * Create an evaluation that is inconclusive (no winner).
+     */
+    public function inconclusive(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'winner' => null,
+            'reason' => 'The debate was inconclusive due to ' . fake()->randomElement([
+                'insufficient arguments from both sides.',
+                'equal strength of arguments making it impossible to determine a clear winner.',
+                'technical issues during the debate.',
+                'inappropriate content or behavior that prevented proper evaluation.'
+            ]),
+            'analysis' => 'This debate could not be properly evaluated. ' . fake()->paragraph(),
+            'feedback_for_affirmative' => 'Due to the inconclusive nature of this debate, specific feedback cannot be provided.',
+            'feedback_for_negative' => 'Due to the inconclusive nature of this debate, specific feedback cannot be provided.',
+        ]);
+    }
+
+    /**
      * Create an evaluation with technical feedback.
      */
     public function withTechnicalFeedback(): static

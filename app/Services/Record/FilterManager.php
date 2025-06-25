@@ -144,10 +144,10 @@ class FilterManager
 
         $query->where(function ($q) use ($user, $winnerCondition, $loserCondition) {
             $q->where(function ($subQ) use ($user, $winnerCondition) {
-                $subQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $winnerCondition))
+                $subQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $winnerCondition)->whereNotNull('winner'))
                     ->where('affirmative_user_id', $user->id);
             })->orWhere(function ($subQ) use ($user, $loserCondition) {
-                $subQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $loserCondition))
+                $subQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $loserCondition)->whereNotNull('winner'))
                     ->where('negative_user_id', $user->id);
             });
         });
@@ -168,20 +168,20 @@ class FilterManager
             // 自分のディベート結果
             $q->where(function ($subQ) use ($user, $winnerCondition, $loserCondition) {
                 $subQ->where(function ($winQ) use ($user, $winnerCondition) {
-                    $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $winnerCondition))
+                    $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $winnerCondition)->whereNotNull('winner'))
                         ->where('affirmative_user_id', $user->id);
                 })->orWhere(function ($winQ) use ($user, $loserCondition) {
-                    $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $loserCondition))
+                    $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $loserCondition)->whereNotNull('winner'))
                         ->where('negative_user_id', $user->id);
                 });
             })
                 // デモディベート結果
                 ->orWhere(function ($subQ) use ($demoUserIds, $winnerCondition, $loserCondition) {
                     $subQ->where(function ($winQ) use ($demoUserIds, $winnerCondition) {
-                        $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $winnerCondition))
+                        $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $winnerCondition)->whereNotNull('winner'))
                             ->whereIn('affirmative_user_id', $demoUserIds);
                     })->orWhere(function ($winQ) use ($demoUserIds, $loserCondition) {
-                        $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $loserCondition))
+                        $winQ->whereHas('evaluations', fn($qe) => $qe->where('winner', $loserCondition)->whereNotNull('winner'))
                             ->whereIn('negative_user_id', $demoUserIds);
                     });
                 });

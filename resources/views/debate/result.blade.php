@@ -154,6 +154,13 @@
                                                 {{ $evaluations->winner === 'affirmative' ? __('debates_ui.affirmative_side_label') : __('debates_ui.negative_side_label') }}
                                             </p>
                                         </div>
+                                        @else
+                                        <div class="bg-gray-50 p-3 sm:p-4 rounded-lg mt-3 sm:mt-4 flex items-center shadow-sm border border-gray-200">
+                                            <div class="flex items-center w-full">
+                                                <span class="material-icons-outlined text-gray-500 mr-2 text-sm sm:text-base">help_outline</span>
+                                                <p class="font-medium text-sm sm:text-base text-gray-600">{{ __('records.evaluation_inconclusive') }}</p>
+                                            </div>
+                                        </div>
                                         @endif
                                     </div>
                                 </div>
