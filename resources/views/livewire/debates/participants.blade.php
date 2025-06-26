@@ -120,6 +120,4 @@
         <!-- 早期終了コンポーネント -->
         <livewire:debates.early-termination :debate="$debate" />
     </div>
-
-    {{-- JavaScript is now handled by pages/debate-show.js --}}
 </div>

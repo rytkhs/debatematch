@@ -331,7 +331,7 @@ class DebateShowManager {
         // 既存のカウントダウンが動作している場合は初期表示を設定
         this.syncInitialCountdownState(timeLeftSmall);
 
-        // グローバルカウントダウンから時間を取得
+        // カウントダウンから時間を取得
         this.managers.countdownManager.addListener(timeData => {
             if (!timeData.isRunning) {
                 const finishedText = document.documentElement.lang === 'ja' ? '終了' : 'Finished';

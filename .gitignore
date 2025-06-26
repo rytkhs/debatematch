@@ -24,7 +24,8 @@ yarn-error.log
 .cursor/
 directorystructure.md
 technologystack.md
-docs/
+docs/*
+!docs/architecture
 
 /fail2ban/data/
 /fail2ban/logs/
@@ -34,3 +35,5 @@ docs/
 /.nyc_output
 /tests/js/coverage/
 node_modules/.cache/
+
+scripts/

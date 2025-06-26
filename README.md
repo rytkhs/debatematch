@@ -2,7 +2,7 @@
 
 [DebateMatch](http://debate-match.com)は、オンラインディベートを通じて、議論力、論理的思考力、表現力を向上させることを目的としたWebアプリケーションです。ユーザーはリアルタイムで他のユーザーやAIとディベートを行い、終了後にはAIによる評価とフィードバックを受け取ることができます。
 
-![image](https://github.com/user-attachments/assets/a0c9406f-9f3d-4563-8a0b-cb5973a70159)
+![Image](https://github.com/user-attachments/assets/7ff8c821-8e9e-4af8-ba09-493155544c3f)
 
 ### 主な機能
 
@@ -124,3 +124,8 @@ Pusher設定:
 #### 言語ファイル
 
 アプリケーションは多言語をサポートしています。翻訳ファイルは`lang`ディレクトリにあり、Markdownコンテンツは`resources/markdown/{locale}/`にあります。
+
+
+### 関連記事
+
+- [【個人開発】オンラインディベートアプリ「DebateMatch」を開発しました！AI講評機能あり](https://qiita.com/rtkhs/items/1ae5fea5d6fa315edbca)
