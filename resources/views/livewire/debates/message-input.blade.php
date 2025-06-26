@@ -89,10 +89,4 @@
             </button>
         </div>
     </form>
-
-        {{--
-        インラインスクリプトはresources/js/features/debate/input-area.jsに移行されました
-        初期化はpages/debate-show.jsから行われます
-    --}}
-
 </div>

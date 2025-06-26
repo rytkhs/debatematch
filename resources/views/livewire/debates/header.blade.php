@@ -85,6 +85,4 @@
             </div>
         </div>
     </div>
-
-    {{-- JavaScript is now handled by pages/debate-show.js --}}
 </header>

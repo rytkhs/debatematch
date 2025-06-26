@@ -103,6 +103,4 @@
             @endif
         </div>
     @endif
-
-    {{-- JavaScript is now handled by pages/debate-show.js --}}
 </div>
