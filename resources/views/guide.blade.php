@@ -4,7 +4,7 @@
     </x-slot>
 
     {{-- ヒーローセクション --}}
-    <div class="relative bg-gradient-to-br from-blue-600 to-purple-700 text-white overflow-hidden">
+    <div class="relative bg-gradient-to-br from-blue-400 to-purple-500 text-white overflow-hidden">
         <div class="absolute inset-0 bg-black opacity-10"></div>
         <div class="relative container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
             <div class="text-center">
@@ -14,18 +14,6 @@
                 <p class="text-lg sm:text-xl max-w-3xl mx-auto mb-8 opacity-90">
                     {{ __('guide.page_description') }}
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('rooms.create') }}"
-                       class="inline-flex items-center justify-center px-8 py-3 bg-white text-blue-600 font-semibold rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg">
-                        <span class="material-icons mr-2">add_circle</span>
-                        {{ __('rooms.create_room') }}
-                    </a>
-                    <a href="{{ route('ai.debate.create') }}"
-                       class="inline-flex items-center justify-center px-8 py-3 bg-purple-500 text-white font-semibold rounded-full hover:bg-purple-600 transition-all transform hover:scale-105 shadow-lg">
-                        <span class="material-icons mr-2">smart_toy</span>
-                        {{ __('ai_debate.start_ai_debate') }}
-                    </a>
-                </div>
             </div>
         </div>
         {{-- 波形の装飾 --}}
@@ -561,7 +549,7 @@
     </section>
 
     {{-- お問い合わせセクション --}}
-    <section class="py-14 sm:py-18 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+    <section class="py-14 sm:py-18 bg-gradient-to-r from-blue-400 to-purple-500 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl sm:text-3xl font-bold mb-6">{{ __('guide.contact_section_title') }}</h2>
             <p class="text-xl mb-10 opacity-90 max-w-2xl mx-auto">
