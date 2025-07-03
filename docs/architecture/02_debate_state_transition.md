@@ -28,33 +28,30 @@ stateDiagram-v2
     deleted --> [*]
 
     note right of waiting
-        - ルーム作成者のみ存在
-        - 参加者待機中
-        - ルーム情報編集可能
+        ルーム作成者のみ存在<br/>
+        参加者待機中
     end note
 
     note right of ready
-        - 両サイド参加者確定
-        - ディベート開始可能
-        - サイド変更可能
+        両サイド参加者確定<br/>
+        ディベート開始可能<br/>
     end note
 
     note right of debating
-        - ディベート進行中
-        - メッセージ送信可能
-        - 早期終了提案可能
+        ディベート進行中<br/>
+        メッセージ送信可能<br/>
+        (早期終了提案可能)
     end note
 
     note right of finished
-        - ディベート完了
-        - AI評価待機/完了
-        - 結果閲覧可能
+        ディベート完了<br/>
+        AI評価待機/完了<br/>
+        結果閲覧可能
     end note
 
     note right of terminated
-        - 早期終了合意
-        - 接続異常による終了
-        - 結果閲覧不可
+        接続異常による終了<br/>
+        結果閲覧不可
     end note
 ```
 
@@ -73,42 +70,22 @@ stateDiagram-v2
     turn6 --> turn7: 時間切れ/手動進行
     turn7 --> Finished: 最終ターン終了
 
-    turn0 --> EarlyTermination: 早期終了提案
-    turn1 --> EarlyTermination: 早期終了提案
-    turn2 --> EarlyTermination: 早期終了提案
-    turn3 --> EarlyTermination: 早期終了提案
-    turn4 --> EarlyTermination: 早期終了提案
-    turn5 --> EarlyTermination: 早期終了提案
-    turn6 --> EarlyTermination: 早期終了提案
-    turn7 --> EarlyTermination: 早期終了提案
-
-    EarlyTermination --> terminated: 相手が承認
-    EarlyTermination --> turn0: 相手が拒否(元のターンに戻る)
-    EarlyTermination --> turn1: 相手が拒否
-    EarlyTermination --> turn2: 相手が拒否
-    EarlyTermination --> turn3: 相手が拒否
-    EarlyTermination --> turn4: 相手が拒否
-    EarlyTermination --> turn5: 相手が拒否
-    EarlyTermination --> turn6: 相手が拒否
-    EarlyTermination --> turn7: 相手が拒否
+    turn0 --> Finished: 早期終了合意
+    turn1 --> Finished: 早期終了合意
+    turn2 --> Finished: 早期終了合意
+    turn3 --> Finished: 早期終了合意
+    turn4 --> Finished: 早期終了合意
+    turn5 --> Finished: 早期終了合意
+    turn6 --> Finished: 早期終了合意
+    turn7 --> Finished: 早期終了合意
 
     Finished --> [*]: AI評価完了
-    terminated --> [*]
+    terminated --> [*]: 異常終了
 
-    note right of turn0
-        立論（肯定側）
-        時間: 形式により可変
-    end note
-
-    note right of turn1
-        立論（否定側）
-        時間: 形式により可変
-    end note
-
-    note right of EarlyTermination
-        - 提案者待機状態
-        - 相手の応答待ち
-        - タイムアウト機能あり
+    note left of Finished
+        フリーではどのターンからでも早期終了が提案可能。<br/>
+        相手が承認するとディベートは即座に 'Finished' 状態へ遷移する。<br/>
+        拒否またはタイムアウトした場合、状態は変わらずディベートが継続する。
     end note
 ```
 

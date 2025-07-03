@@ -165,32 +165,30 @@ graph LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> APICall: API呼び出し
+    [*] --> CheckOffline: API呼び出し開始
 
-    APICall --> Success: 成功
-    APICall --> NetworkError: ネットワークエラー
-    APICall --> AuthError: 認証エラー
-    APICall --> RateLimit: レート制限
-    APICall --> Timeout: タイムアウト
+    CheckOffline --> IsOnline: オンライン
+    CheckOffline --> SkipAPICall: オフライン
 
-    Success --> ValidateResponse: レスポンス検証
-    ValidateResponse --> Valid: 有効
-    ValidateResponse --> Invalid: 無効
+    IsOnline --> APICall: API実行 (fetch)
 
-    Valid --> [*]: 正常終了
+    APICall --> Success: 成功 (response.ok)
+    APICall --> Failure: 失敗 (network error / !response.ok)
 
-    Invalid --> FallbackResponse: フォールバック
-    NetworkError --> RetryLogic: リトライ判定
-    RateLimit --> BackoffWait: バックオフ待機
-    Timeout --> FallbackResponse
-    AuthError --> LogError: エラーログ
+    Success --> ResetFailureCount: 連続失敗カウントをリセット
+    ResetFailureCount --> [*]: 正常終了
 
-    RetryLogic --> APICall: リトライ
-    RetryLogic --> FallbackResponse: リトライ上限
-    BackoffWait --> APICall
+    Failure --> IncrementFailureCount: 連続失敗カウントを増やす
+    IncrementFailureCount --> CheckFailureLimit: 上限確認 (3回)
 
-    FallbackResponse --> [*]: 代替応答
-    LogError --> [*]: 処理中断
+    CheckFailureLimit --> NotifyUI: 上限到達
+    CheckFailureLimit --> WaitForNextCall: 上限未満
+
+    NotifyUI --> LogWarning: 警告ログ出力
+    LogWarning --> [*]: UI通知後、次の呼び出しを待つ
+
+    WaitForNextCall --> [*]: 次の呼び出しを待つ
+    SkipAPICall --> [*]: 呼び出しをスキップして終了
 ```
 
 ## AIディベート作成フロー
