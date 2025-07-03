@@ -113,7 +113,7 @@ Pusher設定:
 
 ### 開発
 
-詳細な設計ドキュメントは`docs/architecture`を参照してください。
+詳細な設計ドキュメントは[`docs/architecture`](docs/architecture)を参照してください。
 
 #### キューワーカー
 
