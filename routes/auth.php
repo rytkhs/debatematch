@@ -35,9 +35,9 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 
-    // ゲストログインルート（10分間に10回まで制限）
+    // ゲストログインルート（10分間に5回まで制限）
     Route::post('guest-login', [GuestLoginController::class, 'login'])
-        ->middleware('throttle:10,10')
+        ->middleware('throttle:5,10')
         ->name('guest.login');
 });
 
