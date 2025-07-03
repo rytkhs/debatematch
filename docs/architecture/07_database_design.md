@@ -32,6 +32,7 @@ erDiagram
         boolean is_guest
         timestamp guest_expires_at "NULLABLE"
         timestamp email_verified_at "NULLABLE"
+        string remember_token "NULLABLE"
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at "NULLABLE"
