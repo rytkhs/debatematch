@@ -1,4 +1,22 @@
 {
+    "name": "debate-match",
+    "version": "1.0.0",
+    "description": "DebateMatch - オンラインディベートプラットフォーム。リアルタイムディベート機能とAI評価システムを提供します。",
+    "author": "tkhs",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rytkhs/debatematch.git"
+    },
+    "keywords": [
+        "debate",
+        "ai",
+        "realtime",
+        "laravel",
+        "livewire",
+        "discussion",
+        "education"
+    ],
     "private": true,
     "type": "module",
     "scripts": {

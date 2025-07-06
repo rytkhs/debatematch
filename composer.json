@@ -1,10 +1,15 @@
 {
-  "name": "laravel/laravel",
+  "name": "tkhs/debate-match",
   "type": "project",
-  "description": "The skeleton application for the Laravel framework.",
+  "description": "DebateMatch - オンラインディベートプラットフォーム。リアルタイムディベート機能とAI評価システムを提供します。",
   "keywords": [
+    "debate",
+    "ai",
+    "realtime",
     "laravel",
-    "framework"
+    "livewire",
+    "discussion",
+    "education"
   ],
   "license": "MIT",
   "require": {
