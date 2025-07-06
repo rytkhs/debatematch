@@ -4,11 +4,57 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>{{ config('app.name', 'Laravel') }}</title>
-        <meta name="description" content="{{ __('misc.app_meta_description') }}">
+        <title>{{ isset($title) ? $title . ' - ' . config('app.name', 'DebateMatch') : config('app.name', 'DebateMatch') }}</title>
+        <meta name="description" content="{{ isset($description) ? $description : __('misc.app_meta_description') }}">
+        <meta name="keywords" content="ディベート,AI,リアルタイム,オンライン,議論,教育,スキル向上">
+        <meta name="author" content="DebateMatch">
+        <link rel="canonical" href="{{ url()->current() }}">
+
+        <!-- Open Graph Tags -->
+        <meta property="og:title" content="{{ isset($title) ? $title . ' - DebateMatch' : 'DebateMatch - オンラインディベートプラットフォーム' }}">
+        <meta property="og:description" content="{{ isset($description) ? $description : __('misc.app_meta_description') }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:image" content="{{ asset('images/og-image.png') }}">
+        <meta property="og:site_name" content="DebateMatch">
+        <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+        <!-- Twitter Card Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ isset($title) ? $title . ' - DebateMatch' : 'DebateMatch - オンラインディベートプラットフォーム' }}">
+        <meta name="twitter:description" content="{{ isset($description) ? $description : __('misc.app_meta_description') }}">
+        <meta name="twitter:image" content="{{ asset('images/og-image.png') }}">
+
+        <!-- Structured Data -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "DebateMatch",
+            "description": "{{ __('misc.app_meta_description') }}",
+            "url": "{{ config('app.url') }}",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "JPY"
+            },
+            "author": {
+                "@type": "Person",
+                "name": "tkhs"
+            }
+        }
+        </script>
 
         <!-- Fonts -->
+        <!-- Favicon - Google検索結果で適切に表示されるよう複数サイズを提供 -->
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
         <link rel="icon" href="{{ asset('favicon.svg') }}" sizes="any" type="image/svg+xml">
+        <link rel="icon" href="{{ asset('favicon-48x48.png') }}" sizes="48x48" type="image/png">
+        <link rel="icon" href="{{ asset('favicon-96x96.png') }}" sizes="96x96" type="image/png">
+        <link rel="icon" href="{{ asset('favicon-144x144.png') }}" sizes="144x144" type="image/png">
+        <link rel="icon" href="{{ asset('favicon-192x192.png') }}" sizes="192x192" type="image/png">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">

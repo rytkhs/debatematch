@@ -8,7 +8,13 @@
         <meta name="description" content="{{ __('misc.app_meta_description') }}">
 
         <!-- Fonts -->
+        <!-- Favicon - Google検索結果で適切に表示されるよう複数サイズを提供 -->
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
         <link rel="icon" href="{{ asset('favicon.svg') }}" sizes="any" type="image/svg+xml">
+        <link rel="icon" href="{{ asset('favicon-48x48.png') }}" sizes="48x48" type="image/png">
+        <link rel="icon" href="{{ asset('favicon-96x96.png') }}" sizes="96x96" type="image/png">
+        <link rel="icon" href="{{ asset('favicon-144x144.png') }}" sizes="144x144" type="image/png">
+        <link rel="icon" href="{{ asset('favicon-192x192.png') }}" sizes="192x192" type="image/png">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
