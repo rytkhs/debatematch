@@ -7,7 +7,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             <!-- デモモード通知 -->
-            @isset($isDemo)
+            @if($isDemo)
                 <div class="mb-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl shadow-sm">
                     <div class="flex items-start">
                         <div class="flex-shrink-0">
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                 </div>
-            @endisset
+            @endif
 
             <!-- フィルターとコントロール -->
             @include('records.partials.filters', compact('side', 'result', 'sort', 'keyword'))
