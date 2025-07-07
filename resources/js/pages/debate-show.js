@@ -39,12 +39,14 @@ class DebateShowManager {
 
             // 各機能の初期化（エラーハンドリング付き）
             this.safeInitialize('Countdown', () => this.initializeCountdown());
-            this.safeInitialize('EventHandler', () => this.initializeEventHandler());
             this.safeInitialize('Heartbeat', () => this.initializeHeartbeat());
             this.safeInitialize('ChatScroll', () => this.initializeChatScroll());
             this.safeInitialize('UIManager', () => this.initializeUIManager());
             this.safeInitialize('AudioHandler', () => this.initializeAudioHandler());
             this.safeInitialize('InputArea', () => this.initializeInputArea());
+
+            // EventHandlerは最後に初期化（presenceチャンネルの初期化を遅延させるため）
+            this.safeInitialize('EventHandler', () => this.initializeEventHandler());
 
             // グローバル参照設定（後方互換性のため）
             this.setupGlobalReferences();
@@ -182,14 +184,28 @@ class DebateShowManager {
         // Livewire初期化後に実行
         if (window.Livewire) {
             this.initializeLivewireComponents();
+            // Livewireコンポーネントの初期化完了を通知
+            this.notifyLivewireComponentsReady();
         } else {
             document.addEventListener('livewire:initialized', () => {
                 // さらに少し遅延して確実にDOM要素が準備されるのを待つ
                 setTimeout(() => {
                     this.initializeLivewireComponents();
+                    // Livewireコンポーネントの初期化完了を通知
+                    this.notifyLivewireComponentsReady();
                 }, 500);
             });
         }
+    }
+
+    /**
+     * Livewireコンポーネントの初期化完了を通知
+     */
+    notifyLivewireComponentsReady() {
+        // カスタムイベントを発火してpresenceチャンネルの初期化を促進
+        // eslint-disable-next-line no-undef
+        const event = new CustomEvent('livewire:components-ready');
+        document.dispatchEvent(event);
     }
 
     /**
@@ -468,11 +484,25 @@ document.addEventListener('DOMContentLoaded', () => {
         globalDebateManager.cleanup();
     }
 
-    // 初期化を遅延実行
-    setTimeout(() => {
-        globalDebateManager = new DebateShowManager();
-        globalDebateManager.initialize();
-    }, 300);
+    // Pusher接続の確立を待ってから初期化
+    const initializeWhenReady = () => {
+        if (window.Echo && window.Echo.connector && window.Echo.connector.pusher) {
+            const pusher = window.Echo.connector.pusher;
+            const state = pusher.connection.state;
+
+            if (state === 'connected' || state === 'connecting') {
+                globalDebateManager = new DebateShowManager();
+                globalDebateManager.initialize();
+                return;
+            }
+        }
+
+        // Pusher接続が確立されていない場合は少し待って再試行
+        setTimeout(initializeWhenReady, 100);
+    };
+
+    // 初期化を遅延実行（Pusher接続確立後）
+    setTimeout(initializeWhenReady, 500);
 });
 
 // ページ離脱時のクリーンアップ
