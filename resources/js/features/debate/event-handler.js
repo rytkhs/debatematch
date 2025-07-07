@@ -12,13 +12,117 @@ class DebateEventHandler {
         this.debateId = debateId;
         this.presenceChannel = null;
         this.offlineTimeout = null;
-        this.initEchoListeners();
+        this.pendingInitialMembers = null;
+        this.isInitialized = false;
+        // presenceチャンネルの初期化はLivewireコンポーネントの準備完了後に実行
+        this.delayedInitialize();
+    }
+
+    /**
+     * 遅延初期化 - Pusher接続とLivewireコンポーネントの準備完了まで待機
+     */
+    delayedInitialize() {
+        // 両方の条件が満たされるまで待機
+        this.waitForInitializationConditions();
+    }
+
+    /**
+     * 初期化条件を満たすまで待機
+     */
+    waitForInitializationConditions() {
+        const checkConditions = () => {
+            const pusherReady = this.isPusherReady();
+            const livewireReady = window.Livewire && this.areLivewireComponentsReady();
+
+            this.logger.log('初期化条件チェック:', { pusherReady, livewireReady });
+
+            if (pusherReady && livewireReady) {
+                this.logger.log(
+                    'すべての初期化条件が満たされました。presenceチャンネルを初期化します。'
+                );
+                this.initEchoListeners();
+                return true;
+            }
+            return false;
+        };
+
+        // 即座にチェック
+        if (checkConditions()) {
+            return;
+        }
+
+        // Livewireコンポーネントの準備完了イベントを監視
+        document.addEventListener('livewire:components-ready', () => {
+            if (!this.isInitialized) {
+                this.logger.log('Livewireコンポーネントの準備完了イベントを受信しました。');
+                setTimeout(() => checkConditions(), 100);
+            }
+        });
+
+        // 定期的にチェック
+        const checkInterval = setInterval(() => {
+            if (checkConditions()) {
+                clearInterval(checkInterval);
+            }
+        }, 200);
+
+        // 最大15秒でタイムアウト（より長めに設定）
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            if (!this.isInitialized) {
+                this.logger.warn(
+                    '初期化条件の待機中にタイムアウトしました。強制的に初期化します。'
+                );
+                this.initEchoListeners();
+            }
+        }, 15000);
+    }
+
+    /**
+     * Pusher接続の準備状況を確認
+     */
+    isPusherReady() {
+        if (!window.Echo) {
+            return false;
+        }
+
+        // EchoのPusherインスタンスの接続状態を確認
+        const pusher = window.Echo.connector.pusher;
+        if (!pusher) {
+            return false;
+        }
+
+        // 接続状態を確認（connected または connecting でも可）
+        const state = pusher.connection.state;
+        const isReady = state === 'connected' || state === 'connecting';
+
+        this.logger.log('Pusher接続状態:', state, 'Ready:', isReady);
+        return isReady;
+    }
+
+    /**
+     * Livewireコンポーネントの準備状況を確認
+     */
+    areLivewireComponentsReady() {
+        // Participants コンポーネントの存在確認
+        const participantsElement = document.querySelector('[wire\\:id]');
+        if (!participantsElement) {
+            return false;
+        }
+
+        const componentId = participantsElement.getAttribute('wire:id');
+        const component = window.Livewire.find(componentId);
+        return component !== null;
     }
 
     /**
      * Echo リスナーを初期化
      */
     initEchoListeners() {
+        if (this.isInitialized) {
+            return;
+        }
+
         if (!window.Echo || !this.debateId) {
             this.logger.error('Echo または debateId が設定されていません');
             return;
@@ -27,27 +131,86 @@ class DebateEventHandler {
         this.presenceChannel = window.Echo.join(`debate.${this.debateId}`)
             .here(users => {
                 this.logger.log('Initial members:', users);
-                users.forEach(user => Livewire.dispatch('member-online', { data: user }));
+                this.handleInitialMembers(users);
             })
             .joining(user => {
                 this.logger.log(`${user.name} さんが再接続しました`);
                 clearTimeout(this.offlineTimeout);
-                Livewire.dispatch('member-online', { data: user });
+                this.dispatchMemberOnline(user);
             })
             .leaving(user => {
                 this.logger.log(`${user.name} さんが切断されました`);
                 clearTimeout(this.offlineTimeout);
                 this.offlineTimeout = setTimeout(() => {
-                    Livewire.dispatch('member-offline', { data: user });
+                    this.dispatchMemberOffline(user);
                 }, 3000);
             })
             .listen('DebateFinished', e => this.handleDebateFinished(e))
             .listen('DebateEvaluated', e => this.handleDebateEvaluated(e))
             .listen('DebateTerminated', e => this.handleDebateTerminated(e))
             .listen('EarlyTerminationExpired', e => this.handleEarlyTerminationExpired(e));
+
+        this.isInitialized = true;
     }
 
-    handleDebateFinished(event) {
+    /**
+     * 初期メンバーを処理
+     */
+    handleInitialMembers(users) {
+        if (this.areLivewireComponentsReady()) {
+            users.forEach(user => this.dispatchMemberOnline(user));
+        } else {
+            // Livewireコンポーネントが準備されていない場合は一時保存
+            this.pendingInitialMembers = users;
+            this.waitForLivewireAndProcessInitialMembers();
+        }
+    }
+
+    /**
+     * Livewireコンポーネントの準備完了を待って初期メンバーを処理
+     */
+    waitForLivewireAndProcessInitialMembers() {
+        const checkInterval = setInterval(() => {
+            if (this.areLivewireComponentsReady()) {
+                clearInterval(checkInterval);
+                if (this.pendingInitialMembers) {
+                    this.pendingInitialMembers.forEach(user => this.dispatchMemberOnline(user));
+                    this.pendingInitialMembers = null;
+                }
+            }
+        }, 100);
+
+        // 最大5秒でタイムアウト
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            if (this.pendingInitialMembers) {
+                this.logger.warn(
+                    'Livewireコンポーネントの準備完了を待機中にタイムアウトしました。初期メンバーを破棄します。'
+                );
+                this.pendingInitialMembers = null;
+            }
+        }, 5000);
+    }
+
+    /**
+     * member-onlineイベントを確実に送信
+     */
+    dispatchMemberOnline(user) {
+        if (window.Livewire) {
+            Livewire.dispatch('member-online', { data: user });
+        }
+    }
+
+    /**
+     * member-offlineイベントを確実に送信
+     */
+    dispatchMemberOffline(user) {
+        if (window.Livewire) {
+            Livewire.dispatch('member-offline', { data: user });
+        }
+    }
+
+    handleDebateFinished() {
         showNotification({
             title: window.translations?.debate_finished_title || 'ディベートが終了しました',
             message:
@@ -59,7 +222,7 @@ class DebateEventHandler {
         this.showFinishedOverlay();
     }
 
-    handleDebateEvaluated(event) {
+    handleDebateEvaluated() {
         showNotification({
             title: window.translations?.evaluation_complete_title || 'ディベート評価が完了しました',
             message: window.translations?.redirecting_to_results || '結果ページへ移動します',
@@ -72,7 +235,7 @@ class DebateEventHandler {
         }, 2000);
     }
 
-    handleDebateTerminated(event) {
+    handleDebateTerminated() {
         setTimeout(() => {
             alert(
                 window.translations?.host_left_terminated ||
@@ -82,7 +245,7 @@ class DebateEventHandler {
         }, 2000);
     }
 
-    handleEarlyTerminationExpired(event) {
+    handleEarlyTerminationExpired() {
         showNotification({
             title:
                 window.translations?.early_termination_expired_notification ||
