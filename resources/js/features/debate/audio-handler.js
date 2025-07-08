@@ -9,6 +9,7 @@ class AudioHandler {
         this.logger = new Logger('AudioHandler');
         this.debateData = debateData;
         this.userInteracted = false;
+        this.interactionListeners = [];
     }
 
     /**
@@ -31,9 +32,12 @@ class AudioHandler {
      * ユーザーインタラクションリスナーを設定
      */
     setupUserInteractionListeners() {
-        // ユーザーインタラクションイベントをリッスン
+        const activate = () => this.activateAudio();
+
         ['click', 'touchstart', 'keydown'].forEach(eventType => {
-            document.addEventListener(eventType, () => this.activateAudio(), { once: false });
+            document.addEventListener(eventType, activate, { once: true });
+            // リスナーを保存して後で削除できるようにする
+            this.interactionListeners.push({ type: eventType, handler: activate });
         });
     }
 
@@ -94,6 +98,27 @@ class AudioHandler {
                     .catch(e => this.logger.log('オーディオのアクティブ化に失敗:', e));
             }
         }
+    }
+
+    /**
+     * リソースをクリーンアップ
+     */
+    cleanup() {
+        if (this.debateData && window.Echo) {
+            const { debateId } = this.debateData;
+            window.Echo.private(`debate.${debateId}`)
+                .stopListening('DebateMessageSent')
+                .stopListening('TurnAdvanced');
+            this.logger.log(`Echo listeners for debate ${debateId} removed.`);
+        }
+
+        // 登録したインタラクションリスナーを削除
+        this.interactionListeners.forEach(listener => {
+            document.removeEventListener(listener.type, listener.handler);
+        });
+        this.interactionListeners = []; // 配列をクリア
+
+        this.logger.log('Audio handler cleaned up.');
     }
 }
 

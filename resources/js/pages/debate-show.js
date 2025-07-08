@@ -12,11 +12,18 @@ import HeartbeatService from '../services/heartbeat.js';
  * すべてのディベート関連機能を初期化・統合管理
  */
 class DebateShowManager {
-    constructor() {
+    constructor(debateData) {
         this.managers = {};
         this.isInitialized = false;
         this.initializationTimeout = null;
         this.heartbeatService = null;
+        this.turnAdvancedListener = null;
+        this.debateData = debateData;
+
+        // --- Livewireリスナーオブジェクトの防御的初期化 ---
+        if (window.Livewire && typeof window.Livewire.listeners === 'undefined') {
+            window.Livewire.listeners = {};
+        }
     }
 
     /**
@@ -27,8 +34,8 @@ class DebateShowManager {
 
         try {
             // デバッグデータの確認
-            if (typeof window.debateData === 'undefined') {
-                console.error('window.debateData is not available');
+            if (typeof this.debateData === 'undefined') {
+                console.error('this.debateData is not available');
                 return;
             }
 
@@ -90,7 +97,7 @@ class DebateShowManager {
      * イベントハンドラーを初期化
      */
     initializeEventHandler() {
-        this.managers.eventHandler = new DebateEventHandler(window.debateData.debateId);
+        this.managers.eventHandler = new DebateEventHandler(this.debateData.debateId);
     }
 
     /**
@@ -99,7 +106,7 @@ class DebateShowManager {
     initializeHeartbeat() {
         this.heartbeatService = new HeartbeatService({
             contextType: 'debate',
-            contextId: window.debateData.debateId,
+            contextId: this.debateData.debateId,
         });
         setTimeout(() => this.heartbeatService.start(), 30000);
     }
@@ -124,7 +131,7 @@ class DebateShowManager {
      * オーディオハンドラーを初期化
      */
     initializeAudioHandler() {
-        this.managers.audioHandler = new AudioHandler(window.debateData);
+        this.managers.audioHandler = new AudioHandler(this.debateData);
         this.managers.audioHandler.initialize();
     }
 
@@ -158,21 +165,32 @@ class DebateShowManager {
         window.debateCountdown = this.managers.countdownManager;
         window.debateShowManager = this;
 
-        // カウントダウンをグローバルエクスポート
-        if (this.managers.countdownManager) {
-            // Livewire初期化後のイベント設定も維持
-            document.addEventListener('livewire:initialized', () => {
-                if (window.Livewire) {
-                    window.Livewire.on('turn-advanced', data => {
-                        if (data.turnEndTime) {
-                            this.managers.countdownManager.start(data.turnEndTime);
-                        } else {
-                            this.managers.countdownManager.stop();
-                        }
-                    });
-                }
-            });
+        // Livewireイベントリスナーを登録
+        this.setupLivewireEventListeners();
+    }
+
+    /**
+     * Livewireイベントリスナーを設定
+     */
+    setupLivewireEventListeners() {
+        if (!window.Livewire) return;
+
+        // 既存のリスナーがあれば念のため削除（重複登録防止）
+        if (this.turnAdvancedListener) {
+            // Note: Livewire v3 does not have a public `off` method.
+            // This assumes we manage the listener instance.
         }
+
+        this.turnAdvancedListener = data => {
+            if (!this.managers.countdownManager) return;
+            if (data.turnEndTime) {
+                this.managers.countdownManager.start(data.turnEndTime);
+            } else {
+                this.managers.countdownManager.stop();
+            }
+        };
+
+        window.Livewire.on('turn-advanced', this.turnAdvancedListener);
     }
 
     /**
@@ -190,6 +208,23 @@ class DebateShowManager {
                 }, 500);
             });
         }
+
+        // Livewireイベントリスナーをクリーンアップ
+        if (window.Livewire && window.Livewire.listeners && this.turnAdvancedListener) {
+            // This is a workaround as Livewire lacks a public `off` method.
+            // A better solution would be to check a flag inside the listener.
+            // For now, we nullify the reference to prevent calls on old instances.
+            const listeners = window.Livewire.listeners['turn-advanced'];
+            if (listeners) {
+                const index = listeners.indexOf(this.turnAdvancedListener);
+                if (index > -1) {
+                    listeners.splice(index, 1);
+                }
+            }
+            this.turnAdvancedListener = null;
+        }
+
+        this.isInitialized = false;
     }
 
     /**
@@ -379,7 +414,7 @@ class DebateShowManager {
                 document.querySelector('[data-ai-debate="true"]') !== null ||
                 document.querySelector('.ai-debate-indicator') !== null ||
                 document.body.dataset.aiDebate === 'true' ||
-                window.debateData?.isAiDebate;
+                this.debateData?.isAiDebate;
 
             const message = isAiDebate
                 ? 'ディベートを早期終了しますか？'
@@ -454,46 +489,48 @@ class DebateShowManager {
             delete window.confirmEarlyTermination;
         }
 
+        // Livewireイベントリスナーをクリーンアップ
+        if (window.Livewire && window.Livewire.listeners && this.turnAdvancedListener) {
+            const listeners = window.Livewire.listeners['turn-advanced'];
+            if (listeners) {
+                const index = listeners.indexOf(this.turnAdvancedListener);
+                if (index > -1) {
+                    listeners.splice(index, 1);
+                }
+            }
+            this.turnAdvancedListener = null;
+        }
+
         this.isInitialized = false;
     }
 }
 
-// グローバルマネージャーインスタンス
-let globalDebateManager = null;
+// --- NEW INITIALIZATION LOGIC ---
+let debateManager = null;
 
-// DOMContentLoaded または Livewire初期化完了後に自動初期化
-document.addEventListener('DOMContentLoaded', () => {
-    // 既存のマネージャーがある場合はクリーンアップ
-    if (globalDebateManager) {
-        globalDebateManager.cleanup();
+window.initializeDebatePage = data => {
+    // If a manager instance exists, clean it up first.
+    if (debateManager) {
+        debateManager.cleanup();
     }
 
-    // 初期化を遅延実行
-    setTimeout(() => {
-        globalDebateManager = new DebateShowManager();
-        globalDebateManager.initialize();
-    }, 300);
-});
+    // Create and initialize a new manager instance.
+    // Pass the entire data object from x-init.
+    debateManager = new DebateShowManager(data);
+    debateManager.initialize();
+};
 
-// ページ離脱時のクリーンアップ
-window.addEventListener('beforeunload', () => {
-    if (globalDebateManager) {
-        globalDebateManager.cleanup();
+window.cleanupDebatePage = () => {
+    if (debateManager) {
+        debateManager.cleanup();
+        debateManager = null;
     }
-});
+};
 
-// Livewire初期化時の再初期化
-document.addEventListener('livewire:initialized', () => {
-    // Livewireが初期化された場合、マネージャーが未初期化なら初期化
-    if (!globalDebateManager || !globalDebateManager.isInitialized) {
-        setTimeout(() => {
-            if (!globalDebateManager) {
-                globalDebateManager = new DebateShowManager();
-            }
-            if (!globalDebateManager.isInitialized) {
-                globalDebateManager.initialize();
-            }
-        }, 500);
+// Add a listener to clean up before Livewire navigates away
+document.addEventListener('livewire:navigating', () => {
+    if (window.cleanupDebatePage) {
+        window.cleanupDebatePage();
     }
 });
 
