@@ -89,6 +89,9 @@
 
     <!-- ターン終了ボタン -->
     <div class="mt-auto">
+        <!-- 早期終了コンポーネント -->
+        {{-- <livewire:debates.early-termination :debate="$debate" /> --}}
+
         @if($isMyTurn)
         <button wire:click="advanceTurnManually"
             wire:confirm="{{ __('debates_ui.confirm_end_turn', ['currentTurnName' => $currentTurnName, 'nextTurnName' => $nextTurnName]) }}"
