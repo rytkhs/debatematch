@@ -208,23 +208,6 @@ class DebateShowManager {
                 }, 500);
             });
         }
-
-        // Livewireイベントリスナーをクリーンアップ
-        if (window.Livewire && window.Livewire.listeners && this.turnAdvancedListener) {
-            // This is a workaround as Livewire lacks a public `off` method.
-            // A better solution would be to check a flag inside the listener.
-            // For now, we nullify the reference to prevent calls on old instances.
-            const listeners = window.Livewire.listeners['turn-advanced'];
-            if (listeners) {
-                const index = listeners.indexOf(this.turnAdvancedListener);
-                if (index > -1) {
-                    listeners.splice(index, 1);
-                }
-            }
-            this.turnAdvancedListener = null;
-        }
-
-        this.isInitialized = false;
     }
 
     /**
