@@ -89,8 +89,6 @@
 
     <!-- ターン終了ボタン -->
     <div class="mt-auto">
-        <!-- 早期終了コンポーネント -->
-        {{-- <livewire:debates.early-termination :debate="$debate" /> --}}
 
         @if($isMyTurn)
         <button wire:click="advanceTurnManually"

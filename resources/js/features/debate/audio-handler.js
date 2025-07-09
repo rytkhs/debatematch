@@ -10,6 +10,7 @@ class AudioHandler {
         this.debateData = debateData;
         this.userInteracted = false;
         this.interactionListeners = [];
+        this.debateChannel = null;
     }
 
     /**
@@ -50,15 +51,18 @@ class AudioHandler {
             return;
         }
 
+        // チャンネル参照を保存してクリーンアップ時に使用
+        this.debateChannel = window.Echo.private(`debate.${debateId}`);
+
         // 通知音機能の実装 - メッセージ受信時
-        window.Echo.private(`debate.${debateId}`).listen('DebateMessageSent', () => {
+        this.debateChannel.listen('DebateMessageSent', () => {
             if (this.userInteracted) {
                 this.playNotificationSound('messageNotification');
             }
         });
 
         // ターン変更時には別の通知音を鳴らす
-        window.Echo.private(`debate.${debateId}`).listen('TurnAdvanced', () => {
+        this.debateChannel.listen('TurnAdvanced', () => {
             if (this.userInteracted) {
                 this.playNotificationSound('turnAdvancedNotification');
             }
@@ -104,12 +108,19 @@ class AudioHandler {
      * リソースをクリーンアップ
      */
     cleanup() {
-        if (this.debateData && window.Echo) {
-            const { debateId } = this.debateData;
-            window.Echo.private(`debate.${debateId}`)
+        // 保存されたチャンネル参照を使用してリスナーを削除
+        if (this.debateChannel) {
+            this.debateChannel
                 .stopListening('DebateMessageSent')
                 .stopListening('TurnAdvanced');
-            this.logger.log(`Echo listeners for debate ${debateId} removed.`);
+            this.logger.log(`Echo listeners for debate channel removed.`);
+        }
+
+        // または window.Echo.leave() を使用してチャンネル全体を離脱
+        if (this.debateData && window.Echo) {
+            const { debateId } = this.debateData;
+            window.Echo.leave(`private-debate.${debateId}`);
+            this.logger.log(`Left debate channel: debate.${debateId}`);
         }
 
         // 登録したインタラクションリスナーを削除
