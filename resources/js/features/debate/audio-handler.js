@@ -108,19 +108,13 @@ class AudioHandler {
      * リソースをクリーンアップ
      */
     cleanup() {
-        // 保存されたチャンネル参照を使用してリスナーを削除
+        // Echoチャンネルのクリーンアップ
         if (this.debateChannel) {
             this.debateChannel
                 .stopListening('DebateMessageSent')
                 .stopListening('TurnAdvanced');
-            this.logger.log(`Echo listeners for debate channel removed.`);
-        }
-
-        // または window.Echo.leave() を使用してチャンネル全体を離脱
-        if (this.debateData && window.Echo) {
-            const { debateId } = this.debateData;
-            window.Echo.leave(`private-debate.${debateId}`);
-            this.logger.log(`Left debate channel: debate.${debateId}`);
+            this.debateChannel = null;
+            this.logger.log(`Echo listeners removed from debate channel.`);
         }
 
         // 登録したインタラクションリスナーを削除
