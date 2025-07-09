@@ -18,12 +18,8 @@ class DebateShowManager {
         this.initializationTimeout = null;
         this.heartbeatService = null;
         this.turnAdvancedListener = null;
+        this.turnAdvancedCleanup = null;
         this.debateData = debateData;
-
-        // --- Livewireリスナーオブジェクトの防御的初期化 ---
-        if (window.Livewire && typeof window.Livewire.listeners === 'undefined') {
-            window.Livewire.listeners = {};
-        }
     }
 
     /**
@@ -175,10 +171,10 @@ class DebateShowManager {
     setupLivewireEventListeners() {
         if (!window.Livewire) return;
 
-        // 既存のリスナーがあれば念のため削除（重複登録防止）
-        if (this.turnAdvancedListener) {
-            // Note: Livewire v3 does not have a public `off` method.
-            // This assumes we manage the listener instance.
+        // 既存のリスナーがあれば適切にクリーンアップ（重複登録防止）
+        if (this.turnAdvancedCleanup) {
+            this.turnAdvancedCleanup();
+            this.turnAdvancedCleanup = null;
         }
 
         this.turnAdvancedListener = data => {
@@ -190,7 +186,8 @@ class DebateShowManager {
             }
         };
 
-        window.Livewire.on('turn-advanced', this.turnAdvancedListener);
+        // Livewire.on()のクリーンアップ関数を保存
+        this.turnAdvancedCleanup = window.Livewire.on('turn-advanced', this.turnAdvancedListener);
     }
 
     /**
@@ -473,16 +470,11 @@ class DebateShowManager {
         }
 
         // Livewireイベントリスナーをクリーンアップ
-        if (window.Livewire && window.Livewire.listeners && this.turnAdvancedListener) {
-            const listeners = window.Livewire.listeners['turn-advanced'];
-            if (listeners) {
-                const index = listeners.indexOf(this.turnAdvancedListener);
-                if (index > -1) {
-                    listeners.splice(index, 1);
-                }
-            }
-            this.turnAdvancedListener = null;
+        if (this.turnAdvancedCleanup) {
+            this.turnAdvancedCleanup();
+            this.turnAdvancedCleanup = null;
         }
+        this.turnAdvancedListener = null;
 
         this.isInitialized = false;
     }
