@@ -9,6 +9,8 @@ class AudioHandler {
         this.logger = new Logger('AudioHandler');
         this.debateData = debateData;
         this.userInteracted = false;
+        this.interactionListeners = [];
+        this.debateChannel = null;
     }
 
     /**
@@ -31,9 +33,12 @@ class AudioHandler {
      * ユーザーインタラクションリスナーを設定
      */
     setupUserInteractionListeners() {
-        // ユーザーインタラクションイベントをリッスン
+        const activate = () => this.activateAudio();
+
         ['click', 'touchstart', 'keydown'].forEach(eventType => {
-            document.addEventListener(eventType, () => this.activateAudio(), { once: false });
+            document.addEventListener(eventType, activate, { once: true });
+            // リスナーを保存して後で削除できるようにする
+            this.interactionListeners.push({ type: eventType, handler: activate });
         });
     }
 
@@ -46,15 +51,18 @@ class AudioHandler {
             return;
         }
 
+        // チャンネル参照を保存してクリーンアップ時に使用
+        this.debateChannel = window.Echo.private(`debate.${debateId}`);
+
         // 通知音機能の実装 - メッセージ受信時
-        window.Echo.private(`debate.${debateId}`).listen('DebateMessageSent', () => {
+        this.debateChannel.listen('DebateMessageSent', () => {
             if (this.userInteracted) {
                 this.playNotificationSound('messageNotification');
             }
         });
 
         // ターン変更時には別の通知音を鳴らす
-        window.Echo.private(`debate.${debateId}`).listen('TurnAdvanced', () => {
+        this.debateChannel.listen('TurnAdvanced', () => {
             if (this.userInteracted) {
                 this.playNotificationSound('turnAdvancedNotification');
             }
@@ -94,6 +102,28 @@ class AudioHandler {
                     .catch(e => this.logger.log('オーディオのアクティブ化に失敗:', e));
             }
         }
+    }
+
+    /**
+     * リソースをクリーンアップ
+     */
+    cleanup() {
+        // Echoチャンネルのクリーンアップ
+        if (this.debateChannel) {
+            this.debateChannel
+                .stopListening('DebateMessageSent')
+                .stopListening('TurnAdvanced');
+            this.debateChannel = null;
+            this.logger.log(`Echo listeners removed from debate channel.`);
+        }
+
+        // 登録したインタラクションリスナーを削除
+        this.interactionListeners.forEach(listener => {
+            document.removeEventListener(listener.type, listener.handler);
+        });
+        this.interactionListeners = []; // 配列をクリア
+
+        this.logger.log('Audio handler cleaned up.');
     }
 }
 

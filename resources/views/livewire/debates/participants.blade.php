@@ -89,6 +89,7 @@
 
     <!-- ターン終了ボタン -->
     <div class="mt-auto">
+
         @if($isMyTurn)
         <button wire:click="advanceTurnManually"
             wire:confirm="{{ __('debates_ui.confirm_end_turn', ['currentTurnName' => $currentTurnName, 'nextTurnName' => $nextTurnName]) }}"
