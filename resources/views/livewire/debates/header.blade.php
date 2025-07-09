@@ -1,7 +1,7 @@
 <header
     class="flex-none bg-white border-b border-gray-200 p-4 shadow-sm z-30"
     x-data
-    x-init="initializeDebatePage({ debateId: {{ $debate->id }} })"
+    x-init="initializeDebatePage({ debateId: {{ $debate->id }}, isAiDebate: {{ $debate->room->is_ai_debate ? 'true' : 'false' }} })"
 >
     <div class="flex justify-between items-center">
         <!-- 左側: ディベート情報 -->
