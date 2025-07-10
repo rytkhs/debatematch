@@ -52,7 +52,7 @@ class AudioHandler {
         }
 
         // チャンネル参照を保存してクリーンアップ時に使用
-        this.debateChannel = window.Echo.private(`debate.${debateId}`);
+        this.debateChannel = window.Echo.join(`debate.${debateId}`);
 
         // 通知音機能の実装 - メッセージ受信時
         this.debateChannel.listen('DebateMessageSent', () => {
@@ -110,9 +110,8 @@ class AudioHandler {
     cleanup() {
         // Echoチャンネルのクリーンアップ
         if (this.debateChannel) {
-            this.debateChannel
-                .stopListening('DebateMessageSent')
-                .stopListening('TurnAdvanced');
+            this.debateChannel.stopListening('DebateMessageSent').stopListening('TurnAdvanced');
+            this.debateChannel.leave();
             this.debateChannel = null;
             this.logger.log(`Echo listeners removed from debate channel.`);
         }
