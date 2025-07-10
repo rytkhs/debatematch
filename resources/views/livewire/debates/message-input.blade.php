@@ -64,6 +64,7 @@
             <textarea
                 id="message-input"
                 wire:model.live="newMessage"
+                wire:ignore.self
                 placeholder="{{ ($isMyTurn || $isQuestioningTurn) && !$isPrepTime ? __('debates_ui.enter_message_placeholder') : __('debates_ui.cannot_send_message_now') }}"
                 class="flex-1 border rounded-lg px-4 py-2 focus:ring-primary focus:border-primary resize-none overflow-y-auto bg-white disabled:bg-gray-100"
                 maxlength="5000"

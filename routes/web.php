@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\ConnectionAnalyticsController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\AIDebateController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Broadcast;
 
 // 基本ルート
@@ -38,6 +39,9 @@ Route::middleware([CheckUserActiveStatus::class])->group(function () {
 
     // お問い合わせページ
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+    
+    // サイトマップ
+    Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 });
 
 Route::get('/dashboard', function () {
