@@ -9,6 +9,7 @@ return [
     'reset_password' => 'パスワードをリセット',
     'verify_email_message' => '登録ありがとうございます！始める前に、メールでお送りしたリンクをクリックしてメールアドレスを確認していただけますか？メールが届かない場合は、再送いたします。',
     'verification_link_sent' => '新しい確認リンクが、登録時に提供されたメールアドレスに送信されました。',
+    'verification_email_delay_notice' => '認証メールの到着には数分かかる場合があります。迷惑メールフォルダもご確認ください。',
     'resend_verification_email' => '確認メールを再送',
     'login_with_google' => 'Googleアカウントでログイン',
     'login_with_x' => 'Xアカウントでログイン',

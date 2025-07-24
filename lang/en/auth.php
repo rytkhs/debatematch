@@ -9,6 +9,7 @@ return [
     'reset_password' => 'Reset Password',
     'verify_email_message' => 'Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.',
     'verification_link_sent' => 'A new verification link has been sent to the email address you provided during registration.',
+    'verification_email_delay_notice' => 'Verification emails may take a few minutes to arrive. Please also check your spam folder.',
     'resend_verification_email' => 'Resend Verification Email',
     'login_with_google' => 'Login with Google',
     'login_with_x' => 'Login with X',
