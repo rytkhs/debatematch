@@ -12,7 +12,7 @@ return [
     'close' => 'Close',
     'create' => 'Create',
     'update' => 'Update',
-    'name' => 'Name',
+    'name' => 'Username',
     'email' => 'Email',
     'password' => 'Password',
     'confirm_password' => 'Confirm Password',
