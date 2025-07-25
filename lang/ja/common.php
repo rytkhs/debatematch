@@ -28,4 +28,5 @@ return [
     'field_required' => '必須項目です',
     'view_guide' => 'ガイドを見る',
     'error' => 'エラーが発生しました。',
+    'security_tips' => 'セキュリティのヒント',
 ];

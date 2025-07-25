@@ -23,4 +23,18 @@ return [
     'otp_rate_limited' => 'リクエストが制限に達しました。:minutes分後に再度お試しください。',
     'otp_invalid' => '認証コードが無効です。',
     'otp_max_failures_reached' => '失敗回数が制限に達しました。新しい認証コードをリクエストしてください。',
+    
+    // OTPメール通知
+    'otp_verification_subject' => 'メールアドレス認証コード',
+    'otp_verification_greeting' => 'こんにちは！',
+    'otp_verification_message' => 'メールアドレスの認証には、以下の認証コードをご使用ください：',
+    'otp_sent_to_email' => 'このコードは次のメールアドレスに送信されました: :email',
+    'otp_code_display' => '認証コード: **:code**',
+    'otp_expiry_message' => 'このコードは10分後に有効期限が切れます。',
+    'otp_security_notice' => 'この認証コードをリクエストしていない場合は、このメールを無視してください。',
+    'otp_security_reminder' => 'セキュリティのため、このコードを他の人と共有しないでください。',
+    'otp_single_use' => 'このコードは一度のみ使用できます。',
+    'otp_no_sharing' => '電話、メール、テキストでこのコードを共有しないでください。',
+    'otp_email_footer' => 'このメールは:appからアカウント認証のために送信されました。',
+    'otp_no_reply' => 'これは自動送信メールです。このメールには返信しないでください。',
 ];

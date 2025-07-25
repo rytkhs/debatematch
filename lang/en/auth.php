@@ -23,4 +23,18 @@ return [
     'otp_rate_limited' => 'Too many requests. Please wait :minutes minutes before requesting again.',
     'otp_invalid' => 'The verification code is invalid.',
     'otp_max_failures_reached' => 'Too many failed attempts. Please request a new verification code.',
+    
+    // OTP Email notifications
+    'otp_verification_subject' => 'Email Verification Code',
+    'otp_verification_greeting' => 'Hello!',
+    'otp_verification_message' => 'Please use the following verification code to verify your email address:',
+    'otp_sent_to_email' => 'This code has been sent to: :email',
+    'otp_code_display' => 'Verification Code: **:code**',
+    'otp_expiry_message' => 'This code will expire in 10 minutes.',
+    'otp_security_notice' => 'If you did not request this verification code, please ignore this email.',
+    'otp_security_reminder' => 'For your security, never share this code with anyone.',
+    'otp_single_use' => 'This code can only be used once.',
+    'otp_no_sharing' => 'Never share this code via phone, email, or text.',
+    'otp_email_footer' => 'This email was sent by :app for account verification purposes.',
+    'otp_no_reply' => 'This is an automated message. Please do not reply to this email.',
 ];

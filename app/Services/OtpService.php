@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\OtpServiceInterface;
+use App\Notifications\SendOtpNotification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -202,5 +203,28 @@ class OtpService implements OtpServiceInterface
     {
         $cacheKey = sprintf(self::CACHE_KEY_OTP, $email);
         return Cache::has($cacheKey);
+    }
+
+    /**
+     * OTPを生成、保存し、ユーザーにメール通知を送信
+     */
+    public function sendOtp(object $user): void
+    {
+        // 既存のOTPを無効化
+        $this->invalidate($user->email);
+        
+        // 新しいOTPを生成
+        $otp = $this->generate($user->email);
+        
+        // OTPを保存
+        $this->store($user->email, $otp);
+        
+        // レート制限カウンターをインクリメント
+        $this->incrementRateLimit($user->email);
+        
+        // OTP通知をユーザーに送信
+        $user->notify(new SendOtpNotification($otp));
+        
+        Log::info('OTP sent to user', ['email' => $user->email]);
     }
 }
