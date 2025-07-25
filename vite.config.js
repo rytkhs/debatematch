@@ -17,6 +17,7 @@ export default defineConfig({
                 'resources/js/pages/records-show.js',
             ],
             refresh: true,
+            base: '/',
         }),
     ],
 });

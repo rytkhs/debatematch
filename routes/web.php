@@ -39,7 +39,7 @@ Route::middleware([CheckUserActiveStatus::class])->group(function () {
 
     // お問い合わせページ
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
-    
+
     // サイトマップ
     Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 });

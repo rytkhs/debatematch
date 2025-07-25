@@ -137,11 +137,6 @@
                                 <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
                                 <span class="text-xs font-medium text-gray-600 tracking-wide">{{ __('debates_ui.next_turn_info') }}</span>
                             </div>
-                            {{-- @if($nextSpeaker)
-                                <span class="px-2 py-1 {{ $nextSpeaker === 'affirmative' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200' }} rounded-full text-xs font-medium">
-                                    {{ $nextSpeaker === 'affirmative' ? __('debates_ui.affirmative_side_label') : __('debates_ui.negative_side_label') }}
-                                </span>
-                            @endif --}}
                         </div>
                         <div class="text-right">
                             <span class=" text-black-500 px-3 py-1 rounded-full text-xs font-normal ">
