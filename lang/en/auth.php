@@ -16,4 +16,11 @@ return [
     'agree_terms_privacy' => 'By proceeding, you agree to our terms and privacy.',
     'create_account' => 'Create Account',
     'google_login_failed' => 'Google login failed. Please try again.',
+    
+    // OTP-related translations
+    'otp_error' => 'OTP operation failed.',
+    'otp_expired' => 'The verification code has expired. Please request a new one.',
+    'otp_rate_limited' => 'Too many requests. Please wait :minutes minutes before requesting again.',
+    'otp_invalid' => 'The verification code is invalid.',
+    'otp_max_failures_reached' => 'Too many failed attempts. Please request a new verification code.',
 ];

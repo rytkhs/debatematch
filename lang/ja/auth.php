@@ -16,4 +16,11 @@ return [
     'agree_terms_privacy' => '利用規約とプライバシーポリシーに同意して続行します。',
     'create_account' => 'アカウント作成',
     'google_login_failed' => 'Googleログインに失敗しました。再度お試しください。',
+    
+    // OTP関連の翻訳
+    'otp_error' => 'OTP操作に失敗しました。',
+    'otp_expired' => '認証コードの有効期限が切れました。新しいコードをリクエストしてください。',
+    'otp_rate_limited' => 'リクエストが制限に達しました。:minutes分後に再度お試しください。',
+    'otp_invalid' => '認証コードが無効です。',
+    'otp_max_failures_reached' => '失敗回数が制限に達しました。新しい認証コードをリクエストしてください。',
 ];
