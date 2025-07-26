@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Contracts\OtpServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Services\SlackNotifier;
 use App\Models\User;
@@ -16,8 +17,10 @@ use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
-    public function __construct(private SlackNotifier $slackNotifier)
-    {
+    public function __construct(
+        private SlackNotifier $slackNotifier,
+        private OtpServiceInterface $otpService
+    ) {
         //
     }
 
@@ -50,15 +53,23 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        Auth::login($user);
+
+        // OTPを生成して送信
+        try {
+            $this->otpService->sendOtp($user);
+            Log::info('ユーザー登録後にOTPを送信しました', ['email' => $user->email]);
+        } catch (\Exception $e) {
+            Log::error('ユーザー登録後のOTP送信に失敗しました', [
+                'email' => $user->email,
+                'error' => $e->getMessage()
+            ]);
+        }
+
         // 新規ユーザー登録通知を送信
         $message = "新規ユーザー登録がありました。\n"
             . "名前: {$user->name}\n";
 
-        // 通知を送信（メール）
-        // $result = $this->snsController->sendNotification(
-        //     $message,
-        //     "【DebateMatch】新規ユーザー登録"
-        // );
         $result = $this->slackNotifier->send($message);
 
         if ($result) {
@@ -66,8 +77,6 @@ class RegisteredUserController extends Controller
         } else {
             Log::warning("通知の送信に失敗しました。 User ID: {$user->id}");
         }
-
-        Auth::login($user);
 
         return redirect(route('verification.notice', absolute: false));
     }

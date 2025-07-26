@@ -69,7 +69,7 @@ class OtpVerificationController extends Controller
                 'email' => $user->email,
             ]);
 
-            return redirect()->intended(route('dashboard', absolute: false) . '?verified=1')
+            return redirect()->intended(route('welcome', absolute: false) . '?verified=1')
                 ->with('status', 'email-verified');
         } catch (OtpExpiredException $e) {
             Log::info('検証中にOTPの有効期限が切れました', [

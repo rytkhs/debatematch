@@ -16,7 +16,7 @@ class OtpVerificationPromptController extends Controller
     {
         // ユーザーが既に認証済みの場合、ダッシュボードにリダイレクトする
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->intended(route('welcome', absolute: false));
         }
 
         // 表示のためにメールアドレスをマスクする
