@@ -24,6 +24,9 @@ return [
     'otp_invalid' => '認証コードが無効です。',
     'otp_invalid_format' => '認証コードは6桁の数字である必要があります。',
     'otp_max_failures_reached' => '失敗回数が制限に達しました。新しい認証コードをリクエストしてください。',
+    'otp_too_many_failures' => '失敗回数が制限に達しました。新しい認証コードをリクエストしてください。',
+    'otp_verification_error' => '認証中にエラーが発生しました。再度お試しください。',
+    'otp_resend_error' => '認証コードの再送信に失敗しました。再度お試しください。',
     'otp_code_label' => '認証コード',
     
     // OTPメール通知

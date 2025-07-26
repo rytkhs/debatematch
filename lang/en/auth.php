@@ -24,6 +24,9 @@ return [
     'otp_invalid' => 'The verification code is invalid.',
     'otp_invalid_format' => 'The verification code must be exactly 6 digits.',
     'otp_max_failures_reached' => 'Too many failed attempts. Please request a new verification code.',
+    'otp_too_many_failures' => 'Too many failed attempts. Please request a new verification code.',
+    'otp_verification_error' => 'An error occurred during verification. Please try again.',
+    'otp_resend_error' => 'Failed to resend verification code. Please try again.',
     'otp_code_label' => 'Verification Code',
     
     // OTP Email notifications
