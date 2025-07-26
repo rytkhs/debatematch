@@ -22,7 +22,9 @@ return [
     'otp_expired' => '認証コードの有効期限が切れました。新しいコードをリクエストしてください。',
     'otp_rate_limited' => 'リクエストが制限に達しました。:minutes分後に再度お試しください。',
     'otp_invalid' => '認証コードが無効です。',
+    'otp_invalid_format' => '認証コードは6桁の数字である必要があります。',
     'otp_max_failures_reached' => '失敗回数が制限に達しました。新しい認証コードをリクエストしてください。',
+    'otp_code_label' => '認証コード',
     
     // OTPメール通知
     'otp_verification_subject' => 'メールアドレス認証コード',

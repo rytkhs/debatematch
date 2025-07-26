@@ -22,7 +22,9 @@ return [
     'otp_expired' => 'The verification code has expired. Please request a new one.',
     'otp_rate_limited' => 'Too many requests. Please wait :minutes minutes before requesting again.',
     'otp_invalid' => 'The verification code is invalid.',
+    'otp_invalid_format' => 'The verification code must be exactly 6 digits.',
     'otp_max_failures_reached' => 'Too many failed attempts. Please request a new verification code.',
+    'otp_code_label' => 'Verification Code',
     
     // OTP Email notifications
     'otp_verification_subject' => 'Email Verification Code',
