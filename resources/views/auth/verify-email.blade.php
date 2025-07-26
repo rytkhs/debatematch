@@ -16,7 +16,7 @@
                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
             </svg>
             <p class="text-sm text-blue-800 dark:text-blue-200">
-                {{ __('auth.otp_sent_to', ['email' => substr(auth()->user()->email, 0, 3) . '***@' . substr(strrchr(auth()->user()->email, '@'), 1)]) }}
+                {{ __('auth.otp_sent_to', ['email' => $maskedEmail]) }}
             </p>
         </div>
     </div>
@@ -57,7 +57,7 @@
     @endif
 
     <!-- OTP Verification Form -->
-    <form method="POST" action="{{ route('otp.verify') }}" class="mb-6">
+    <form method="POST" action="{{ route('verification.verify') }}" class="mb-6">
         @csrf
 
         <div class="mb-4">
@@ -90,7 +90,7 @@
 
     <!-- Resend and Logout buttons -->
     <div class="flex items-center justify-between">
-        <form method="POST" action="{{ route('otp.resend') }}">
+        <form method="POST" action="{{ route('verification.send') }}">
             @csrf
             <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                 {{ __('auth.otp_resend_button') }}
@@ -105,7 +105,5 @@
         </form>
     </div>
 
-    @push('scripts')
-        @vite('resources/js/pages/otp-verify.js')
-    @endpush
+
 </x-guest-layout>

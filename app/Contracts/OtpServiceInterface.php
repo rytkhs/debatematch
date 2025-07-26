@@ -43,4 +43,14 @@ interface OtpServiceInterface
      * OTPを生成、保存し、メール通知でユーザーに送信する
      */
     public function sendOtp(object $user): void;
+
+    /**
+     * 指定されたメールアドレスにOTPが存在するかチェックする
+     */
+    public function exists(string $email): bool;
+
+    /**
+     * 指定されたメールアドレスの現在の失敗回数を取得する
+     */
+    public function getFailureCount(string $email): int;
 }
