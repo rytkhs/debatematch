@@ -49,4 +49,8 @@ return [
     'otp_no_sharing' => 'Never share this code via phone, email, or text.',
     'otp_email_footer' => 'This email was sent by :app for account verification purposes.',
     'otp_no_reply' => 'This is an automated message. Please do not reply to this email.',
+    
+    // Status messages
+    'email-verified' => 'Your email has been verified successfully.',
+    'otp-resent' => 'A new verification code has been sent to your email address.',
 ];

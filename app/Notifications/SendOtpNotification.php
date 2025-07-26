@@ -41,6 +41,9 @@ class SendOtpNotification extends Notification implements ShouldQueue
         
         return (new MailMessage)
             ->subject(__('auth.otp_verification_subject'))
+            ->line(__('auth.otp_verification_message'))
+            ->line(__('auth.otp_code_display', ['code' => $this->otp]))
+            ->line(__('auth.otp_expiry_message'))
             ->view('emails.otp-verification', [
                 'greeting' => __('auth.otp_verification_greeting'),
                 'introLines' => [
@@ -57,6 +60,14 @@ class SendOtpNotification extends Notification implements ShouldQueue
             // メール転送問題を防ぐためのセキュリティヘッダー
             ->priority(1) // 時間に敏感なOTPのため高優先度
             ->metadata('otp_notification', true);
+    }
+
+    /**
+     * テスト用にOTPコードを取得
+     */
+    public function getOtpCode(): string
+    {
+        return $this->otp;
     }
 
     /**
