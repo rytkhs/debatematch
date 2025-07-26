@@ -28,6 +28,13 @@ return [
     'otp_verification_error' => 'An error occurred during verification. Please try again.',
     'otp_resend_error' => 'Failed to resend verification code. Please try again.',
     'otp_code_label' => 'Verification Code',
+    'otp_verification_title' => 'Verify Your Email',
+    'otp_verification_instruction' => 'Please enter the 6-digit code sent to your email address.',
+    'otp_verify_button' => 'Verify',
+    'otp_resend_button' => 'Resend Code',
+    'otp_sent_to' => 'Code sent to: :email',
+    'otp_expires_in' => 'Expires in: :minutes minutes',
+    'otp_enter_code' => 'Enter the 6-digit verification code',
     
     // OTP Email notifications
     'otp_verification_subject' => 'Email Verification Code',

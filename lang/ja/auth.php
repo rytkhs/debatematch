@@ -28,6 +28,13 @@ return [
     'otp_verification_error' => '認証中にエラーが発生しました。再度お試しください。',
     'otp_resend_error' => '認証コードの再送信に失敗しました。再度お試しください。',
     'otp_code_label' => '認証コード',
+    'otp_verification_title' => 'メールアドレスの確認',
+    'otp_verification_instruction' => 'メールアドレスに送信された6桁のコードを入力してください。',
+    'otp_verify_button' => '確認',
+    'otp_resend_button' => 'コードを再送信',
+    'otp_sent_to' => 'コード送信先: :email',
+    'otp_expires_in' => '有効期限: :minutes分',
+    'otp_enter_code' => '6桁の認証コードを入力してください',
     
     // OTPメール通知
     'otp_verification_subject' => 'メールアドレス認証コード',

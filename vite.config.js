@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/js/pages/ai-debate-create.js',
                 'resources/js/pages/records-index.js',
                 'resources/js/pages/records-show.js',
+                'resources/js/pages/otp-verify.js',
             ],
             refresh: true,
             base: '/',
