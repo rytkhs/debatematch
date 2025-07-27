@@ -1922,4 +1922,165 @@ class DebateServiceTest extends BaseServiceTest
         Queue::assertPushed(AdvanceDebateTurnJob::class);
         Queue::assertPushed(EvaluateDebateJob::class);
     }
+
+    // =========================================================================
+    // skipAIPrepTime() テスト
+    // =========================================================================
+
+    public function test_skipAIPrepTime_Success()
+    {
+        // Arrange
+        $room = Room::factory()->create([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true,
+            'format_type' => 'format_name_nsda_policy'
+        ]);
+
+        $humanUser = User::factory()->create();
+        // AI userが既に存在する場合は取得、存在しない場合は作成
+        $aiUser = User::find(1) ?? User::factory()->create(['id' => 1]);
+
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 2, // AI準備時間のターン
+            'turn_end_time' => now()->addSeconds(30)
+        ]);
+
+        Event::fake();
+        Queue::fake();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertTrue($result);
+        $debate->refresh();
+        $this->assertEquals(3, $debate->current_turn); // 次のターンに進行
+        Event::assertDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsForNonAIDebate()
+    {
+        // Arrange
+        $room = Room::factory()->create([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => false // 人間同士のディベート
+        ]);
+
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'current_turn' => 2,
+            'turn_end_time' => Carbon::now()->addSeconds(30)
+        ]);
+
+        Event::fake();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsWhenNotPrepTime()
+    {
+        // Arrange
+        $room = Room::factory()->create([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $aiUser = User::find(1) ?? User::factory()->create(['id' => 1]);
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 3,
+            'turn_end_time' => now()->addSeconds(30)
+        ]);
+
+        // フォーマットをモック（準備時間ではない）
+        $format = [
+            3 => ['speaker' => 'negative', 'duration' => 120, 'is_prep_time' => false], // スピーチ時間
+        ];
+        Cache::put("debate_format_{$room->id}_en", $format, 60);
+
+        Event::fake();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsWhenNotAITurn()
+    {
+        // Arrange
+        $room = Room::factory()->create([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $humanUser = User::factory()->create();
+        $aiUser = User::find(1) ?? User::factory()->create(['id' => 1]);
+
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 1,
+            'turn_end_time' => now()->addSeconds(30)
+        ]);
+
+        // フォーマットをモック（人間の準備時間）
+        $format = [
+            1 => ['speaker' => 'affirmative', 'duration' => 60, 'is_prep_time' => true], // 人間の準備時間
+        ];
+        Cache::put("debate_format_{$room->id}_en", $format, 60);
+
+        Event::fake();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsWhenRemainingTimeLessThan5Seconds()
+    {
+        // Arrange
+        $room = Room::factory()->create([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $aiUser = User::find(1) ?? User::factory()->create(['id' => 1]);
+        $debate = Debate::factory()->create([
+            'room_id' => $room->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 2,
+            'turn_end_time' => now()->addSeconds(3) // 残り3秒
+        ]);
+
+        // フォーマットをモック
+        $format = [
+            2 => ['speaker' => 'negative', 'duration' => 60, 'is_prep_time' => true], // AI準備時間
+        ];
+        Cache::put("debate_format_{$room->id}_en", $format, 60);
+
+        Event::fake();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
 }
