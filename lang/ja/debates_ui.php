@@ -30,7 +30,8 @@ return [
     'opponent_turn' => '相手のターン',
     'confirm_end_turn' => ':currentTurnName を終了し、:nextTurnName に進みますか？',
     'end_turn' => 'パート終了',
-    'current_turn_info' => '現在のターン情報',
+    'current_turn_info' => 'Now',
+    'next_turn_info' => 'Next',
 
     // Time Management
     'remaining_time' => '残り',

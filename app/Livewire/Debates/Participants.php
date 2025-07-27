@@ -15,6 +15,7 @@ class Participants extends Component
     public string $currentTurnName = '';
     public string $nextTurnName = '';
     public ?string $currentSpeaker;
+    public ?string $nextSpeaker;
     public bool $isMyTurn = false;
     public array $onlineUsers = [];
     protected $debateService;
@@ -69,6 +70,7 @@ class Participants extends Component
         $this->currentTurnName = $turns[$currentTurn]['name'] ?? '終了';
         $this->nextTurnName = $turns[$currentTurn + 1]['name'] ?? '終了';
         $this->currentSpeaker = $turns[$currentTurn]['speaker'] ?? null;
+        $this->nextSpeaker = $turns[$currentTurn + 1]['speaker'] ?? null;
 
         $this->isMyTurn = $this->checkIfUsersTurn(Auth::id());
     }

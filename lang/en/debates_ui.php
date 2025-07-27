@@ -30,7 +30,8 @@ return [
     'opponent_turn' => "Opponent's Turn",
     'confirm_end_turn' => 'End the :currentTurnName turn and proceed to :nextTurnName?',
     'end_turn' => 'End Speech',
-    'current_turn_info' => 'Current Turn Info',
+    'current_turn_info' => 'Now',
+    'next_turn_info' => 'Next',
 
     // Time Management
     'remaining_time' => 'Remaining',

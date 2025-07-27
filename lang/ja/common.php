@@ -12,7 +12,7 @@ return [
     'close' => '閉じる',
     'create' => '作成',
     'update' => '更新',
-    'name' => '名前',
+    'name' => 'ユーザーネーム',
     'email' => 'メールアドレス',
     'password' => 'パスワード',
     'confirm_password' => 'パスワード確認',
@@ -28,4 +28,5 @@ return [
     'field_required' => '必須項目です',
     'view_guide' => 'ガイドを見る',
     'error' => 'エラーが発生しました。',
+    'security_tips' => 'セキュリティのヒント',
 ];
