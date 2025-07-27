@@ -24,4 +24,9 @@ return [
     'ai_evidence_not_supported' => 'Currently, evidence are not supported in this mode.',
     'fallback_response' => 'Sorry, I cannot generate a response at the moment.',
     'technical_issue' => '(A technical issue occurred)',
+    'skip_prep_time' => 'Skip AI Prep Time',
+    'confirm_skip_prep_time' => 'Are you sure you want to skip AI preparation time?',
+    'prep_time_skipped' => 'AI preparation time skipped',
+    'skip_not_available' => 'Skip not available',
+    'skip_failed' => 'Failed to skip',
 ];

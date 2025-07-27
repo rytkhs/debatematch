@@ -1922,4 +1922,271 @@ class DebateServiceTest extends BaseServiceTest
         Queue::assertPushed(AdvanceDebateTurnJob::class);
         Queue::assertPushed(EvaluateDebateJob::class);
     }
+
+    // =========================================================================
+    // AI準備時間スキップ機能テスト
+    // =========================================================================
+
+    public function test_skipAIPrepTime_SuccessfullySkipsAIPrepTime()
+    {
+        // Arrange
+        Event::fake();
+        Queue::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 2,
+            'turn_end_time' => Carbon::now()->addSeconds(30)
+        ]);
+
+        // AI準備時間のフォーマットをモック
+        $format = [
+            2 => ['speaker' => 'negative', 'duration' => 60, 'is_prep_time' => true],
+            3 => ['speaker' => 'affirmative', 'duration' => 120, 'is_prep_time' => false],
+        ];
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // DebateServiceを再作成して新しいAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertTrue($result);
+        $debate->refresh();
+        $this->assertEquals(3, $debate->current_turn);
+        Event::assertDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsForNonAIDebate()
+    {
+        // Arrange
+        Event::fake();
+
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => false
+        ]);
+
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'current_turn' => 2,
+            'turn_end_time' => Carbon::now()->addSeconds(30)
+        ]);
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsWhenNotPrepTime()
+    {
+        // Arrange
+        Event::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 3,
+            'turn_end_time' => Carbon::now()->addSeconds(30)
+        ]);
+
+        // スピーチ時間のフォーマットをモック（準備時間ではない）
+        $format = [
+            3 => ['speaker' => 'negative', 'duration' => 120, 'is_prep_time' => false],
+        ];
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // DebateServiceを再作成して新しいAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsWhenNotAITurn()
+    {
+        // Arrange
+        Event::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $humanUser = $this->createUser();
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'affirmative_user_id' => $humanUser->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 1,
+            'turn_end_time' => Carbon::now()->addSeconds(30)
+        ]);
+
+        // 人間の準備時間のフォーマットをモック
+        $format = [
+            1 => ['speaker' => 'affirmative', 'duration' => 60, 'is_prep_time' => true],
+        ];
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // DebateServiceを再作成して新しいAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsWhenRemainingTimeLessThan5Seconds()
+    {
+        // Arrange
+        Event::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 2,
+            'turn_end_time' => Carbon::now()->addSeconds(3) // 残り3秒
+        ]);
+
+        // AI準備時間のフォーマットをモック
+        $format = [
+            2 => ['speaker' => 'negative', 'duration' => 60, 'is_prep_time' => true],
+        ];
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // DebateServiceを再作成して新しいAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_FailsWhenRoomNotDebating()
+    {
+        // Arrange
+        Event::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $room = $this->createRoom([
+            'status' => Room::STATUS_FINISHED, // ディベート中ではない
+            'is_ai_debate' => true
+        ]);
+
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 2,
+            'turn_end_time' => Carbon::now()->addSeconds(30)
+        ]);
+
+        // DebateServiceを再作成して新しいAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
+
+    public function test_skipAIPrepTime_HandlesExceptionGracefully()
+    {
+        // Arrange
+        Event::fake();
+
+        $aiUser = User::factory()->create();
+        $this->app['config']->set('app.ai_user_id', $aiUser->id);
+
+        $room = $this->createRoom([
+            'status' => Room::STATUS_DEBATING,
+            'is_ai_debate' => true
+        ]);
+
+        $debate = $this->createDebate([
+            'room_id' => $room->id,
+            'negative_user_id' => $aiUser->id,
+            'current_turn' => 2,
+            'turn_end_time' => Carbon::now()->addSeconds(30)
+        ]);
+
+        // AI準備時間のフォーマットをモック
+        $format = [
+            2 => ['speaker' => 'negative', 'duration' => 60, 'is_prep_time' => true],
+            3 => ['speaker' => 'affirmative', 'duration' => 120, 'is_prep_time' => false],
+        ];
+        Cache::shouldReceive('remember')
+            ->atLeast()->once()
+            ->andReturn($format);
+
+        // DebateServiceを再作成して新しいAI UserIDを反映
+        $this->debateService = new DebateService();
+
+        // DBトランザクションでエラーを発生させる
+        DB::shouldReceive('transaction')
+            ->andThrow(new \Exception('Database error'));
+
+        // Act
+        $result = $this->debateService->skipAIPrepTime($debate);
+
+        // Assert
+        $this->assertFalse($result);
+        Event::assertNotDispatched(TurnAdvanced::class);
+    }
 }

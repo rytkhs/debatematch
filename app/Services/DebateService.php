@@ -545,4 +545,99 @@ class DebateService
     {
         return "early_termination_request_{$debateId}";
     }
+
+    /**
+     * AIの準備時間をスキップして次のターンに進む
+     */
+    public function skipAIPrepTime(Debate $debate): bool
+    {
+        try {
+            // バリデーション
+            if (!$this->canSkipAIPrepTime($debate)) {
+                Log::warning('AI prep time skip denied', [
+                    'debate_id' => $debate->id,
+                    'reason' => 'validation_failed'
+                ]);
+                return false;
+            }
+
+            DB::transaction(function () use ($debate) {
+                // 現在のターンのスケジュール済みジョブをキャンセル
+                $this->cancelScheduledTurnJob($debate);
+
+                // 即座に次のターンに進行
+                $this->advanceToNextTurn($debate, $debate->current_turn);
+            });
+
+            Log::info('AI prep time skipped successfully', [
+                'debate_id' => $debate->id,
+                'turn' => $debate->current_turn
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to skip AI prep time', [
+                'debate_id' => $debate->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * AI準備時間をスキップできるかチェック
+     */
+    private function canSkipAIPrepTime(Debate $debate): bool
+    {
+        // AIディベートでない場合はスキップ不可
+        if (!$debate->room->is_ai_debate) {
+            return false;
+        }
+
+        // ディベート中でない場合はスキップ不可
+        if ($debate->room->status !== Room::STATUS_DEBATING) {
+            return false;
+        }
+
+        // 現在のターンがAIの準備時間でない場合はスキップ不可
+        $format = $this->getFormat($debate);
+        $currentTurnInfo = $format[$debate->current_turn] ?? null;
+
+        if (!$currentTurnInfo || !($currentTurnInfo['is_prep_time'] ?? false)) {
+            return false;
+        }
+
+        // 現在のターンのスピーカーがAIでない場合はスキップ不可
+        $currentSpeakerId = ($currentTurnInfo['speaker'] === 'affirmative')
+            ? $debate->affirmative_user_id
+            : $debate->negative_user_id;
+
+        if ($currentSpeakerId !== $this->aiUserId) {
+            return false;
+        }
+
+        // 残り時間が5秒未満の場合はスキップ不可（自動進行に任せる）
+        if ($debate->turn_end_time && $debate->turn_end_time->timestamp - now()->timestamp < 5) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * スケジュール済みのターン進行ジョブをキャンセル
+     */
+    private function cancelScheduledTurnJob(Debate $debate): void
+    {
+        // Horizonを使用している場合のジョブキャンセル実装
+        // 実際の実装では、ジョブIDを追跡する仕組みが必要
+
+        // 代替案：ジョブ実行時に現在のターンをチェックして、
+        // 既に進行済みの場合は何もしない（既存のロジックで対応済み）
+
+        Log::info('Scheduled turn job cancellation requested', [
+            'debate_id' => $debate->id,
+            'current_turn' => $debate->current_turn
+        ]);
+    }
 }

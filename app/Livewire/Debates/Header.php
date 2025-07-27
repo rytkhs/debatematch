@@ -4,6 +4,7 @@ namespace App\Livewire\Debates;
 
 use Livewire\Component;
 use App\Models\Debate;
+use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Livewire\Attributes\On;
@@ -21,6 +22,8 @@ class Header extends Component
     public bool $isAITurn = false;
     public ?int $turnEndTime;
     public int $currentTurn = 0;
+    public bool $canSkipAIPrepTime = false;
+    public int $remainingTime = 0;
     protected $debateService;
     protected int $aiUserId;
 
@@ -51,6 +54,7 @@ class Header extends Component
         $this->turnEndTime = $data['turn_end_time'] ?? null;
 
         $this->checkIfUsersTurn(Auth::id());
+        $this->updateSkipButtonState();
 
         $this->debate->current_turn = $this->currentTurn;
         if (isset($data['turn_end_time'])) {
@@ -81,6 +85,7 @@ class Header extends Component
         $this->turnEndTime = $this->debate->turn_end_time?->timestamp;
 
         $this->checkIfUsersTurn(Auth::id());
+        $this->updateSkipButtonState();
     }
 
     /**
@@ -103,6 +108,42 @@ class Header extends Component
             } elseif ($this->debate->room->is_ai_debate && $this->debate->negative_user_id === $this->aiUserId) {
                 $this->isAITurn = true;
             }
+        }
+    }
+
+    /**
+     * AI準備時間スキップボタンの状態を更新する
+     */
+    private function updateSkipButtonState(): void
+    {
+        $this->canSkipAIPrepTime = $this->debate->room->is_ai_debate
+            && $this->isAITurn
+            && $this->isPrepTime
+            && $this->debate->room->status === Room::STATUS_DEBATING;
+
+        $this->remainingTime = $this->turnEndTime ?
+            max(0, $this->turnEndTime - time()) : 0;
+    }
+
+    /**
+     * AI準備時間をスキップする
+     */
+    public function skipAIPrepTime(): void
+    {
+        if (!$this->canSkipAIPrepTime) {
+            $this->dispatch('showFlashMessage',
+                __('ai_debate.skip_not_available'), 'error');
+            return;
+        }
+
+        $result = $this->debateService->skipAIPrepTime($this->debate);
+
+        if ($result) {
+            $this->dispatch('showFlashMessage',
+                __('ai_debate.prep_time_skipped'), 'success');
+        } else {
+            $this->dispatch('showFlashMessage',
+                __('ai_debate.skip_failed'), 'error');
         }
     }
 
