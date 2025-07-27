@@ -40,6 +40,20 @@
             </form>
             @endif
 
+            <!-- AI準備時間スキップボタン -->
+            @if($canSkipAIPrepTime)
+            <button
+                wire:click="skipAIPrepTime"
+                wire:loading.attr="disabled"
+                wire:confirm="{{ __('ai_debate.confirm_skip_prep_time') }}"
+                class="btn-secondary flex items-center px-2 py-1 sm:px-3 sm:py-1.5 text-xs rounded-lg transition-all hover:scale-105"
+                {{ $remainingTime < 5 ? 'disabled' : '' }}
+            >
+                <span class="material-icons-outlined mr-1 text-sm">skip_next</span>
+                {{ __('ai_debate.skip_prep_time') }}
+            </button>
+            @endif
+
             <!-- 全画面切替ボタン -->
             <button id="fullscreen-toggle" class="text-gray-700 p-2 rounded-full hover:bg-gray-100">
                 <span class="material-icons fullscreen-icon">fullscreen</span>

@@ -24,4 +24,9 @@ return [
     'ai_evidence_not_supported' => '現在、AIディベートでは証拠資料に対応していません',
     'fallback_response' => '申し訳ありません、現在応答を生成できません。',
     'technical_issue' => '(技術的な問題が発生しました)',
+    'skip_prep_time' => 'AI準備時間をスキップ',
+    'confirm_skip_prep_time' => 'AI準備時間をスキップしますか？',
+    'prep_time_skipped' => 'AI準備時間をスキップしました',
+    'skip_not_available' => 'スキップできません',
+    'skip_failed' => 'スキップに失敗しました',
 ];
