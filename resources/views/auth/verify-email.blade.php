@@ -21,6 +21,18 @@
         </div>
     </div>
 
+    <!-- 認証メール遅延の注意メッセージ -->
+    <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+        <div class="flex items-center">
+            <svg class="w-4 h-4 text-gray-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            <p class="text-sm text-gray-700">
+                {{ __('auth.verification_email_delay_notice') }}
+            </p>
+        </div>
+    </div>
+
     <!-- Success message -->
     @if (session('status') == 'otp-sent')
         <div class="mb-4 font-medium text-sm text-green-600 p-3 bg-green-50 border border-green-200 rounded-md">
@@ -80,7 +92,7 @@
     <div class="flex items-center justify-between">
         <form id="resend-form" method="POST" action="{{ route('verification.send') }}">
             @csrf
-            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-700 active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-400 active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 {{ __('auth.otp_resend_button') }}
             </button>
         </form>
