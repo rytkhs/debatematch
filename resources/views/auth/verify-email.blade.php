@@ -1,55 +1,43 @@
 <x-guest-layout>
     <div class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
             {{ __('auth.otp_verification_title') }}
         </h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
+        <p class="text-sm text-gray-600">
             {{ __('auth.otp_verification_instruction') }}
         </p>
     </div>
 
     <!-- Email address display -->
-    <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
         <div class="flex items-center">
-            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-4 h-4 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
             </svg>
-            <p class="text-sm text-blue-800 dark:text-blue-200">
+            <p class="text-sm text-blue-800">
                 {{ __('auth.otp_sent_to', ['email' => $maskedEmail]) }}
-            </p>
-        </div>
-    </div>
-
-    <!-- OTP expiration timer -->
-    <div class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
-        <div class="flex items-center">
-            <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-            </svg>
-            <p class="text-sm text-yellow-800 dark:text-yellow-200">
-                <span id="otp-timer">{{ __('auth.otp_expires_in', ['minutes' => '10']) }}</span>
             </p>
         </div>
     </div>
 
     <!-- Success message -->
     @if (session('status') == 'otp-sent')
-        <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+        <div class="mb-4 font-medium text-sm text-green-600 p-3 bg-green-50 border border-green-200 rounded-md">
             {{ __('auth.verification_link_sent') }}
         </div>
     @endif
 
     <!-- Error messages -->
     @if ($errors->any())
-        <div class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
             <div class="flex">
-                <svg class="w-4 h-4 text-red-600 dark:text-red-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 text-red-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
                 <div>
                     @foreach ($errors->all() as $error)
-                        <p class="text-sm text-red-800 dark:text-red-200">{{ $error }}</p>
+                        <p class="text-sm text-red-800">{{ $error }}</p>
                     @endforeach
                 </div>
             </div>
@@ -62,21 +50,21 @@
 
         <div class="mb-4">
             <x-input-label for="otp" :value="__('auth.otp_code_label')" />
-            <x-text-input 
-                id="otp" 
-                class="block mt-1 w-full text-center text-2xl font-mono tracking-widest @error('otp') border-red-500 @enderror" 
-                type="text" 
-                name="otp" 
-                :value="old('otp')" 
-                required 
-                autofocus 
+            <x-text-input
+                id="otp"
+                class="block mt-1 w-full text-center text-2xl font-mono tracking-widest @error('otp') border-red-500 @enderror"
+                type="text"
+                name="otp"
+                :value="old('otp')"
+                required
+                autofocus
                 autocomplete="off"
                 maxlength="6"
                 pattern="[0-9]{6}"
                 placeholder="000000"
                 inputmode="numeric"
             />
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs text-gray-500">
                 {{ __('auth.otp_enter_code') }}
             </p>
         </div>
@@ -90,20 +78,22 @@
 
     <!-- Resend and Logout buttons -->
     <div class="flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
+        <form id="resend-form" method="POST" action="{{ route('verification.send') }}">
             @csrf
-            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-700 active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 {{ __('auth.otp_resend_button') }}
             </button>
         </form>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 {{ __('common.logout') }}
             </button>
         </form>
     </div>
 
-
+    @push('scripts')
+        @vite('resources/js/pages/otp-verify.js')
+    @endpush
 </x-guest-layout>

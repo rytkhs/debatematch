@@ -51,7 +51,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        // event(new Registered($user)); // OTP仕様のため削除
 
         Auth::login($user);
 

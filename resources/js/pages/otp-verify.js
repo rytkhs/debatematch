@@ -6,14 +6,9 @@
 class OtpVerification {
     constructor() {
         this.otpInput = document.getElementById('otp');
-        this.timerElement = document.getElementById('otp-timer');
-        this.form = document.querySelector('form[action*="otp.verify"]');
-        this.resendForm = document.querySelector('form[action*="otp.resend"]');
+        this.form = document.querySelector('form[action*="verification.verify"]');
+        this.resendForm = document.getElementById('resend-form');
         this.resendButton = this.resendForm?.querySelector('button[type="submit"]');
-
-        // OTP expires in 10 minutes (600 seconds)
-        this.expirationTime = 10 * 60 * 1000; // 10 minutes in milliseconds
-        this.startTime = Date.now();
 
         this.init();
     }
@@ -21,10 +16,6 @@ class OtpVerification {
     init() {
         if (this.otpInput) {
             this.setupOtpInput();
-        }
-
-        if (this.timerElement) {
-            this.startCountdown();
         }
 
         if (this.form) {
@@ -49,13 +40,6 @@ class OtpVerification {
             }
 
             e.target.value = value;
-
-            // Auto-submit when 6 digits are entered
-            if (value.length === 6) {
-                setTimeout(() => {
-                    this.form.submit();
-                }, 100);
-            }
         });
 
         // Handle paste events
@@ -64,12 +48,6 @@ class OtpVerification {
             const paste = (e.clipboardData || window.clipboardData).getData('text');
             const digits = paste.replace(/\D/g, '').slice(0, 6);
             this.otpInput.value = digits;
-
-            if (digits.length === 6) {
-                setTimeout(() => {
-                    this.form.submit();
-                }, 100);
-            }
         });
 
         // Handle keydown events
@@ -94,111 +72,6 @@ class OtpVerification {
                 e.preventDefault();
             }
         });
-    }
-
-    startCountdown() {
-        const updateTimer = () => {
-            const elapsed = Date.now() - this.startTime;
-            const remaining = Math.max(0, this.expirationTime - elapsed);
-
-            if (remaining <= 0) {
-                this.handleExpiration();
-                return;
-            }
-
-            const minutes = Math.floor(remaining / 60000);
-            const seconds = Math.floor((remaining % 60000) / 1000);
-
-            // Update timer display
-            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-            // Get the current language for proper message formatting
-            const isJapanese = document.documentElement.lang === 'ja';
-            const message = isJapanese ? `有効期限: ${timeString}` : `Expires in: ${timeString}`;
-
-            this.timerElement.textContent = message;
-
-            // Change color as time runs out
-            const timerContainer = this.timerElement.closest(
-                '.bg-yellow-50, .dark\\:bg-yellow-900\\/20'
-            );
-            if (remaining < 60000) {
-                // Less than 1 minute
-                if (timerContainer) {
-                    timerContainer.className = timerContainer.className
-                        .replace('bg-yellow-50', 'bg-red-50')
-                        .replace('dark:bg-yellow-900/20', 'dark:bg-red-900/20')
-                        .replace('border-yellow-200', 'border-red-200')
-                        .replace('dark:border-yellow-800', 'dark:border-red-800');
-                }
-                this.timerElement.className = this.timerElement.className
-                    .replace('text-yellow-800', 'text-red-800')
-                    .replace('dark:text-yellow-200', 'dark:text-red-200');
-
-                const icon = this.timerElement.parentElement.querySelector('svg');
-                if (icon) {
-                    icon.className = icon.className
-                        .replace('text-yellow-600', 'text-red-600')
-                        .replace('dark:text-yellow-400', 'dark:text-red-400');
-                }
-            }
-        };
-
-        // Update immediately and then every second
-        updateTimer();
-        this.countdownInterval = setInterval(updateTimer, 1000);
-    }
-
-    handleExpiration() {
-        if (this.countdownInterval) {
-            clearInterval(this.countdownInterval);
-        }
-
-        // Update timer to show expired
-        const isJapanese = document.documentElement.lang === 'ja';
-        this.timerElement.textContent = isJapanese ? '有効期限切れ' : 'Expired';
-
-        // Disable the OTP input and submit button
-        if (this.otpInput) {
-            this.otpInput.disabled = true;
-            this.otpInput.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-
-        const submitButton = this.form?.querySelector('button[type="submit"]');
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-
-        // Show expiration message
-        this.showExpirationMessage();
-    }
-
-    showExpirationMessage() {
-        const isJapanese = document.documentElement.lang === 'ja';
-        const message = isJapanese
-            ? '認証コードの有効期限が切れました。新しいコードをリクエストしてください。'
-            : 'The verification code has expired. Please request a new one.';
-
-        // Create or update expiration message
-        let expiredMessage = document.getElementById('otp-expired-message');
-        if (!expiredMessage) {
-            expiredMessage = document.createElement('div');
-            expiredMessage.id = 'otp-expired-message';
-            expiredMessage.className =
-                'mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md';
-            expiredMessage.innerHTML = `
-                <div class="flex">
-                    <svg class="w-4 h-4 text-red-600 dark:text-red-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
-                    <p class="text-sm text-red-800 dark:text-red-200">${message}</p>
-                </div>
-            `;
-
-            // Insert before the form
-            this.form.parentNode.insertBefore(expiredMessage, this.form);
-        }
     }
 
     setupFormHandling() {
@@ -238,14 +111,13 @@ class OtpVerification {
         // Create new error message
         const errorDiv = document.createElement('div');
         errorDiv.id = 'otp-validation-error';
-        errorDiv.className =
-            'mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md';
+        errorDiv.className = 'mb-4 p-3 bg-red-50 border border-red-200 rounded-md';
         errorDiv.innerHTML = `
             <div class="flex">
-                <svg class="w-4 h-4 text-red-600 dark:text-red-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 text-red-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
-                <p class="text-sm text-red-800 dark:text-red-200">${message}</p>
+                <p class="text-sm text-red-800">${message}</p>
             </div>
         `;
 
@@ -283,16 +155,18 @@ class OtpVerification {
     }
 
     setupResendButton() {
-        let resendCooldown = 0;
+        // Initialize cooldown state
+        this.resendCooldown = 0;
+        this.resendCooldownInterval = null;
 
         this.resendButton.addEventListener('click', e => {
-            if (resendCooldown > 0) {
+            if (this.resendCooldown > 0) {
                 e.preventDefault();
                 return;
             }
 
             // Start cooldown (30 seconds)
-            resendCooldown = 30;
+            this.resendCooldown = 30;
             this.startResendCooldown();
         });
     }
@@ -322,37 +196,6 @@ class OtpVerification {
 
         updateButton();
     }
-
-    // Reset timer when new OTP is sent
-    resetTimer() {
-        if (this.countdownInterval) {
-            clearInterval(this.countdownInterval);
-        }
-
-        this.startTime = Date.now();
-
-        // Re-enable form elements
-        if (this.otpInput) {
-            this.otpInput.disabled = false;
-            this.otpInput.classList.remove('opacity-50', 'cursor-not-allowed');
-            this.otpInput.value = '';
-            this.otpInput.focus();
-        }
-
-        const submitButton = this.form?.querySelector('button[type="submit"]');
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-
-        // Remove expiration message
-        const expiredMessage = document.getElementById('otp-expired-message');
-        if (expiredMessage) {
-            expiredMessage.remove();
-        }
-
-        this.startCountdown();
-    }
 }
 
 // Initialize when DOM is loaded
@@ -360,20 +203,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Only initialize on OTP verification page
     if (document.getElementById('otp')) {
         window.otpVerification = new OtpVerification();
-
-        // Listen for page refresh after resend
-        if (
-            window.performance &&
-            window.performance.navigation.type === window.performance.navigation.TYPE_RELOAD
-        ) {
-            // Reset timer if page was refreshed (likely after resend)
-            setTimeout(() => {
-                if (window.otpVerification) {
-                    window.otpVerification.resetTimer();
-                }
-            }, 100);
-        }
     }
 });
-
-export default OtpVerification;

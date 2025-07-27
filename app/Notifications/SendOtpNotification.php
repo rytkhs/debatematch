@@ -3,11 +3,10 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SendOtpNotification extends Notification implements ShouldQueue
+class SendOtpNotification extends Notification
 {
     use Queueable;
 
@@ -38,28 +37,15 @@ class SendOtpNotification extends Notification implements ShouldQueue
     {
         // セキュリティ表示用にマスクされたメールアドレスを取得
         $maskedEmail = $this->getMaskedEmail($notifiable->email);
-        
+
         return (new MailMessage)
             ->subject(__('auth.otp_verification_subject'))
             ->line(__('auth.otp_verification_message'))
+            ->line('')
             ->line(__('auth.otp_code_display', ['code' => $this->otp]))
+            ->line('')
             ->line(__('auth.otp_expiry_message'))
-            ->view('emails.otp-verification', [
-                'greeting' => __('auth.otp_verification_greeting'),
-                'introLines' => [
-                    __('auth.otp_verification_message'),
-                    __('auth.otp_sent_to_email', ['email' => $maskedEmail]),
-                ],
-                'otpCode' => $this->otp,
-                'outroLines' => [
-                    __('auth.otp_expiry_message'),
-                    __('auth.otp_security_reminder'),
-                ],
-                'salutation' => '',
-            ])
-            // メール転送問題を防ぐためのセキュリティヘッダー
-            ->priority(1) // 時間に敏感なOTPのため高優先度
-            ->metadata('otp_notification', true);
+            ->line(__('auth.otp_security_reminder'));
     }
 
     /**

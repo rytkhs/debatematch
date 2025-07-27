@@ -113,4 +113,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return (bool) $this->is_guest && !$this->isGuestExpired();
     }
+
+    /**
+     * メール認証通知を送信
+     *
+     * デフォルトのメール認証をオーバーライドしてOTP認証を使用
+     */
+    public function sendEmailVerificationNotification()
+    {
+        app(\App\Contracts\OtpServiceInterface::class)->sendOtp($this);
+    }
 }

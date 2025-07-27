@@ -14,7 +14,7 @@ class OtpService implements OtpServiceInterface
     private const RATE_LIMIT_TTL = 900; // 15分間（秒）
     private const MAX_REQUESTS_PER_PERIOD = 3;
     private const MAX_FAILURES = 5;
-    
+
     private const CACHE_KEY_OTP = 'otp:%s:code';
     private const CACHE_KEY_FAILURES = 'otp:%s:failures';
     private const CACHE_KEY_RATE_LIMIT = 'otp:%s:rate_limit';
@@ -29,9 +29,9 @@ class OtpService implements OtpServiceInterface
         for ($i = 0; $i < self::OTP_LENGTH; $i++) {
             $otp .= random_int(0, 9);
         }
-        
+
         Log::info('OTP generated for email', ['email' => $email]);
-        
+
         return $otp;
     }
 
@@ -41,13 +41,13 @@ class OtpService implements OtpServiceInterface
     public function store(string $email, string $otp): void
     {
         $cacheKey = sprintf(self::CACHE_KEY_OTP, $email);
-        
+
         // セキュリティのためOTPを保存前にハッシュ化
         $hashedOtp = hash('sha256', $otp);
-        
+
         // TTL付きでRedisに保存
         Cache::put($cacheKey, $hashedOtp, self::OTP_TTL);
-        
+
         Log::info('OTP stored in cache', ['email' => $email, 'ttl' => self::OTP_TTL]);
     }
 
@@ -58,18 +58,18 @@ class OtpService implements OtpServiceInterface
     {
         $cacheKey = sprintf(self::CACHE_KEY_OTP, $email);
         $storedHashedOtp = Cache::get($cacheKey);
-        
+
         if (!$storedHashedOtp) {
             Log::warning('OTP verification failed - no stored OTP found', ['email' => $email]);
             return false;
         }
-        
+
         // 比較のため提供されたOTPをハッシュ化
         $providedHashedOtp = hash('sha256', $otp);
-        
+
         // タイミング攻撃を防ぐためタイミングセーフ比較を使用
         $isValid = hash_equals($storedHashedOtp, $providedHashedOtp);
-        
+
         if ($isValid) {
             // 検証成功後、即座にOTPを無効化
             $this->invalidate($email);
@@ -79,7 +79,7 @@ class OtpService implements OtpServiceInterface
         } else {
             Log::warning('OTP verification failed - invalid OTP', ['email' => $email]);
         }
-        
+
         return $isValid;
     }
 
@@ -90,7 +90,7 @@ class OtpService implements OtpServiceInterface
     {
         $cacheKey = sprintf(self::CACHE_KEY_OTP, $email);
         Cache::forget($cacheKey);
-        
+
         Log::info('OTP invalidated', ['email' => $email]);
     }
 
@@ -101,13 +101,13 @@ class OtpService implements OtpServiceInterface
     {
         $cacheKey = sprintf(self::CACHE_KEY_RATE_LIMIT, $email);
         $requestCount = Cache::get($cacheKey, 0);
-        
+
         $isLimited = $requestCount >= self::MAX_REQUESTS_PER_PERIOD;
-        
+
         if ($isLimited) {
             Log::warning('Rate limit exceeded', ['email' => $email, 'count' => $requestCount]);
         }
-        
+
         return $isLimited;
     }
 
@@ -119,21 +119,21 @@ class OtpService implements OtpServiceInterface
         $cacheKey = sprintf(self::CACHE_KEY_FAILURES, $email);
         $currentCount = Cache::get($cacheKey, 0);
         $newCount = $currentCount + 1;
-        
+
         // 失敗回数をOTPと同じTTLで保存
         Cache::put($cacheKey, $newCount, self::OTP_TTL);
-        
+
         // 最大失敗回数に達した場合、現在のOTPを無効化
         if ($newCount >= self::MAX_FAILURES) {
             $this->invalidate($email);
             Log::warning('Max failures reached, OTP invalidated', [
-                'email' => $email, 
+                'email' => $email,
                 'failures' => $newCount
             ]);
         }
-        
+
         Log::info('Failure count incremented', ['email' => $email, 'count' => $newCount]);
-        
+
         return $newCount;
     }
 
@@ -143,7 +143,7 @@ class OtpService implements OtpServiceInterface
     public function getRateLimitRemainingTime(string $email): int
     {
         $cacheKey = sprintf(self::CACHE_KEY_RATE_LIMIT, $email);
-        
+
         // Redisストアを使用しているかチェック
         $store = Cache::getStore();
         if (method_exists($store, 'getRedis')) {
@@ -151,13 +151,13 @@ class OtpService implements OtpServiceInterface
             $remainingSeconds = $store->getRedis()->ttl($cacheKey);
             return max(0, $remainingSeconds);
         }
-        
+
         // 非Redisストア（テストのArrayストアなど）のフォールバック
         if (Cache::has($cacheKey)) {
             // テスト目的で適切なデフォルト値を返す
             return self::RATE_LIMIT_TTL;
         }
-        
+
         return 0;
     }
 
@@ -169,10 +169,10 @@ class OtpService implements OtpServiceInterface
         $cacheKey = sprintf(self::CACHE_KEY_RATE_LIMIT, $email);
         $currentCount = Cache::get($cacheKey, 0);
         $newCount = $currentCount + 1;
-        
+
         // レート制限TTLで保存
         Cache::put($cacheKey, $newCount, self::RATE_LIMIT_TTL);
-        
+
         Log::info('Rate limit counter incremented', ['email' => $email, 'count' => $newCount]);
     }
 
@@ -183,7 +183,7 @@ class OtpService implements OtpServiceInterface
     {
         $cacheKey = sprintf(self::CACHE_KEY_FAILURES, $email);
         Cache::forget($cacheKey);
-        
+
         Log::info('Failure count reset', ['email' => $email]);
     }
 
@@ -212,19 +212,19 @@ class OtpService implements OtpServiceInterface
     {
         // 既存のOTPを無効化
         $this->invalidate($user->email);
-        
+
         // 新しいOTPを生成
         $otp = $this->generate($user->email);
-        
+
         // OTPを保存
         $this->store($user->email, $otp);
-        
+
         // レート制限カウンターをインクリメント
         $this->incrementRateLimit($user->email);
-        
+
         // OTP通知をユーザーに送信
         $user->notify(new SendOtpNotification($otp));
-        
+
         Log::info('OTP sent to user', ['email' => $user->email]);
     }
 }

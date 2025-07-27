@@ -16,7 +16,7 @@ return [
     'agree_terms_privacy' => '利用規約とプライバシーポリシーに同意して続行します。',
     'create_account' => 'アカウント作成',
     'google_login_failed' => 'Googleログインに失敗しました。再度お試しください。',
-    
+
     // OTP関連の翻訳
     'otp_error' => 'OTP操作に失敗しました。',
     'otp_expired' => '認証コードの有効期限が切れました。新しいコードをリクエストしてください。',
@@ -35,7 +35,7 @@ return [
     'otp_sent_to' => 'コード送信先: :email',
     'otp_expires_in' => '有効期限: :minutes分',
     'otp_enter_code' => '6桁の認証コードを入力してください',
-    
+
     // OTPメール通知
     'otp_verification_subject' => 'メールアドレス認証コード',
     'otp_verification_greeting' => 'こんにちは！',
@@ -49,7 +49,7 @@ return [
     'otp_no_sharing' => '電話、メール、テキストでこのコードを共有しないでください。',
     'otp_email_footer' => 'このメールは:appからアカウント認証のために送信されました。',
     'otp_no_reply' => 'これは自動送信メールです。このメールには返信しないでください。',
-    
+
     // ステータスメッセージ
     'email-verified' => 'メールアドレスが認証されました。',
     'otp-resent' => '新しい認証コードがメールアドレスに送信されました。',
