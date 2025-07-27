@@ -99,13 +99,13 @@ class AIEvaluationService
             ->post('https://openrouter.ai/api/v1/chat/completions', [
                 'model' => Config::get('services.openrouter.evaluation_model'),
                 'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => $prompt
-                    ]
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'reasoning' => [
+                    'enabled' => true,
                 ],
                 'temperature' => 0.2,
-                'max_tokens' => 15000,
+                'max_tokens' => 30000,
                 'response_format' => [
                     'type' => 'json_schema',
                     'json_schema' => [
@@ -152,11 +152,20 @@ class AIEvaluationService
             return $this->getDefaultResponse("AI APIとの通信に失敗しました", $language);
         }
 
-        $aiResponseContent = $response->json('choices.0.message.content');
+        $message = $response->json('choices.0.message');
+        $aiResponseContent = $message['content'] ?? null;
+        $reasoning = $message['reasoning'] ?? null;
 
-        // JSONブロックを正規表現で抽出（```jsonと```のトリミング）
+        if ($reasoning) {
+            Log::debug('AI Reasoning received', [
+                'debate_id' => $debate->id,
+                'reasoning' => $reasoning,
+            ]);
+        }
+
+        // JSONブロックを正規表現で抽出
         preg_match('/```json\s*(.*?)\s*```/s', $aiResponseContent, $matches);
-        $jsonString = $matches[1] ?? $aiResponseContent; // マッチしない場合はそのまま
+        $jsonString = $matches[1] ?? $aiResponseContent;
 
         $parsedData = json_decode($jsonString, true);
 
@@ -166,6 +175,7 @@ class AIEvaluationService
             Log::error('Failed to parse AI response JSON', [
                 'error' => $errorMessage,
                 'response_content' => $aiResponseContent,
+                'reasoning' => $reasoning,
                 'debate_id' => $debate->id,
                 'language' => $language
             ]);

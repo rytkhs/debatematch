@@ -38,3 +38,7 @@ docs/*
 node_modules/.cache/
 
 scripts/
+
+CLAUDE.md
+GEMINI.md
+.kiro/

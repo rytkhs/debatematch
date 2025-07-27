@@ -20,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Connection\ReconnectionHandler::class);
         $this->app->singleton(\App\Services\Connection\ConnectionAnalyzer::class);
         $this->app->singleton(\App\Services\Connection\ConnectionCoordinator::class);
+
+        // OTP Service binding
+        $this->app->bind(\App\Contracts\OtpServiceInterface::class, \App\Services\OtpService::class);
     }
 
     /**

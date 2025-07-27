@@ -120,7 +120,7 @@ class AudioHandler {
         this.interactionListeners.forEach(listener => {
             document.removeEventListener(listener.type, listener.handler);
         });
-        this.interactionListeners = []; // 配列をクリア
+        this.interactionListeners = [];
 
         this.logger.log('Audio handler cleaned up.');
     }

@@ -7,6 +7,21 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
         <meta name="description" content="{{ __('misc.app_meta_description') }}">
 
+        <!-- Open Graph Tags -->
+        <meta property="og:title" content="{{ isset($title) ? $title . ' - DebateMatch' : 'DebateMatch - オンラインディベートプラットフォーム' }}">
+        <meta property="og:description" content="{{ isset($description) ? $description : __('misc.app_meta_description') }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:image" content="{{ asset('images/og-image.png') }}">
+        <meta property="og:site_name" content="DebateMatch">
+        <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+        <!-- Twitter Card Tags -->
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:title" content="{{ isset($title) ? $title . ' - DebateMatch' : 'DebateMatch - オンラインディベートプラットフォーム' }}">
+        <meta name="twitter:description" content="{{ isset($description) ? $description : __('misc.app_meta_description') }}">
+        <meta name="twitter:image" content="{{ asset('images/og-image.png') }}">
+
         <!-- Fonts -->
         <!-- Favicon - Google検索結果で適切に表示されるよう複数サイズを提供 -->
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">

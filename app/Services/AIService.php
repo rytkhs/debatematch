@@ -19,14 +19,14 @@ class AIService
     const JAPANESE_CHARS_PER_MINUTE = 320;
     const ENGLISH_WORDS_PER_MINUTE = 160;
     const DEFAULT_TEMPERATURE = 0.7;
-    const MAX_TOKENS = 12000;
+    const MAX_TOKENS = 25000;
     const API_TIMEOUT_SECONDS = 240;
     const FREE_FORMAT_RESPONSE_RATIO = 0.5; // フリーフォーマット時の応答長さ比率
 
     public function __construct(private DebateService $debateService)
     {
         $this->apiKey = Config::get('services.openrouter.api_key');
-        $this->model = Config::get('services.openrouter.model', 'google/gemini-pro');
+        $this->model = Config::get('services.openrouter.model', 'google/gemini-2.5-flash');
         $this->referer = Config::get('services.openrouter.referer', config('app.url'));
         $this->title = Config::get('services.openrouter.title', config('app.name'));
         $this->aiUserId = (int)config('app.ai_user_id', 1);
@@ -67,6 +67,9 @@ class AIService
                     'messages' => [
                         ['role' => 'user', 'content' => $prompt]
                     ],
+                    'reasoning' => [
+                        'enabled' => true,
+                    ],
                     'temperature' => self::DEFAULT_TEMPERATURE,
                     'max_tokens' => self::MAX_TOKENS,
                 ]);
@@ -80,12 +83,22 @@ class AIService
                 throw new \Exception('Failed to get response from AI service. Status: ' . $response->status());
             }
 
-            $content = $response->json('choices.0.message.content');
+            $message = $response->json('choices.0.message');
+            $content = $message['content'] ?? null;
+            $reasoning = $message['reasoning'] ?? null;
+
+            if ($reasoning) {
+                Log::debug('AI Reasoning for debate opponent', [
+                    'debate_id' => $debate->id,
+                    'reasoning' => $reasoning,
+                ]);
+            }
 
             if (empty($content)) {
                 Log::warning('OpenRouter API returned empty content', [
                     'debate_id' => $debate->id,
                     'response' => $response->json(),
+                    'reasoning' => $reasoning,
                 ]);
                 return $this->getFallbackResponse($debate->room->language ?? 'japanese');
             }
@@ -96,7 +109,7 @@ class AIService
             Log::error('Error generating AI response', [
                 'debate_id' => $debate->id,
                 'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'trace' => mb_strimwidth($e->getTraceAsString(), 0, 2000, '...'),
             ]);
             return $this->getFallbackResponse($debate->room->language ?? 'japanese', $e->getMessage());
         }
@@ -224,7 +237,7 @@ class AIService
             'language' => $language,
             'template_key' => $promptTemplateKey,
             'character_limit' => $characterLimit,
-            'prompt' => $prompt
+            // 'prompt' => $prompt
         ]);
 
         return $prompt;

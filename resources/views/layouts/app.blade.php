@@ -20,7 +20,7 @@
         <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
 
         <!-- Twitter Card Tags -->
-        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:card" content="summary">
         <meta name="twitter:title" content="{{ isset($title) ? $title . ' - DebateMatch' : 'DebateMatch - オンラインディベートプラットフォーム' }}">
         <meta name="twitter:description" content="{{ isset($description) ? $description : __('misc.app_meta_description') }}">
         <meta name="twitter:image" content="{{ asset('images/og-image.png') }}">

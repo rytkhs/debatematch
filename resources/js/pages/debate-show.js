@@ -334,7 +334,6 @@ class DebateShowManager {
         const timeLeftSmall = document.getElementById('time-left-small');
 
         if (!timeLeftSmall) {
-            console.warn('⚠️ time-left-small 要素が見つかりません');
             return;
         }
 

@@ -12,7 +12,7 @@ return [
     'close' => 'Close',
     'create' => 'Create',
     'update' => 'Update',
-    'name' => 'Name',
+    'name' => 'Username',
     'email' => 'Email',
     'password' => 'Password',
     'confirm_password' => 'Confirm Password',
@@ -28,4 +28,5 @@ return [
     'field_required' => 'This field is required',
     'view_guide' => 'View Guide',
     'error' => 'An error occurred.',
+    'security_tips' => 'Security Tips',
 ];

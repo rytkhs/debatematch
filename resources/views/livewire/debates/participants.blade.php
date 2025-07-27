@@ -106,14 +106,59 @@
         @endif
 
         <!-- ターン情報 -->
-        <div class="my-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
-            <p class="text-xs text-gray-600 mb-2">{{ __('debates_ui.current_turn_info') }}</p>
-            <div class="flex items-center justify-between text-sm">
-                <span class="font-medium">{{$currentTurnName}}</span>
-                <span class="bg-primary-light text-primary px-2 py-0.5 rounded-full text-xs">
-                    {{ __('debates_ui.remaining_time_label') }} <span wire:ignore id="time-left-small"></span>
-                </span>
+        <div class="my-4 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <!-- 現在のターン -->
+            <div class="p-4 {{ $currentSpeaker === 'affirmative' ? 'bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-400' : ($currentSpeaker === 'negative' ? 'bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-400' : 'bg-gray-50') }}">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 {{ $currentSpeaker === 'affirmative' ? 'bg-green-500' : ($currentSpeaker === 'negative' ? 'bg-red-500' : 'bg-gray-400') }} rounded-full animate-pulse"></div>
+                            <span class="text-xs font-medium text-gray-600 tracking-wide">{{ __('debates_ui.current_turn_info') }}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-normal text-gray-800 text-sm">
+                            @if($currentSpeaker)
+                                {{ $currentSpeaker === 'affirmative' ? __('debates_ui.affirmative_side_label') : __('debates_ui.negative_side_label') }}{{$currentTurnName}}
+                            @else
+                                {{$currentTurnName}}
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- 次のターン -->
+            @if($nextTurnName !== __('rooms.finished'))
+                <div class="p-4 bg-gray-50 border-t border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                <span class="text-xs font-medium text-gray-600 tracking-wide">{{ __('debates_ui.next_turn_info') }}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class=" text-black-500 px-3 py-1 rounded-full text-xs font-normal ">
+                                @if($nextSpeaker)
+                                    {{ $nextSpeaker === 'affirmative' ? __('debates_ui.affirmative_side_label') : __('debates_ui.negative_side_label') }}{{$nextTurnName}}
+                                @else
+                                    {{$nextTurnName}}
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="p-4 bg-gray-50 border-t border-gray-100">
+                    <div class="flex items-center justify-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">{{ __('rooms.finished') }}</span>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
         <!-- 早期終了コンポーネント -->
         <livewire:debates.early-termination :debate="$debate" />
