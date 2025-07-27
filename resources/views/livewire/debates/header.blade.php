@@ -46,11 +46,25 @@
                 wire:click="skipAIPrepTime"
                 wire:loading.attr="disabled"
                 wire:confirm="{{ __('ai_debate.confirm_skip_prep_time') }}"
-                class="btn-secondary flex items-center px-2 py-1 sm:px-3 sm:py-1.5 text-xs rounded-lg transition-all hover:scale-105"
+                class="inline-flex items-center px-2 py-1 sm:px-3 sm:py-1.5 text-xs bg-white text-blue-600 border border-blue-600 rounded-lg font-semibold transition-all duration-300 hover:bg-blue-600 hover:text-white hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-white disabled:hover:text-blue-600"
                 {{ $remainingTime < 5 ? 'disabled' : '' }}
+                title="{{ $remainingTime < 5 ? __('ai_debate.skip_not_available') : __('ai_debate.skip_prep_time') }}"
             >
-                <span class="material-icons-outlined mr-1 text-sm">skip_next</span>
-                {{ __('ai_debate.skip_prep_time') }}
+                <!-- ローディング状態のスピナー -->
+                <span wire:loading wire:target="skipAIPrepTime" class="material-icons-outlined mr-1 text-sm animate-spin">
+                    refresh
+                </span>
+                <!-- 通常状態のアイコン -->
+                <span wire:loading.remove wire:target="skipAIPrepTime" class="material-icons-outlined mr-1 text-sm">
+                    skip_next
+                </span>
+                <!-- ボタンテキスト -->
+                <span wire:loading.remove wire:target="skipAIPrepTime" class="hidden sm:inline">
+                    {{ __('ai_debate.skip_prep_time') }}
+                </span>
+                <span wire:loading wire:target="skipAIPrepTime" class="hidden sm:inline">
+                    {{ __('common.processing') }}
+                </span>
             </button>
             @endif
 
