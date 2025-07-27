@@ -5,6 +5,7 @@ return [
     'format_name_nsda_policy' => 'NSDA Policy Debate',
     'format_name_nsda_ld' => 'NSDA Lincoln-Douglas Debate',
     'format_name_nada_high' => 'Debate Koshien (High School Division) (NADA)',
+    'format_name_nada_junior_high' => 'Debate Koshien (Junior High School Division)',
     'format_name_henda' => 'Japan High School English Debate Association Tournament (HEnDA)',
     'format_name_coda' => 'All Japan University Debate Championship (CoDA)',
     'format_name_jda' => 'Japan Debate Association Tournament (JDA)',

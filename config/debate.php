@@ -79,6 +79,24 @@ return [
             14 => ['speaker' => 'affirmative', 'name' => 'suggestion_prep_time', 'duration' => 2 * 60, 'is_prep_time' => true, 'is_questions' => false],
             15 => ['speaker' => 'affirmative', 'name' => 'suggestion_2nd_rebuttal', 'duration' => 4 * 60, 'is_prep_time' => false, 'is_questions' => false],
         ],
+        // NADA Junior High School Debate Format Key
+        'format_name_nada_junior_high' => [
+            1 => ['speaker' => 'affirmative', 'name' => 'suggestion_constructive', 'duration' => 4 * 60, 'is_prep_time' => false, 'is_questions' => false],
+            2 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
+            3 => ['speaker' => 'negative', 'name' => 'suggestion_questioning', 'duration' => 2 * 60, 'is_prep_time' => false, 'is_questions' => true],
+            4 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
+            5 => ['speaker' => 'negative', 'name' => 'suggestion_constructive', 'duration' => 4 * 60, 'is_prep_time' => false, 'is_questions' => false],
+            6 => ['speaker' => 'affirmative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
+            7 => ['speaker' => 'affirmative', 'name' => 'suggestion_questioning', 'duration' => 2 * 60, 'is_prep_time' => false, 'is_questions' => true],
+            8 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
+            9 => ['speaker' => 'negative', 'name' => 'suggestion_1st_rebuttal', 'duration' => 3 * 60, 'is_prep_time' => false, 'is_questions' => false],
+            10 => ['speaker' => 'affirmative', 'name' => 'suggestion_prep_time', 'duration' => 2 * 60, 'is_prep_time' => true, 'is_questions' => false],
+            11 => ['speaker' => 'affirmative', 'name' => 'suggestion_1st_rebuttal', 'duration' => 3 * 60, 'is_prep_time' => false, 'is_questions' => false],
+            12 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 2 * 60, 'is_prep_time' => true, 'is_questions' => false],
+            13 => ['speaker' => 'negative', 'name' => 'suggestion_2nd_rebuttal', 'duration' => 3 * 60, 'is_prep_time' => false, 'is_questions' => false],
+            14 => ['speaker' => 'affirmative', 'name' => 'suggestion_prep_time', 'duration' => 2 * 60, 'is_prep_time' => true, 'is_questions' => false],
+            15 => ['speaker' => 'affirmative', 'name' => 'suggestion_2nd_rebuttal', 'duration' => 3 * 60, 'is_prep_time' => false, 'is_questions' => false],
+        ],
         // HEnDA Format Key
         'format_name_henda' => [
             1 => ['speaker' => 'affirmative', 'name' => 'suggestion_1st_constructive', 'duration' => 4 * 60, 'is_prep_time' => false, 'is_questions' => false],
