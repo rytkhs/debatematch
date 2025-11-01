@@ -33,6 +33,10 @@ Route::middleware([CheckUserActiveStatus::class])->group(function () {
         return view('privacy');
     })->name('privacy');
 
+    Route::get('/tokushoho', function () {
+        return view('tokushoho');
+    })->name('tokushoho');
+
     Route::get('/guide', function () {
         return view('guide');
     })->name('guide');

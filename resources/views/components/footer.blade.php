@@ -22,6 +22,9 @@
                 <a href="{{ route('privacy') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
                     {{ __('navigation.privacy_policy') }}
                 </a>
+                <a href="{{ route('tokushoho') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
+                    {{ __('navigation.commercial_transaction_act') }}
+                </a>
             </div>
 
             <!-- ソーシャルメディアリンク -->
