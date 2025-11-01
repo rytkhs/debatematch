@@ -167,7 +167,7 @@ class DebateFlowTest extends TestCase
             'remarks' => 'Test debate for integration testing',
             'status' => Room::STATUS_WAITING,
             'language' => 'japanese',
-            'format_type' => 'format_name_nada_high',
+            'format_type' => 'format_name_nade_high',
             'evidence_allowed' => true,
             'created_by' => $this->affirmativeUser->id,
         ]);

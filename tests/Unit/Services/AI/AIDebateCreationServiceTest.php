@@ -35,7 +35,7 @@ class AIDebateCreationServiceTest extends TestCase
             'topic' => 'AI Ethics',
             'side' => 'affirmative',
             'language' => 'japanese',
-            'format_type' => 'format_name_nada_high',
+            'format_type' => 'format_name_nade_high',
         ];
 
         $debate = $this->aiDebateService->createAIDebate($validatedData, $creator);
@@ -78,7 +78,7 @@ class AIDebateCreationServiceTest extends TestCase
             'topic' => 'Test Topic',
             'side' => 'affirmative',
             'language' => 'japanese',
-            'format_type' => 'format_name_nada_high',
+            'format_type' => 'format_name_nade_high',
         ];
 
         $this->expectException(\Exception::class);
