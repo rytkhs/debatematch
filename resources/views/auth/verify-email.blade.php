@@ -38,6 +38,10 @@
         <div class="mb-4 font-medium text-sm text-green-600 p-3 bg-green-50 border border-green-200 rounded-md">
             {{ __('auth.verification_link_sent') }}
         </div>
+    @elseif (session('status') == 'otp-resent')
+        <div class="mb-4 font-medium text-sm text-green-600 p-3 bg-green-50 border border-green-200 rounded-md">
+            {{ __('auth.otp-resent') }}
+        </div>
     @endif
 
     <!-- Error messages -->

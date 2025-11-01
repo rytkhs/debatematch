@@ -158,14 +158,28 @@ class OtpVerification {
         // Initialize cooldown state
         this.resendCooldown = 0;
         this.resendCooldownInterval = null;
+        this.hasClickedOnce = false;
 
         this.resendButton.addEventListener('click', e => {
+            // 初回クリックは常に許可
+            if (!this.hasClickedOnce) {
+                this.hasClickedOnce = true;
+
+                // フォーム送信後にクールダウンを開始
+                setTimeout(() => {
+                    this.resendCooldown = 30;
+                    this.startResendCooldown();
+                }, 500);
+                return;
+            }
+
+            // 2回目以降はクールダウンをチェック
             if (this.resendCooldown > 0) {
                 e.preventDefault();
                 return;
             }
 
-            // Start cooldown (30 seconds)
+            // クールダウン終了後の再送信
             this.resendCooldown = 30;
             this.startResendCooldown();
         });
