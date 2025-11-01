@@ -24,8 +24,8 @@ class FormatManager
         ];
 
         $jpFormats = [
-            'format_name_nada_high' => $rawFormats['format_name_nada_high'],
-            'format_name_nada_junior_high' => $rawFormats['format_name_nada_junior_high'],
+            'format_name_nade_high' => $rawFormats['format_name_nade_high'],
+            'format_name_nade_junior_high' => $rawFormats['format_name_nade_junior_high'],
             'format_name_henda' => $rawFormats['format_name_henda'],
             'format_name_coda' => $rawFormats['format_name_coda'],
             'format_name_jda' => $rawFormats['format_name_jda'],

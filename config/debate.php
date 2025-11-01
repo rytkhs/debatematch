@@ -61,8 +61,8 @@ return [
         //     11 => ['speaker' => 'affirmative', 'name' => 'suggestion_prep_time', 'duration' => 2 * 60, 'is_prep_time' => true, 'is_questions' => false],
         //     12 => ['speaker' => 'affirmative', 'name' => 'suggestion_rebuttal', 'duration' => 5 * 60, 'is_prep_time' => false, 'is_questions' => false],
         // ],
-        // NADA High School Format Key
-        'format_name_nada_high' => [
+        // NADE High School Format Key
+        'format_name_nade_high' => [
             1 => ['speaker' => 'affirmative', 'name' => 'suggestion_constructive', 'duration' => 6 * 60, 'is_prep_time' => false, 'is_questions' => false],
             2 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
             3 => ['speaker' => 'negative', 'name' => 'suggestion_questioning', 'duration' => 3 * 60, 'is_prep_time' => false, 'is_questions' => true],
@@ -79,8 +79,8 @@ return [
             14 => ['speaker' => 'affirmative', 'name' => 'suggestion_prep_time', 'duration' => 2 * 60, 'is_prep_time' => true, 'is_questions' => false],
             15 => ['speaker' => 'affirmative', 'name' => 'suggestion_2nd_rebuttal', 'duration' => 4 * 60, 'is_prep_time' => false, 'is_questions' => false],
         ],
-        // NADA Junior High School Debate Format Key
-        'format_name_nada_junior_high' => [
+        // NADE Junior High School Debate Format Key
+        'format_name_nade_junior_high' => [
             1 => ['speaker' => 'affirmative', 'name' => 'suggestion_constructive', 'duration' => 4 * 60, 'is_prep_time' => false, 'is_questions' => false],
             2 => ['speaker' => 'negative', 'name' => 'suggestion_prep_time', 'duration' => 1 * 60, 'is_prep_time' => true, 'is_questions' => false],
             3 => ['speaker' => 'negative', 'name' => 'suggestion_questioning', 'duration' => 2 * 60, 'is_prep_time' => false, 'is_questions' => true],

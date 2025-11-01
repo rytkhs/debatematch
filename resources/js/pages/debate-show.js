@@ -20,6 +20,9 @@ class DebateShowManager {
         this.turnAdvancedListener = null;
         this.turnAdvancedCleanup = null;
         this.debateData = debateData;
+        // MutationObserver for DOM changes
+        this.mutationObserver = null;
+        this.livewireUpdateListener = null;
     }
 
     /**
@@ -54,6 +57,9 @@ class DebateShowManager {
 
             // 早期終了機能の初期化
             this.initializeEarlyTermination();
+
+            // MutationObserverの初期化
+            this.initializeMutationObserver();
 
             // Livewireコンポーネントの初期化（遅延実行）
             this.initializeLivewireComponentsDelayed();
@@ -197,12 +203,107 @@ class DebateShowManager {
         // Livewire初期化後に実行
         if (window.Livewire) {
             this.initializeLivewireComponents();
+            this.setupLivewireUpdateListener();
         } else {
             document.addEventListener('livewire:initialized', () => {
                 // さらに少し遅延して確実にDOM要素が準備されるのを待つ
                 setTimeout(() => {
                     this.initializeLivewireComponents();
+                    this.setupLivewireUpdateListener();
                 }, 500);
+            });
+        }
+    }
+
+    /**
+     * Livewire更新イベントリスナーを設定
+     */
+    setupLivewireUpdateListener() {
+        if (!window.Livewire) return;
+
+        // 既存のリスナーをクリーンアップ
+        if (this.livewireUpdateListener) {
+            this.livewireUpdateListener();
+            this.livewireUpdateListener = null;
+        }
+
+        // Livewire更新時の再初期化
+        this.livewireUpdateListener = window.Livewire.hook('morph.updated', () => {
+            // DOM更新後に短い遅延を置いて再初期化
+            setTimeout(() => {
+                this.reinitializeCountdownElements();
+            }, 100);
+        });
+    }
+
+    /**
+     * カウントダウン要素の再初期化
+     */
+    reinitializeCountdownElements() {
+        try {
+            // ヘッダーのカウントダウンを再初期化
+            const countdownElement = document.getElementById('countdown-timer');
+            if (countdownElement && !countdownElement.dataset.initialized) {
+                this.initializeHeaderCountdown();
+                countdownElement.dataset.initialized = 'true';
+            }
+
+            // 参加者のカウントダウンを再初期化
+            const participantElement = document.getElementById('time-left-small');
+            if (participantElement && !participantElement.dataset.initialized) {
+                this.initializeParticipantsCountdown();
+                participantElement.dataset.initialized = 'true';
+            }
+        } catch (error) {
+            console.error('カウントダウン要素の再初期化エラー:', error);
+        }
+    }
+
+    /**
+     * MutationObserverを初期化してDOM変更を監視
+     */
+    initializeMutationObserver() {
+        if (!window.MutationObserver) return;
+
+        this.mutationObserver = new MutationObserver(mutations => {
+            let shouldReinitialize = false;
+
+            mutations.forEach(mutation => {
+                // 新しいノードが追加された場合
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === window.Node.ELEMENT_NODE) {
+                        // countdown-timer要素が追加された場合
+                        if (
+                            node.id === 'countdown-timer' ||
+                            (node.querySelector && node.querySelector('#countdown-timer'))
+                        ) {
+                            shouldReinitialize = true;
+                        }
+                        // time-left-small要素が追加された場合
+                        if (
+                            node.id === 'time-left-small' ||
+                            (node.querySelector && node.querySelector('#time-left-small'))
+                        ) {
+                            shouldReinitialize = true;
+                        }
+                    }
+                });
+            });
+
+            if (shouldReinitialize) {
+                // 少し遅延させて確実にDOMが準備された後に実行
+                setTimeout(() => {
+                    this.reinitializeCountdownElements();
+                }, 50);
+            }
+        });
+
+        // ヘッダー要素を監視対象に設定
+        const headerElement = document.querySelector('header');
+        if (headerElement) {
+            this.mutationObserver.observe(headerElement, {
+                childList: true,
+                subtree: true,
             });
         }
     }
@@ -234,11 +335,21 @@ class DebateShowManager {
             return;
         }
 
+        // 重複初期化を防ぐ
+        if (countdownTextElement.dataset.initialized === 'true') {
+            return;
+        }
+
         // 既存のカウントダウンが動作している場合は初期表示を設定
         this.syncInitialCountdownState(countdownTextElement);
 
         // カウントダウンリスナーを登録
-        this.managers.countdownManager.addListener(timeData => {
+        const listenerFunction = timeData => {
+            // 要素が存在しない場合は処理をスキップ
+            if (!document.getElementById('countdown-timer')) {
+                return;
+            }
+
             // wire:loading が表示されている場合は更新しない
             const loadingElement = countdownTextElement.querySelector('[wire\\:loading]');
             const loadingRemoveElement = countdownTextElement.querySelector(
@@ -270,14 +381,20 @@ class DebateShowManager {
                 countdownTextElement.classList.add('text-primary');
                 countdownTextElement.classList.remove('text-red-600');
             }
-        });
+        };
 
-        // Livewire変数の監視
+        this.managers.countdownManager.addListener(listenerFunction);
+
+        // 初期化完了をマーク
+        countdownTextElement.dataset.initialized = 'true';
+        countdownTextElement.dataset.listenerId = Date.now().toString();
+
+        // Livewire変数の監視（エラーハンドリング強化）
         this.setupLivewireWatchers(countdownTextElement);
     }
 
     /**
-     * Livewire変数の監視設定
+     * Livewire変数の監視設定（エラーハンドリング強化）
      */
     setupLivewireWatchers(countdownTextElement) {
         if (!window.Livewire) {
@@ -300,31 +417,47 @@ class DebateShowManager {
             return;
         }
 
-        // turnEndTimeの初期値設定
-        const turnEndTime = component.get('turnEndTime');
+        try {
+            // turnEndTimeの初期値設定
+            const turnEndTime = component.get('turnEndTime');
 
-        if (turnEndTime) {
-            this.managers.countdownManager.start(turnEndTime);
-        } else {
-            // turnEndTime がない場合は初期表示
-            const loadingRemoveElement = countdownTextElement.querySelector(
-                '[wire\\:loading\\.remove]'
-            );
-            if (loadingRemoveElement) {
-                loadingRemoveElement.textContent = '--:--';
+            if (turnEndTime) {
+                this.managers.countdownManager.start(turnEndTime);
             } else {
+                // turnEndTime がない場合は初期表示
+                const loadingRemoveElement = countdownTextElement.querySelector(
+                    '[wire\\:loading\\.remove]'
+                );
+                if (loadingRemoveElement) {
+                    loadingRemoveElement.textContent = '--:--';
+                } else {
+                    countdownTextElement.textContent = '--:--';
+                }
+            }
+
+            // turnEndTime変更の監視（エラーハンドリング付き）
+            component.$watch('turnEndTime', newValue => {
+                try {
+                    if (newValue) {
+                        this.managers.countdownManager.start(newValue);
+                    } else {
+                        this.managers.countdownManager.stop();
+                    }
+                } catch (error) {
+                    console.error('turnEndTime監視エラー:', error);
+                    // フォールバック処理
+                    if (countdownTextElement) {
+                        countdownTextElement.textContent = '--:--';
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Livewire変数監視の設定エラー:', error);
+            // フォールバック処理
+            if (countdownTextElement) {
                 countdownTextElement.textContent = '--:--';
             }
         }
-
-        // turnEndTime変更の監視
-        component.$watch('turnEndTime', newValue => {
-            if (newValue) {
-                this.managers.countdownManager.start(newValue);
-            } else {
-                this.managers.countdownManager.stop();
-            }
-        });
     }
 
     /**
@@ -342,11 +475,21 @@ class DebateShowManager {
             return;
         }
 
+        // 重複初期化を防ぐ
+        if (timeLeftSmall.dataset.initialized === 'true') {
+            return;
+        }
+
         // 既存のカウントダウンが動作している場合は初期表示を設定
         this.syncInitialCountdownState(timeLeftSmall);
 
         // カウントダウンから時間を取得
-        this.managers.countdownManager.addListener(timeData => {
+        const listenerFunction = timeData => {
+            // 要素が存在しない場合は処理をスキップ
+            if (!document.getElementById('time-left-small')) {
+                return;
+            }
+
             if (!timeData.isRunning) {
                 const finishedText = document.documentElement.lang === 'ja' ? '終了' : 'Finished';
                 timeLeftSmall.textContent = finishedText;
@@ -360,7 +503,13 @@ class DebateShowManager {
             } else {
                 timeLeftSmall.classList.remove('text-red-600', 'font-bold');
             }
-        });
+        };
+
+        this.managers.countdownManager.addListener(listenerFunction);
+
+        // 初期化完了をマーク
+        timeLeftSmall.dataset.initialized = 'true';
+        timeLeftSmall.dataset.listenerId = Date.now().toString();
     }
 
     /**
@@ -438,6 +587,18 @@ class DebateShowManager {
             this.initializationTimeout = null;
         }
 
+        // MutationObserverのクリーンアップ
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+            this.mutationObserver = null;
+        }
+
+        // Livewire更新リスナーのクリーンアップ
+        if (this.livewireUpdateListener) {
+            this.livewireUpdateListener();
+            this.livewireUpdateListener = null;
+        }
+
         // 各マネージャーのクリーンアップ
         Object.values(this.managers).forEach(manager => {
             if (manager && typeof manager.cleanup === 'function') {
@@ -456,6 +617,19 @@ class DebateShowManager {
 
         // マネージャー参照をクリア
         this.managers = {};
+
+        // DOM要素の初期化フラグをクリア
+        const countdownElement = document.getElementById('countdown-timer');
+        if (countdownElement) {
+            delete countdownElement.dataset.initialized;
+            delete countdownElement.dataset.listenerId;
+        }
+
+        const participantElement = document.getElementById('time-left-small');
+        if (participantElement) {
+            delete participantElement.dataset.initialized;
+            delete participantElement.dataset.listenerId;
+        }
 
         // グローバル参照のクリーンアップ
         if (window.debateCountdown === this.managers.countdownManager) {
@@ -500,6 +674,128 @@ window.cleanupDebatePage = () => {
         debateManager = null;
     }
 };
+
+// デバッグ用のヘルパー関数
+window.debugCountdownTimer = () => {
+    if (!debateManager || !debateManager.managers.countdownManager) {
+        console.log('DebateManager または CountdownManager が初期化されていません');
+        return;
+    }
+
+    const manager = debateManager.managers.countdownManager;
+    const debugInfo = manager.getDebugInfo();
+
+    console.group('🔍 カウントダウンタイマー デバッグ情報');
+    console.log('基本情報:', debugInfo);
+
+    // DOM要素の状態
+    const countdownElement = document.getElementById('countdown-timer');
+    const participantElement = document.getElementById('time-left-small');
+
+    console.log('DOM要素の状態:', {
+        countdownElement: {
+            exists: !!countdownElement,
+            initialized: countdownElement?.dataset.initialized,
+            textContent: countdownElement?.textContent,
+            listenerId: countdownElement?.dataset.listenerId,
+        },
+        participantElement: {
+            exists: !!participantElement,
+            initialized: participantElement?.dataset.initialized,
+            textContent: participantElement?.textContent,
+            listenerId: participantElement?.dataset.listenerId,
+        },
+    });
+
+    // Livewire接続状態
+    console.log('Livewire状態:', {
+        livewireAvailable: !!window.Livewire,
+        echoAvailable: !!window.Echo,
+        pusherConnected: window.Echo?.connector?.pusher?.connection?.state,
+    });
+
+    // マネージャーの状態
+    console.log('DebateManager状態:', {
+        isInitialized: debateManager.isInitialized,
+        hasCountdownManager: !!debateManager.managers.countdownManager,
+        hasEventHandler: !!debateManager.managers.eventHandler,
+        managersCount: Object.keys(debateManager.managers).length,
+    });
+
+    console.groupEnd();
+
+    return debugInfo;
+};
+
+// 本番環境での問題検出用
+window.checkCountdownHealth = () => {
+    const health = {
+        status: 'healthy',
+        issues: [],
+        timestamp: new Date().toISOString(),
+    };
+
+    // DOM要素チェック
+    const countdownElement = document.getElementById('countdown-timer');
+    if (!countdownElement) {
+        health.issues.push('countdown-timer要素が見つかりません');
+        health.status = 'error';
+    } else if (!countdownElement.dataset.initialized) {
+        health.issues.push('countdown-timer要素が初期化されていません');
+        health.status = 'warning';
+    }
+
+    // マネージャーチェック
+    if (!debateManager) {
+        health.issues.push('DebateManagerが初期化されていません');
+        health.status = 'error';
+    } else if (!debateManager.managers.countdownManager) {
+        health.issues.push('CountdownManagerが初期化されていません');
+        health.status = 'error';
+    }
+
+    // WebSocket接続チェック
+    if (!window.Echo) {
+        health.issues.push('Echo(WebSocket)が利用できません');
+        health.status = 'warning';
+    } else if (window.Echo.connector?.pusher?.connection?.state !== 'connected') {
+        health.issues.push(
+            `WebSocket接続状態が不正: ${window.Echo.connector?.pusher?.connection?.state}`
+        );
+        health.status = 'warning';
+    }
+
+    // Livewireチェック
+    if (!window.Livewire) {
+        health.issues.push('Livewireが利用できません');
+        health.status = 'error';
+    }
+
+    console.log('🏥 カウントダウンタイマー ヘルスチェック:', health);
+    return health;
+};
+
+// 自動ヘルスチェック（本番環境のみ）
+if (import.meta.env.PROD) {
+    setInterval(() => {
+        const health = window.checkCountdownHealth();
+        if (health.status === 'error') {
+            console.error(
+                '⚠️ カウントダウンタイマーにクリティカルな問題が検出されました:',
+                health.issues
+            );
+
+            // 自動復旧を試行
+            if (
+                debateManager &&
+                typeof debateManager.reinitializeCountdownElements === 'function'
+            ) {
+                console.log('🔄 自動復旧を試行します...');
+                debateManager.reinitializeCountdownElements();
+            }
+        }
+    }, 30000); // 30秒間隔でチェック
+}
 
 // Add a listener to clean up before Livewire navigates away
 document.addEventListener('livewire:navigating', () => {

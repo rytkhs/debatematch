@@ -358,7 +358,7 @@ class AIDebateSkipIntegrationTest extends TestCase
             'status' => Room::STATUS_READY,
             'is_ai_debate' => true,
             'language' => 'japanese',
-            'format_type' => 'format_name_nada_high',
+            'format_type' => 'format_name_nade_high',
             'created_by' => $this->humanUser->id,
         ]);
     }

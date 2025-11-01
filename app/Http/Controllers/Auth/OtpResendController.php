@@ -53,6 +53,11 @@ class OtpResendController extends Controller
                 'email' => $user->email,
             ]);
 
+            // プロフィールページからの再送信の場合、OTP認証ページにリダイレクト
+            if ($request->header('referer') && str_contains($request->header('referer'), '/profile')) {
+                return redirect()->route('verification.notice')->with('status', 'otp-resent');
+            }
+
             return back()->with('status', 'otp-resent');
         } catch (OtpRateLimitException $e) {
             Log::warning('OTP再送信のレート制限を超過しました', [

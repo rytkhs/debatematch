@@ -39,9 +39,18 @@ class GoogleLoginController extends Controller
             Auth::login($user, true);
 
             return redirect()->intended('/')->with('success', __('flash.auth.login.success'));
-
         } catch (Exception $e) {
-            Log::error('Google login error: ' . $e->getMessage());
+            Log::error('Google login error', [
+                'exception' => get_class($e),
+                'message' => $e->getMessage() ?: 'No error message provided',
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'request_id' => request()->header('X-Request-ID'),
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
 
             return redirect('login')
                 ->withErrors(['error' => __('auth.google_login_failed')]);
