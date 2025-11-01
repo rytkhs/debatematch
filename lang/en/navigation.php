@@ -23,6 +23,7 @@ return [
     // Footer Links
     'terms_of_service' => 'Terms',
     'privacy_policy' => 'Privacy',
+    'commercial_transaction_act' => 'Commercial Transaction Act Notice',
     'contact_us' => 'Contact Us',
     'support' => 'Support',
 

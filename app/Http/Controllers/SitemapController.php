@@ -41,6 +41,12 @@ class SitemapController extends Controller
                 'priority' => '0.3'
             ],
             [
+                'url' => route('tokushoho'),
+                'lastmod' => Carbon::now()->toISOString(),
+                'changefreq' => 'yearly',
+                'priority' => '0.3'
+            ],
+            [
                 'url' => route('contact.index'),
                 'lastmod' => Carbon::now()->toISOString(),
                 'changefreq' => 'monthly',
@@ -56,8 +62,8 @@ class SitemapController extends Controller
 
         // 動的ページ（ルーム）の取得
         $rooms = Room::whereNotIn('status', ['deleted', 'terminated'])
-                     ->orderBy('updated_at', 'desc')
-                     ->get();
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
         $roomPages = [];
         foreach ($rooms as $room) {

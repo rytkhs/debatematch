@@ -23,6 +23,7 @@ return [
     // Footer Links
     'terms_of_service' => '利用規約',
     'privacy_policy' => 'プライバシーポリシー',
+    'commercial_transaction_act' => '特定商取引法に基づく表記',
     'contact_us' => 'お問い合わせ',
     'support' => 'サポート',
 
