@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Models\Debate;
+use App\Services\Traits\HandlesOpenRouterRetry;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
+use Throwable;
 
 class AIEvaluationService
 {
+    use HandlesOpenRouterRetry;
+
+    const API_TIMEOUT_SECONDS = 300;
+
     public function __construct(private DebateService $debateService)
     {
         //
@@ -89,13 +95,33 @@ class AIEvaluationService
         }
 
         // 3. OpenRouter APIを呼び出す
+        $retryAttempt = 0;
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'HTTP-Referer' => config('app.url'),
             'X-Title' => 'Debate Evaluation System',
             'Content-Type' => 'application/json',
         ])
-            ->timeout(300)
+            ->timeout(self::API_TIMEOUT_SECONDS)
+            ->retry(3, function ($exception, $request) use (&$retryAttempt, $debate, $language) {
+                $retryAttempt++;
+                $shouldRetry = $this->shouldRetry($exception);
+
+                if ($shouldRetry) {
+                    $delayMs = $this->calculateBackoffDelay($retryAttempt);
+                    Log::warning('OpenRouter API retry attempt (evaluation)', [
+                        'debate_id' => $debate->id,
+                        'attempt' => $retryAttempt,
+                        'max_attempts' => 3,
+                        'error' => $exception->getMessage(),
+                        'delay_ms' => $delayMs,
+                        'language' => $language,
+                    ]);
+                    usleep($delayMs * 1000); // マイクロ秒に変換
+                }
+
+                return $shouldRetry;
+            }, throw: false)
             ->post('https://openrouter.ai/api/v1/chat/completions', [
                 'model' => Config::get('services.openrouter.evaluation_model'),
                 'messages' => [
@@ -143,11 +169,12 @@ class AIEvaluationService
 
         // 4. レスポンスを処理
         if ($response->failed()) {
-            Log::error('OpenRouter API Error', [
+            Log::error('OpenRouter API Error after retries (evaluation)', [
                 'response' => $response->json(),
                 'status' => $response->status(),
                 'debate_id' => $debate->id,
-                'language' => $language
+                'language' => $language,
+                'retry_attempts' => $retryAttempt,
             ]);
             return $this->getDefaultResponse("AI APIとの通信に失敗しました", $language);
         }
