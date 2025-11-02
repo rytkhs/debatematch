@@ -16,6 +16,9 @@
                 <a href="{{ route('contact.index') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
                     {{ __('Contact Us') }}
                 </a>
+                <a href="{{ route('issues.index') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
+                    {{ __('Feedback') }}
+                </a>
                 <a href="{{ route('terms') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
                     {{ __('navigation.terms_of_service') }}
                 </a>

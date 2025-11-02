@@ -6,6 +6,7 @@ use App\Http\Controllers\DebateRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PusherWebhookController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\IssueController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -43,6 +44,9 @@ Route::middleware([CheckUserActiveStatus::class])->group(function () {
 
     // お問い合わせページ
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+
+    // 問題報告・機能リクエストページ
+    Route::get('/issues', [IssueController::class, 'index'])->name('issues.index');
 
     // サイトマップ
     Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
