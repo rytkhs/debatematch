@@ -12,7 +12,7 @@
             </div>
 
             <!-- ナビゲーションリンク -->
-            <div class="flex flex-wrap justify-center gap-4 mb-4 md:mb-0">
+            <div class="flex flex-wrap justify-center gap-4 mb-4 md:mb-0 items-center">
                 <a href="{{ route('contact.index') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
                     {{ __('Contact Us') }}
                 </a>
@@ -27,6 +27,19 @@
                 </a>
                 <a href="{{ route('tokushoho') }}" class="text-sm text-gray-600 hover:text-primary transition-colors">
                     {{ __('navigation.commercial_transaction_act') }}
+                </a>
+                <!-- 応援チップボタン -->
+                @php
+                    $paymentLinkUrl = 'https://buy.stripe.com/test_cNibJ16JHdSu2g79ZTaZi00';
+                    // ログイン済みユーザーのメールアドレスをprefill
+                    if (auth()->check() && auth()->user()->email) {
+                        $email = urlencode(auth()->user()->email);
+                        $paymentLinkUrl .= '?prefilled_email=' . $email;
+                    }
+                @endphp
+                <a href="{{ $paymentLinkUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 text-md font-medium text-primary bg-primary/5 hover:bg-primary/10 rounded-md transition-colors border border-primary/20">
+                    <i class="fas fa-heart text-primary"></i>
+                    <span>{{ __('navigation.support_tip') }}</span>
                 </a>
             </div>
 
