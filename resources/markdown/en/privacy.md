@@ -1,20 +1,20 @@
-# DebateMatch Privacy Policy
+## DebateMatch Privacy Policy
 
-## Introduction
+### Introduction
 
-DebateMatch (the "Service") is an online debate platform operated by tkhs ("we," "us," or "our"). This Privacy Policy explains how we handle the personal information ("Personal Information") we collect from users ("you") through the Service. We respect your privacy and are committed to protecting your Personal Information.
+DebateMatch (the "Service") is an online debate platform operated by DebateMatch ("we," "us," or "our"). This Privacy Policy explains how we handle the personal information ("Personal Information") we collect from users ("you") through the Service. We respect your privacy and are committed to protecting your Personal Information.
 
-## 1. Information We Collect
+### 1. Information We Collect
 
 We collect the following types of Personal Information:
 
 *   **Registration Information:** Information you provide when registering for the Service (e.g., username, email address).
-*   **Profile Information:** Information you voluntarily add to your profile (e.g., self-introduction, areas of interest).
+*   **Profile Information:** Information you voluntarily add to your profile.
 *   **Usage Data:** Information automatically collected when you use the Service (e.g., IP address, browser type, operating system, access times, pages viewed, features used, debate content (text chat), AI evaluation results).
 *   **Cookies and Tracking Technologies:** We use cookies and similar technologies to provide and improve the Service. Cookies are small text files stored on your browser when you visit a website. We use cookies for user authentication and usage analysis (including Google Analytics). You can configure your browser settings to refuse cookies or to alert you when cookies are being sent. However, if you refuse cookies, some or all parts of the Service may not function properly.
 *   **Contact Information:** Information you provide when you contact us (e.g., email address, inquiry content).
 
-## 2. How We Use Your Information
+### 2. How We Use Your Information
 
 We use the Personal Information we collect for the following purposes:
 
@@ -24,7 +24,7 @@ We use the Personal Information we collect for the following purposes:
 *   **To Enforce our Terms of Service:** To investigate violations of the Terms of Service, prevent fraudulent activity, and comply with legal obligations.
 *   **For Promotional Purposes:** With your consent, we may use the content you create for promoting the Service.
 
-## 3. Information Sharing
+### 3. Information Sharing
 
 We do not share your Personal Information with third parties, except in the following cases:
 
@@ -39,7 +39,7 @@ We do not share your Personal Information with third parties, except in the foll
 
     <!-- These service providers may access Personal Information only to perform tasks on our behalf and are obligated not to disclose or use it for any other purpose. We require these service providers to protect Personal Information appropriately. -->
 
-## 4. Your Rights
+### 4. Your Rights
 
 You have the following rights regarding your Personal Information:
 
@@ -52,7 +52,7 @@ You have the following rights regarding your Personal Information:
 
 <!-- To exercise these rights, please contact us at [Contact Information]. -->
 
-## 5. Data Security Measures
+### 5. Data Security Measures
 
 We take the following measures to protect your Personal Information:
 
@@ -60,17 +60,17 @@ We take the following measures to protect your Personal Information:
 *   **Organizational Measures:** Educating employees on data protection, establishing internal regulations, appointing responsible personnel, etc.
 *   **Data Storage Location:** User data is stored using AWS.
 
-## 6. Data Retention Period
+### 6. Data Retention Period
 
 We retain your Personal Information for as long as you maintain an account with the Service, or for two years after your last use of the Service. If you delete your account, we will delete your Personal Information within a reasonable period, except for information required to comply with legal obligations (e.g., retaining transaction records) or for dispute resolution.
 
-## 7. Use by Minors
+### 7. Use by Minors
 
 1.  The Service is not intended for children under the age of 13.
 2.  If you are between the ages of 13 and 18 (or the age of majority in your jurisdiction), you may only use the Service with the consent of a parent or legal guardian.
 3.  If we learn that we have collected Personal Information from a minor without appropriate consent, we will take steps to delete that information promptly and handle it with particular care.
 
-## 8. Changes to this Privacy Policy
+### 8. Changes to this Privacy Policy
 
 We may update this Privacy Policy from time to time due to changes in laws, regulations, or our business practices. If we make changes to this Privacy Policy, we will post the revised version on the Service. Your continued use of the Service after the revised Privacy Policy has been posted constitutes your acceptance of the changes.
 
