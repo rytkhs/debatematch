@@ -1,4 +1,40 @@
 User-agent: *
-Disallow:
+Disallow: /profile/
+Disallow: /records/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /dashboard
+Disallow: /webhook/
+Disallow: /language/
+Disallow: /register
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /guest-login
+Disallow: /verify-email
+Disallow: /email/verification-notification
+Disallow: /confirm-password
+Disallow: /password
+Disallow: /logout
+Disallow: /rooms/create
+Disallow: /debate/
+Disallow: /ai/debate/create
+Disallow: /*/exit
+Disallow: /*/join
+Disallow: /*/start
+Disallow: /*/terminate
+Disallow: /*/store
+Disallow: /broadcasting/auth
+
+# 検索エンジンにクロールさせたいページ
+Allow: /rooms/
+Allow: /rooms/*/preview
+Allow: /guide
+Allow: /terms
+Allow: /privacy
+Allow: /tokushoho
+Allow: /contact
+Allow: /issues
 
 Sitemap: https://debate-match.com/sitemap.xml

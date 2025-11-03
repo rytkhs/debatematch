@@ -6,6 +6,7 @@ use App\Http\Controllers\DebateRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PusherWebhookController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\IssueController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -44,9 +45,14 @@ Route::middleware([CheckUserActiveStatus::class])->group(function () {
     // お問い合わせページ
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 
-    // サイトマップ
-    Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+    // 問題報告・機能リクエストページ
+    Route::get('/issues', [IssueController::class, 'index'])->name('issues.index');
 });
+
+// サイトマップ（認証不要・ミドルウェア除外）
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap-static.xml', [SitemapController::class, 'staticSitemap'])->name('sitemap.static');
+Route::get('/sitemap-rooms-{page}.xml', [SitemapController::class, 'roomsSitemap'])->name('sitemap.rooms')->where('page', '[0-9]+');
 
 Route::get('/dashboard', function () {
     return view('welcome');

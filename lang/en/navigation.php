@@ -21,6 +21,7 @@ return [
     'debate_history' => 'Debate History',
 
     // Footer Links
+    'support_tip' => 'Support Tip',
     'terms_of_service' => 'Terms',
     'privacy_policy' => 'Privacy',
     'commercial_transaction_act' => 'Commercial Transaction Act Notice',

@@ -176,4 +176,7 @@ return [
     'user_joined_room_title' => 'User Joined',
     'user_left_room_title' => 'User Left',
     'redirecting_in_seconds' => 'Redirecting to the debate page in :seconds seconds...',
+    'copy_room_url' => 'Copy Room URL',
+    'room_url_copied' => 'Copied!',
+    'room_url_copy_failed' => 'Failed to copy',
 ];

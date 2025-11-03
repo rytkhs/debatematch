@@ -176,4 +176,7 @@ return [
     'user_joined_room_title' => 'ユーザー参加',
     'user_left_room_title' => 'ユーザー退出',
     'redirecting_in_seconds' => ':seconds秒後にディベートページへリダイレクトします...',
+    'copy_room_url' => 'ルームURLをコピー',
+    'room_url_copied' => 'コピーしました！',
+    'room_url_copy_failed' => 'コピーに失敗しました',
 ];

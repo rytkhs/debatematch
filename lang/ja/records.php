@@ -55,4 +55,22 @@ return [
     'result' => '結果',
     'evaluation_inconclusive' => '評価不能',
     'evaluation_inconclusive_short' => '判定不能',
+
+    // Markdown copy feature
+    'copy_report' => 'レポートをコピー',
+    'copied' => 'コピーしました',
+    'copy_failed' => 'コピー失敗',
+    'debate_result_title' => 'ディベート結果',
+    'debate_info_section' => 'ディベート情報',
+    'debaters_section' => 'ディベーター',
+    'evaluation_section' => '講評',
+    'debate_content_section' => 'ディベート内容',
+    'winner_suffix' => '(勝利)',
+    'topic_label' => '論題',
+    'room_name_label' => 'ルーム',
+    'host_name_label' => 'ホスト',
+    'remarks_label' => '備考',
+    'datetime_label' => '日時',
+    'affirmative_side' => '肯定側',
+    'negative_side' => '否定側',
 ];

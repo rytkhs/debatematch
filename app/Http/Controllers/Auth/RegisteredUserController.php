@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Contracts\OtpServiceInterface;
 use App\Http\Controllers\Controller;
-use App\Services\SlackNotifier;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +17,6 @@ use Illuminate\Support\Facades\Log;
 class RegisteredUserController extends Controller
 {
     public function __construct(
-        private SlackNotifier $slackNotifier,
         private OtpServiceInterface $otpService
     ) {
         //
@@ -64,18 +62,6 @@ class RegisteredUserController extends Controller
                 'email' => $user->email,
                 'error' => $e->getMessage()
             ]);
-        }
-
-        // 新規ユーザー登録通知を送信
-        $message = "新規ユーザー登録がありました。\n"
-            . "名前: {$user->name}\n";
-
-        $result = $this->slackNotifier->send($message);
-
-        if ($result) {
-            Log::info("通知を送信しました。 User ID: {$user->id}");
-        } else {
-            Log::warning("通知の送信に失敗しました。 User ID: {$user->id}");
         }
 
         return redirect(route('verification.notice', absolute: false));

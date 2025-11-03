@@ -117,6 +117,20 @@
                 <!-- 評価コンテンツ -->
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6 sm:mb-8">
                     <div class="p-4 sm:p-6">
+                        <!-- コピーボタン -->
+                        <div class="flex justify-end mb-4">
+                            <button
+                                id="copy-debate-report-btn"
+                                class="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs sm:text-sm font-medium rounded-lg transition duration-150 ease-in-out"
+                                data-original-text="{{ __('records.copy_report') }}"
+                                data-copied-text="{{ __('records.copied') }}"
+                                data-error-text="{{ __('records.copy_failed') }}"
+                            >
+                                <i class="fas fa-copy mr-1 sm:mr-2"></i>
+                                <span class="button-text">{{ __('records.copy_report') }}</span>
+                            </button>
+                        </div>
+
                         @if($evaluations)
                             <div class="space-y-4 sm:space-y-6">
                                 <!-- 論点の分析 -->
@@ -233,5 +247,63 @@
         <x-footer></x-footer>
     </x-slot>
 
+    <!-- データ注入 -->
+    <script>
+        window.debateData = {!! json_encode([
+            'id' => $debate->id,
+            'topic' => $debate->room->topic,
+            'room_name' => $debate->room->name,
+            'host_name' => $debate->room->creator->name ?? __('rooms.unknown_user'),
+            'remarks' => $debate->room->remarks,
+            'created_at' => $debate->created_at->toISOString(),
+            'affirmative' => [
+                'name' => $debate->affirmativeUser->name,
+                'is_ai' => $debate->affirmative_user_id === (int)config('app.ai_user_id', 1),
+                'is_winner' => $evaluations && $evaluations->winner === 'affirmative'
+            ],
+            'negative' => [
+                'name' => $debate->negativeUser->name,
+                'is_ai' => $debate->negative_user_id === (int)config('app.ai_user_id', 1),
+                'is_winner' => $evaluations && $evaluations->winner === 'negative'
+            ],
+            'evaluations' => $evaluations ? [
+                'analysis' => $evaluations->analysis,
+                'reason' => $evaluations->reason,
+                'winner' => $evaluations->winner,
+                'feedback_for_affirmative' => $evaluations->feedback_for_affirmative,
+                'feedback_for_negative' => $evaluations->feedback_for_negative
+            ] : null,
+            'messages' => $messages->map(fn($msg) => [
+                'user_name' => $msg->user->name,
+                'message' => $msg->message,
+                'turn' => $msg->turn,
+                'created_at' => $msg->created_at->format('H:i'),
+                'side' => $msg->user_id === $debate->affirmative_user_id ? 'affirmative' : 'negative'
+            ]),
+            'turns' => $turns ?? []
+        ]) !!};
+
+        window.debateReportTranslations = {!! json_encode([
+            'debate_result_title' => __('records.debate_result_title'),
+            'debate_info_section' => __('records.debate_info_section'),
+            'debaters_section' => __('records.debaters_section'),
+            'evaluation_section' => __('records.evaluation_section'),
+            'debate_content_section' => __('records.debate_content_section'),
+            'winner_suffix' => __('records.winner_suffix'),
+            'topic_label' => __('records.topic_label'),
+            'room_name_label' => __('records.room_label'),
+            'host_name_label' => __('records.host_label'),
+            'remarks_label' => __('records.remarks_label'),
+            'datetime_label' => __('records.datetime_label'),
+            'affirmative_side' => __('debates_ui.affirmative_side_label'),
+            'negative_side' => __('debates_ui.negative_side_label'),
+            'analysis_of_points' => __('records.analysis_of_points'),
+            'judgment_result' => __('records.judgment_result'),
+            'winner_is' => __('records.winner_is'),
+            'feedback' => __('records.feedback'),
+            'feedback_for_affirmative' => __('records.feedback_for_affirmative'),
+            'feedback_for_negative' => __('records.feedback_for_negative')
+        ]) !!};
+    </script>
     @vite(['resources/js/pages/records-show.js'])
 </x-app-layout>

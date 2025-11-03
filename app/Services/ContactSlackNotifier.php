@@ -41,6 +41,15 @@ class ContactSlackNotifier
         $typeName = $this->getTypeName($contact->type, $contact->language);
         $adminUrl = url("/admin/contacts/{$contact->id}");
 
+        // userリレーションを読み込む（存在する場合）
+        if ($contact->user_id && !$contact->relationLoaded('user')) {
+            $contact->load('user');
+        }
+
+        // 名前とメールの表示を決定
+        $nameDisplay = $contact->name ?? ($contact->user ? $contact->user->name : '匿名');
+        $emailDisplay = $contact->email ?? ($contact->user ? $contact->user->email : '未提供');
+
         $message = [
             'text' => '新しいお問い合わせが届きました',
             'attachments' => [
@@ -59,12 +68,12 @@ class ContactSlackNotifier
                         ],
                         [
                             'title' => '名前',
-                            'value' => $contact->name,
+                            'value' => $nameDisplay,
                             'short' => true
                         ],
                         [
                             'title' => 'メール',
-                            'value' => $contact->email,
+                            'value' => $emailDisplay,
                             'short' => true
                         ],
                         [
