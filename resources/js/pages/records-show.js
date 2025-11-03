@@ -146,6 +146,17 @@ function initializeCopyButton() {
         // フィードバック表示
         if (success) {
             showSuccessFeedback(copyButton);
+
+            // GA4イベント送信
+            if (typeof window.gtag !== 'undefined') {
+                // eslint-disable-next-line no-undef
+                gtag('event', 'copy_markdown_report', {
+                    event_category: 'debate_record',
+                    event_label: 'markdown_copy',
+                    page_location: window.location.pathname,
+                    debate_id: debateData?.id || null,
+                });
+            }
         } else {
             showErrorFeedback(copyButton);
         }
