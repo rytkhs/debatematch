@@ -9,6 +9,18 @@
                     {{ __('rooms.debate_room') }}
                 </h1>
                 <div class="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end">
+                    <button
+                    id="copy-room-url-btn"
+                    type="button"
+                    class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-light hover:bg-primary hover:text-white text-primary text-xs sm:text-sm font-medium rounded-lg border border-primary/30 shadow-sm transition-all duration-150 ease-in-out"
+                    data-original-text="{{ __('rooms.copy_room_url') }}"
+                    data-copied-text="{{ __('rooms.room_url_copied') }}"
+                    data-error-text="{{ __('rooms.room_url_copy_failed') }}"
+                    data-room-url="{{ url()->route('rooms.show', $room) }}"
+                    >
+                        <span class="material-icons-outlined mr-1 text-sm copy-icon">content_copy</span>
+                        <span class="button-text">{{ __('rooms.copy_room_url') }}</span>
+                    </button>
                     <livewire:rooms.status :room="$room" />
                     <form id="exit-form" action="{{ route('rooms.exit', $room) }}" method="POST"
                         onSubmit="return confirmExit(event, {{ $isCreator }});">
