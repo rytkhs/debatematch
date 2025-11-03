@@ -7,11 +7,13 @@ use App\Models\Debate;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Record\DebateRecordService;
+use App\Services\DebateService;
 
 class DebateRecordController extends Controller
 {
     public function __construct(
-        private DebateRecordService $recordService
+        private DebateRecordService $recordService,
+        private DebateService $debateService
     ) {}
 
     public function index(Request $request)
@@ -65,6 +67,12 @@ class DebateRecordController extends Controller
         $debate->load(['room.creator', 'affirmativeUser', 'negativeUser', 'messages.user', 'evaluations']);
         $evaluations = $debate->evaluations;
 
-        return view('records.show', compact('debate', 'evaluations'));
+        // メッセージデータを取得
+        $messages = $debate->messages()->with('user')->orderBy('created_at')->get();
+
+        // ターン情報を取得
+        $turns = $this->debateService->getFormat($debate);
+
+        return view('records.show', compact('debate', 'evaluations', 'messages', 'turns'));
     }
 }

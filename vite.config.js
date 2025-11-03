@@ -10,6 +10,7 @@ export default defineConfig({
                 // Page entry points
                 'resources/js/pages/welcome.js',
                 'resources/js/pages/debate-show.js',
+                'resources/js/pages/debate-result.js',
                 'resources/js/pages/room-show.js',
                 'resources/js/pages/room-create.js',
                 'resources/js/pages/ai-debate-create.js',

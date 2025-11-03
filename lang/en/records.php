@@ -55,4 +55,22 @@ return [
     'result' => 'Result',
     'evaluation_inconclusive' => 'Evaluation Inconclusive',
     'evaluation_inconclusive_short' => 'Inconclusive',
+
+    // Markdown copy feature
+    'copy_report' => 'Copy Report',
+    'copied' => 'Copied!',
+    'copy_failed' => 'Copy Failed',
+    'debate_result_title' => 'Debate Result',
+    'debate_info_section' => 'Debate Information',
+    'debaters_section' => 'Debaters',
+    'evaluation_section' => 'Evaluation',
+    'debate_content_section' => 'Debate Content',
+    'winner_suffix' => '(Winner)',
+    'topic_label' => 'Topic',
+    'room_name_label' => 'Room',
+    'host_name_label' => 'Host',
+    'remarks_label' => 'Remarks',
+    'datetime_label' => 'Date & Time',
+    'affirmative_side' => 'Affirmative',
+    'negative_side' => 'Negative',
 ];
