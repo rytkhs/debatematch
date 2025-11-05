@@ -30,7 +30,7 @@
                 </a>
                 <!-- 応援チップボタン -->
                 @php
-                    $paymentLinkUrl = 'https://buy.stripe.com/test_cNibJ16JHdSu2g79ZTaZi00';
+                    $paymentLinkUrl = 'https://buy.stripe.com/8x29AT9LE80y6TW1cvao800';
                     // ログイン済みユーザーのメールアドレスをprefill
                     if (auth()->check() && auth()->user()->email) {
                         $email = urlencode(auth()->user()->email);
