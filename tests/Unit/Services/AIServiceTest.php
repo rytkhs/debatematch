@@ -476,6 +476,60 @@ class AIServiceTest extends BaseServiceTest
         $this->assertNotEmpty($response);
     }
 
+    public function test_generateResponse_RetriesOnConnectionException()
+    {
+        $this->mockAIConfiguration();
+        $this->mockAIPromptTemplates();
+
+        $debate = $this->createTestDebate();
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        // 最初の2回はConnectionExceptionを発生させ、3回目で成功レスポンスを返す
+        $attemptCount = 0;
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => function () use (&$attemptCount) {
+                $attemptCount++;
+                if ($attemptCount < 3) {
+                    throw new \Illuminate\Http\Client\ConnectionException('Connection timeout');
+                }
+                // 3回目で成功レスポンスを返す
+                return Http::response([
+                    'choices' => [
+                        [
+                            'message' => [
+                                'content' => 'リトライ成功後のAI応答',
+                                'reasoning' => 'リトライ成功後の推論'
+                            ]
+                        ]
+                    ]
+                ], 200);
+            }
+        ]);
+
+        // buildPrompt、generateResponse、reasoningログで呼ばれる
+        Log::shouldReceive('debug')
+            ->times(3);
+
+        // リトライが発生することを確認（現在のバグによりTypeErrorが発生する可能性がある）
+        // 修正後は、リトライログが2回記録され、最終的に成功することを確認
+        Log::shouldReceive('warning')
+            ->times(2)
+            ->with('OpenRouter API retry attempt', \Mockery::type('array'));
+
+        Log::shouldReceive('info')
+            ->once()
+            ->with('Received AI response successfully', \Mockery::type('array'));
+
+        $response = $this->aiService->generateResponse($debate);
+
+        // 修正後は成功することを確認
+        $this->assertIsString($response);
+        $this->assertEquals('リトライ成功後のAI応答', $response);
+    }
+
     public function test_generateResponse_HandlesMalformedApiResponse()
     {
         Http::fake([

@@ -103,8 +103,8 @@ class AIEvaluationService
             'Content-Type' => 'application/json',
         ])
             ->timeout(self::API_TIMEOUT_SECONDS)
-            ->retry(3, function ($exception, $request) use (&$retryAttempt, $debate, $language) {
-                $retryAttempt++;
+            ->retry(3, function ($attempt, $exception) use (&$retryAttempt, $debate, $language) {
+                $retryAttempt = $attempt;
                 $shouldRetry = $this->shouldRetry($exception);
 
                 if ($shouldRetry) {

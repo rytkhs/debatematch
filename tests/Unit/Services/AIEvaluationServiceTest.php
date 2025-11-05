@@ -288,7 +288,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
 
         Log::shouldReceive('error')
             ->once()
-            ->with('OpenRouter API Error', \Mockery::type('array'));
+            ->with('OpenRouter API Error after retries (evaluation)', \Mockery::type('array'));
 
         $result = $this->aiEvaluationService->evaluate($debate);
 
@@ -334,6 +334,65 @@ class AIEvaluationServiceTest extends BaseServiceTest
         $this->assertIsArray($result);
         $this->assertFalse($result['is_analyzable']);
         $this->assertStringContainsString('解析に失敗しました', $result['reason']);
+    }
+
+    public function test_evaluate_RetriesOnConnectionException()
+    {
+        $this->mockConfiguration();
+        $this->mockPromptTemplates();
+
+        $debate = $this->createTestDebate();
+        $this->createTestMessages($debate);
+
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
+
+        // 最初の2回はConnectionExceptionを発生させ、3回目で成功レスポンスを返す
+        $attemptCount = 0;
+        Http::fake([
+            'openrouter.ai/api/v1/chat/completions' => function () use (&$attemptCount) {
+                $attemptCount++;
+                if ($attemptCount < 3) {
+                    throw new \Illuminate\Http\Client\ConnectionException('Connection timeout');
+                }
+                // 3回目で成功レスポンスを返す
+                return Http::response([
+                    'choices' => [
+                        [
+                            'message' => [
+                                'content' => json_encode([
+                                    'isAnalyzable' => true,
+                                    'analysis' => 'リトライ成功後の分析',
+                                    'reason' => 'リトライ成功後の判定理由',
+                                    'winner' => '肯定側',
+                                    'feedbackForAffirmative' => 'リトライ成功後の肯定側フィードバック',
+                                    'feedbackForNegative' => 'リトライ成功後の否定側フィードバック'
+                                ])
+                            ]
+                        ]
+                    ]
+                ], 200);
+            }
+        ]);
+
+        Log::shouldReceive('debug')
+            ->once()
+            ->with(\Mockery::type('string'));
+
+        // リトライが発生することを確認（現在のバグによりTypeErrorが発生する可能性がある）
+        // 修正後は、リトライログが2回記録され、最終的に成功することを確認
+        Log::shouldReceive('warning')
+            ->times(2)
+            ->with('OpenRouter API retry attempt (evaluation)', \Mockery::type('array'));
+
+        $result = $this->aiEvaluationService->evaluate($debate);
+
+        // 修正後は成功することを確認
+        $this->assertIsArray($result);
+        $this->assertTrue($result['is_analyzable']);
+        $this->assertEquals('affirmative', $result['winner']);
+        $this->assertEquals('リトライ成功後の分析', $result['analysis']);
     }
 
     // ================================
