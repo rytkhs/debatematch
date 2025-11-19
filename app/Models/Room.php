@@ -73,9 +73,9 @@ class Room extends Model
             self::STATUS_WAITING => [self::STATUS_WAITING, self::STATUS_READY, self::STATUS_DELETED, self::STATUS_TERMINATED],
             self::STATUS_READY => [self::STATUS_READY, self::STATUS_DEBATING, self::STATUS_WAITING, self::STATUS_DELETED, self::STATUS_TERMINATED],
             self::STATUS_DEBATING => [self::STATUS_DEBATING, self::STATUS_FINISHED, self::STATUS_DELETED, self::STATUS_TERMINATED],
-            self::STATUS_FINISHED => [self::STATUS_FINISHED],
+            self::STATUS_FINISHED => [self::STATUS_FINISHED, self::STATUS_DELETED],
             self::STATUS_DELETED => [self::STATUS_DELETED],
-            self::STATUS_TERMINATED => [self::STATUS_TERMINATED],
+            self::STATUS_TERMINATED => [self::STATUS_TERMINATED, self::STATUS_DELETED],
         ];
 
         // 通常の状態遷移のバリデーション
