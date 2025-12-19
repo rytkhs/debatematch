@@ -3,6 +3,7 @@
 namespace App\Services\Traits;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Throwable;
 
 trait HandlesOpenRouterRetry
@@ -18,6 +19,13 @@ trait HandlesOpenRouterRetry
         // ConnectionException（タイムアウトなど）の場合はリトライ
         if ($exception instanceof ConnectionException) {
             return true;
+        }
+
+        // RequestException (4xx, 5xx) の判定
+        if ($exception instanceof RequestException) {
+            $status = $exception->response->status();
+            // 429 Too Many Requests や 5xx Server Error は一時的なエラーの可能性があるためリトライ
+            return $status === 429 || ($status >= 500 && $status <= 599);
         }
 
         $message = $exception->getMessage();

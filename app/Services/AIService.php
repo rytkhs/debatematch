@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Throwable;
+use Exception;
+use Illuminate\Http\Client\PendingRequest;
 
 class AIService
 {
@@ -54,7 +56,7 @@ class AIService
             Log::debug('Sending request to OpenRouter', [
                 'debate_id' => $debate->id,
                 'model' => $this->model,
-                'prompt_length' => strlen($prompt)
+                'prompt_length' => mb_strlen($prompt)
             ]);
 
             $retryAttempt = 0;
@@ -65,24 +67,27 @@ class AIService
                 'Content-Type' => 'application/json',
             ])
                 ->timeout(self::API_TIMEOUT_SECONDS)
-                ->retry(3, function ($attempt, $exception) use (&$retryAttempt, $debate) {
-                    $retryAttempt = $attempt;
-                    $shouldRetry = $this->shouldRetry($exception);
+                ->retry(
+                    3,
+                    function (int $attempt, Throwable $exception) use (&$retryAttempt, $debate) {
+                        $retryAttempt = $attempt;
+                        $delayMs = $this->calculateBackoffDelay($attempt);
 
-                    if ($shouldRetry) {
-                        $delayMs = $this->calculateBackoffDelay($retryAttempt);
                         Log::warning('OpenRouter API retry attempt', [
                             'debate_id' => $debate->id,
-                            'attempt' => $retryAttempt,
+                            'attempt' => $attempt,
                             'max_attempts' => 3,
                             'error' => $exception->getMessage(),
                             'delay_ms' => $delayMs,
                         ]);
-                        usleep($delayMs * 1000); // マイクロ秒に変換
-                    }
 
-                    return $shouldRetry;
-                }, throw: false)
+                        return $delayMs;
+                    },
+                    function (Throwable $exception, PendingRequest $request) {
+                        return $this->shouldRetry($exception);
+                    },
+                    throw: false
+                )
                 ->post('https://openrouter.ai/api/v1/chat/completions', [
                     'model' => $this->model,
                     'messages' => [
@@ -95,39 +100,40 @@ class AIService
                     'max_tokens' => self::MAX_TOKENS,
                 ]);
 
-            if ($response->failed()) {
-                Log::error('OpenRouter API Error after retries', [
-                    'debate_id' => $debate->id,
-                    'status' => $response->status(),
-                    'response' => $response->json() ?? $response->body(),
-                    'retry_attempts' => $retryAttempt,
-                ]);
-                throw new \Exception('Failed to get response from AI service. Status: ' . $response->status());
+            if ($response->successful()) {
+                $message = $response->json('choices.0.message');
+                $content = $message['content'] ?? null;
+                $reasoning = $message['reasoning'] ?? null;
+
+                if ($reasoning) {
+                    Log::debug('AI Reasoning for debate opponent', [
+                        'debate_id' => $debate->id,
+                        'reasoning' => $reasoning,
+                    ]);
+                }
+
+                if (empty($content)) {
+                    Log::warning('OpenRouter API returned empty content', [
+                        'debate_id' => $debate->id,
+                        'response' => $response->json(),
+                    ]);
+                    return $this->getFallbackResponse($debate->room->language ?? 'japanese');
+                }
+
+                Log::info('Received AI response successfully', ['debate_id' => $debate->id]);
+                return trim($content);
             }
 
-            $message = $response->json('choices.0.message');
-            $content = $message['content'] ?? null;
-            $reasoning = $message['reasoning'] ?? null;
-
-            if ($reasoning) {
-                Log::debug('AI Reasoning for debate opponent', [
-                    'debate_id' => $debate->id,
-                    'reasoning' => $reasoning,
-                ]);
-            }
-
-            if (empty($content)) {
-                Log::warning('OpenRouter API returned empty content', [
-                    'debate_id' => $debate->id,
-                    'response' => $response->json(),
-                    'reasoning' => $reasoning,
-                ]);
-                return $this->getFallbackResponse($debate->room->language ?? 'japanese');
-            }
-
-            Log::info('Received AI response successfully', ['debate_id' => $debate->id]);
-            return trim($content);
+            // HTTPエラー（throw: false のため、ここに到達する。ただし ConnectionException の場合は catch へ飛ぶ）
+            Log::error('OpenRouter API Error after retries', [
+                'debate_id' => $debate->id,
+                'status' => $response->status(),
+                'response' => $response->json() ?? $response->body(),
+                'retry_attempts' => $retryAttempt,
+            ]);
+            return $this->getFallbackResponse($debate->room->language ?? 'japanese', 'Status: ' . $response->status());
         } catch (Throwable $e) {
+            // ConnectionException や、その他予期せぬ例外（buildPrompt内のエラー等）
             Log::error('Error generating AI response', [
                 'debate_id' => $debate->id,
                 'exception' => $e->getMessage(),
@@ -167,24 +173,26 @@ class AIService
             }
 
             $currentTurnName = $currentTurnInfo['name'];
-            $timeLimitMinutes = $currentTurnInfo['duration'] / 60 ?? 180;
+            $timeLimitMinutes = (($currentTurnInfo['duration'] ?? 10800) / 60);
         } else {
             // フリーフォーマットの場合は、ルームの設定から時間制限を取得
             $format = $room->getDebateFormat();
             if (!empty($format) && isset($format[0]['duration'])) {
-                $timeLimitMinutes = $format[0]['duration'] / 60;
+                $timeLimitMinutes = (($format[0]['duration'] ?? 10800) / 60);
             }
         }
 
         // 言語に応じた文字数/単語数制限の計算
         $characterLimit = $this->calculateCharacterLimit($timeLimitMinutes, $language, $room->isFreeFormat());
 
-        // ディベート履歴を整形
+        // デベート履歴を整形
+        $format = !$room->isFreeFormat() ? ($format ?? $this->debateService->getFormat($debate)) : null;
+
         $history = $debate->messages()
             ->with('user')
             ->orderBy('created_at')
             ->get()
-            ->map(function ($msg) use ($debate, $language, $room) {
+            ->map(function ($msg) use ($debate, $language, $room, $format) {
                 $speakerSide = ($msg->user_id === $debate->affirmative_user_id) ? 'affirmative' : 'negative';
                 $speakerLabel = '';
 
@@ -194,15 +202,15 @@ class AIService
                     $speakerLabel = ($speakerSide === 'affirmative' ? 'Affirmative Side' : 'Negative Side');
                 }
 
+                // メッセージ内容はプレーンテキスト（HTML化やエスケープは避ける）
+                $messageContent = $msg->message;
+
                 // フリーフォーマットの場合はシンプルな履歴形式
                 if ($room->isFreeFormat()) {
-                    $messageContent = nl2br(e($msg->message));
                     return "{$speakerLabel}:\n{$messageContent}";
                 } else {
                     // 通常フォーマットの場合は詳細な履歴形式
-                    $format = $this->debateService->getFormat($debate);
                     $turnName = $format[$msg->turn]['name'] ?? 'unknown speech';
-                    $messageContent = nl2br(e($msg->message));
                     return "[{$turnName}] {$speakerLabel}:\n{$messageContent}";
                 }
             })
@@ -329,7 +337,7 @@ class AIService
             $part .= $turn['name'];
 
             // 時間を追加
-            $part .= " (" . ($turn['duration'] / 60 ?? 0) . __('debates_format.minute_unit', [], $locale) . ")";
+            $part .= " (" . (($turn['duration'] ?? 0) / 60) . __('debates_format.minute_unit', [], $locale) . ")";
 
             // 質疑の有無を追加
             if (isset($turn['is_questions']) && $turn['is_questions']) {
@@ -348,10 +356,11 @@ class AIService
      */
     private function getFallbackResponse(string $language, ?string $errorInfo = null): string
     {
-        $baseMessage = __('ai_debate.fallback_response');
+        $locale = $language === 'english' ? 'en' : 'ja';
+        $baseMessage = __('ai_debate.fallback_response', [], $locale);
 
         if ($errorInfo) {
-            $techDetail =  __('ai_debate.technical_issue');
+            $techDetail = __('ai_debate.technical_issue', [], $locale);
             return $baseMessage . " " . $techDetail;
         }
         return $baseMessage;
