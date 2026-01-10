@@ -21,7 +21,7 @@ return [
     'debate_history' => 'ディベート記録',
 
     // Footer Links
-    'support_tip' => 'サポートする',
+    'support_tip' => '応援チップを送る',
     'terms_of_service' => '利用規約',
     'privacy_policy' => 'プライバシーポリシー',
     'commercial_transaction_act' => '特定商取引法に基づく表記',
