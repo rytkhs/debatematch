@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     use HasFactory, Notifiable, SoftDeletes;
 
@@ -50,6 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'deleted_at' => 'datetime',
             'guest_expires_at' => 'datetime',
+            'is_admin' => 'bool',
         ];
     }
 
@@ -112,6 +115,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isGuestValid()
     {
         return (bool) $this->is_guest && !$this->isGuestExpired();
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'admin' && $this->isAdmin();
     }
 
     /**
