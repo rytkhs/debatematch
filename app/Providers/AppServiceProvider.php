@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Models\Debate;
 use App\Policies\DebatePolicy;
+use App\Services\OpenRouter\OpenRouterClient;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
 
         // OTP Service binding
         $this->app->bind(\App\Contracts\OtpServiceInterface::class, \App\Services\OtpService::class);
+
+        $this->app->singleton(OpenRouterClient::class);
     }
 
     /**
