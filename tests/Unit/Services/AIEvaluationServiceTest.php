@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\DebateMessage;
 use App\Services\AIEvaluationService;
 use App\Services\DebateService;
+use App\Services\OpenRouter\DebateEvaluationMessageBuilder;
+use App\Services\OpenRouter\OpenRouterClient;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +28,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
         $this->debateServiceMock = Mockery::mock(DebateService::class);
 
         // AIEvaluationServiceを初期化
-        $this->aiEvaluationService = new AIEvaluationService($this->debateServiceMock);
+        $this->aiEvaluationService = $this->makeAIEvaluationService();
     }
 
     // ================================
@@ -36,7 +38,10 @@ class AIEvaluationServiceTest extends BaseServiceTest
     public function test_constructor_InitializesCorrectly()
     {
         $debateService = Mockery::mock(DebateService::class);
-        $service = new AIEvaluationService($debateService);
+        $service = new AIEvaluationService(
+            new OpenRouterClient(),
+            new DebateEvaluationMessageBuilder($debateService)
+        );
 
         $this->assertInstanceOf(AIEvaluationService::class, $service);
     }
@@ -62,7 +67,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
                                 'isAnalyzable' => true,
                                 'analysis' => 'テスト分析結果',
                                 'reason' => 'テスト判定理由',
-                                'winner' => '肯定側',
+                                'winner' => 'affirmative',
                                 'feedbackForAffirmative' => 'テスト肯定側フィードバック',
                                 'feedbackForNegative' => 'テスト否定側フィードバック'
                             ])
@@ -104,7 +109,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
                                 'isAnalyzable' => true,
                                 'analysis' => 'Test analysis result',
                                 'reason' => 'Test judgment reason',
-                                'winner' => 'Negative',
+                                'winner' => 'negative',
                                 'feedbackForAffirmative' => 'Test affirmative feedback',
                                 'feedbackForNegative' => 'Test negative feedback'
                             ])
@@ -144,7 +149,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
                                 'isAnalyzable' => true,
                                 'analysis' => 'フリーフォーマット分析',
                                 'reason' => 'フリーフォーマット判定',
-                                'winner' => '肯定側',
+                                'winner' => 'affirmative',
                                 'feedbackForAffirmative' => 'フリーフォーマットフィードバック1',
                                 'feedbackForNegative' => 'フリーフォーマットフィードバック2'
                             ])
@@ -216,13 +221,11 @@ class AIEvaluationServiceTest extends BaseServiceTest
 
         $debate = $this->createTestDebate();
 
-        Log::shouldReceive('debug')
-            ->once()
-            ->with(\Mockery::type('string'));
-
         Log::shouldReceive('error')
             ->once()
-            ->with('OpenRouter API key is not configured for evaluation.', \Mockery::type('array'));
+            ->with('Error generating AI evaluation', \Mockery::type('array'));
+
+        $this->aiEvaluationService = $this->makeAIEvaluationService();
 
         $result = $this->aiEvaluationService->evaluate($debate);
 
@@ -236,26 +239,24 @@ class AIEvaluationServiceTest extends BaseServiceTest
         $this->mockConfiguration();
 
         // プロンプトテンプレートを明示的にnullに設定
-        Config::set('ai_prompts.debate_evaluation_ja', null);
-        Config::set('ai_prompts.debate_evaluation_en', null);
-        Config::set('ai_prompts.debate_evaluation_free_ja', null);
-        Config::set('ai_prompts.debate_evaluation_free_en', null);
-        Config::set('ai_prompts.debate_evaluation_ja_no_evidence', null);
-        Config::set('ai_prompts.debate_evaluation_en_no_evidence', null);
+        Config::set('ai_prompts.debate_evaluation_system_ja', null);
+        Config::set('ai_prompts.debate_evaluation_user_ja', null);
+        Config::set('ai_prompts.debate_evaluation_system_en', null);
+        Config::set('ai_prompts.debate_evaluation_user_en', null);
+        Config::set('ai_prompts.debate_evaluation_free_system_ja', null);
+        Config::set('ai_prompts.debate_evaluation_free_user_ja', null);
+        Config::set('ai_prompts.debate_evaluation_free_system_en', null);
+        Config::set('ai_prompts.debate_evaluation_free_user_en', null);
+        Config::set('ai_prompts.debate_evaluation_system_ja_no_evidence', null);
+        Config::set('ai_prompts.debate_evaluation_user_ja_no_evidence', null);
+        Config::set('ai_prompts.debate_evaluation_system_en_no_evidence', null);
+        Config::set('ai_prompts.debate_evaluation_user_en_no_evidence', null);
 
         $debate = $this->createTestDebate();
 
-        Log::shouldReceive('debug')
-            ->once()
-            ->with(\Mockery::type('string'));
-
         Log::shouldReceive('error')
             ->once()
-            ->with('AI prompt template not found in config.', \Mockery::type('array'));
-
-        Log::shouldReceive('error')
-            ->once()
-            ->with('Base AI prompt template also not found.', \Mockery::type('array'));
+            ->with('Error generating AI evaluation', \Mockery::type('array'));
 
         $result = $this->aiEvaluationService->evaluate($debate);
 
@@ -365,7 +366,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
                                     'isAnalyzable' => true,
                                     'analysis' => 'リトライ成功後の分析',
                                     'reason' => 'リトライ成功後の判定理由',
-                                    'winner' => '肯定側',
+                                    'winner' => 'affirmative',
                                     'feedbackForAffirmative' => 'リトライ成功後の肯定側フィードバック',
                                     'feedbackForNegative' => 'リトライ成功後の否定側フィードバック'
                                 ])
@@ -498,17 +499,33 @@ class AIEvaluationServiceTest extends BaseServiceTest
         }
 
         Config::set($config);
+
+        $this->aiEvaluationService = $this->makeAIEvaluationService();
+    }
+
+    protected function makeAIEvaluationService(): AIEvaluationService
+    {
+        return new AIEvaluationService(
+            new OpenRouterClient(),
+            new DebateEvaluationMessageBuilder($this->debateServiceMock)
+        );
     }
 
     protected function mockPromptTemplates(): void
     {
         Config::set([
-            'ai_prompts.debate_evaluation_ja' => 'テスト評価プロンプト: %s - %s',
-            'ai_prompts.debate_evaluation_en' => 'Test evaluation prompt: %s - %s',
-            'ai_prompts.debate_evaluation_free_ja' => 'フリーフォーマット評価プロンプト: %s - %s',
-            'ai_prompts.debate_evaluation_free_en' => 'Free format evaluation prompt: %s - %s',
-            'ai_prompts.debate_evaluation_ja_no_evidence' => 'テスト評価プロンプト（証拠なし）: %s - %s',
-            'ai_prompts.debate_evaluation_en_no_evidence' => 'Test evaluation prompt (no evidence): %s - %s',
+            'ai_prompts.debate_evaluation_system_ja' => 'System prompt: {resolution}',
+            'ai_prompts.debate_evaluation_user_ja' => 'User prompt: {transcript_block}',
+            'ai_prompts.debate_evaluation_system_en' => 'System prompt: {resolution}',
+            'ai_prompts.debate_evaluation_user_en' => 'User prompt: {transcript_block}',
+            'ai_prompts.debate_evaluation_system_ja_no_evidence' => 'System prompt (no evidence): {resolution}',
+            'ai_prompts.debate_evaluation_user_ja_no_evidence' => 'User prompt (no evidence): {transcript_block}',
+            'ai_prompts.debate_evaluation_system_en_no_evidence' => 'System prompt (no evidence): {resolution}',
+            'ai_prompts.debate_evaluation_user_en_no_evidence' => 'User prompt (no evidence): {transcript_block}',
+            'ai_prompts.debate_evaluation_free_system_ja' => 'Free system prompt: {resolution}',
+            'ai_prompts.debate_evaluation_free_user_ja' => 'Free user prompt: {transcript_block}',
+            'ai_prompts.debate_evaluation_free_system_en' => 'Free system prompt: {resolution}',
+            'ai_prompts.debate_evaluation_free_user_en' => 'Free user prompt: {transcript_block}',
         ]);
     }
 }
