@@ -31,12 +31,12 @@ class Debate extends Model
         return $this->belongsTo(User::class, 'negative_user_id')->withTrashed();
     }
 
-    public function messages()
+    public function debateMessages()
     {
         return $this->hasMany(DebateMessage::class);
     }
 
-    public function evaluations()
+    public function debateEvaluation()
     {
         return $this->hasOne(DebateEvaluation::class);
     }

@@ -131,21 +131,21 @@ Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])
     ->middleware(['auth', 'verified', 'throttle:60,1']);
 
 // 管理者用ルート
-Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
-    // 接続分析関連
-    Route::prefix('connection')->name('connection.')->group(function () {
-        Route::get('/analytics', [ConnectionAnalyticsController::class, 'index'])->name('analytics');
-        Route::get('/user/{user}', [ConnectionAnalyticsController::class, 'userDetail'])->name('user-detail');
-    });
+// Route::middleware(['auth', 'verified', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+//     // 接続分析関連
+//     Route::prefix('connection')->name('connection.')->group(function () {
+//         Route::get('/analytics', [ConnectionAnalyticsController::class, 'index'])->name('analytics');
+//         Route::get('/user/{user}', [ConnectionAnalyticsController::class, 'userDetail'])->name('user-detail');
+//     });
 
-    // お問い合わせ管理
-    Route::prefix('contacts')->name('contacts.')->group(function () {
-        Route::get('/', [AdminContactController::class, 'index'])->name('index');
-        Route::get('/{contact}', [AdminContactController::class, 'show'])->name('show');
-        Route::patch('/{contact}/status', [AdminContactController::class, 'updateStatus'])->name('update-status');
-        Route::delete('/{contact}', [AdminContactController::class, 'destroy'])->name('destroy');
-    });
-});
+//     // お問い合わせ管理
+//     Route::prefix('contacts')->name('contacts.')->group(function () {
+//         Route::get('/', [AdminContactController::class, 'index'])->name('index');
+//         Route::get('/{contact}', [AdminContactController::class, 'show'])->name('show');
+//         Route::patch('/{contact}/status', [AdminContactController::class, 'updateStatus'])->name('update-status');
+//         Route::delete('/{contact}', [AdminContactController::class, 'destroy'])->name('destroy');
+//     });
+// });
 
 // 言語切り替えルート
 Route::get('language/{locale}', [LocaleController::class, 'changeLocale'])->name('language.switch');
