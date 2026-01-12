@@ -27,9 +27,7 @@ Disallow: /*/terminate
 Disallow: /*/store
 Disallow: /broadcasting/auth
 
-# 検索エンジンにクロールさせたいページ
 Allow: /rooms/
-Allow: /rooms/*/preview
 Allow: /guide
 Allow: /terms
 Allow: /privacy

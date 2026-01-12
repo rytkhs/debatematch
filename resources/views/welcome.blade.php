@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="__('misc.home_meta_title')" :description="__('misc.home_meta_description')">
     <!-- ヘッダー -->
     <x-slot name="header">
         <x-header></x-header>
