@@ -7,8 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     use HasFactory, Notifiable, SoftDeletes;
 
@@ -43,6 +47,9 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return array<string, string>
      */
+    /**
+     * @return array{email_verified_at: 'datetime', password: 'hashed', deleted_at: 'datetime', guest_expires_at: 'datetime', is_admin: 'bool'}
+     */
     protected function casts(): array
     {
         return [
@@ -50,13 +57,17 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'deleted_at' => 'datetime',
             'guest_expires_at' => 'datetime',
+            'is_admin' => 'bool',
         ];
     }
 
     /**
      * ユーザーが参加しているルームのリレーション
      */
-    public function rooms()
+    /**
+     * @return BelongsToMany<Room, $this>
+     */
+    public function rooms(): BelongsToMany
     {
         return $this->belongsToMany(Room::class, 'room_users')
             ->withPivot('side')
@@ -66,7 +77,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * ユーザーが肯定側として参加したディベート
      */
-    public function affirmativeDebates()
+    /**
+     * @return HasMany<Debate, $this>
+     */
+    public function affirmativeDebates(): HasMany
     {
         return $this->hasMany(Debate::class, 'affirmative_user_id');
     }
@@ -74,7 +88,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * ユーザーが否定側として参加したディベート
      */
-    public function negativeDebates()
+    /**
+     * @return HasMany<Debate, $this>
+     */
+    public function negativeDebates(): HasMany
     {
         return $this->hasMany(Debate::class, 'negative_user_id');
     }
@@ -112,6 +129,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isGuestValid()
     {
         return (bool) $this->is_guest && !$this->isGuestExpired();
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'admin' && $this->isAdmin();
     }
 
     /**

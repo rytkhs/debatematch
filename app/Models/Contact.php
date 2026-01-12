@@ -93,6 +93,9 @@ class Contact extends Model
     /**
      * ユーザーとの関連
      */
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

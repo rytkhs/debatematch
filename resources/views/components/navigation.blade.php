@@ -87,18 +87,6 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                                 <i class="fa-solid fa-history mr-2"></i>{{ __('navigation.debate_history') }}
                             </x-dropdown-link>
 
-                            {{-- 管理者メニュー --}}
-                            @if(Auth::user()->isAdmin())
-                                <div class="border-t border-gray-200 my-1"></div>
-                                <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">管理者メニュー</div>
-                                <x-dropdown-link :href="route('admin.connection.analytics')" class="flex items-center">
-                                    <i class="fa-solid fa-chart-line mr-2"></i>接続分析
-                                </x-dropdown-link>
-                                <x-dropdown-link :href="route('admin.contacts.index')" class="flex items-center">
-                                    <i class="fa-solid fa-envelope mr-2"></i>お問い合わせ管理
-                                </x-dropdown-link>
-                            @endif
-
                             <div class="border-t border-gray-200 my-1"></div>
                             {{-- ログアウトフォーム --}}
                             <form method="POST" action="{{ route('logout') }}">
@@ -187,18 +175,6 @@ $currentLocaleName = $availableLocales[$currentLocale] ?? $currentLocale; // 現
                 <x-responsive-nav-link :href="route('records.index')" class="flex items-center">
                     <i class="fa-solid fa-history mr-2"></i>{{ __('navigation.debate_history') }}
                 </x-responsive-nav-link>
-
-                {{-- 管理者メニュー --}}
-                @if(Auth::user()->isAdmin())
-                    <div class="border-t border-gray-200 my-1"></div>
-                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">管理者メニュー</div>
-                    <x-responsive-nav-link :href="route('admin.connection.analytics')" class="flex items-center">
-                        <i class="fa-solid fa-chart-line mr-2"></i>接続分析
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('admin.contacts.index')" class="flex items-center">
-                        <i class="fa-solid fa-envelope mr-2"></i>お問い合わせ管理
-                    </x-responsive-nav-link>
-                @endif
 
                 {{-- ログアウトフォーム --}}
                 <form method="POST" action="{{ route('logout') }}">

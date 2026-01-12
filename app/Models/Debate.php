@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Services\DebateService;
-use Illuminate\Support\Facades\App;
 
 class Debate extends Model
 {
@@ -16,27 +17,32 @@ class Debate extends Model
 
     protected $casts = ['turn_end_time' => 'datetime'];
 
-    public function room()
+    /** @return BelongsTo<Room, $this> */
+    public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
 
-    public function affirmativeUser()
+    /** @return BelongsTo<User, $this> */
+    public function affirmativeUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'affirmative_user_id')->withTrashed();
     }
 
-    public function negativeUser()
+    /** @return BelongsTo<User, $this> */
+    public function negativeUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'negative_user_id')->withTrashed();
     }
 
-    public function messages()
+    /** @return HasMany<DebateMessage, $this> */
+    public function debateMessages(): HasMany
     {
         return $this->hasMany(DebateMessage::class);
     }
 
-    public function evaluations()
+    /** @return HasOne<DebateEvaluation, $this> */
+    public function debateEvaluation(): HasOne
     {
         return $this->hasOne(DebateEvaluation::class);
     }

@@ -24,6 +24,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'ap-northeast-1'),
     ],
 
+    'sns' => [
+        'notification_topic_arn' => env('AWS_SNS_NOTIFICATION_TOPIC_ARN'),
+    ],
+
     'resend' => [
         'key' => env('RESEND_KEY'),
     ],

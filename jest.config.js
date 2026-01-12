@@ -40,7 +40,7 @@ export default {
     ],
     detectOpenHandles: false,
     forceExit: true,
-    collectCoverage: true,
+    collectCoverage: false,
     bail: false,
     roots: ['<rootDir>/tests/js'],
     testEnvironmentOptions: {

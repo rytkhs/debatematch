@@ -20,19 +20,22 @@ class GoogleLoginController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->user();
+            $googleEmail = $googleUser->getEmail();
+            $googleName = $googleUser->getName();
+            $googleId = $googleUser->getId();
 
-            $user = User::where('email', $googleUser->email)->first();
+            $user = User::where('email', $googleEmail)->first();
 
             if (!$user) {
                 $user = User::create([
-                    'name' => $googleUser->name,
-                    'email' => $googleUser->email,
-                    'google_id' => $googleUser->id,
+                    'name' => $googleName,
+                    'email' => $googleEmail,
+                    'google_id' => $googleId,
                     'email_verified_at' => now(),
                 ]);
             } else {
                 $user->update([
-                    'google_id' => $googleUser->id,
+                    'google_id' => $googleId,
                 ]);
             }
 

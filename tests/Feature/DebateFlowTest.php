@@ -252,7 +252,7 @@ class DebateFlowTest extends TestCase
     private function simulateEvaluation(Debate $debate): void
     {
         // 既存の評価データがあるかチェック
-        if ($debate->evaluations()->exists()) {
+        if ($debate->debateEvaluation()->exists()) {
             return;
         }
 
@@ -337,7 +337,7 @@ class DebateFlowTest extends TestCase
 
     private function assertEvaluationCompletedCorrectly(Debate $debate): void
     {
-        $evaluation = $debate->evaluations()->first();
+        $evaluation = $debate->debateEvaluation()->first();
         $this->assertNotNull($evaluation);
         $this->assertEquals(true, $evaluation->is_analyzable);
         $this->assertEquals('affirmative', $evaluation->winner);
@@ -356,9 +356,9 @@ class DebateFlowTest extends TestCase
         $this->assertNull($debate->turn_end_time);
 
         // メッセージ存在確認
-        $this->assertGreaterThan(0, $debate->messages()->count());
+        $this->assertGreaterThan(0, $debate->debateMessages()->count());
 
         // 評価データ存在確認
-        $this->assertNotNull($debate->evaluations()->first());
+        $this->assertNotNull($debate->debateEvaluation()->first());
     }
 }

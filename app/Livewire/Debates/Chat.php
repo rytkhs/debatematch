@@ -54,7 +54,7 @@ class Chat extends Component
 
     private function loadMessages(): void
     {
-        $query = $this->debate->messages()
+        $query = $this->debate->debateMessages()
             ->with('user')
             ->orderBy('created_at');
 
@@ -68,7 +68,7 @@ class Chat extends Component
             : $query->where('turn', $this->activeTab)->get();
     }
 
-    public function getFilteredTurnsProperty()
+    public function getFilteredTurnsProperty(): array
     {
         $turns = $this->debateService->getFormat($this->debate);
         // 準備時間のターンを除外
@@ -80,7 +80,7 @@ class Chat extends Component
         return view('livewire.debates.chat', [
             'filteredMessages' => $this->filteredMessages,
             'turns' => $this->debateService->getFormat($this->debate),
-            'filteredTurns' => $this->filteredTurns,
+            'filteredTurns' => $this->getFilteredTurnsProperty(),
             'previousTurn' => $this->previousTurn,
         ]);
     }

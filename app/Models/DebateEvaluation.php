@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DebateEvaluation extends Model
@@ -24,7 +25,8 @@ class DebateEvaluation extends Model
     public const WINNER_AFFIRMATIVE = 'affirmative';
     public const WINNER_NEGATIVE = 'negative';
 
-    public function debate()
+    /** @return BelongsTo<Debate, $this> */
+    public function debate(): BelongsTo
     {
         return $this->belongsTo(Debate::class);
     }

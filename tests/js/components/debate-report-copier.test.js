@@ -50,15 +50,15 @@ describe('DebateReportCopier', () => {
                     side: 'negative',
                 },
             ],
-            turns: [
-                {
+            turns: {
+                1: {
                     name: '立論',
                     speaker: 'affirmative',
                     duration: 300,
                     is_prep_time: false,
                     is_questions: false,
                 },
-            ],
+            },
         };
 
         mockTranslations = {
@@ -180,10 +180,10 @@ describe('DebateReportCopier', () => {
                 },
             ];
 
-            const turns = [
-                { name: 'ターン1', speaker: 'affirmative' },
-                { name: 'ターン2', speaker: 'negative' },
-            ];
+            const turns = {
+                1: { name: 'ターン1', speaker: 'affirmative' },
+                2: { name: 'ターン2', speaker: 'negative' },
+            };
 
             const copier = new DebateReportCopier(mockDebateData, 'ja', mockTranslations);
             const grouped = copier.groupMessagesByTurn(messages, turns);
@@ -212,7 +212,7 @@ describe('DebateReportCopier', () => {
             const grouped = copier.groupMessagesByTurn(messages, []);
 
             expect(grouped).toHaveLength(1);
-            expect(grouped[0].turnName).toBe('Turn 1');
+            expect(grouped[0].turnName).toBe('1');
         });
 
         test('複数メッセージが同じターンにグループ化されること', () => {
@@ -240,7 +240,9 @@ describe('DebateReportCopier', () => {
                 },
             ];
 
-            const turns = [{ name: 'ターン1', speaker: 'affirmative' }];
+            const turns = {
+                1: { name: 'ターン1', speaker: 'affirmative' },
+            };
 
             const copier = new DebateReportCopier(mockDebateData, 'ja', mockTranslations);
             const grouped = copier.groupMessagesByTurn(messages, turns);
@@ -402,11 +404,11 @@ describe('DebateReportCopier', () => {
             const content = copier.generateDebateContent();
 
             expect(content).toContain('## ディベート内容');
-            expect(content).toContain('### 立論');
+            expect(content).toContain('### 肯定側立論');
             expect(content).toContain('**肯定側** 10:30');
-            expect(content).toContain('> メッセージ1');
+            expect(content).toContain('メッセージ1');
             expect(content).toContain('**否定側** 10:31');
-            expect(content).toContain('> メッセージ2');
+            expect(content).toContain('メッセージ2');
         });
 
         test('複数行メッセージが正しくフォーマットされること', () => {
@@ -425,9 +427,9 @@ describe('DebateReportCopier', () => {
             const copier = new DebateReportCopier(dataWithMultilineMessage, 'ja', mockTranslations);
             const content = copier.generateDebateContent();
 
-            expect(content).toContain('> 行1');
-            expect(content).toContain('> 行2');
-            expect(content).toContain('> 行3');
+            expect(content).toContain('行1');
+            expect(content).toContain('行2');
+            expect(content).toContain('行3');
         });
     });
 

@@ -276,7 +276,7 @@ class DebateEvaluationTest extends TestCase
         ]);
 
         // Test relationship
-        $this->assertEquals($evaluation->id, $debate->evaluations->first()->id);
+        $this->assertEquals($evaluation->id, $debate->debateEvaluation->id);
         $this->assertEquals($debate->id, $evaluation->debate->id);
 
         // Test winner determination
@@ -372,6 +372,6 @@ class DebateEvaluationTest extends TestCase
 
         // Should be properly linked to debate
         $this->assertEquals($debate->id, $evaluation->debate_id);
-        $this->assertEquals($evaluation->id, $debate->evaluations->first()->id);
+        $this->assertEquals($evaluation->id, $debate->debateEvaluation->id);
     }
 }

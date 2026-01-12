@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DebateMessage extends Model
@@ -12,12 +13,14 @@ class DebateMessage extends Model
 
     protected $fillable = ['debate_id', 'user_id', 'message', 'turn'];
 
-    public function debate()
+    /** @return BelongsTo<Debate, $this> */
+    public function debate(): BelongsTo
     {
         return $this->belongsTo(Debate::class);
     }
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }

@@ -41,7 +41,7 @@ class GenerateAIResponseJob implements ShouldQueue
         Log::info('GenerateAIResponseJob started', ['debate_id' => $this->debateId, 'turn' => $this->currentTurn]);
 
         try {
-            $debate = Debate::with('room', 'messages.user')->find($this->debateId);
+            $debate = Debate::with('room', 'debateMessages.user')->find($this->debateId);
 
             if (!$debate) {
                 Log::warning('Debate not found in GenerateAIResponseJob', ['debate_id' => $this->debateId]);
