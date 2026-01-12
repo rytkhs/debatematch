@@ -31,6 +31,7 @@ class SNSController extends Controller
 
         try {
             // SNSクライアントを取得
+            /** @var SnsClient $snsClient */
             $snsClient = App::make('aws')->createClient('sns');
 
             // トピックにメッセージを発行

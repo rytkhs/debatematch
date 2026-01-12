@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Debate;
 use App\Models\Room;
+use App\Models\User;
 
 class CheckUserActiveStatus
 {
@@ -24,6 +25,9 @@ class CheckUserActiveStatus
         }
 
         $user = Auth::user();
+        if (!$user instanceof User) {
+            return $next($request);
+        }
 
         // 除外ルート（このミドルウェアの処理を行わないルート）
         $excludedRoutes = [
@@ -72,7 +76,7 @@ class CheckUserActiveStatus
      * @param  \App\Models\User  $user
      * @return \App\Models\Debate|null
      */
-    private function getActiveDebate($user)
+    private function getActiveDebate(User $user)
     {
         // ユーザーが参加中のルームを取得
         $rooms = $user->rooms;
@@ -93,7 +97,7 @@ class CheckUserActiveStatus
      * @param  \App\Models\User  $user
      * @return \App\Models\Room|null
      */
-    private function getActiveRoom($user)
+    private function getActiveRoom(User $user)
     {
         // ユーザーが参加中のルームで、ステータスが「待機中」または「準備完了」のものを取得
         return $user->rooms()
