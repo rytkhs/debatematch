@@ -32,7 +32,14 @@ class DebateMessagesRelationManager extends RelationManager
                 \Filament\Tables\Columns\TextColumn::make('message')
                     ->limit(50)
                     ->searchable()
-                    ->wrap(),
+                    ->wrap()
+                    ->action(
+                        \Filament\Actions\Action::make('viewMessage')
+                            ->modalHeading('Message')
+                            ->modalContent(fn ($record) => new \Illuminate\Support\HtmlString('<div>' . nl2br(e($record->message)) . '</div>'))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                    ),
                 \Filament\Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

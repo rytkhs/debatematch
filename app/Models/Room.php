@@ -62,6 +62,16 @@ class Room extends Model
         return $this->hasOne(Debate::class);
     }
 
+    public function debateMessages()
+    {
+        return $this->hasManyThrough(DebateMessage::class, Debate::class);
+    }
+
+    public function debateEvaluation()
+    {
+        return $this->hasOneThrough(DebateEvaluation::class, Debate::class);
+    }
+
     public function updateStatus(string $status): void
     {
         if ($this->status === $status) {

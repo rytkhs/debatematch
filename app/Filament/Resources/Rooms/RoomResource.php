@@ -44,7 +44,8 @@ class RoomResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            \App\Filament\Resources\Debates\RelationManagers\DebateMessagesRelationManager::class,
+            \App\Filament\Resources\Debates\RelationManagers\DebateEvaluationRelationManager::class,
         ];
     }
 

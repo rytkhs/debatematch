@@ -46,10 +46,46 @@ class DebateEvaluationRelationManager extends RelationManager
                     }),
                 \Filament\Tables\Columns\TextColumn::make('analysis')
                     ->limit(50)
-                    ->wrap(),
+                    ->wrap()
+                    ->action(
+                        \Filament\Actions\Action::make('viewAnalysis')
+                            ->modalHeading('Analysis')
+                            ->modalContent(fn ($record) => new \Illuminate\Support\HtmlString('<div>' . nl2br(e($record->analysis)) . '</div>'))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                    ),
                 \Filament\Tables\Columns\TextColumn::make('reason')
                     ->limit(50)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->action(
+                        \Filament\Actions\Action::make('viewReason')
+                            ->modalHeading('Reason')
+                            ->modalContent(fn ($record) => new \Illuminate\Support\HtmlString('<div>' . nl2br(e($record->reason)) . '</div>'))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                    ),
+                \Filament\Tables\Columns\TextColumn::make('feedback_for_affirmative')
+                    ->label('Feedback (Aff.)')
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->action(
+                        \Filament\Actions\Action::make('viewFeedbackAff')
+                            ->modalHeading('Feedback for Affirmative')
+                            ->modalContent(fn ($record) => new \Illuminate\Support\HtmlString('<div>' . nl2br(e($record->feedback_for_affirmative)) . '</div>'))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                    ),
+                \Filament\Tables\Columns\TextColumn::make('feedback_for_negative')
+                    ->label('Feedback (Neg.)')
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->action(
+                        \Filament\Actions\Action::make('viewFeedbackNeg')
+                            ->modalHeading('Feedback for Negative')
+                            ->modalContent(fn ($record) => new \Illuminate\Support\HtmlString('<div>' . nl2br(e($record->feedback_for_negative)) . '</div>'))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                    ),
                 \Filament\Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
