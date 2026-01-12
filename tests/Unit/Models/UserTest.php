@@ -66,6 +66,7 @@ class UserTest extends BaseModelTest
             'password' => 'hashed',
             'deleted_at' => 'datetime',
             'guest_expires_at' => 'datetime',
+            'is_admin' => 'bool',
             'id' => 'int',
         ];
 
@@ -737,7 +738,7 @@ class UserTest extends BaseModelTest
         $userDebatesWithEvaluation = Debate::where(function ($query) use ($user) {
             $query->where('affirmative_user_id', $user->id)
                 ->orWhere('negative_user_id', $user->id);
-        })->has('evaluations')->count();
+        })->has('debateEvaluation')->count();
 
         $this->assertEquals(2, $userDebatesWithEvaluation);
     }
