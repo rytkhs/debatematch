@@ -35,8 +35,8 @@ class DebateEvaluationMessageBuilder
         // transcript をタグブロックにするのは、プロンプト内で「引用データ」の境界を明確にするため。
         $transcriptBlock = "<transcript>\n{$this->escapeForPromptTagBlock($transcript)}\n</transcript>";
 
-        $systemKey = $this->systemTemplateKey($language, $isFreeFormat, $evidenceAllowed);
-        $userKey = $this->userTemplateKey($language, $isFreeFormat, $evidenceAllowed);
+        $systemKey = $this->systemTemplateKey($language, $isFreeFormat);
+        $userKey = $this->userTemplateKey($language, $isFreeFormat);
         $systemTemplate = Config::get($systemKey);
         $userTemplate = Config::get($userKey);
 
@@ -51,6 +51,17 @@ class DebateEvaluationMessageBuilder
             throw new \RuntimeException('Evaluation prompt template not configured.');
         }
 
+        // Rule text injection
+        $evidenceRuleKey = $language === 'japanese'
+            ? ($evidenceAllowed ? 'ai_prompts.components.evidence_rule_allowed_evaluator_ja' : 'ai_prompts.components.evidence_rule_prohibited_evaluator_ja')
+            : ($evidenceAllowed ? 'ai_prompts.components.evidence_rule_allowed_evaluator_en' : 'ai_prompts.components.evidence_rule_prohibited_evaluator_en');
+        $evidenceRuleText = Config::get($evidenceRuleKey, '');
+
+        // Usage statement injection (for user prompt)
+        $evidenceUsageKey = $language === 'japanese'
+            ? ($evidenceAllowed ? '**証拠資料の使用：許可**' : '**証拠資料の使用：不許可**')
+            : ($evidenceAllowed ? '**Evidence Usage: Allowed**' : '**Evidence Usage: Not Allowed**');
+
         $replacements = [
             '{resolution}' => $room->topic,
             '{transcript}' => $transcript,
@@ -58,6 +69,8 @@ class DebateEvaluationMessageBuilder
             '{debate_content}' => $transcript,
             '{debate_history}' => $transcript,
             '{debate_content_block}' => $transcriptBlock,
+            '{evidence_rule}' => $evidenceRuleText,
+            '{evidence_usage_statement}' => $evidenceUsageKey,
         ];
 
         $systemPrompt = str_replace(array_keys($replacements), array_values($replacements), $systemTemplate);
@@ -170,7 +183,7 @@ class DebateEvaluationMessageBuilder
         ];
     }
 
-    private function systemTemplateKey(string $language, bool $isFreeFormat, bool $evidenceAllowed): string
+    private function systemTemplateKey(string $language, bool $isFreeFormat): string
     {
         if ($isFreeFormat) {
             return $language === 'japanese'
@@ -178,13 +191,12 @@ class DebateEvaluationMessageBuilder
                 : 'ai_prompts.debate_evaluation_free_system_en';
         }
 
-        $suffix = $evidenceAllowed ? '' : '_no_evidence';
         return $language === 'japanese'
-            ? 'ai_prompts.debate_evaluation_system_ja' . $suffix
-            : 'ai_prompts.debate_evaluation_system_en' . $suffix;
+            ? 'ai_prompts.debate_evaluation_system_ja'
+            : 'ai_prompts.debate_evaluation_system_en';
     }
 
-    private function userTemplateKey(string $language, bool $isFreeFormat, bool $evidenceAllowed): string
+    private function userTemplateKey(string $language, bool $isFreeFormat): string
     {
         if ($isFreeFormat) {
             return $language === 'japanese'
@@ -192,13 +204,12 @@ class DebateEvaluationMessageBuilder
                 : 'ai_prompts.debate_evaluation_free_user_en';
         }
 
-        $suffix = $evidenceAllowed ? '' : '_no_evidence';
         return $language === 'japanese'
-            ? 'ai_prompts.debate_evaluation_user_ja' . $suffix
-            : 'ai_prompts.debate_evaluation_user_en' . $suffix;
+            ? 'ai_prompts.debate_evaluation_user_ja'
+            : 'ai_prompts.debate_evaluation_user_en';
     }
 
-    private function resolveHistoryMessages(Debate $debate, bool $isFreeFormat)
+    protected function resolveHistoryMessages(Debate $debate, bool $isFreeFormat)
     {
         $limit = $this->resolveHistoryLimit($isFreeFormat);
 

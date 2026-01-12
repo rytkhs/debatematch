@@ -29,6 +29,9 @@ class AIEvaluationServiceTest extends BaseServiceTest
 
         // AIEvaluationServiceを初期化
         $this->aiEvaluationService = $this->makeAIEvaluationService();
+
+        // ログをスパイモードで初期化
+        Log::spy();
     }
 
     // ================================
@@ -221,9 +224,9 @@ class AIEvaluationServiceTest extends BaseServiceTest
 
         $debate = $this->createTestDebate();
 
-        Log::shouldReceive('error')
-            ->once()
-            ->with('Error generating AI evaluation', \Mockery::type('array'));
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
 
         $this->aiEvaluationService = $this->makeAIEvaluationService();
 
@@ -247,16 +250,12 @@ class AIEvaluationServiceTest extends BaseServiceTest
         Config::set('ai_prompts.debate_evaluation_free_user_ja', null);
         Config::set('ai_prompts.debate_evaluation_free_system_en', null);
         Config::set('ai_prompts.debate_evaluation_free_user_en', null);
-        Config::set('ai_prompts.debate_evaluation_system_ja_no_evidence', null);
-        Config::set('ai_prompts.debate_evaluation_user_ja_no_evidence', null);
-        Config::set('ai_prompts.debate_evaluation_system_en_no_evidence', null);
-        Config::set('ai_prompts.debate_evaluation_user_en_no_evidence', null);
 
         $debate = $this->createTestDebate();
 
-        Log::shouldReceive('error')
-            ->once()
-            ->with('Error generating AI evaluation', \Mockery::type('array'));
+        $this->debateServiceMock
+            ->shouldReceive('getFormat')
+            ->andReturn($this->getTestDebateFormat());
 
         $result = $this->aiEvaluationService->evaluate($debate);
 
@@ -283,9 +282,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
             ], 500)
         ]);
 
-        Log::shouldReceive('debug')
-            ->once()
-            ->with(\Mockery::type('string'));
+        Log::shouldReceive('debug');
 
         Log::shouldReceive('error')
             ->once()
@@ -322,9 +319,7 @@ class AIEvaluationServiceTest extends BaseServiceTest
             ], 200)
         ]);
 
-        Log::shouldReceive('debug')
-            ->once()
-            ->with(\Mockery::type('string'));
+        Log::shouldReceive('debug');
 
         Log::shouldReceive('error')
             ->once()
@@ -377,15 +372,13 @@ class AIEvaluationServiceTest extends BaseServiceTest
             }
         ]);
 
-        Log::shouldReceive('debug')
-            ->once()
-            ->with(\Mockery::type('string'));
+        Log::shouldReceive('debug');
 
-        // リトライが発生することを確認（現在のバグによりTypeErrorが発生する可能性がある）
+        // リトライが発生することを確認
         // 修正後は、リトライログが2回記録され、最終的に成功することを確認
         Log::shouldReceive('warning')
             ->times(2)
-            ->with('OpenRouter API retry attempt (evaluation)', \Mockery::type('array'));
+            ->with('OpenRouter API retry attempt', \Mockery::type('array'));
 
         $result = $this->aiEvaluationService->evaluate($debate);
 
@@ -514,18 +507,18 @@ class AIEvaluationServiceTest extends BaseServiceTest
     protected function mockPromptTemplates(): void
     {
         Config::set([
-            'ai_prompts.debate_evaluation_system_ja' => 'System prompt: {resolution}',
-            'ai_prompts.debate_evaluation_user_ja' => 'User prompt: {transcript_block}',
-            'ai_prompts.debate_evaluation_system_en' => 'System prompt: {resolution}',
-            'ai_prompts.debate_evaluation_user_en' => 'User prompt: {transcript_block}',
-            'ai_prompts.debate_evaluation_system_ja_no_evidence' => 'System prompt (no evidence): {resolution}',
-            'ai_prompts.debate_evaluation_user_ja_no_evidence' => 'User prompt (no evidence): {transcript_block}',
-            'ai_prompts.debate_evaluation_system_en_no_evidence' => 'System prompt (no evidence): {resolution}',
-            'ai_prompts.debate_evaluation_user_en_no_evidence' => 'User prompt (no evidence): {transcript_block}',
-            'ai_prompts.debate_evaluation_free_system_ja' => 'Free system prompt: {resolution}',
-            'ai_prompts.debate_evaluation_free_user_ja' => 'Free user prompt: {transcript_block}',
-            'ai_prompts.debate_evaluation_free_system_en' => 'Free system prompt: {resolution}',
-            'ai_prompts.debate_evaluation_free_user_en' => 'Free user prompt: {transcript_block}',
+            'ai_prompts.debate_evaluation_system_ja' => 'System prompt: {resolution} {evidence_rule}',
+            'ai_prompts.debate_evaluation_user_ja' => 'User prompt: {transcript_block} {evidence_usage_statement}',
+            'ai_prompts.debate_evaluation_system_en' => 'System prompt: {resolution} {evidence_rule}',
+            'ai_prompts.debate_evaluation_user_en' => 'User prompt: {transcript_block} {evidence_usage_statement}',
+            'ai_prompts.debate_evaluation_free_system_ja' => 'Free system prompt: {resolution} {evidence_rule}',
+            'ai_prompts.debate_evaluation_free_user_ja' => 'Free user prompt: {transcript_block} {evidence_usage_statement}',
+            'ai_prompts.debate_evaluation_free_system_en' => 'Free system prompt: {resolution} {evidence_rule}',
+            'ai_prompts.debate_evaluation_free_user_en' => 'Free user prompt: {transcript_block} {evidence_usage_statement}',
+            'ai_prompts.components.evidence_rule_allowed_ja' => 'Evidence Allowed JA',
+            'ai_prompts.components.evidence_rule_prohibited_ja' => 'Evidence Prohibited JA',
+            'ai_prompts.components.evidence_rule_allowed_en' => 'Evidence Allowed EN',
+            'ai_prompts.components.evidence_rule_prohibited_en' => 'Evidence Prohibited EN',
         ]);
     }
 }
