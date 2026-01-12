@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :noindex="true">
     <x-slot name="header">
         <x-header></x-header>
     </x-slot>

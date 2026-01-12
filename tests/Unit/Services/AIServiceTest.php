@@ -37,6 +37,9 @@ class AIServiceTest extends BaseServiceTest
 
         // AIServiceのインスタンスを作成
         $this->aiService = $this->makeAIService();
+
+        // ログをスパイモードで初期化
+        Log::spy();
     }
 
     // ================================
@@ -450,10 +453,10 @@ class AIServiceTest extends BaseServiceTest
 
     public function test_generateResponse_LogsApiErrors()
     {
-        Log::shouldReceive('debug')->once();
+        Log::shouldReceive('debug');
         Log::shouldReceive('error')
             ->once()
-            ->with('Error generating AI response', Mockery::type('array'));
+            ->with('OpenRouter API Error after retries', Mockery::type('array'));
 
         Http::fake([
             'openrouter.ai/api/v1/chat/completions' => Http::response([
@@ -590,14 +593,18 @@ class AIServiceTest extends BaseServiceTest
     protected function mockAIPromptTemplates(): void
     {
         Config::set([
-            'ai_prompts.debate_ai_opponent_system_ja' => 'System prompt: {ai_side} {character_limit}',
+            'ai_prompts.debate_ai_opponent_system_ja' => 'System prompt: {ai_side} {character_limit} {evidence_rule}',
             'ai_prompts.debate_ai_opponent_user_ja' => 'Context prompt: {resolution} {current_part_name}',
-            'ai_prompts.debate_ai_opponent_system_en' => 'System prompt: {ai_side} {character_limit}',
+            'ai_prompts.debate_ai_opponent_system_en' => 'System prompt: {ai_side} {character_limit} {evidence_rule}',
             'ai_prompts.debate_ai_opponent_user_en' => 'Context prompt: {resolution} {current_part_name}',
-            'ai_prompts.debate_ai_opponent_free_system_ja' => 'Free system prompt: {ai_side} {character_limit}',
+            'ai_prompts.debate_ai_opponent_free_system_ja' => 'Free system prompt: {ai_side} {character_limit} {evidence_rule}',
             'ai_prompts.debate_ai_opponent_free_user_ja' => 'Free context prompt: {resolution}',
-            'ai_prompts.debate_ai_opponent_free_system_en' => 'Free system prompt: {ai_side} {character_limit}',
+            'ai_prompts.debate_ai_opponent_free_system_en' => 'Free system prompt: {ai_side} {character_limit} {evidence_rule}',
             'ai_prompts.debate_ai_opponent_free_user_en' => 'Free context prompt: {resolution}',
+            'ai_prompts.components.evidence_rule_allowed_ja' => 'Evidence Allowed JA',
+            'ai_prompts.components.evidence_rule_prohibited_ja' => 'Evidence Prohibited JA',
+            'ai_prompts.components.evidence_rule_allowed_en' => 'Evidence Allowed EN',
+            'ai_prompts.components.evidence_rule_prohibited_en' => 'Evidence Prohibited EN',
         ]);
     }
 

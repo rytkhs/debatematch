@@ -178,6 +178,13 @@ class DebateOpponentMessageBuilder
         Debate $debate,
         string $currentTurnName
     ): array {
+        $evidenceAllowed = (bool) $debate->room->evidence_allowed;
+        $evidenceRuleKey = $language === 'japanese'
+            ? ($evidenceAllowed ? 'ai_prompts.components.evidence_rule_allowed_opponent_ja' : 'ai_prompts.components.evidence_rule_prohibited_opponent_ja')
+            : ($evidenceAllowed ? 'ai_prompts.components.evidence_rule_allowed_opponent_en' : 'ai_prompts.components.evidence_rule_prohibited_opponent_en');
+
+        $evidenceRuleText = Config::get($evidenceRuleKey, '');
+
         $replacements = [
             '{resolution}' => $topic,
             '{ai_side}' => $aiSideName,
@@ -186,6 +193,7 @@ class DebateOpponentMessageBuilder
                 ? '履歴は後続のメッセージに含まれます。'
                 : 'The transcript appears in subsequent messages.',
             '{character_limit}' => $characterLimit,
+            '{evidence_rule}' => $evidenceRuleText,
         ];
 
         if (!$isFreeFormat) {
@@ -302,7 +310,7 @@ class DebateOpponentMessageBuilder
             : 'ai_prompts.debate_ai_opponent_user_en';
     }
 
-    private function resolveHistoryMessages(Debate $debate, bool $isFreeFormat)
+    protected function resolveHistoryMessages(Debate $debate, bool $isFreeFormat)
     {
         $limit = $this->resolveHistoryLimit($isFreeFormat);
 
