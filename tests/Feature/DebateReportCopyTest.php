@@ -252,7 +252,7 @@ class DebateReportCopyTest extends TestCase
     public function test_page_displays_correctly_without_evaluation_data(): void
     {
         // 評価データを削除
-        $this->debate->evaluations()->delete();
+        $this->debate->debateEvaluation()->delete();
 
         $response = $this->actingAs($this->affirmativeUser)
             ->get(route('debate.result', $this->debate));

@@ -41,7 +41,7 @@ class DebateController extends Controller
 
     public function result(Debate $debate)
     {
-        $debate->load(['room', 'affirmativeUser', 'negativeUser', 'evaluations']);
+        $debate->load(['room', 'affirmativeUser', 'negativeUser', 'debateEvaluation']);
 
         // ユーザーがこのディベートの参加者であることを確認
         $user = Auth::user();
@@ -50,10 +50,10 @@ class DebateController extends Controller
         }
 
         // 評価データを取得
-        $evaluations = $debate->evaluations;
+        $evaluations = $debate->debateEvaluation;
 
         // メッセージデータを取得
-        $messages = $debate->messages()->with('user')->orderBy('created_at')->get();
+        $messages = $debate->debateMessages()->with('user')->orderBy('created_at')->get();
 
         // ターン情報を取得
         $turns = $this->debateService->getFormat($debate);

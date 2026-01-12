@@ -250,7 +250,7 @@ trait CreatesDebates
     {
         $this->assertEquals(
             $expectedCount,
-            $debate->messages()->count(),
+            $debate->debateMessages()->count(),
             "Debate should have {$expectedCount} messages"
         );
     }
@@ -260,7 +260,7 @@ trait CreatesDebates
      */
     protected function assertDebateHasEvaluation(Debate $debate): void
     {
-        $this->assertNotNull($debate->evaluations, 'Debate should have an evaluation');
+        $this->assertNotNull($debate->debateEvaluation, 'Debate should have an evaluation');
     }
 
     /**
@@ -268,10 +268,10 @@ trait CreatesDebates
      */
     protected function assertDebateWinner(Debate $debate, string $expectedWinner): void
     {
-        $this->assertNotNull($debate->evaluations, 'Debate should have an evaluation');
+        $this->assertNotNull($debate->debateEvaluation, 'Debate should have an evaluation');
         $this->assertEquals(
             $expectedWinner,
-            $debate->evaluations->winner,
+            $debate->debateEvaluation->winner,
             "Debate winner should be {$expectedWinner}"
         );
     }

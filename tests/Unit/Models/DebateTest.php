@@ -164,24 +164,24 @@ class DebateTest extends TestCase
         $this->assertNotNull($debate->fresh()->negativeUser->deleted_at);
     }
     #[Test]
-    public function test_messages_relationship()
+    public function test_debate_messages_relationship()
     {
         $debate = Debate::factory()->create();
         $message1 = DebateMessage::factory()->create(['debate_id' => $debate->id]);
         $message2 = DebateMessage::factory()->create(['debate_id' => $debate->id]);
 
-        $this->assertEquals(2, $debate->messages()->count());
-        $this->assertTrue($debate->messages->contains($message1));
-        $this->assertTrue($debate->messages->contains($message2));
+        $this->assertEquals(2, $debate->debateMessages()->count());
+        $this->assertTrue($debate->debateMessages->contains($message1));
+        $this->assertTrue($debate->debateMessages->contains($message2));
     }
     #[Test]
-    public function test_evaluations_relationship()
+    public function test_debate_evaluation_relationship()
     {
         $debate = Debate::factory()->create();
         $evaluation = DebateEvaluation::factory()->create(['debate_id' => $debate->id]);
 
-        $this->assertInstanceOf(DebateEvaluation::class, $debate->evaluations);
-        $this->assertEquals($evaluation->id, $debate->evaluations->id);
+        $this->assertInstanceOf(DebateEvaluation::class, $debate->debateEvaluation);
+        $this->assertEquals($evaluation->id, $debate->debateEvaluation->id);
     }
     #[Test]
     public function test_relationship_constraints()
@@ -261,14 +261,14 @@ class DebateTest extends TestCase
     {
         $debate = Debate::factory()->withMessages(3)->create();
 
-        $this->assertEquals(3, $debate->messages()->count());
+        $this->assertEquals(3, $debate->debateMessages()->count());
     }
     #[Test]
     public function test_factory_with_evaluation()
     {
         $debate = Debate::factory()->withEvaluation()->create();
 
-        $this->assertInstanceOf(DebateEvaluation::class, $debate->evaluations);
+        $this->assertInstanceOf(DebateEvaluation::class, $debate->debateEvaluation);
     }
 
     /**
@@ -312,8 +312,8 @@ class DebateTest extends TestCase
         $this->assertEquals($room->id, $debate->room->id);
         $this->assertEquals($affirmativeUser->id, $debate->affirmativeUser->id);
         $this->assertEquals($negativeUser->id, $debate->negativeUser->id);
-        $this->assertEquals(2, $debate->messages()->count());
-        $this->assertEquals(DebateEvaluation::WINNER_AFFIRMATIVE, $debate->evaluations->winner);
+        $this->assertEquals(2, $debate->debateMessages()->count());
+        $this->assertEquals(DebateEvaluation::WINNER_AFFIRMATIVE, $debate->debateEvaluation->winner);
     }
 
     /**

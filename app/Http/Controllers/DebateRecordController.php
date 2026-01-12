@@ -64,11 +64,11 @@ class DebateRecordController extends Controller
             return redirect()->back();
         }
 
-        $debate->load(['room.creator', 'affirmativeUser', 'negativeUser', 'messages.user', 'evaluations']);
-        $evaluations = $debate->evaluations;
+        $debate->load(['room.creator', 'affirmativeUser', 'negativeUser', 'debateMessages.user', 'debateEvaluation']);
+        $evaluations = $debate->debateEvaluation;
 
         // メッセージデータを取得
-        $messages = $debate->messages()->with('user')->orderBy('created_at')->get();
+        $messages = $debate->debateMessages()->with('user')->orderBy('created_at')->get();
 
         // ターン情報を取得
         $turns = $this->debateService->getFormat($debate);

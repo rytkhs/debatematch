@@ -307,7 +307,7 @@ class DebateOpponentMessageBuilder
         $limit = $this->resolveHistoryLimit($isFreeFormat);
 
         if ($limit > 0) {
-            return $debate->messages()
+            return $debate->debateMessages()
                 ->latest()
                 ->take($limit)
                 ->get()
@@ -315,7 +315,7 @@ class DebateOpponentMessageBuilder
                 ->values();
         }
 
-        return $debate->messages()
+        return $debate->debateMessages()
             ->orderBy('created_at')
             ->get();
     }

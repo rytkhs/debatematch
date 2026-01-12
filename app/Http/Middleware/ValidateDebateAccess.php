@@ -59,7 +59,7 @@ class ValidateDebateAccess
 
         // ディベート進行中以外の状態で debate.show にアクセスしようとした場合
         if ($request->routeIs('debate.show') && $room->status !== Room::STATUS_DEBATING) {
-            if ($room->status === Room::STATUS_FINISHED && $debate->evaluations) {
+            if ($room->status === Room::STATUS_FINISHED && $debate->debateEvaluation) {
                 return redirect()->route('debate.result', $debate)->with('info', __('flash.debate.show.finished'));
             }
             return redirect()->route('rooms.index')->with('error', __('flash.debate.invalid_state'));

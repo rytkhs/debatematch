@@ -33,7 +33,7 @@ class EvaluateDebateJob implements ShouldQueue
         try {
             Log::info('ディベート評価ジョブを開始', ['debate_id' => $this->debateId]);
 
-            $debate = Debate::with(['messages.user', 'affirmativeUser', 'negativeUser', 'room'])
+            $debate = Debate::with(['debateMessages.user', 'affirmativeUser', 'negativeUser', 'room'])
                 ->findOrFail($this->debateId);
 
             // AI評価サービスを呼び出し、評価データを取得

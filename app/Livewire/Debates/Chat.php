@@ -54,7 +54,7 @@ class Chat extends Component
 
     private function loadMessages(): void
     {
-        $query = $this->debate->messages()
+        $query = $this->debate->debateMessages()
             ->with('user')
             ->orderBy('created_at');
 
