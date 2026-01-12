@@ -12,9 +12,11 @@ class DebateForm
     {
         return $schema
             ->components([
-                TextInput::make('room_id')
-                    ->required()
-                    ->numeric(),
+                \Filament\Forms\Components\Select::make('room_id')
+                    ->relationship('room', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('affirmative_user_id')
                     ->numeric(),
                 TextInput::make('negative_user_id')

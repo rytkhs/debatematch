@@ -55,7 +55,7 @@
         </div>
 
         <!-- 評価フィードバック -->
-        @if($debate->evaluations)
+        @if($debate->debateEvaluation)
             <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-400">
                 <div class="flex items-start">
                     <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@
                     <div>
                         <p class="text-xs font-medium text-blue-800 mb-1">{{ __('records.ai_evaluation') }}</p>
                         <p class="text-sm text-blue-700 line-clamp-3">
-                            {{ Str::limit($isAffirmative ? $debate->evaluations->feedback_for_affirmative : $debate->evaluations->feedback_for_negative, 120) }}
+                            {{ Str::limit($isAffirmative ? $debate->debateEvaluation->feedback_for_affirmative : $debate->debateEvaluation->feedback_for_negative, 120) }}
                         </p>
                     </div>
                 </div>

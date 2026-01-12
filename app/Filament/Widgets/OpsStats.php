@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Filament\Widgets;
+
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Models\DebateEvaluation;
+use App\Models\Debate;
+use App\Models\DebateMessage;
+use App\Models\Room;
+use Carbon\Carbon;
+
+use Livewire\Attributes\Url;
+
+class OpsStats extends StatsOverviewWidget
+{
+    #[Url]
+    public ?string $range = '7d';
+
+    // Dashboard display order (lower is higher)
+    protected static ?int $sort = 1;
+
+    protected function getStats(): array
+    {
+        [$from, $label] = $this->range();
+
+        $rooms = Room::query()->whereNull('deleted_at')->where('created_at', '>=', $from)->count();
+        $debates = Debate::query()->whereNull('deleted_at')->where('created_at', '>=', $from)->count();
+        $messages = DebateMessage::query()->whereNull('deleted_at')->where('created_at', '>=', $from)->count();
+        $evaluations = DebateEvaluation::query()->whereNull('deleted_at')->where('created_at', '>=', $from)->count();
+
+        return [
+            Stat::make("Rooms ({$label})", $rooms),
+            Stat::make("Debates ({$label})", $debates),
+            Stat::make("Messages ({$label})", $messages),
+            Stat::make("Evaluations ({$label})", $evaluations),
+        ];
+    }
+
+    /**
+     * ?range=today|7d|30d
+     */
+    private function range(): array
+    {
+        return match ($this->range) {
+            'today' => [Carbon::today(), 'Today'],
+            '30d'   => [now()->subDays(30), '30d'],
+            default => [now()->subDays(7), '7d'],
+        };
+    }
+}

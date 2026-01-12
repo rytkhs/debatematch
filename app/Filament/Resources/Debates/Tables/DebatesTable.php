@@ -18,8 +18,9 @@ class DebatesTable
     {
         return $table
             ->columns([
-                TextColumn::make('room_id')
-                    ->numeric()
+                TextColumn::make('room.name')
+                    ->label('Room')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('affirmative_user_id')
                     ->numeric()
