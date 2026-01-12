@@ -21,7 +21,7 @@ class SNSController extends Controller
     public function sendNotification(string $message, string $subject = 'DebateMatch通知')
     {
         // トピックARNを環境変数から取得
-        $topicArn = env('AWS_SNS_NOTIFICATION_TOPIC_ARN');
+        $topicArn = Config::get('services.sns.notification_topic_arn');
 
         // トピックARNが設定されていない場合は処理終了
         if (!$topicArn) {

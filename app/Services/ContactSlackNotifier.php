@@ -13,8 +13,8 @@ class ContactSlackNotifier
 
     public function __construct()
     {
-        $this->webhookUrl = config('services.slack.webhook_url', env('SLACK_WEBHOOK_URL'));
-        $this->enabled = env('SLACK_NOTIFICATIONS_ENABLED', true);
+        $this->webhookUrl = config('services.slack.webhook_url');
+        $this->enabled = (bool) config('services.slack.enabled', true);
 
         if (!$this->enabled) {
             Log::info('Contact Slack通知は無効になっています。(SLACK_NOTIFICATIONS_ENABLED=false)');

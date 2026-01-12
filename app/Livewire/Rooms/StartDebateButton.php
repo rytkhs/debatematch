@@ -89,7 +89,7 @@ class StartDebateButton extends Component
             }
         }
 
-        return DB::transaction(function () {
+        DB::transaction(function () {
             // 肯定側と否定側のユーザーを取得
             $affirmativeUser = $this->room->users->firstWhere('pivot.side', 'affirmative');
             $negativeUser = $this->room->users->firstWhere('pivot.side', 'negative');
@@ -113,6 +113,8 @@ class StartDebateButton extends Component
 
             return;
         });
+
+        return;
     }
 
     public function render()

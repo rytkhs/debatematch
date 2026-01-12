@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
 
 class SlackNotifier
 {
@@ -13,8 +12,8 @@ class SlackNotifier
 
     public function __construct()
     {
-        $this->webhookUrl = Config::get('services.slack.webhook_url') ?: env('SLACK_WEBHOOK_URL');
-        $this->enabled = env('SLACK_NOTIFICATIONS_ENABLED', true);
+        $this->webhookUrl = config('services.slack.webhook_url');
+        $this->enabled = (bool) config('services.slack.enabled', true);
 
         if (empty($this->webhookUrl)) {
             Log::warning('Slack Webhook URLが設定されていません。(SLACK_WEBHOOK_URL)');
