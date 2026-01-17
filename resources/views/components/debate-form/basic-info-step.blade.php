@@ -15,7 +15,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <!-- 論題 -->
         <div class="md:col-span-2 required-field">
-            <label for="topic" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
+            <label for="topic" class="text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                 {{ __('rooms.topic') }}
                 <span class="text-red-500 ml-1 text-base">*</span>
                 <span class="ml-2 text-xs text-gray-500 bg-red-50 px-2 py-0.5 rounded-full">{{ __('common.required') }}</span>
@@ -31,13 +31,21 @@
                     <x-input-error :messages="$errors->get('topic')" class="mt-2" />
                 @endif
             </div>
-            <p class="mt-1 text-xs text-gray-500">{{ __('rooms.topic_guideline') }}</p>
+            <div class="mt-1 flex sm:flex-row sm:items-center justify-between gap-3">
+                <p class="text-xs text-gray-500 text-left sm:text-right">{{ __('rooms.topic_guideline') }}</p>
+                <button type="button"
+                        onclick="window.dispatchEvent(new CustomEvent('open-topic-catalog', { detail: { targetId: 'topic' } }))"
+                        class="inline-flex items-center px-3.5 py-1.5 text-xs sm:text-sm font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-full transition-colors border border-indigo-200 shadow-sm group">
+                    <span class="material-icons-outlined text-sm sm:mr-1.5 text-indigo-600 group-hover:text-indigo-800 transition-colors">tips_and_updates</span>
+                    <span class="hidden sm:inline">{{ __('topic_catalog.select_btn') ?? '論題を提案' }}</span>
+                </button>
+            </div>
         </div>
 
         @if($showRoomName)
             <!-- ルーム名 -->
             <div class="required-field">
-                <label for="name" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label for="name" class="text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                     {{ __('rooms.room_name') }}
                     <span class="text-red-500 ml-1 text-base">*</span>
                     <span class="ml-2 text-xs text-gray-500 bg-red-50 px-2 py-0.5 rounded-full">{{ __('common.required') }}</span>
@@ -58,7 +66,7 @@
 
         <!-- 言語設定 -->
         <div class="required-field {{ $showRoomName ? '' : 'md:col-span-1' }}">
-            <label for="language" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
+            <label for="language" class="text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                 {{ __('rooms.language') }}
                 <span class="text-red-500 ml-1 text-base">*</span>
                 <span class="ml-2 text-xs text-gray-500 bg-red-50 px-2 py-0.5 rounded-full">{{ __('common.required') }}</span>
@@ -102,6 +110,8 @@
             </div>
         @endif
     </div>
+
+<x-debate-form.topic-suggestion-modal />
 
     <!-- ステップ1のナビゲーション -->
     <div class="flex justify-end pt-4 border-t mt-6">

@@ -29,4 +29,5 @@ return [
     'view_guide' => 'View Guide',
     'error' => 'An error occurred.',
     'security_tips' => 'Security Tips',
+    'input' => 'Input',
 ];
