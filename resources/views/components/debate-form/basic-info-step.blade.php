@@ -14,7 +14,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <!-- 論題 -->
-        <div class="md:col-span-2 required-field">
+        <div class="md:col-span-2 required-field" x-data="{ topicInput: @js(old('topic', '')) }">
             <label for="topic" class="text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                 {{ __('rooms.topic') }}
                 <span class="text-red-500 ml-1 text-base">*</span>
@@ -24,21 +24,32 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <span class="material-icons-outlined text-gray-400 text-xs sm:text-sm">subject</span>
                 </div>
-                <input type="text" id="topic" name="topic" value="{{ old('topic') }}"
+                <input type="text" id="topic" name="topic" x-model="topicInput" value="{{ old('topic') }}"
                     placeholder="{{ __('rooms.placeholder_topic') }}" required
                     class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
                 @if($errors)
                     <x-input-error :messages="$errors->get('topic')" class="mt-2" />
                 @endif
             </div>
-            <div class="mt-1 flex sm:flex-row sm:items-center justify-between gap-3">
+            <div class="mt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <p class="text-xs text-gray-500 text-left sm:text-right">{{ __('rooms.topic_guideline') }}</p>
-                <button type="button"
-                        onclick="window.dispatchEvent(new CustomEvent('open-topic-catalog', { detail: { targetId: 'topic' } }))"
-                        class="inline-flex items-center px-3.5 py-1.5 text-xs sm:text-sm font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-full transition-colors border border-indigo-200 shadow-sm group">
-                    <span class="material-icons-outlined text-sm sm:mr-1.5 text-indigo-600 group-hover:text-indigo-800 transition-colors">tips_and_updates</span>
-                    <span class="hidden sm:inline">{{ __('topic_catalog.select_btn') ?? '論題を提案' }}</span>
-                </button>
+                <div class="flex gap-2">
+                    <button type="button"
+                            onclick="window.dispatchEvent(new CustomEvent('open-topic-catalog', { detail: { targetId: 'topic' } }))"
+                            class="inline-flex items-center px-3.5 py-1.5 text-xs sm:text-sm font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-full transition-colors border border-indigo-200 shadow-sm group">
+                        <span class="material-icons-outlined text-sm mr-1.5 text-indigo-600 group-hover:text-indigo-800 transition-colors">tips_and_updates</span>
+                        <span class="sm:hidden">{{ __('topic_catalog.ai.btn_suggestion_short') }}</span>
+                        <span class="hidden sm:inline">{{ __('topic_catalog.select_btn') ?? '論題を提案' }}</span>
+                    </button>
+                    <button type="button"
+                            :disabled="!topicInput || !topicInput.trim()"
+                            onclick="window.dispatchEvent(new CustomEvent('open-topic-insight', { detail: { targetId: 'topic' } }))"
+                            class="inline-flex items-center px-3.5 py-1.5 text-xs sm:text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors border border-purple-200 shadow-sm group disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-icons-outlined text-sm mr-1.5 text-purple-600 group-hover:text-purple-800 transition-colors">analytics</span>
+                        <span class="sm:hidden">{{ __('topic_catalog.ai.btn_insight_short') }}</span>
+                        <span class="hidden sm:inline">{{ __('topic_catalog.ai.btn_insight') ?? 'AI分析' }}</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -112,6 +123,7 @@
     </div>
 
 <x-debate-form.topic-suggestion-modal />
+<x-debate-form.topic-insight-modal />
 
     <!-- ステップ1のナビゲーション -->
     <div class="flex justify-end pt-4 border-t mt-6">

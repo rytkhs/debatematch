@@ -120,6 +120,12 @@ Route::middleware(['auth', 'verified', CheckUserActiveStatus::class])->prefix('a
     Route::post('/', [AIDebateController::class, 'store'])->name('store');
 });
 
+// AI論題生成API
+Route::middleware(['auth', 'verified', 'throttle:30,1'])->prefix('api')->group(function () {
+    Route::post('/topics/generate', [\App\Http\Controllers\Api\TopicSuggestionController::class, 'generate'])
+        ->name('api.topics.generate');
+});
+
 // pusher関連
 Route::post('/webhook/pusher', [PusherWebhookController::class, 'handle'])->withoutMiddleware([ValidateCsrfToken::class]);
 

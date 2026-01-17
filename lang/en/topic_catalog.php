@@ -19,6 +19,7 @@ return [
         'philosophy' => 'Philosophy & Ethics',
         'entertainment' => 'Entertainment & Hobbies',
         'lifestyle' => 'Lifestyle & Relationships',
+        'other' => 'Other',
     ],
 
     'difficulties' => [
@@ -131,5 +132,47 @@ return [
     ['category' => 'lifestyle', 'difficulty' => 'easy', 'text' => 'It is justifiable to prioritize financial status over personality when choosing a marriage partner.'],
     ['category' => 'lifestyle', 'difficulty' => 'normal', 'text' => 'The idea that "children should be raised at home until age three" (the 3-year-old myth) should be rejected.'],
     ['category' => 'lifestyle', 'difficulty' => 'normal', 'text' => 'Parents should refrain from publishing photos of their children on social media.'],
+    ],
+
+    // AI Features
+    'ai' => [
+        'tab_title' => '✨ Ask AI',
+        'section_title' => 'AI Topic Suggestions',
+        'section_description' => 'Enter keywords or themes, and AI will generate debate-appropriate topics for you.',
+        'keywords_label' => 'Keywords / Theme (Optional)',
+        'keywords_placeholder' => 'e.g., AI, education, environment...',
+        'category_label' => 'Category (Optional)',
+        'difficulty_label' => 'Difficulty (Optional)',
+        'generate_btn' => 'Generate Topics',
+        'generating' => 'Generating...',
+        'results_title' => 'Generated Topics',
+        'no_results' => 'No topics were generated. Please try different keywords.',
+        'try_again' => 'Regenerate',
+        'select_topic' => 'Select This Topic',
+        'rate_limit_exceeded' => 'Request limit exceeded. Please wait a moment.',
+        'generation_failed' => 'Failed to generate topics. Please try again.',
+        'error_model_unavailable' => 'The AI model is currently unavailable. Please try again later.',
+        'error_bad_request' => 'There was a problem with the request. Please check your input.',
+        'error_auth' => 'AI service authentication failed. Please contact the administrator.',
+        'error_server' => 'AI service is temporarily unavailable. Please try again later.',
+
+        // Topic Info
+        'info_title' => 'Topic Background',
+        'info_description' => 'Get explanations and key arguments for the topic.',
+        'get_info_btn' => 'Get Background Info',
+        'getting_info' => 'Loading...',
+        'info_topic' => 'Topic',
+        'info_description_label' => 'Description',
+        'info_affirmative_points' => 'Affirmative Arguments',
+        'info_negative_points' => 'Negative Arguments',
+
+
+        // Mode Switch
+        'mode_generate' => 'Generate New',
+        'get_info_btn' => 'Get Background Info',
+        'btn_insight' => 'AI Insight',
+        'btn_insight_short' => 'Analyze',
+        'btn_suggestion_short' => 'Suggest',
+        'analyze_btn' => 'Analyze',
     ],
 ];

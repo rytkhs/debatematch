@@ -19,6 +19,7 @@ return [
         'philosophy' => '倫理・哲学',
         'entertainment' => 'エンタメ・趣味',
         'lifestyle' => 'ライフスタイル・恋愛',
+        'other' => 'その他',
     ],
 
     'difficulties' => [
@@ -97,7 +98,7 @@ return [
     ['category' => 'business', 'difficulty' => 'easy', 'text' => '新卒で入社するなら、ベンチャー企業よりも大企業を選ぶべきである'],
     ['category' => 'business', 'difficulty' => 'easy', 'text' => '仕事選びにおいて、給料よりも「やりがい」を優先すべきである'],
     ['category' => 'business', 'difficulty' => 'easy', 'text' => '20代のうちは、貯金するよりも経験や娯楽にお金を使うべきである'],
-    ['category' => 'business', 'difficulty' => 'normal', 'text' => 'は週休3日制を導入すべきである'],
+    ['category' => 'business', 'difficulty' => 'normal', 'text' => '企業は週休3日制を導入すべきである'],
     ['category' => 'business', 'difficulty' => 'normal', 'text' => '政府は、コンビニエンスストアの深夜営業（24時間営業）を禁止すべきである'],
     ['category' => 'business', 'difficulty' => 'normal', 'text' => '企業は、原則としてリモートワークを導入すべきである'],
     ['category' => 'business', 'difficulty' => 'hard', 'text' => '政府は、消費税を廃止すべきである'],
@@ -174,5 +175,47 @@ return [
     ['category' => 'lifestyle', 'difficulty' => 'easy', 'text' => '結婚相手を選ぶ際、性格よりも経済力を重視することは正当化される'],
     ['category' => 'lifestyle', 'difficulty' => 'normal', 'text' => '「子供が3歳になるまでは家庭で育てるべき」という考え（3歳児神話）は否定されるべきである'],
     ['category' => 'lifestyle', 'difficulty' => 'normal', 'text' => '親は、子供の写真をSNSに公開することを控えるべきである'],
+    ],
+
+    // AI機能関連
+    'ai' => [
+        'tab_title' => '✨ AIに相談',
+        'section_title' => 'AIが論題を提案します',
+        'section_description' => 'キーワードやテーマを入力すると、AIがディベートに適した論題を生成します。',
+        'keywords_label' => 'キーワード・テーマ（任意）',
+        'keywords_placeholder' => '例: AI、教育、環境問題...',
+        'category_label' => 'カテゴリ（任意）',
+        'difficulty_label' => '難易度（任意）',
+        'generate_btn' => '論題を生成',
+        'generating' => '生成中...',
+        'results_title' => '生成された論題',
+        'no_results' => '論題が生成されませんでした。別のキーワードをお試しください。',
+        'try_again' => '再生成',
+        'select_topic' => 'この論題を選択',
+        'rate_limit_exceeded' => 'リクエスト回数の上限に達しました。しばらくお待ちください。',
+        'generation_failed' => '論題の生成に失敗しました。もう一度お試しください。',
+        'error_model_unavailable' => '現在AIモデルが利用できません。しばらく経ってから再度お試しください。',
+        'error_bad_request' => 'リクエストに問題がありました。入力内容を確認してください。',
+        'error_auth' => 'AI サービスの認証に失敗しました。管理者にお問い合わせください。',
+        'error_server' => 'AI サービスが一時的に利用できません。しばらく経ってから再度お試しください。',
+
+        // 背景情報機能
+        'info_title' => '論題の背景情報',
+        'info_description' => '論題についての解説や論点を確認できます。',
+        'get_info_btn' => '背景情報を取得',
+        'getting_info' => '取得中...',
+        'info_topic' => '論題',
+        'info_description_label' => '解説',
+        'info_affirmative_points' => '肯定側の論点',
+        'info_negative_points' => '否定側の論点',
+
+
+        // モード切替
+        'mode_generate' => '新規生成',
+        'mode_info' => '背景情報',
+        'btn_insight' => 'AI分析・背景',
+        'btn_insight_short' => '分析',
+        'btn_suggestion_short' => '提案',
+        'analyze_btn' => '分析する',
     ],
 ];
