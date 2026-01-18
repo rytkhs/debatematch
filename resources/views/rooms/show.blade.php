@@ -39,6 +39,7 @@
                 <div class="md:col-span-8 space-y-4 sm:space-y-6">
                     <!-- ルーム情報カード -->
                     <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-gray-100">
+                        @if($room->name)
                         <div
                             class="flex flex-col sm:flex-row sm:items-start justify-between mb-3 sm:mb-4 gap-2 sm:gap-0">
                             <div class="flex items-center space-x-2 sm:space-x-3">
@@ -49,6 +50,10 @@
                                     <h2 class="text-base sm:text-lg font-semibold">{{ $room->name }}</h2>
                                 </div>
                             </div>
+                        @else
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-start justify-between mb-3 sm:mb-4 gap-2 sm:gap-0">
+                        @endif
                             <div
                                 class="flex items-center space-x-2 sm:space-x-3">
                                 <div

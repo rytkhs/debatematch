@@ -71,7 +71,6 @@
             formats: @json($translatedFormats),
             requiredFields: [
                 { name: 'topic', message: "{{ __('forms.topic_required') }}" },
-                { name: 'name', message: "{{ __('forms.room_name_required') }}" },
                 { name: 'language', message: "{{ __('forms.language_required') }}" }
             ],
             translations: {

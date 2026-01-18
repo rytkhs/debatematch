@@ -58,15 +58,14 @@
             <div class="required-field">
                 <label for="name" class="text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                     {{ __('rooms.room_name') }}
-                    <span class="text-red-500 ml-1 text-base">*</span>
-                    <span class="ml-2 text-xs text-gray-500 bg-red-50 px-2 py-0.5 rounded-full">{{ __('common.required') }}</span>
+                    <span class="text-gray-500 text-xs bg-gray-100 px-2 py-0.5 rounded-full ml-2">({{ __('common.optional') }})</span>
                 </label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span class="material-icons-outlined text-gray-400 text-xs sm:text-sm">meeting_room</span>
                     </div>
                     <input type="text" id="name" name="name" value="{{ old('name') }}"
-                        placeholder="{{ __('rooms.placeholder_room_name') }}" required
+                        placeholder="{{ __('rooms.placeholder_room_name') }}"
                         class="pl-10 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-xs sm:text-sm border-gray-300 rounded-md transition-colors duration-200">
                     @if($errors)
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />

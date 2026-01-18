@@ -12,7 +12,7 @@ class RoomCreationRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'topic' => 'required|string|max:255',
             'side' => 'required|in:affirmative,negative',
             'remarks' => 'nullable|string|max:1000',

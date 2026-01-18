@@ -136,7 +136,7 @@ class RoomParticipationService
             // ルーム作成者の情報を取得
             $creator = $room->creator;
             $message = "ユーザーがルームに参加しました。\n"
-                . "ルーム名: {$room->name}\n"
+                . "ルーム名: " . ($room->name ?? $room->topic) . "\n"
                 . "参加者: {$user->name}\n"
                 . "ホスト: {$creator->name}\n"
                 . "マッチングが成立し、ディベートを開始できる状態になりました。";
