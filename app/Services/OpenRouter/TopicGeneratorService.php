@@ -2,8 +2,10 @@
 
 namespace App\Services\OpenRouter;
 
+use App\Models\AiFeatureLog;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -29,7 +31,20 @@ class TopicGeneratorService
         ?string $difficulty,
         string $language
     ): array {
+        $startTime = microtime(true);
+        $requestId = null;
+        $result = null;
+        $exception = null;
+
         try {
+            // ログエントリ作成（best-effort）
+            $requestId = $this->createLogEntry('topic_generate', [
+                'keywords' => $keywords,
+                'category' => $category,
+                'difficulty' => $difficulty,
+                'language' => $language,
+            ]);
+
             $payload = $this->messageBuilder->build('generate', [
                 'keywords' => $keywords,
                 'category' => $category,
@@ -43,6 +58,7 @@ class TopicGeneratorService
             ]);
 
             if (!$response['success']) {
+                $result = $response;
                 return $response;
             }
 
@@ -51,26 +67,56 @@ class TopicGeneratorService
             // topics配列の検証
             if (!isset($data['topics']) || !is_array($data['topics'])) {
                 Log::warning('Topic generation returned invalid format', ['data' => $data]);
-                return [
+                $result = [
                     'success' => false,
                     'error' => 'Invalid response format from AI',
                 ];
+                return $result;
             }
 
-            return [
+            $result = [
                 'success' => true,
                 'topics' => $data['topics'],
             ];
+            return $result;
         } catch (Throwable $e) {
             Log::error('Topic generation failed', [
                 'exception' => $e->getMessage(),
                 'keywords' => $keywords,
             ]);
 
-            return [
+            $exception = $e;
+            $result = [
                 'success' => false,
                 'error' => $e->getMessage(),
             ];
+            return $result;
+        } finally {
+            // ログ更新（best-effort、失敗しても本体処理に影響させない）
+            $durationMs = (int) ((microtime(true) - $startTime) * 1000);
+            $isSuccess = is_array($result) && (($result['success'] ?? false) === true);
+
+            if ($isSuccess) {
+                // 成功
+                $this->updateLogSuccess($requestId, [
+                    'topics' => $result['topics'] ?? [],
+                    'topics_count' => count($result['topics'] ?? []),
+                ], $durationMs);
+            } else {
+                // 失敗
+                $errorMessage = $exception?->getMessage();
+
+                if ($errorMessage === null && is_array($result)) {
+                    $errorMessage = $result['error'] ?? null;
+                }
+
+                $statusCode = is_array($result) ? ($result['status'] ?? null) : null;
+                if (!is_int($statusCode)) {
+                    $statusCode = null;
+                }
+
+                $this->updateLogFailure($requestId, $errorMessage ?? 'Unknown error', $statusCode, $durationMs);
+            }
         }
     }
 
@@ -79,7 +125,18 @@ class TopicGeneratorService
      */
     public function getTopicInfo(string $topic, string $language): array
     {
+        $startTime = microtime(true);
+        $requestId = null;
+        $result = null;
+        $exception = null;
+
         try {
+            // ログエントリ作成（best-effort）
+            $requestId = $this->createLogEntry('topic_info', [
+                'topic' => $topic,
+                'language' => $language,
+            ]);
+
             $payload = $this->messageBuilder->build('info', [
                 'topic' => $topic,
                 'language' => $language,
@@ -91,6 +148,7 @@ class TopicGeneratorService
             ]);
 
             if (!$response['success']) {
+                $result = $response;
                 return $response;
             }
 
@@ -98,26 +156,55 @@ class TopicGeneratorService
 
             if (!isset($data['info']) || !is_array($data['info'])) {
                 Log::warning('Topic info returned invalid format', ['data' => $data]);
-                return [
+                $result = [
                     'success' => false,
                     'error' => 'Invalid response format from AI',
                 ];
+                return $result;
             }
 
-            return [
+            $result = [
                 'success' => true,
                 'info' => $data['info'],
             ];
+            return $result;
         } catch (Throwable $e) {
             Log::error('Topic info retrieval failed', [
                 'exception' => $e->getMessage(),
                 'topic' => $topic,
             ]);
 
-            return [
+            $exception = $e;
+            $result = [
                 'success' => false,
                 'error' => $e->getMessage(),
             ];
+            return $result;
+        } finally {
+            // ログ更新（best-effort、失敗しても本体処理に影響させない）
+            $durationMs = (int) ((microtime(true) - $startTime) * 1000);
+            $isSuccess = is_array($result) && (($result['success'] ?? false) === true);
+
+            if ($isSuccess) {
+                // 成功
+                $this->updateLogSuccess($requestId, [
+                    'info' => $result['info'] ?? null,
+                ], $durationMs);
+            } else {
+                // 失敗
+                $errorMessage = $exception?->getMessage();
+
+                if ($errorMessage === null && is_array($result)) {
+                    $errorMessage = $result['error'] ?? null;
+                }
+
+                $statusCode = is_array($result) ? ($result['status'] ?? null) : null;
+                if (!is_int($statusCode)) {
+                    $statusCode = null;
+                }
+
+                $this->updateLogFailure($requestId, $errorMessage ?? 'Unknown error', $statusCode, $durationMs);
+            }
         }
     }
 
@@ -222,5 +309,98 @@ class TopicGeneratorService
             500, 502, 503 => __('topic_catalog.ai.error_server'),
             default => __('topic_catalog.ai.generation_failed'),
         };
+    }
+
+    /**
+     * ログエントリを作成（insert、status='processing'）
+     *
+     * @return string|null リクエストID（UUID）、失敗時はnull
+     */
+    private function createLogEntry(string $featureType, array $parameters): ?string
+    {
+        try {
+            $requestId = (string) Str::uuid();
+
+            AiFeatureLog::create([
+                'request_id' => $requestId,
+                'feature_type' => $featureType,
+                'status' => 'processing',
+                'user_id' => auth()->id(),
+                'parameters' => $parameters,
+                'started_at' => now(),
+            ]);
+
+            return $requestId;
+        } catch (Throwable $e) {
+            // ログ記録失敗は本体機能に影響させない
+            Log::warning('Failed to create AI feature log entry', [
+                'feature_type' => $featureType,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
+     * 成功時にログを更新
+     */
+    private function updateLogSuccess(?string $requestId, ?array $responseData, int $durationMs): void
+    {
+        if (!$requestId) {
+            return;
+        }
+
+        try {
+            // `where()->update()` は Eloquent casts を通らないため、JSON列は明示的にエンコードする
+            $encodedResponseData = null;
+            if ($responseData !== null) {
+                $encodedResponseData = json_encode($responseData, JSON_UNESCAPED_UNICODE);
+                if ($encodedResponseData === false) {
+                    $encodedResponseData = null;
+                }
+            }
+
+            AiFeatureLog::where('request_id', $requestId)->update([
+                'status' => 'success',
+                'response_data' => $encodedResponseData,
+                'finished_at' => now(),
+                'duration_ms' => $durationMs,
+            ]);
+        } catch (Throwable $e) {
+            Log::warning('Failed to update AI feature log (success)', [
+                'request_id' => $requestId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * 失敗時にログを更新
+     */
+    private function updateLogFailure(
+        ?string $requestId,
+        string $errorMessage,
+        ?int $statusCode,
+        int $durationMs
+    ): void {
+        if (!$requestId) {
+            return;
+        }
+
+        try {
+            AiFeatureLog::where('request_id', $requestId)->update([
+                'status' => 'failed',
+                'error_message' => $errorMessage,
+                'status_code' => $statusCode,
+                'finished_at' => now(),
+                'duration_ms' => $durationMs,
+            ]);
+        } catch (Throwable $e) {
+            Log::warning('Failed to update AI feature log (failure)', [
+                'request_id' => $requestId,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }
