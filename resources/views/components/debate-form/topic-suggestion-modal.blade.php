@@ -476,7 +476,7 @@
                     // 言語を判定
                     const language = document.documentElement.lang === 'en' ? 'english' : 'japanese';
 
-                    const response = await fetch('{{ route("api.topics.generate") }}', {
+                    const response = await fetch('{{ route("api.ai.topics.generate") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -484,7 +484,6 @@
                             'Accept': 'application/json',
                         },
                         body: JSON.stringify({
-                            type: 'generate',
                             keywords: this.aiKeywords || null,
                             category: this.aiCategory !== 'all' ? this.aiCategory : null,
                             difficulty: this.aiDifficulty !== 'all' ? this.aiDifficulty : null,

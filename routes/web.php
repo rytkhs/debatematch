@@ -120,10 +120,10 @@ Route::middleware(['auth', 'verified', CheckUserActiveStatus::class])->prefix('a
     Route::post('/', [AIDebateController::class, 'store'])->name('store');
 });
 
-// AI論題生成API
-Route::middleware(['auth', 'verified', 'throttle:30,1'])->prefix('api')->group(function () {
-    Route::post('/topics/generate', [\App\Http\Controllers\Api\TopicSuggestionController::class, 'generate'])
-        ->name('api.topics.generate');
+// AI論題生成・分析API
+Route::middleware(['auth', 'verified', 'throttle:30,1'])->prefix('api/ai/topics')->name('api.ai.topics.')->group(function () {
+    Route::post('/generate', [\App\Http\Controllers\Api\TopicAiController::class, 'generate'])->name('generate');
+    Route::post('/insight', [\App\Http\Controllers\Api\TopicAiController::class, 'insight'])->name('insight');
 });
 
 // pusher関連

@@ -227,7 +227,7 @@
                 try {
                     const language = document.documentElement.lang === 'en' ? 'english' : 'japanese';
 
-                    const response = await fetch('{{ route("api.topics.generate") }}', {
+                    const response = await fetch('{{ route("api.ai.topics.insight") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -235,8 +235,7 @@
                             'Accept': 'application/json',
                         },
                         body: JSON.stringify({
-                            type: 'info',
-                            base_topic: this.topic,
+                            topic: this.topic,
                             language: language,
                         }),
                         signal: this.abortController.signal,

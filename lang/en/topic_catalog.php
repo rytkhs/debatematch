@@ -151,6 +151,7 @@ return [
         'select_topic' => 'Select This Topic',
         'rate_limit_exceeded' => 'Request limit exceeded. Please wait a moment.',
         'generation_failed' => 'Failed to generate topics. Please try again.',
+        'base_topic_required' => 'Please enter a topic to analyze.',
         'error_model_unavailable' => 'The AI model is currently unavailable. Please try again later.',
         'error_bad_request' => 'There was a problem with the request. Please check your input.',
         'error_auth' => 'AI service authentication failed. Please contact the administrator.',

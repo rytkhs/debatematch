@@ -51,6 +51,8 @@ return [
         'api_key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_CHAT_MODEL', 'google/gemini-2.5-flash'),
         'evaluation_model' => env('OPENROUTER_EVALUATION_MODEL', 'google/gemini-2.5-flash'),
+        'topic_generation_model' => env('OPENROUTER_TOPIC_GENERATION_MODEL', 'qwen/qwen-2.5-7b-instruct'),
+        'topic_insight_model' => env('OPENROUTER_TOPIC_INSIGHT_MODEL', 'qwen/qwen-2.5-7b-instruct'),
         'referer' => config('app.url'),
         'title' => config('app.name'),
         'timeout_seconds' => env('OPENROUTER_TIMEOUT_SECONDS', 240),

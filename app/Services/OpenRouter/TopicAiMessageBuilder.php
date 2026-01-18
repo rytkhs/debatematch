@@ -5,9 +5,9 @@ namespace App\Services\OpenRouter;
 use Illuminate\Support\Facades\Config;
 
 /**
- * AIによる論題生成・カスタマイズ用のメッセージビルダー
+ * AIによる論題生成用のメッセージビルダー
  */
-class TopicGeneratorMessageBuilder
+class TopicAiMessageBuilder
 {
     /**
      * リクエストタイプに応じたペイロードを構築
@@ -35,7 +35,7 @@ class TopicGeneratorMessageBuilder
         $userPrompt = $this->getGenerateUserPrompt($language, $keywords, $category, $difficulty);
 
         return [
-            'model' => $this->getModel(),
+            'model' => $this->getModel('generate'),
             'messages' => [
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $userPrompt],
@@ -56,7 +56,7 @@ class TopicGeneratorMessageBuilder
         $userPrompt = $this->getInfoUserPrompt($language, $topic);
 
         return [
-            'model' => $this->getModel(),
+            'model' => $this->getModel('info'),
             'messages' => [
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $userPrompt],
@@ -65,9 +65,13 @@ class TopicGeneratorMessageBuilder
         ];
     }
 
-    private function getModel(): string
+    private function getModel(string $type): string
     {
-        return Config::get('services.openrouter.topic_generator_model', 'qwen/qwen-2.5-7b-instruct');
+        $configKey = $type === 'generate'
+            ? 'services.openrouter.topic_generation_model'
+            : 'services.openrouter.topic_insight_model';
+
+        return Config::get($configKey, 'qwen/qwen-2.5-7b-instruct');
     }
 
     // ========================================

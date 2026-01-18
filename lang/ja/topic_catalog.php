@@ -194,6 +194,7 @@ return [
         'select_topic' => 'この論題を選択',
         'rate_limit_exceeded' => 'リクエスト回数の上限に達しました。しばらくお待ちください。',
         'generation_failed' => '論題の生成に失敗しました。もう一度お試しください。',
+        'base_topic_required' => '分析する論題を入力してください。',
         'error_model_unavailable' => '現在AIモデルが利用できません。しばらく経ってから再度お試しください。',
         'error_bad_request' => 'リクエストに問題がありました。入力内容を確認してください。',
         'error_auth' => 'AI サービスの認証に失敗しました。管理者にお問い合わせください。',
