@@ -136,7 +136,7 @@ return [
 
     // AI Features
     'ai' => [
-        'tab_title' => '✨ Ask AI',
+        'tab_title' => 'Ask AI',
         'section_title' => 'AI Topic Suggestions',
         'section_description' => 'Enter keywords or themes, and AI will generate debate-appropriate topics for you.',
         'keywords_label' => 'Keywords / Theme (Optional)',

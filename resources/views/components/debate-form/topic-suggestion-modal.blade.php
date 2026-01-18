@@ -61,6 +61,7 @@
                     <button @click="viewMode = 'ai'" type="button"
                             :class="viewMode === 'ai' ? 'border-indigo-500 text-indigo-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
                             class="px-4 py-2 text-sm font-medium border-b-2 rounded-t-lg transition-colors">
+                        <span class="material-icons-outlined text-sm align-middle mr-1">auto_awesome</span>
                         {{ __('topic_catalog.ai.tab_title') }}
                     </button>
                 </div>
