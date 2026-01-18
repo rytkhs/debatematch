@@ -28,13 +28,13 @@ class AnalyzeTopicRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        // Allow `base_topic` input effectively mapping to `topic` for backward compat if I wanted,
-        // but since we are changing frontend, let's enforce `topic`.
-        // However, let's also sanitize.
         if ($this->has('topic')) {
-            $this->merge([
-                'topic' => $this->sanitizeInput($this->input('topic')),
-            ]);
+            $topic = $this->input('topic');
+            if (is_string($topic)) {
+                $this->merge([
+                    'topic' => $this->sanitizeInput($topic),
+                ]);
+            }
         }
     }
 

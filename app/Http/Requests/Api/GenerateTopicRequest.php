@@ -24,9 +24,12 @@ class GenerateTopicRequest extends FormRequest
     protected function prepareForValidation()
     {
         if ($this->has('keywords')) {
-            $this->merge([
-                'keywords' => $this->sanitizeInput($this->input('keywords')),
-            ]);
+            $keywords = $this->input('keywords');
+            if (is_string($keywords)) {
+                $this->merge([
+                    'keywords' => $this->sanitizeInput($keywords),
+                ]);
+            }
         }
     }
 
