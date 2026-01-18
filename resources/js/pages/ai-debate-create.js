@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // フォーム設定を構築
     const config = {
-        formType: 'room',
-        formSelector: '#room-create-form',
+        formType: 'ai',
+        formSelector: '#ai-debate-create-form',
         ...formConfig,
     };
 
