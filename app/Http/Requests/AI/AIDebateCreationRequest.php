@@ -33,7 +33,7 @@ class AIDebateCreationRequest extends FormRequest
         // フリーフォーマットの場合の追加ルール
         if ($this->input('format_type') === 'free') {
             $rules = array_merge($rules, [
-                'turn_duration' => 'required|integer|min:1|max:10',
+                'turn_duration' => 'required|integer|min:1|max:15',
                 'max_turns' => 'required|integer|min:2|max:100',
             ]);
         }

@@ -133,10 +133,7 @@
             </div>
 
             <!-- フッター -->
-            <div class="px-6 py-3 border-t border-gray-200 bg-white rounded-b-xl flex justify-between items-center">
-                <div class="text-xs text-gray-400">
-                    Powered by AI
-                </div>
+            <div class="px-6 py-3 border-t border-gray-200 bg-white rounded-b-xl flex justify-end items-center">
                 <div class="flex gap-3">
                     <button @click="useAsTopic()"
                             x-show="result && topic !== initialTopic"

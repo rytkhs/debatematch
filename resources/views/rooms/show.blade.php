@@ -200,9 +200,8 @@
     <!-- 接続状態アラート -->
     <livewire:connection-status :room="$room" />
 
-    <!-- カウントダウンオーバーレイ -->
     <div id="countdown-overlay"
-        class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center">
         <div class="bg-white rounded-lg p-5 sm:p-8 text-center max-w-md mx-auto">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">{{ __('rooms.starting_debate_title')
                 }}</h2>
