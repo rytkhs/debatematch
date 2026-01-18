@@ -38,6 +38,9 @@
                               x-text="viewMode === 'suggestion' ? 'tips_and_updates' : (viewMode === 'catalog' ? 'library_books' : 'auto_awesome')"></span>
                         <h3 class="text-lg font-bold text-gray-900"
                             x-text="viewMode === 'suggestion' ? '{{ __('topic_catalog.suggestion_title') }}' : (viewMode === 'catalog' ? '{{ __('topic_catalog.title') }}' : '{{ __('topic_catalog.ai.section_title') }}')"></h3>
+                        <template x-if="viewMode === 'ai'">
+                            <span class="ml-2 px-1 py-0.5 text-[10px] font-bold leading-none text-white bg-indigo-500 rounded-full uppercase">Beta</span>
+                        </template>
                     </div>
                     <button @click="closeModal()" type="button" class="text-gray-400 hover:text-gray-500 transition-colors">
                         <span class="material-icons-outlined">close</span>
@@ -60,9 +63,10 @@
                     </button>
                     <button @click="viewMode = 'ai'" type="button"
                             :class="viewMode === 'ai' ? 'border-indigo-500 text-indigo-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
-                            class="px-4 py-2 text-sm font-medium border-b-2 rounded-t-lg transition-colors">
+                            class="px-4 py-2 text-sm font-medium border-b-2 rounded-t-lg transition-colors flex items-center">
                         <span class="material-icons-outlined text-sm align-middle mr-1">auto_awesome</span>
                         {{ __('topic_catalog.ai.tab_title') }}
+                        <span class="ml-1.5 px-1 py-0.5 text-[8px] font-bold leading-none text-white bg-indigo-500 rounded-full uppercase">Beta</span>
                     </button>
                 </div>
             </div>
@@ -317,6 +321,14 @@
                     <div x-show="aiResults.length === 0 && !aiLoading && aiHasSearched" x-cloak class="text-center py-8">
                         <span class="material-icons-outlined text-4xl text-gray-300 mb-2">search_off</span>
                         <p class="text-gray-500">{{ __('topic_catalog.ai.no_results') }}</p>
+                    </div>
+
+                    <!-- AIに関する注意書き -->
+                    <div class="mt-8 pt-4 border-t border-gray-100">
+                        <div class="flex items-center gap-1.5 text-gray-400">
+                            <span class="material-icons-outlined text-[14px]">info</span>
+                            <p class="text-[11px]">{{ __('topic_catalog.ai.caution') }}</p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -218,5 +218,6 @@ return [
         'btn_insight_short' => '分析',
         'btn_suggestion_short' => '提案',
         'analyze_btn' => '分析する',
+        'caution' => 'AI生成の結果は必ずしも正確ではありません。参考情報としてご利用ください。',
     ],
 ];

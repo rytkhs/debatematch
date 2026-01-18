@@ -34,7 +34,10 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex items-center justify-between">
                 <div class="flex items-center">
                     <span class="material-icons-outlined text-purple-600 mr-2">analytics</span>
-                    <h3 class="text-lg font-bold text-gray-900">{{ __('topic_catalog.ai.info_title') ?? '論題分析・インサイト' }}</h3>
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center">
+                        {{ __('topic_catalog.ai.info_title') ?? '論題分析・インサイト' }}
+                        <span class="ml-2 px-1 py-0.5 text-[10px] font-bold leading-none text-white bg-purple-500 rounded-full uppercase">Beta</span>
+                    </h3>
                 </div>
                 <button @click="closeModal()" type="button" class="text-gray-400 hover:text-gray-500 transition-colors">
                     <span class="material-icons-outlined">close</span>
@@ -129,6 +132,14 @@
                 <!-- 結果なし (初期状態以外で結果がnullの場合) -->
                 <div x-show="!isLoading && !result && !error && topic" x-cloak class="text-center py-10 text-gray-500">
                      <p>分析ボタンを押して情報の取得を開始してください。</p>
+                </div>
+
+                <!-- AIに関する注意書き -->
+                <div class="mt-8 pt-4 border-t border-gray-100">
+                    <div class="flex items-center gap-1.5 text-gray-400">
+                        <span class="material-icons-outlined text-[14px]">info</span>
+                        <p class="text-[11px]">{{ __('topic_catalog.ai.caution') }}</p>
+                    </div>
                 </div>
             </div>
 

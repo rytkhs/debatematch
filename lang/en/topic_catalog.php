@@ -175,5 +175,6 @@ return [
         'btn_insight_short' => 'Analyze',
         'btn_suggestion_short' => 'Suggest',
         'analyze_btn' => 'Analyze',
+        'caution' => 'AI-generated results may not be accurate. Use them for reference only.',
     ],
 ];
