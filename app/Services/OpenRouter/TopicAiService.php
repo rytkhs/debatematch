@@ -176,19 +176,10 @@ class TopicAiService
     private function callApi(array $payload, array $context = []): array
     {
         $options = [
-            'timeout_seconds' => (int) Config::get(
-                'services.openrouter.topic_generator_timeout',
-                self::DEFAULT_TIMEOUT_SECONDS
-            ),
+            'timeout_seconds' => (int) Config::get('services.openrouter.topic_generator_timeout'),
             'max_attempts' => 2,
-            'temperature' => (float) Config::get(
-                'services.openrouter.topic_generator_temperature',
-                self::DEFAULT_TEMPERATURE
-            ),
-            'max_tokens' => (int) Config::get(
-                'services.openrouter.topic_generator_max_tokens',
-                self::DEFAULT_MAX_TOKENS
-            ),
+            'temperature' => (float) Config::get('services.openrouter.topic_generator_temperature'),
+            'max_tokens' => (int) Config::get('services.openrouter.topic_generator_max_tokens'),
         ];
 
         $response = $this->client->chatCompletions($payload, $options, $context);
