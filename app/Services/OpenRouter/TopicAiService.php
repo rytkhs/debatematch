@@ -251,7 +251,7 @@ class TopicAiService
     private function getErrorMessage(int $status, ?array $jsonBody): string
     {
         // OpenRouterからのエラーメッセージを取得
-        $providerMessage = $jsonBody['error']['message'] ?? null;
+        $providerMessage = data_get($jsonBody, 'error.message');
 
         // 特定のエラーパターンをチェック
         if ($providerMessage) {
