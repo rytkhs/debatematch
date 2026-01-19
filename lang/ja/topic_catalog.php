@@ -179,7 +179,7 @@ return [
 
     // AI機能関連
     'ai' => [
-        'tab_title' => 'AIに相談',
+        'tab_title' => 'AI 提案',
         'section_title' => 'AIが論題を提案します',
         'section_description' => 'キーワードやテーマを入力すると、AIがディベートに適した論題を生成します。',
         'keywords_label' => 'キーワード・テーマ（任意）',
@@ -218,5 +218,6 @@ return [
         'btn_insight_short' => '分析',
         'btn_suggestion_short' => '提案',
         'analyze_btn' => '分析する',
+        'caution' => 'AI生成の結果は必ずしも正確ではありません。参考情報としてご利用ください。',
     ],
 ];

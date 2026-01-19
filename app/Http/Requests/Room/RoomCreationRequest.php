@@ -12,7 +12,7 @@ class RoomCreationRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'topic' => 'required|string|max:255',
             'side' => 'required|in:affirmative,negative',
             'remarks' => 'nullable|string|max:1000',
@@ -36,7 +36,7 @@ class RoomCreationRequest extends FormRequest
         // フリーフォーマットの場合の追加ルール
         if ($this->input('format_type') === 'free') {
             $rules = array_merge($rules, [
-                'turn_duration' => 'required|integer|min:1|max:10',
+                'turn_duration' => 'required|integer|min:1|max:15',
                 'max_turns' => 'required|integer|min:2|max:100',
             ]);
         }

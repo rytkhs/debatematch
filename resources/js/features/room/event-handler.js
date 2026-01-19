@@ -130,6 +130,7 @@ export class RoomEventHandler {
         const overlay = document.getElementById('countdown-overlay');
         if (overlay) {
             overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
         }
     }
 }

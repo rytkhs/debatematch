@@ -72,7 +72,7 @@ class RoomCreationService
     private function sendSlackNotification(Room $room, User $creator): void
     {
         $message = "新しいルームが作成されました。\n"
-            . "ルーム名: {$room->name}\n"
+            . "ルーム名: " . ($room->name ?? $room->topic) . "\n"
             . "トピック: {$room->topic}\n"
             . "作成者: {$creator->name}\n"
             . "URL: " . route('rooms.preview', $room);

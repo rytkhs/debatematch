@@ -16,13 +16,13 @@
                         <!-- ルームヘッダー -->
                         <div class="p-3 sm:p-5 border-b border-gray-100">
                             <div class="flex justify-between items-start mb-2 sm:mb-3">
-                                <div class="flex items-center space-x-1 sm:space-x-2">
+                                @if($room->name)
                                     <span class="font-medium text-primary bg-primary-light py-0.5 sm:py-1 px-2 sm:px-3 rounded-full text-xs sm:text-sm flex items-center">
                                         <span class="material-icons-outlined text-primary mr-1 text-xs sm:text-sm">meeting_room</span>
                                         <span>{{ $room->name }}</span>
                                     </span>
-                                    <livewire:rooms.status :room="$room" />
-                                </div>
+                                @endif
+                                <livewire:rooms.status :room="$room" />
                                 <div class="flex items-center">
                                     <span class="bg-gray-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs text-gray-500 mr-1 sm:mr-2">
                                         {{ $room->language === 'japanese' ? __('rooms.language_ja') : __('rooms.language_en') }}
