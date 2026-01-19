@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine AS base
+FROM php:8.5.0RC2-fpm-alpine AS base
 
 ENV PHP_INI_DIR /usr/local/etc/php
 ENV TZ Asia/Tokyo
