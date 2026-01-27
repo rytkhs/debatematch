@@ -110,12 +110,12 @@ class ConnectionLog extends Model
     {
         // 接続中の場合は現在時刻までの時間を計算
         if ($this->status === ConnectionStatus::CONNECTED) {
-            return $this->connected_at ? $this->connected_at->diffInSeconds(now()) : null;
+            return $this->connected_at ? (int) $this->connected_at->diffInSeconds(now()) : null;
         }
 
         // 切断された場合は接続から切断までの時間を計算
         if ($this->disconnected_at && $this->connected_at) {
-            return $this->connected_at->diffInSeconds($this->disconnected_at);
+            return (int) $this->connected_at->diffInSeconds($this->disconnected_at);
         }
 
         return null;
@@ -128,7 +128,7 @@ class ConnectionLog extends Model
      * @param int $userId
      * @param string $contextType
      * @param int $contextId
-     * @return ConnectionLog
+     * @return ConnectionLog|null
      */
     public static function recordInitialConnection($userId, $contextType, $contextId)
     {
