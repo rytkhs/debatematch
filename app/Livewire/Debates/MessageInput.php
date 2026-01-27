@@ -77,7 +77,7 @@ class MessageInput extends Component
     public function sendMessage(): void
     {
         // ディベートが存在するか、進行中かをチェック
-        if (!$this->debate || !$this->debate->room || $this->debate->room->status !== Room::STATUS_DEBATING) {
+        if (!$this->debate->room || $this->debate->room->status !== Room::STATUS_DEBATING) {
             return;
         }
 

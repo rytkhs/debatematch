@@ -35,11 +35,11 @@ class CheckUserActiveStatus
         ];
 
         // 除外ルートにマッチする場合は処理を終了
-        foreach ($excludedRoutes as $route) {
-            if ($request->is($route)) {
-                return $next($request);
-            }
-        }
+        // foreach ($excludedRoutes as $route) {
+        //     if ($request->is($route)) {
+        //         return $next($request);
+        //     }
+        // }
 
         // ディベート中かチェック
         $activeDebate = $this->getActiveDebate($user);
