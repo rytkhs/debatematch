@@ -71,7 +71,7 @@ class StartDebateButton extends Component
         }
 
         // すでにディベートが開始されているか確認
-        if ($this->room->status !== 'ready') {
+        if ($this->room->status !== Room::STATUS_READY) {
             session()->flash('error', __('flash.start_debate.error.already_started'));
             return;
         }
