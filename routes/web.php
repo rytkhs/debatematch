@@ -115,13 +115,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // AIディベートルート
-Route::middleware(['auth', 'verified', CheckUserActiveStatus::class])->prefix('ai/debate')->name('ai.debate.')->group(function () {
+Route::middleware(['auth', 'verified', CheckUserActiveStatus::class, 'throttle:10,60'])->prefix('ai/debate')->name('ai.debate.')->group(function () {
     Route::get('/create', [AIDebateController::class, 'create'])->name('create');
     Route::post('/', [AIDebateController::class, 'store'])->name('store');
 });
 
 // AI論題生成・分析API
-Route::middleware(['auth', 'verified', 'throttle:30,1'])->prefix('api/ai/topics')->name('api.ai.topics.')->group(function () {
+Route::middleware(['auth', 'verified', 'throttle:10,1'])->prefix('api/ai/topics')->name('api.ai.topics.')->group(function () {
     Route::post('/generate', [\App\Http\Controllers\Api\TopicAiController::class, 'generate'])->name('generate');
     Route::post('/insight', [\App\Http\Controllers\Api\TopicAiController::class, 'insight'])->name('insight');
 });
@@ -154,7 +154,9 @@ Route::post('/api/heartbeat', [HeartbeatController::class, 'store'])
 // 言語切り替えルート
 Route::get('language/{locale}', [LocaleController::class, 'changeLocale'])->name('language.switch');
 
-Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])
+    ->middleware('throttle:30,1')
+    ->name('auth.google');
 Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 require __DIR__ . '/auth.php';

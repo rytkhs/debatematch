@@ -11,8 +11,8 @@ class OtpService implements OtpServiceInterface
 {
     private const OTP_LENGTH = 6;
     private const OTP_TTL = 600; // 10分間（秒）
-    private const RATE_LIMIT_TTL = 900; // 15分間（秒）
-    private const MAX_REQUESTS_PER_PERIOD = 3;
+    private const RATE_LIMIT_TTL = 300; // 5分間（秒）
+    private const MAX_REQUESTS_PER_PERIOD = 5;
     private const MAX_FAILURES = 5;
 
     private const CACHE_KEY_OTP = 'otp:%s:code';

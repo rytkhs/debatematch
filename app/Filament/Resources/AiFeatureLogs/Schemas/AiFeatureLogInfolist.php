@@ -55,7 +55,7 @@ class AiFeatureLogInfolist
                             ->columnSpanFull()
                             ->formatStateUsing(fn ($state) => $state), // Ensure simple text
                     ])
-                    ->visible(fn ($record) => $record?->status === 'failed' || !empty($record?->error_message)),
+                    ->visible(fn ($record) => $record->status === 'failed' || !empty($record->error_message)),
 
                 Section::make('Payloads')
                     ->schema([

@@ -110,12 +110,12 @@ class ConnectionLog extends Model
     {
         // 接続中の場合は現在時刻までの時間を計算
         if ($this->status === ConnectionStatus::CONNECTED) {
-            return $this->connected_at ? $this->connected_at->diffInSeconds(now()) : null;
+            return $this->connected_at ? (int) $this->connected_at->diffInSeconds(now()) : null;
         }
 
         // 切断された場合は接続から切断までの時間を計算
         if ($this->disconnected_at && $this->connected_at) {
-            return $this->connected_at->diffInSeconds($this->disconnected_at);
+            return (int) $this->connected_at->diffInSeconds($this->disconnected_at);
         }
 
         return null;
@@ -128,7 +128,7 @@ class ConnectionLog extends Model
      * @param int $userId
      * @param string $contextType
      * @param int $contextId
-     * @return ConnectionLog
+     * @return ConnectionLog|null
      */
     public static function recordInitialConnection($userId, $contextType, $contextId)
     {
@@ -339,17 +339,6 @@ class ConnectionLog extends Model
                         'disconnection_duration' => $log->metadata['disconnection_duration'] ?? null,
                         'reconnected_at' => $log->reconnected_at,
                     ];
-                } elseif ($currentSession['status'] === 'disconnected') {
-                    // 確定切断後の再接続は新しいセッションとして扱う
-                    $sessions[] = $currentSession;
-                    $currentSession = [
-                        'start' => $log->connected_at ?? $log->created_at,
-                        'end' => null,
-                        'status' => 'connected',
-                        'logs' => [],
-                        'disconnection_duration' => $log->metadata['disconnection_duration'] ?? null,
-                        'reconnected_at' => $log->reconnected_at,
-                    ];
                 } else {
                     // 一時切断からの復帰
                     $currentSession['status'] = 'connected';
@@ -374,11 +363,11 @@ class ConnectionLog extends Model
                     ];
                 }
                 $currentSession['logs'][] = $log;
-            } elseif ($log->status === ConnectionStatus::DISCONNECTED) {
+            } elseif ($log->status === ConnectionStatus::DISCONNECTED || $log->status === ConnectionStatus::GRACEFULLY_DISCONNECTED) {
                 if ($currentSession !== null) {
-                    $currentSession['status'] = 'disconnected';
+                    $currentSession['status'] = $log->status;
                     // finalized_at があればそれを終了時刻とするのがより正確
-                    $currentSession['end'] = $log->metadata['finalized_at'] ? Carbon::parse($log->metadata['finalized_at']) : $log->created_at;
+                    $currentSession['end'] = ($log->metadata['finalized_at'] ?? null) ? Carbon::parse($log->metadata['finalized_at']) : $log->created_at;
                     $currentSession['disconnected_at'] = $currentSession['disconnected_at'] ?? $log->disconnected_at ?? $log->created_at; // 切断時刻
                     $currentSession['logs'][] = $log;
                     $sessions[] = $currentSession;
@@ -387,8 +376,8 @@ class ConnectionLog extends Model
                     // 孤立した切断確定ログ
                     $sessions[] = [
                         'start' => null,
-                        'end' => $log->metadata['finalized_at'] ? Carbon::parse($log->metadata['finalized_at']) : $log->created_at,
-                        'status' => 'disconnected',
+                        'end' => ($log->metadata['finalized_at'] ?? null) ? Carbon::parse($log->metadata['finalized_at']) : $log->created_at,
+                        'status' => $log->status,
                         'disconnected_at' => $log->disconnected_at ?? $log->created_at,
                         'logs' => [$log],
                     ];

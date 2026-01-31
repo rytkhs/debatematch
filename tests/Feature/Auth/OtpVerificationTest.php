@@ -70,7 +70,7 @@ class OtpVerificationTest extends TestCase
     public function test_otp_verification_with_valid_code_succeeds(): void
     {
         Event::fake();
-        
+
         $user = User::factory()->unverified()->create();
         $validOtp = '123456';
 
@@ -242,7 +242,7 @@ class OtpVerificationTest extends TestCase
     public function test_otp_verification_handles_general_exception(): void
     {
         Log::shouldReceive('error')->once();
-        
+
         $user = User::factory()->unverified()->create();
         $otp = '123456';
 
@@ -381,7 +381,7 @@ class OtpVerificationTest extends TestCase
     public function test_otp_resend_handles_general_exception(): void
     {
         Log::shouldReceive('error')->once();
-        
+
         $user = User::factory()->unverified()->create();
 
         // Mock OTP service to throw general exception
@@ -450,7 +450,7 @@ class OtpVerificationTest extends TestCase
             $response = $this->actingAs($user)->post('/verify-email', [
                 'otp' => '000000'
             ]);
-            
+
             if ($i < 5) {
                 $response->assertStatus(302); // Should redirect back with error
             }
@@ -475,13 +475,13 @@ class OtpVerificationTest extends TestCase
             $mock->shouldReceive('sendOtp');
         });
 
-        // Make 3 rapid requests (throttle limit is 3 per 15 minutes)
-        for ($i = 0; $i < 3; $i++) {
+        // Make 5 rapid requests (throttle limit is 5 per 5 minutes)
+        for ($i = 0; $i < 5; $i++) {
             $response = $this->actingAs($user)->post('/email/verification-notification');
             $response->assertStatus(302); // Should redirect back with success
         }
 
-        // 4th request should be throttled
+        // 6th request should be throttled
         $response = $this->actingAs($user)->post('/email/verification-notification');
         $response->assertStatus(429); // Too Many Requests
     }
@@ -542,7 +542,7 @@ class OtpVerificationTest extends TestCase
     public function test_otp_verification_integrates_with_user_model(): void
     {
         Event::fake();
-        
+
         $user = User::factory()->unverified()->create();
         $this->assertFalse($user->hasVerifiedEmail());
         $this->assertNull($user->email_verified_at);
@@ -557,7 +557,7 @@ class OtpVerificationTest extends TestCase
         $user->refresh();
         $this->assertTrue($user->hasVerifiedEmail());
         $this->assertNotNull($user->email_verified_at);
-        
+
         Event::assertDispatched(Verified::class, function ($event) use ($user) {
             return $event->user->id === $user->id;
         });
