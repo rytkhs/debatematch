@@ -23,6 +23,7 @@
         "laravel/socialite": "^5.19",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
+        "resend/resend-laravel": "^1.1",
         "sentry/sentry-laravel": "^4.13"
     },
     "require-dev": {
