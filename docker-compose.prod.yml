@@ -68,6 +68,7 @@ services:
       - sail
     depends_on:
       - redis
+      - mysql
     logging: &awslogs_config
       driver: "awslogs"
       options:
@@ -152,6 +153,7 @@ services:
     depends_on:
       - app
       - redis
+      - mysql
     logging:
       <<: *awslogs_config
       options:
@@ -177,6 +179,32 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  mysql:
+    image: mysql:8.4.5
+    container_name: debate_match_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Tokyo
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --sql-mode=NO_ENGINE_SUBSTITUTION
+    volumes:
+      - /home/ec2-user/app/data/mysql:/var/lib/mysql
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+    - "127.0.0.1:3306:3306"
 
 networks:
   sail:
