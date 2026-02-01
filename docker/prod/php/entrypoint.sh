@@ -18,6 +18,12 @@ if [ -d /opt/public-src ]; then
     rm -rf /var/www/html/public/* || true
     cp -a /opt/public-src/. /var/www/html/public/
   fi
+
+  if [ -d /opt/public-src/build ]; then
+    rm -rf /var/www/html/public/build || true
+    mkdir -p /var/www/html/public/build
+    cp -a /opt/public-src/build/. /var/www/html/public/build/
+  fi
 fi
 
 # public/storage を storage/app/public へリンク
@@ -30,7 +36,6 @@ if [ "$(id -u)" = "0" ]; then
   chmod -R ug+rwX storage bootstrap/cache
   chmod -R a+rX public
   exec /usr/local/bin/docker-php-entrypoint "$@"
-
 else
   exec /usr/local/bin/docker-php-entrypoint "$@"
 fi
